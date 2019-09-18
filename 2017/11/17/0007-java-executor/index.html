@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Concurrent,Executor,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背景大多数并发应用程序都是围绕“任务执行（Task Execution）”来构造的：任务通常是些抽象且离散的工作单元。任务执行时应该选择清晰的任务边界以及明确的任务执行策略。执行策略有如下几种：    串行执行在多任务中执行性能太差，只能一个个顺序处理，无法提高吞吐率或快速响应性     显示创建线程new Thread(task).start()：显示创建。但是大量创建会有如下问题：线程生命周期">
+<meta name="keywords" content="Java,Concurrent,Executor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Executor 框架">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/17/0007-java-executor/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="背景大多数并发应用程序都是围绕“任务执行（Task Execution）”来构造的：任务通常是些抽象且离散的工作单元。任务执行时应该选择清晰的任务边界以及明确的任务执行策略。执行策略有如下几种：    串行执行在多任务中执行性能太差，只能一个个顺序处理，无法提高吞吐率或快速响应性     显示创建线程new Thread(task).start()：显示创建。但是大量创建会有如下问题：线程生命周期">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0007-java-executor-Executor-framework.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0007-java-executor-future-task-class.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.335Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java Executor 框架">
+<meta name="twitter:description" content="背景大多数并发应用程序都是围绕“任务执行（Task Execution）”来构造的：任务通常是些抽象且离散的工作单元。任务执行时应该选择清晰的任务边界以及明确的任务执行策略。执行策略有如下几种：    串行执行在多任务中执行性能太差，只能一个个顺序处理，无法提高吞吐率或快速响应性     显示创建线程new Thread(task).start()：显示创建。但是大量创建会有如下问题：线程生命周期">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0007-java-executor-Executor-framework.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/17/0007-java-executor/">
+
+
+
+
+
+  <title>Java Executor 框架 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/17/0007-java-executor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java Executor 框架</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-17T18:00:00+08:00">
+                2017-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>大多数并发应用程序都是围绕“任务执行（<code>Task Execution</code>）”来构造的：任务通常是些抽象且离散的工作单元。任务执行时应该选择清晰的任务边界以及明确的任务执行策略。执行策略有如下几种：  </p>
+<ul>
+<li>串行执行<br>在多任务中执行性能太差，只能一个个顺序处理，无法提高吞吐率或快速响应性    </li>
+<li>显示创建线程<br><code>new Thread(task).start()</code>：显示创建。但是大量创建会有如下问题：线程生命周期开销非常高；资源消耗：尤其是内存，当可运行线程数量多于处理器数量时，会出现大量闲置进程，会占用很多内存，线程竞争 <code>CPU</code> 资源时也会产生性能消耗；稳定性；</li>
+<li>使用并发框架<br>如：<code>Executor</code> 框架  </li>
+</ul>
+<a id="more"></a>
+
+<h2 id="Executor-框架简介"><a href="#Executor-框架简介" class="headerlink" title="Executor 框架简介"></a><code>Executor</code> 框架简介</h2><p>该框架基于<strong>生产者-消费者</strong>模式，支持多种不同类型的任务执行策略，提供了标准方法将任务的提交和执行解耦，并用 <code>Runnable</code> 来表示任务。提供了对生命周期的支持，以及统计信息收集，程序管理和性能监视等。  </p>
+<h3 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public interface Executor &#123;</span><br><span class="line">    void execute(Runnable command);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行策略"><a href="#执行策略" class="headerlink" title="执行策略"></a>执行策略</h3><p>在执行策略中定义了任务执行的“<code>What, Where, When, How</code>”等方面：  </p>
+<ul>
+<li>在什么（<code>What</code>）线程中执行任务？  </li>
+<li>任务按照什么（<code>What</code>）顺序执行（<code>FIFO, LIFO</code>，优先级）？  </li>
+<li>有多少个（<code>How Many</code>）任务能并发执行？  </li>
+<li>在队列中有多少个（<code>How Many</code>）任务在等待执行？  </li>
+<li>如果系统由于过载而需要拒绝一个任务，那么应该选择哪一个（<code>Which</code>）任务？另外，如何（<code>How</code>）通知应用程序有任务被拒绝？  </li>
+</ul>
+<p>执行策略是资源管理工具，最佳策略取决于可用的计算资源以及服务质量的需求。通过限制并发任务的数量，可用确保应用程序不会由于资源耗尽而失败，或者由于资源竞争影响性能。  </p>
+<h3 id="Executor-框架类图结构"><a href="#Executor-框架类图结构" class="headerlink" title="Executor 框架类图结构"></a><code>Executor</code> 框架类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0007-java-executor-Executor-framework.png" alt="0007-java-executor-Executor-framework.png"></p>
+<ul>
+<li><code>Executor</code><br>接口定义了一个接收 <code>Runnable</code> 对象的方法 <code>execute</code>  </li>
+<li><code>ExecutorService</code><br>比 <code>Executor</code> 使用更广泛的子类接口，其提供了生命周期管理的方法，以及可跟踪一个或多个异步任务执行状况返回 <code>Future</code> 的方法  </li>
+<li><code>AbstractExecutorService</code><br>抽象类，<code>ExecutorService</code> 执行方法的默认实现  </li>
+<li><code>ScheduledExecutorService</code><br>接口，可定时调度任务  </li>
+<li><code>ThreadPoolExecutor</code><br>线程池的核心实现类，用来执行被提交的任务   </li>
+<li><code>ScheduledThreadPoolExecutor</code><br>继承 <code>ThreadPoolExecutor</code>并实现<code>ScheduledExecutorService</code> ，一个可定时调度任务的线程池  </li>
+<li><code>Executors</code><br>提供了一系列静态工厂方法和共用方法，创建 <code>Executor</code> 框架的相关类：<code>ExecutorService, ScheduledExecuorSevice, ThreadFactor, Callable...</code></li>
+</ul>
+<h3 id="初识线程池"><a href="#初识线程池" class="headerlink" title="初识线程池"></a>初识线程池</h3><p>线程池是指管理一组同构工作线程的资源池，其中工作队列（<code>Work Queue</code>）保存了所有等待执行的任务，工作者线程（<code>Worker Thread</code>）的任务很简单：从工作队列中获取一个任务，执行任务，然后返回线程池并等待下一个任务。通过重用线程池中现有线程而不是创建新线程，可以在处理多个请求时分摊线程创建和销毁的巨大开销；另外任务请求到达时，工作线程已经存在，提高了响应性；调整线程池大小，可以防止过多线程相互竞争资源导致耗尽内存</p>
+<h2 id="基本接口"><a href="#基本接口" class="headerlink" title="基本接口"></a>基本接口</h2><h3 id="Runnable-接口定义"><a href="#Runnable-接口定义" class="headerlink" title="Runnable 接口定义"></a><code>Runnable</code> 接口定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 <code>Runnable</code> 是没有返回值的</p>
+<h3 id="Callable-接口定义"><a href="#Callable-接口定义" class="headerlink" title="Callable 接口定义"></a><code>Callable</code> 接口定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Callable</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">V <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在多线程并发中，我们需要获取任务的执行结果，显然 <code>Runnable</code> 无法实现。所以重新定义了 <code>Callable</code> 返回任务结果 <code>V</code> 或者抛出异常。  </p>
+<h3 id="Future-接口定义"><a href="#Future-接口定义" class="headerlink" title="Future 接口定义"></a><code>Future</code> 接口定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Future</code> 表示异步执行的结果。可以对具体的 <code>Runnable</code> 或者 <code>Callable</code> 任务进行取消、查询是否取消/完成、获取结果。通过 <code>get</code> 方法获取执行结果，该方法会<strong>阻塞</strong>直到任务返回结果。  </p>
+<h3 id="RunnableFuture-接口定义"><a href="#RunnableFuture-接口定义" class="headerlink" title="RunnableFuture 接口定义"></a><code>RunnableFuture</code> 接口定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RunnableFuture</span>&lt;<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">Runnable</span>, <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>RunnableFuture</code> 可被执行并能异步获取结果。 </p>
+<h2 id="FutureTask-类"><a href="#FutureTask-类" class="headerlink" title="FutureTask 类"></a><code>FutureTask</code> 类</h2><h3 id="RunnableAdapter-类"><a href="#RunnableAdapter-类" class="headerlink" title="RunnableAdapter 类"></a><code>RunnableAdapter</code> 类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RunnableAdapter</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Runnable task;</span><br><span class="line">    <span class="keyword">final</span> T result;</span><br><span class="line">    RunnableAdapter(Runnable task, T result) &#123;</span><br><span class="line">        <span class="keyword">this</span>.task = task;</span><br><span class="line">        <span class="keyword">this</span>.result = result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        task.run();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>作用</strong>：将 <code>Runnable</code> 和 <code>result</code> 封装成 <code>Callable</code>。<br>这个适配器很简单，就是简单的实现了 <code>Callable</code> 接口，在 <code>call()</code> 实现中调用<code>Runnable.run()</code> 方法，然后把传入的 <code>result</code> 作为任务的结果返回。  </p>
+<h3 id="FutureTask-类定义"><a href="#FutureTask-类定义" class="headerlink" title="FutureTask 类定义"></a><code>FutureTask</code> 类定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FutureTask</span>&lt;<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">RunnableFuture</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FutureTask</span><span class="params">(Callable&lt;V&gt; callable)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FutureTask</span><span class="params">(Runnable runnable, V result)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以通过构造函数注入 <code>Runnable</code> 或 <code>Callable</code>。如果传入的是 <code>Runnable</code> 和 <code>result</code>， 将通过 <code>RunnableAdapter</code> 封装成 <code>Callable</code>。  </li>
+<li><code>FutureTask</code> 是 <code>RunnableFuture</code> 的实现类，既能当做一个 <code>Runnable</code> 直接被 <code>Thread</code> 执行，也能作为 <code>Future</code> 用来得到执行结果（构造函数传入的 <code>Callable</code> 的结果）或者抛出异常。通常作为任务提交后的异步返回的结果，也可以用来取消任务等。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0007-java-executor-future-task-class.png" alt="0007-java-executor-future-task-class.png"></p>
+<h3 id="任务运行的状态及转换"><a href="#任务运行的状态及转换" class="headerlink" title="任务运行的状态及转换"></a>任务运行的状态及转换</h3><p><code>FutureTask</code> 在任务执行过程中，记录了如下 7 种状态：  </p>
+<ul>
+<li><code>NEW</code>：新建  </li>
+<li><code>COMPLETING</code><br>任务已经执行完成，但是任务的结果还在保存中    </li>
+<li><code>NORMAL</code><br>任务执行完后的结果正常  </li>
+<li><code>EXCEPTIONAL</code><br>任务执行完后的结果异常  </li>
+<li><code>CANCELLED</code>：取消<br>任务还没开始执行或者已经开始执行但是还没有执行完成的时候被取消    </li>
+<li><code>INTERRUPTING</code>：中断中  </li>
+<li><code>INTERRUPTED</code>：已经被中断  </li>
+</ul>
+<p>可能出现的状态转换：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NEW -&gt; COMPLETING -&gt; NORMAL</span><br><span class="line">NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</span><br><span class="line">NEW -&gt; CANCELLED</span><br><span class="line">NEW -&gt; INTERRUPTING -&gt; INTERRUPTED</span><br></pre></td></tr></table></figure>
+
+<p>任务在构造函数中初始化的状态都是 <code>NEW</code>，所有流程都是以此为起点。  </p>
+<h3 id="任务执行"><a href="#任务执行" class="headerlink" title="任务执行"></a>任务执行</h3><p>任务执行是执行者调用的，不用主动去执行  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">        !UNSAFE.compareAndSwapObject(<span class="keyword">this</span>, runnerOffset,</span><br><span class="line">                                     <span class="keyword">null</span>, Thread.currentThread()))</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Callable&lt;V&gt; c = callable;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; state == NEW) &#123;</span><br><span class="line">            V result;</span><br><span class="line">            <span class="keyword">boolean</span> ran;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result = c.call();</span><br><span class="line">                ran = <span class="keyword">true</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                result = <span class="keyword">null</span>;</span><br><span class="line">                ran = <span class="keyword">false</span>;</span><br><span class="line">                setException(ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ran)</span><br><span class="line">                set(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">        <span class="comment">// prevent concurrent calls to run()</span></span><br><span class="line">        runner = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">        <span class="comment">// leaked interrupts</span></span><br><span class="line">        <span class="keyword">int</span> s = state;</span><br><span class="line">        <span class="keyword">if</span> (s &gt;= INTERRUPTING)</span><br><span class="line">            handlePossibleCancellationInterrupt(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以从源码中得到这几个信息：  </p>
+<ul>
+<li>任务运行前，状态一定是 <code>NEW</code>  </li>
+<li>调用传入的<code>Callable.call</code> 执行任务    </li>
+<li>正确执行，保存执行结果 <code>Callable</code> 的 <code>result</code>  </li>
+<li>抛出异常时，保存异常 <code>Throwable</code>  </li>
+</ul>
+<h2 id="ExecutorService"><a href="#ExecutorService" class="headerlink" title="ExecutorService"></a><code>ExecutorService</code></h2><h3 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h3><p><code>ExecutorService</code> 的生命周期有三种状态：运行，关闭和终止。</p>
+<h3 id="生命周期管理"><a href="#生命周期管理" class="headerlink" title="生命周期管理"></a>生命周期管理</h3><p><code>ExecutorService</code> 提供了管理 <code>Executor</code> 生命周期的方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function">List&lt;Runnable&gt; <span class="title">shutdownNow</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">isShutdown</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">isTerminated</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">awaitTermination</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> InterruptedException</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>ExecutorService</code> 在初始创建时处于运行状态  </li>
+<li><code>shutdown</code> 方法将会执行平缓的关闭过程：不再接受新的任务，同时等待提交的任务执行完成（包含那些还未开始执行的任务）  </li>
+<li><code>shutdownNow</code> 方法将执行粗暴的关闭过程：它将尝试取消所有运行中的任务，而且不再启动队列中尚未开始执行的任务。</li>
+</ul>
+<h3 id="提交任务"><a href="#提交任务" class="headerlink" title="提交任务"></a>提交任务</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Callable&lt;T&gt; task)</span></span>;</span><br><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Runnable task, T result)</span></span>;</span><br><span class="line">Future&lt;?&gt; submit(Runnable task);</span><br></pre></td></tr></table></figure>
+
+<p>不管是 <code>Runnable</code> 还是 <code>Callable</code> 都可以作为任务提交，在执行 <code>submit</code> 时都会将任务封装成 <code>Future</code> 的实现类实例，调用 <code>Executor.execute</code> 来执行，并同时作为结果返回。  </p>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><h3 id="类定义及构造方法"><a href="#类定义及构造方法" class="headerlink" title="类定义及构造方法"></a>类定义及构造方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutor</span> <span class="keyword">extends</span> <span class="title">AbstractExecutorService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> maximumPoolSize, <span class="keyword">long</span> keepAliveTime, </span></span></span><br><span class="line"><span class="function"><span class="params">        TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, </span></span></span><br><span class="line"><span class="function"><span class="params">        ThreadFactory threadFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">        RejectedExecutionHandler handler)</span> </span>&#123;...&#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：  </p>
+<ul>
+<li><code>corePoolSize</code><br>核心池线程数大小  </li>
+<li><code>maximumPoolSize</code><br>线程池允许创建线程数最大值  </li>
+<li><code>keepAliveTime</code><br>空闲线程存活时间：如果工作线程数多于 <code>corePoolSize</code>，则这些多的线程的空闲时间超过 <code>keepAliveTime</code> 时将被终止  </li>
+<li><code>unit</code><br><code>keepAliveTime</code> 参数的时间单位  </li>
+<li><code>workQueue</code><br>缓存任务的阻塞队列  </li>
+<li><code>threadFactory</code><br>使用 <code>ThreadFactory</code> 创建新线程，默认使用 <code>defaultThreadFactory</code> 创建线程  </li>
+<li><code>handle</code><br>定义处理被拒绝任务的策略，默认使用 <code>ThreadPoolExecutor.AbortPolicy</code>，任务被拒绝时将抛出 <code>RejectExecutorException</code>  </li>
+</ul>
+<h3 id="几个重要成员变量"><a href="#几个重要成员变量" class="headerlink" title="几个重要成员变量"></a>几个重要成员变量</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心线程池大小</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span>   corePoolSize; </span><br><span class="line"><span class="comment">// 线程池最大值</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span>   maximumPoolSize; </span><br><span class="line"><span class="comment">// 超过 corePoolSize外的线程空闲存活之间</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">long</span>  keepAliveTime; </span><br><span class="line"><span class="comment">// 任务缓存队列，用来保存等待中的任务，等待 worker 线程空闲时执行任务</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> BlockingQueue&lt;Runnable&gt; workQueue; </span><br><span class="line"><span class="comment">// 线程工厂，用来新建线程</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> ThreadFactory threadFactory; </span><br><span class="line"><span class="comment">// 任务拒绝策略</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> RejectedExecutionHandler handler; </span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新 poolSize, corePoolSize,maximumPoolSize, runState, and workers set 时需要持有这个锁</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ReentrantLock mainLock = <span class="keyword">new</span> ReentrantLock(); </span><br><span class="line"><span class="comment">// 用来保存工作中的执行线程</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;Worker&gt; workers = <span class="keyword">new</span> HashSet&lt;Worker&gt;(); </span><br><span class="line"><span class="comment">// 是否对 corePoolSize 内的线程设置空闲存活时间</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> allowCoreThreadTimeOut; </span><br><span class="line"><span class="comment">// 记录线程池中出现过的最大线程数大小</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> largestPoolSize;</span><br><span class="line"><span class="comment">// 已经执行完的线程数</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> completedTaskCount;</span><br></pre></td></tr></table></figure>
+
+<h3 id="线程池的优势"><a href="#线程池的优势" class="headerlink" title="线程池的优势"></a>线程池的优势</h3><p>合理利用线程池能够带来三个好处：  </p>
+<ul>
+<li>降低资源消耗<br>通过重复利用已创建的线程降低线程创建和销毁造成的消耗。  </li>
+<li>提高响应速度<br>当任务到达时，任务可以不需要等到线程创建就能立即执行。  </li>
+<li>提高线程的可管理性<br>线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一的分配，调优和监控。  </li>
+</ul>
+<h3 id="线程池的大小"><a href="#线程池的大小" class="headerlink" title="线程池的大小"></a>线程池的大小</h3><p>一般需要根据任务的类型来配置线程池大小：  </p>
+<ul>
+<li><code>CPU</code> 密集型任务<br>就需要尽量压榨 <code>CPU</code>，参考值可以设为 <code>NCPU + 1</code>  </li>
+<li><code>IO</code> 密集型任务<br>参考值可以设置为 <code>2*NCPU</code>  </li>
+</ul>
+<p>可以先将线程池大小设置为参考值，再观察任务运行情况和系统负载、资源利用率来进行适当调整。  </p>
+<h2 id="线程池计数及状态"><a href="#线程池计数及状态" class="headerlink" title="线程池计数及状态"></a>线程池计数及状态</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger ctl = <span class="keyword">new</span> AtomicInteger(ctlOf(RUNNING, <span class="number">0</span>));</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> COUNT_BITS = Integer.SIZE - <span class="number">3</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CAPACITY   = (<span class="number">1</span> &lt;&lt; COUNT_BITS) - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// runState is stored in the high-order bits</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> RUNNING    = -<span class="number">1</span> &lt;&lt; COUNT_BITS;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SHUTDOWN   =  <span class="number">0</span> &lt;&lt; COUNT_BITS;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP       =  <span class="number">1</span> &lt;&lt; COUNT_BITS;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIDYING    =  <span class="number">2</span> &lt;&lt; COUNT_BITS;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TERMINATED =  <span class="number">3</span> &lt;&lt; COUNT_BITS;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Packing and unpacking ctl</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">runStateOf</span><span class="params">(<span class="keyword">int</span> c)</span>     </span>&#123; <span class="keyword">return</span> c &amp; ~CAPACITY; &#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">workerCountOf</span><span class="params">(<span class="keyword">int</span> c)</span>  </span>&#123; <span class="keyword">return</span> c &amp; CAPACITY; &#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ctlOf</span><span class="params">(<span class="keyword">int</span> rs, <span class="keyword">int</span> wc)</span> </span>&#123; <span class="keyword">return</span> rs | wc; &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="计数及状态解析"><a href="#计数及状态解析" class="headerlink" title="计数及状态解析"></a>计数及状态解析</h3><p>使用 <code>AtomicInteger ctl</code> 一个值，来同时表示当前线程数和线程池的状态。其中：  </p>
+<ul>
+<li><code>runState</code>： 高 3 位，表示线程池状态  </li>
+<li><code>workerCount</code>：剩下的 29 位，表示当前线程池的工作线程数  </li>
+<li><code>COUNT_BITS</code>：表示线程数计数的位数为 29 </li>
+<li><code>CAPACITY</code>：表示最大的工作线程数计数容量  </li>
+<li><code>ctlOf</code>：表示将状态和计数组合成一个值  </li>
+<li><code>runStateOf</code>：从 <code>ctl</code> 中解析状态  </li>
+<li><code>workerCountOf</code>：从 <code>ctl</code> 中解析线程计数  </li>
+</ul>
+<h3 id="计数增减"><a href="#计数增减" class="headerlink" title="计数增减"></a>计数增减</h3><p>使用 <code>CAS: Compare And Set</code> 算法（无锁算法）实现共享变量 <code>ctl</code> 的自增自减（复合）操作，尽量确保多线程安全：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">compareAndIncrementWorkerCount</span><span class="params">(<span class="keyword">int</span> expect)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ctl.compareAndSet(expect, expect + <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">compareAndDecrementWorkerCount</span><span class="params">(<span class="keyword">int</span> expect)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ctl.compareAndSet(expect, expect - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Decrements the workerCount field of ctl. This is called only on</span></span><br><span class="line"><span class="comment"> * abrupt termination of a thread (see processWorkerExit). Other</span></span><br><span class="line"><span class="comment"> * decrements are performed within getTask.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">decrementWorkerCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;&#125; <span class="keyword">while</span> (! compareAndDecrementWorkerCount(ctl.get()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="五种状态"><a href="#五种状态" class="headerlink" title="五种状态"></a>五种状态</h3><ul>
+<li><code>RUNNING</code><br>接受新任务并处理队列中的任务  </li>
+<li><code>SHUTDOWN</code><br>不接受新任务但仍然处理队列中的任务  </li>
+<li><code>STOP</code><br>不接受新任务，也不处理队列中的任务，并且设置正在进行中任务的中断标志位    </li>
+<li><code>TIDYING</code><br>所有任务都结束了，<code>wokrCount</code> 设置为 0，并调用钩子方法 <code>terminated()</code>  </li>
+<li><code>TERMINATED</code><br>钩子方法 <code>terminated()</code> 执行完毕  </li>
+</ul>
+<h3 id="状态转移及其含义"><a href="#状态转移及其含义" class="headerlink" title="状态转移及其含义"></a>状态转移及其含义</h3><ul>
+<li><code>RUNNING -&gt; SHUTDOWN</code><br>调用 <code>shutdown()</code>，可能出现在 <code>finalize</code> 中调用  </li>
+<li><code>(RUNNING or SHUTDOWN) -&gt; STOP</code><br>调用 <code>shutdownNow()</code>  </li>
+<li><code>STOP -&gt; TIDYING</code><br>当线程池为空时  </li>
+<li><code>TIDYING -&gt; TERMINATED</code><br>当钩子方法 <code>terminated()</code> 执行完毕时  </li>
+</ul>
+<h2 id="线程池中线程创建及任务执行"><a href="#线程池中线程创建及任务执行" class="headerlink" title="线程池中线程创建及任务执行"></a>线程池中线程创建及任务执行</h2><h3 id="Worker-工作线程类"><a href="#Worker-工作线程类" class="headerlink" title="Worker 工作线程类"></a><code>Worker</code> 工作线程类</h3><p>类定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Worker</span></span></span><br><span class="line"><span class="class">    <span class="keyword">extends</span> <span class="title">AbstractQueuedSynchronizer</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Worker(Runnable firstTask) &#123;</span><br><span class="line">        setState(-<span class="number">1</span>); <span class="comment">// inhibit interrupts until runWorker</span></span><br><span class="line">        <span class="keyword">this</span>.firstTask = firstTask;</span><br><span class="line">        <span class="keyword">this</span>.thread = getThreadFactory().newThread(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Delegates main run loop to outer runWorker  */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        runWorker(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>AQS: AbstractQueuedSynchronizer</code>： 用来做锁控制的，分为：独享功能和共享功能 </li>
+<li><code>Worker</code> 实现了 <code>AQS</code> 独占锁功能，主要维护任务执行线程的中断控制状态  </li>
+<li><code>Worker</code> 实现了 <code>Runnable</code> 并封装了任务（<code>Runnable</code>）和线程  </li>
+<li>线程池的所有线程都是在 <code>Worker</code> 的构造方法中通过线程工厂新建的  </li>
+<li><code>Worker.run</code> 直接调用了线程池的 <code>runWorker(this)</code>，可以参考后面的分析  </li>
+</ul>
+<h3 id="任务提交及线程创建策略"><a href="#任务提交及线程创建策略" class="headerlink" title="任务提交及线程创建策略"></a>任务提交及线程创建策略</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (command == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">int</span> c = ctl.get();</span><br><span class="line">    <span class="keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;</span><br><span class="line">        <span class="keyword">if</span> (addWorker(command, <span class="keyword">true</span>))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        c = ctl.get();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</span><br><span class="line">        <span class="keyword">int</span> recheck = ctl.get();</span><br><span class="line">        <span class="keyword">if</span> (! isRunning(recheck) &amp;&amp; remove(command))</span><br><span class="line">            reject(command);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (workerCountOf(recheck) == <span class="number">0</span>)</span><br><span class="line">            addWorker(<span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!addWorker(command, <span class="keyword">false</span>))</span><br><span class="line">        reject(command);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>任务执行 <code>execute</code> 源码很短，流程也很清晰：异步执行一个指定的任务，可以新开一个线程或者线程池中已有的线程来执行。如果线程池已经处于关闭状态（不是<code>RUNNING</code> 状态，只有该状态才会接受新任务）或者已经达到最大容量（<code>maximumPoolSize</code>），将会拒绝该任务。源码分析：  </p>
+<ul>
+<li>如果任务为空，直接抛出空指针异常    </li>
+<li><code>workerCount/wc = workerCountOf(ctl.get())</code>：线程池中的当前线程数  </li>
+<li>如果  <code>workerCount &lt; corePoolSize</code>，每次都会新建一个 <code>Worker</code> 线程去执行这个任务  </li>
+<li>如果 <code>workerCount &gt;= corePoolSize</code>，则每来一个任务会尝试将其添加到任务缓存队列当中，若添加成功，则该任务会等待空闲线程将其取出去执行  </li>
+<li>如果队列添加失败（一般来说是任务缓存队列已满），直接尝试新建线程（前提条件：<code>workerCount &lt; maximumPoolSize</code>）执行该任务，如果新建失败拒绝服务  </li>
+</ul>
+<h3 id="线程创建"><a href="#线程创建" class="headerlink" title="线程创建"></a>线程创建</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">addWorker</span><span class="params">(Runnable firstTask, <span class="keyword">boolean</span> core)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 状态判断 RUNNING 才能接受新任务</span></span><br><span class="line">    <span class="comment">// 线程数计数判断 workerCount, wc &gt;= (core ? corePoolSize : maximumPoolSize)</span></span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">boolean</span> workerStarted = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">boolean</span> workerAdded = <span class="keyword">false</span>;</span><br><span class="line">    Worker w = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 新建 Worker 工作线程</span></span><br><span class="line">        w = <span class="keyword">new</span> Worker(firstTask);</span><br><span class="line">        <span class="keyword">final</span> Thread t = w.thread;</span><br><span class="line">        <span class="keyword">if</span> (t != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> ReentrantLock mainLock = <span class="keyword">this</span>.mainLock;</span><br><span class="line">            mainLock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// Recheck while holding lock.</span></span><br><span class="line">                <span class="comment">// Back out on ThreadFactory failure or if</span></span><br><span class="line">                <span class="comment">// shut down before lock acquired.</span></span><br><span class="line">                <span class="keyword">int</span> rs = runStateOf(ctl.get());</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (rs &lt; SHUTDOWN ||</span><br><span class="line">                    (rs == SHUTDOWN &amp;&amp; firstTask == <span class="keyword">null</span>)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (t.isAlive()) <span class="comment">// precheck that t is startable</span></span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalThreadStateException();</span><br><span class="line">                    <span class="comment">// 添加到 set 中</span></span><br><span class="line">                    workers.add(w);</span><br><span class="line">                    <span class="keyword">int</span> s = workers.size();</span><br><span class="line">                    <span class="comment">// 线程池大小存在动态调整，记录largestPoolSize</span></span><br><span class="line">                    <span class="keyword">if</span> (s &gt; largestPoolSize)</span><br><span class="line">                        largestPoolSize = s;</span><br><span class="line">                    workerAdded = <span class="keyword">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                mainLock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (workerAdded) &#123;</span><br><span class="line">                <span class="comment">// 添加成功后，开启线程准备异步执行</span></span><br><span class="line">                t.start();</span><br><span class="line">                workerStarted = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (! workerStarted)</span><br><span class="line">            add</span><br></pre></td></tr></table></figure>
+
+<p>源码中可以看到，在新建的 <code>Worker</code> 工作线程开始执行前，会反复确认线程池状态（<code>RUNNING</code>），并且加锁二次判断后，添加到 <code>HashSet</code> 中保存所有的执行线程，添加成功则开始执行任务，同时记录线程池曾经出现的最大线程数 <code>largestPoolSize</code>。  </p>
+<h3 id="任务运行"><a href="#任务运行" class="headerlink" title="任务运行"></a>任务运行</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">runWorker</span><span class="params">(Worker w)</span> </span>&#123;</span><br><span class="line">    Thread wt = Thread.currentThread();</span><br><span class="line">    Runnable task = w.firstTask;</span><br><span class="line">    w.firstTask = <span class="keyword">null</span>;</span><br><span class="line">    w.unlock(); <span class="comment">// allow interrupts</span></span><br><span class="line">    <span class="keyword">boolean</span> completedAbruptly = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果任务不为空，执行当前任务；</span></span><br><span class="line">        <span class="comment">// 如果任务为空，线程复用，从缓冲队列中拿出任务执行</span></span><br><span class="line">        <span class="keyword">while</span> (task != <span class="keyword">null</span> || (task = getTask()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            w.lock();</span><br><span class="line">            <span class="comment">// If pool is stopping, ensure thread is interrupted;</span></span><br><span class="line">            <span class="comment">// if not, ensure thread is not interrupted.  This</span></span><br><span class="line">            <span class="comment">// requires a recheck in second case to deal with</span></span><br><span class="line">            <span class="comment">// shutdownNow race while clearing interrupt</span></span><br><span class="line">            <span class="keyword">if</span> ((runStateAtLeast(ctl.get(), STOP) ||</span><br><span class="line">                 (Thread.interrupted() &amp;&amp;</span><br><span class="line">                  runStateAtLeast(ctl.get(), STOP))) &amp;&amp;</span><br><span class="line">                !wt.isInterrupted())</span><br><span class="line">                wt.interrupt();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 钩子方法，任务执行前调用</span></span><br><span class="line">                beforeExecute(wt, task);</span><br><span class="line">                Throwable thrown = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="comment">// 任务正式开始运行</span></span><br><span class="line">                    task.run();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (RuntimeException x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Error x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> x;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable x) &#123;</span><br><span class="line">                    thrown = x; <span class="keyword">throw</span> <span class="keyword">new</span> Error(x);</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                    <span class="comment">// 钩子方法，任务执行后调用</span></span><br><span class="line">                    afterExecute(task, thrown);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                task = <span class="keyword">null</span>;</span><br><span class="line">                w.completedTasks++;</span><br><span class="line">                w.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        completedAbruptly = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>源码可以看出：  </p>
+<ul>
+<li><code>Worker</code> 线程先执行当前任务，如果执行完毕会复用该线程，从阻塞队列中获取排队的任务继续执行  </li>
+<li>任务执行前会将当前 <code>Worker</code> 加锁，避免在任务执行过程中被线程池中断  </li>
+<li>任务执行前后有钩子方法可以调用 <code>beforeExecute/afterExecute</code>  </li>
+</ul>
+<h3 id="从缓冲队列中获取任务"><a href="#从缓冲队列中获取任务" class="headerlink" title="从缓冲队列中获取任务"></a>从缓冲队列中获取任务</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Runnable <span class="title">getTask</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> timedOut = <span class="keyword">false</span>; <span class="comment">// Did the last poll() time out?</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="comment">// 状态检查</span></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> wc = workerCountOf(c);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Are workers subject to culling?</span></span><br><span class="line">        <span class="keyword">boolean</span> timed = allowCoreThreadTimeOut || wc &gt; corePoolSize;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 线程数检查</span></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runnable r = timed ?</span><br><span class="line">                workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :</span><br><span class="line">                workQueue.take();</span><br><span class="line">            <span class="keyword">if</span> (r != <span class="keyword">null</span>)</span><br><span class="line">                <span class="keyword">return</span> r;</span><br><span class="line">            timedOut = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException retry) &#123;</span><br><span class="line">            timedOut = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源码分析：  </p>
+<ul>
+<li>取任务前先对线程池状态和当前线程数做判断，是否符合要求  </li>
+<li>如果允许空闲线程存活 <code>allowCoreThreadTimeOut || wc &gt; corePoolSize</code>，则缓存队列最多等待 <code>keepAliveTime</code> 时间任务入队；否则队列中阻塞等待取出任务  </li>
+</ul>
+<h2 id="阻塞队列"><a href="#阻塞队列" class="headerlink" title="阻塞队列"></a>阻塞队列</h2><h3 id="在线程池中的作用"><a href="#在线程池中的作用" class="headerlink" title="在线程池中的作用"></a>在线程池中的作用</h3><p> 队列大小和最大池大小可能需要相互折衷：</p>
+<ul>
+<li>大型队列 + 小型池<br>可以最大限度地降低 <code>CPU</code> 使用率、操作系统资源和上下文切换开销，但是可能导致人工降低吞吐量。如果任务频繁阻塞（例如，如果它们是 <code>I/O</code> 边界），则系统可能为超过您许可的更多线程安排时间。  </li>
+<li>小型队列 + 大型池<br><code>CPU</code> 使用率较高，但是可能遇到不可接受的调度开销，这样也会降低吞吐量。  </li>
+</ul>
+<h3 id="常见队列及特性"><a href="#常见队列及特性" class="headerlink" title="常见队列及特性"></a>常见队列及特性</h3><p>在前面我们多次提到了任务缓存队列，即 <code>workQueue</code>，它用来存放等待执行的任务。<br><code>workQueue</code> 的类型为 <code>BlockingQueue&lt;Runnable&gt;</code>，通常可以取下面三种类型：  </p>
+<ul>
+<li><code>ArrayBlockingQueue</code>：基于数组的先进先出队列，此队列创建时必须指定大小  </li>
+<li><code>LinkedBlockingQueue</code>：基于链表的先进先出队列，如果创建时没有指定此队列大小，则默认为 <code>Integer.MAX_VALUE</code>，是一个无界队列  </li>
+<li><code>synchronousQueue</code>：这个队列比较特殊，它不会保存提交的任务，而是将直接新建一个线程来执行新来的任务  </li>
+</ul>
+<h2 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h2><h3 id="在线程池中的作用-1"><a href="#在线程池中的作用-1" class="headerlink" title="在线程池中的作用"></a>在线程池中的作用</h3><p>四个策略都在线程池中都是内部类。  </p>
+<h3 id="常见策略及特性"><a href="#常见策略及特性" class="headerlink" title="常见策略及特性"></a>常见策略及特性</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> RejectedExecutionHandler defaultHandler =</span><br><span class="line">        <span class="keyword">new</span> AbortPolicy();</span><br></pre></td></tr></table></figure>
+
+<p>当线程池的任务缓存队列已满并且线程池中的线程数目达到 <code>maximumPoolSize</code>，如果还有任务到来就会采取任务拒绝策略，通常有以下四种策略：  </p>
+<ul>
+<li><code>ThreadPoolExecutor.AbortPolicy</code><br>丢弃任务并抛出 <code>RejectedExecutionException</code> 异常。  </li>
+<li><code>ThreadPoolExecutor.DiscardPolicy</code><br>不能执行的任务被丢弃，但是不抛出异常。  </li>
+<li><code>ThreadPoolExecutor.DiscardOldestPolicy</code><br>丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）。  </li>
+<li><code>ThreadPoolExecutor.CallerRunsPolicy</code><br>调用线程处理该任务，线程调用运行该任务的 <code>execute</code> 本身。此策略提供简单的反馈控制机制，能够减缓新任务的提交速度。  </li>
+</ul>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><h3 id="通信机制"><a href="#通信机制" class="headerlink" title="通信机制"></a>通信机制</h3><h2 id="Executors"><a href="#Executors" class="headerlink" title="Executors"></a><code>Executors</code></h2><h3 id="创建常见线程池"><a href="#创建常见线程池" class="headerlink" title="创建常见线程池"></a>创建常见线程池</h3><ul>
+<li>固定长度线程池<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</span><br><span class="line">                                  <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads, ThreadFactory threadFactory)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</span><br><span class="line">                                  <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;(),</span><br><span class="line">                                  threadFactory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>创建一个固定长度的线程池，每提交一个任务就创建一个线程，直到达到线程池的最大数量，这时线程池的规模将不再变化（除非某个线程异常结束后会补充一个新线程）。特点：可以重用固定数量线程的线程池，处理一个共享的无边界队列 。任何时间点，最多有 <code>nThreads</code> 个线程会处于活动状态执行任务。如果当所有线程都是活动时，有多的任务被提交过来，那么它会一致在队列中等待直到有线程可用。如果任何线程在执行过程中因为错误而中止，新的线程会替代它的位置来执行后续的任务。所有线程都会一致存于线程池中，直到显式的执行 <code>ExecutorService.shutdown()</code> 关闭。<br><code>LinkedBlockingQueue</code> 作为线程池的工作队列，是一个无界队列，当线程池的线程数达到 <code>corePoolSize</code> 后，新任务将在无界队列中等待，因此线程池的线程数量不会超过 <code>corePoolSize</code>，同时 <code>maxiumPoolSize</code> 也就变成了一个无效的参数，并且运行中的线程池并不会拒绝任务。  </p>
+<ul>
+<li>可缓存无限容量线程池  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                  <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">(ThreadFactory threadFactory)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                  <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;(),</span><br><span class="line">                                  threadFactory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><code>corePoolSize = 0; maxiumPoolSize = Integer.MAX_VALUE</code>，即线程池的规模不做限制是无界的。在线程可用时，重用之前构造好的池中线程。这个线程池在执行大量短生命周期的异步任务时（<code>many short-lived asynchronous task</code>），可以显著提高程序性能。调用 <code>execute</code> 时，可以重用之前已构造的可用线程，如果不存在可用线程，那么会重新创建一个新的线程并将其加入到线程池中。如果线程超过 <code>60</code> 秒还未被使用，就会被中止并从缓存中移除。因此线程池在长时间空闲后不会消耗任何资源。  </p>
+<ul>
+<li>单线程池  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</span><br><span class="line">        (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">(ThreadFactory threadFactory)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</span><br><span class="line">        (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;(),</span><br><span class="line">                                threadFactory));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>特殊的固定长度线程池，只有一个线程来执行任务，可以确保任务按照队列中的顺序串行执行。使用单个工作线程来执行一个无边界的队列。（如果单个线程在执行过程中因为某些错误中止，新的线程会替代它执行后续线程）。它可以保证认为是按顺序执行的，任何时候都不会有多于一个的任务处于活动状态。和 <code>newFixedThreadPool(1)</code> 的区别在于，如果线程遇到错误中止，它是无法使用替代线程的。</p>
+<ul>
+<li>延时线程池  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newSingleThreadScheduledExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DelegatedScheduledExecutorService</span><br><span class="line">        (<span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>));</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newSingleThreadScheduledExecutor</span><span class="params">(ThreadFactory threadFactory)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DelegatedScheduledExecutorService</span><br><span class="line">        (<span class="keyword">new</span> ScheduledThreadPoolExecutor(<span class="number">1</span>, threadFactory));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(<span class="keyword">int</span> corePoolSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> corePoolSize, ThreadFactory threadFactory)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize, threadFactory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>延迟线程池的构造函数中：<code>maxiumPoolSize = Integer.MAX_VALUE</code>，表明线程池最大容量是无界的。以延迟或定时的方式来执行任务。  </p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>先简单总结下 <code>Runnable, Callable, Future, FutureTask</code> 和 <code>ExecutorService.submit</code> 的关系和概念：  </p>
+<ul>
+<li><code>Runnable</code>：作为 <code>submit</code> 的参数，不需要返回值  </li>
+<li><code>Callable</code>：作为 <code>submit</code> 的参数，并定义返回值类型  </li>
+<li><code>Future</code><br>表示异步执行的返回值。作为 <code>submit</code> 的返回值，实际是对 <code>Callable</code> 返回值的一个再次封装。  </li>
+<li><code>FutureTask</code><br>作为 <code>submit</code> 的参数，但是因为实现了 <code>Future</code> 所以同时包含了 <code>submit</code> 的返回值。查看源码发现上面的 <code>Runnable, Callable</code> 都会先被封装成 <code>FutureTask</code> 再去执行 <code>submit</code>。  </li>
+</ul>
+<h4 id="Runnable"><a href="#Runnable" class="headerlink" title="Runnable"></a><code>Runnable</code></h4><p>并不关心返回结果。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestRunnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ExecutorService single = Executors.newSingleThreadExecutor();</span><br><span class="line">        single.submit(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                    System.out.println(<span class="string">"TestRunnable::run..."</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        single.shutdown();</span><br><span class="line">        System.out.println(<span class="string">"TestRunnable::main exit."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 运行结果</span></span><br><span class="line">TestRunnable::main exit.</span><br><span class="line">TestRunnable::run...</span><br></pre></td></tr></table></figure>
+
+<h4 id="Callable-Future"><a href="#Callable-Future" class="headerlink" title="Callable + Future"></a><code>Callable + Future</code></h4><p><code>Callable</code> 作为参数传入，<code>Future</code> 作为异步结果返回。通过 <code>Future.get()</code> 来同步等待获取线程执行的结果。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestCallableFuture</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> ExecutionException, InterruptedException </span>&#123;</span><br><span class="line">        ExecutorService single = Executors.newSingleThreadExecutor();</span><br><span class="line">        Future&lt;String&gt; stringFuture = single.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                Thread.sleep(<span class="number">200</span>);</span><br><span class="line">                System.out.println(<span class="string">"TestCallableFuture::Callable::call"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"TestCallableFuture::Callable::Call::result"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        single.shutdown();</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFuture::main, wait"</span>);</span><br><span class="line">        String result = stringFuture.get();</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFuture:: result = "</span> + result);</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFuture::main, exit."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行结果</span></span><br><span class="line">TestCallableFuture::main, wait</span><br><span class="line">TestCallableFuture::Callable::call</span><br><span class="line">TestCallableFuture:: result = TestCallableFuture::Callable::Call::result</span><br><span class="line">TestCallableFuture::main, exit.</span><br></pre></td></tr></table></figure>
+
+<h4 id="Callable-转换为-FutureTask"><a href="#Callable-转换为-FutureTask" class="headerlink" title="Callable 转换为 FutureTask"></a><code>Callable</code> 转换为 <code>FutureTask</code></h4><p><code>Callable</code> 先转换为 <code>FutureTask</code>，作为参数传入，等待执行完毕后能够通过 <code>FutureTask.get()</code> 同步等待获取结果。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestCallableFutureTask</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> ExecutionException, InterruptedException </span>&#123;</span><br><span class="line">        ExecutorService single = Executors.newSingleThreadExecutor();</span><br><span class="line">        FutureTask&lt;String&gt; stringFutureTask = <span class="keyword">new</span> FutureTask&lt;String&gt;(</span><br><span class="line">                <span class="keyword">new</span> Callable&lt;String&gt;() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                        Thread.sleep(<span class="number">200</span>);</span><br><span class="line">                        System.out.println(<span class="string">"*::FutureTask::Callable::call"</span>);</span><br><span class="line">                        <span class="keyword">return</span> <span class="string">"*::FutureTask::Callable::call:result"</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">        single.submit(stringFutureTask);</span><br><span class="line">        single.shutdown();</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFutureTask::wait..."</span>);</span><br><span class="line">        String result = stringFutureTask.get();</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFutureTask::main,result ="</span> + result);</span><br><span class="line">        System.out.println(<span class="string">"TestCallableFutureTask::main, exit."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行结果</span></span><br><span class="line">TestCallableFutureTask::wait...</span><br><span class="line">TestCallableFutureTask::FutureTask::Callable::call</span><br><span class="line">TestCallableFutureTask::main, result = *::FutureTask::Callable::call:result</span><br><span class="line">TestCallableFutureTask::main, exit.</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://www.cnblogs.com/kuoAT/p/6714762.html" target="_blank" rel="noopener">Java线程池（ThreadPool）详解</a>  </li>
+<li><a href="http://blog.csdn.net/scboyhj__/article/details/48805881" target="_blank" rel="noopener">ThreadPool用法与优势</a>  </li>
+<li><a href="http://www.cnblogs.com/MOBIN/p/5436482.html" target="_blank" rel="noopener">java并发编程–Executor框架</a>  </li>
+<li><a href="http://www.cnblogs.com/study-everyday/p/6737428.html" target="_blank" rel="noopener">Executor框架的详解</a>  </li>
+<li><a href="http://www.importnew.com/25286.html" target="_blank" rel="noopener">深入学习FutureTask</a></li>
+<li><a href="http://www.cnblogs.com/dolphin0520/category/602384.html" target="_blank" rel="noopener">Java 并发</a>  </li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/17/0007-java-executor/" title="Java Executor 框架">http://redspider110.github.io/2017/11/17/0007-java-executor/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Concurrent/" rel="tag"># Concurrent</a>
+          
+            <a href="/tags/Executor/" rel="tag"># Executor</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/06/0006-jvm-java-virtual-machine/" rel="next" title="JVM：深入理解Java虚拟机--读书笔记">
+                <i class="fa fa-chevron-left"></i> JVM：深入理解Java虚拟机--读书笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/20/0008-java-collection-basic/" rel="prev" title="JAVA 集合类概览">
+                JAVA 集合类概览 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Executor-框架简介"><span class="nav-number">2.</span> <span class="nav-text">Executor 框架简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口定义"><span class="nav-number">2.1.</span> <span class="nav-text">接口定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行策略"><span class="nav-number">2.2.</span> <span class="nav-text">执行策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Executor-框架类图结构"><span class="nav-number">2.3.</span> <span class="nav-text">Executor 框架类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初识线程池"><span class="nav-number">2.4.</span> <span class="nav-text">初识线程池</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本接口"><span class="nav-number">3.</span> <span class="nav-text">基本接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Runnable-接口定义"><span class="nav-number">3.1.</span> <span class="nav-text">Runnable 接口定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Callable-接口定义"><span class="nav-number">3.2.</span> <span class="nav-text">Callable 接口定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Future-接口定义"><span class="nav-number">3.3.</span> <span class="nav-text">Future 接口定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RunnableFuture-接口定义"><span class="nav-number">3.4.</span> <span class="nav-text">RunnableFuture 接口定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FutureTask-类"><span class="nav-number">4.</span> <span class="nav-text">FutureTask 类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RunnableAdapter-类"><span class="nav-number">4.1.</span> <span class="nav-text">RunnableAdapter 类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FutureTask-类定义"><span class="nav-number">4.2.</span> <span class="nav-text">FutureTask 类定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务运行的状态及转换"><span class="nav-number">4.3.</span> <span class="nav-text">任务运行的状态及转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务执行"><span class="nav-number">4.4.</span> <span class="nav-text">任务执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ExecutorService"><span class="nav-number">5.</span> <span class="nav-text">ExecutorService</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期"><span class="nav-number">5.1.</span> <span class="nav-text">生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期管理"><span class="nav-number">5.2.</span> <span class="nav-text">生命周期管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提交任务"><span class="nav-number">5.3.</span> <span class="nav-text">提交任务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">6.</span> <span class="nav-text">线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类定义及构造方法"><span class="nav-number">6.1.</span> <span class="nav-text">类定义及构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几个重要成员变量"><span class="nav-number">6.2.</span> <span class="nav-text">几个重要成员变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池的优势"><span class="nav-number">6.3.</span> <span class="nav-text">线程池的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池的大小"><span class="nav-number">6.4.</span> <span class="nav-text">线程池的大小</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池计数及状态"><span class="nav-number">7.</span> <span class="nav-text">线程池计数及状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">7.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#计数及状态解析"><span class="nav-number">7.2.</span> <span class="nav-text">计数及状态解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#计数增减"><span class="nav-number">7.3.</span> <span class="nav-text">计数增减</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五种状态"><span class="nav-number">7.4.</span> <span class="nav-text">五种状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态转移及其含义"><span class="nav-number">7.5.</span> <span class="nav-text">状态转移及其含义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池中线程创建及任务执行"><span class="nav-number">8.</span> <span class="nav-text">线程池中线程创建及任务执行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Worker-工作线程类"><span class="nav-number">8.1.</span> <span class="nav-text">Worker 工作线程类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务提交及线程创建策略"><span class="nav-number">8.2.</span> <span class="nav-text">任务提交及线程创建策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程创建"><span class="nav-number">8.3.</span> <span class="nav-text">线程创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务运行"><span class="nav-number">8.4.</span> <span class="nav-text">任务运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从缓冲队列中获取任务"><span class="nav-number">8.5.</span> <span class="nav-text">从缓冲队列中获取任务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#阻塞队列"><span class="nav-number">9.</span> <span class="nav-text">阻塞队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在线程池中的作用"><span class="nav-number">9.1.</span> <span class="nav-text">在线程池中的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见队列及特性"><span class="nav-number">9.2.</span> <span class="nav-text">常见队列及特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拒绝策略"><span class="nav-number">10.</span> <span class="nav-text">拒绝策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在线程池中的作用-1"><span class="nav-number">10.1.</span> <span class="nav-text">在线程池中的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见策略及特性"><span class="nav-number">10.2.</span> <span class="nav-text">常见策略及特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用方式"><span class="nav-number">10.3.</span> <span class="nav-text">使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原理"><span class="nav-number">10.4.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通信机制"><span class="nav-number">10.5.</span> <span class="nav-text">通信机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Executors"><span class="nav-number">11.</span> <span class="nav-text">Executors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建常见线程池"><span class="nav-number">11.1.</span> <span class="nav-text">创建常见线程池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">11.2.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Runnable"><span class="nav-number">11.2.1.</span> <span class="nav-text">Runnable</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Callable-Future"><span class="nav-number">11.2.2.</span> <span class="nav-text">Callable + Future</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Callable-转换为-FutureTask"><span class="nav-number">11.2.3.</span> <span class="nav-text">Callable 转换为 FutureTask</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">12.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

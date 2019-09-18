@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,OpenSourceLibary,Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍JSONJSON(JavaScript Object Notation)：轻量级的数据交换格式，广泛用于服务器和客户端的交互中     GsonGoogle 公司发布的一个开放源代码的 Java 库，主要用途为序列化 Java 对象为 JSON 字符串，或反序列化 JSON 字符串成 Java 对象。官方仓库。主要优势有：    允许已经存在的无法改变的对象转换成 Json，或者 Json 转">
+<meta name="keywords" content="Java,OpenSourceLibary,Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gson">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/24/0015-gson/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍JSONJSON(JavaScript Object Notation)：轻量级的数据交换格式，广泛用于服务器和客户端的交互中     GsonGoogle 公司发布的一个开放源代码的 Java 库，主要用途为序列化 Java 对象为 JSON 字符串，或反序列化 JSON 字符串成 Java 对象。官方仓库。主要优势有：    允许已经存在的无法改变的对象转换成 Json，或者 Json 转">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.339Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gson">
+<meta name="twitter:description" content="介绍JSONJSON(JavaScript Object Notation)：轻量级的数据交换格式，广泛用于服务器和客户端的交互中     GsonGoogle 公司发布的一个开放源代码的 Java 库，主要用途为序列化 Java 对象为 JSON 字符串，或反序列化 JSON 字符串成 Java 对象。官方仓库。主要优势有：    允许已经存在的无法改变的对象转换成 Json，或者 Json 转">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/24/0015-gson/">
+
+
+
+
+
+  <title>Gson | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/24/0015-gson/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Gson</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T14:00:30+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenSourceLibary/" itemprop="url" rel="index">
+                    <span itemprop="name">OpenSourceLibary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><h3 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h3><p><code>JSON(JavaScript Object Notation)</code>：轻量级的数据交换格式，广泛用于服务器和客户端的交互中    </p>
+<h3 id="Gson"><a href="#Gson" class="headerlink" title="Gson"></a>Gson</h3><p><code>Google</code> 公司发布的一个开放源代码的 <code>Java</code> 库，主要用途为序列化 <code>Java</code> 对象为 <code>JSON</code> 字符串，或反序列化 <code>JSON</code> 字符串成 <code>Java</code> 对象。<a href="https://github.com/google/gson" target="_blank" rel="noopener">官方仓库</a>。主要优势有：  </p>
+<ul>
+<li>允许已经存在的无法改变的对象转换成 Json，或者 <code>Json</code> 转换成已存在的对象，不需要注解就可以直接转换     </li>
+<li>对泛型提供完全的支持   </li>
+</ul>
+<a id="more"></a>
+
+<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><p><code>app/build.gradle</code> 中增加依赖：   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile &apos;com.google.code.gson:gson:2.8.1`</span><br></pre></td></tr></table></figure>
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><code>Gson</code> 源码文档写的比较好，可以直接参考 <code>JavaDoc</code> 来看示例   </p>
+<h3 id="部分特点"><a href="#部分特点" class="headerlink" title="部分特点"></a>部分特点</h3><ul>
+<li>推荐把成员变量都声明为 <code>private</code>  </li>
+<li><code>Java</code> 对象一定要有一个无参构造方法，这是 <code>Gson</code> 实例化对象的关键，可以没有 <code>setter/getter</code> 方法   </li>
+<li>默认不需要注解字段，所有包含在当前类的字段都默认会被序列化或者反序列化  </li>
+</ul>
+<h3 id="JavaBean-的生成"><a href="#JavaBean-的生成" class="headerlink" title="JavaBean 的生成"></a><code>JavaBean</code> 的生成</h3><ul>
+<li><p>规则<br>尽量不使用内部类或嵌套类，如果使用需要使用 static 声明？<br>实际使用中内部类和嵌套类都能解析！   </p>
+</li>
+<li><p>使用工具将 <code>Json</code> 生成对应的 <code>JavaBean</code><br>先将 <code>Json</code> 格式化，使用 <a href="http://www.bejson.com/json2javapojo/new/" target="_blank" rel="noopener">bejson</a> 生成<code>JavaBean</code>   </p>
+</li>
+</ul>
+<h3 id="序列化-反序列化"><a href="#序列化-反序列化" class="headerlink" title="序列化/反序列化"></a>序列化/反序列化</h3><ul>
+<li><code>Serialization</code><br>序列化，使 <code>Java</code> 对象到 <code>Json</code> 字符串的过程    </li>
+<li><code>Deserialization</code><br>反序列化，<code>Json</code> 字符串转换成 <code>Java</code> 对象的过程   </li>
+</ul>
+<p><code>Gson</code> 默认会序列化和反序列化所有属性字段，但是也可以自定义，不过现在推荐使用 <code>TypeAdapter</code>。如下为自定义的方法：  </p>
+<ul>
+<li>自定义序列化的一种方法  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Id</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; clazz;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> value;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Id</span><span class="params">(Class&lt;T&gt; clazz, <span class="keyword">long</span> value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.clazz = clazz;</span><br><span class="line">    <span class="keyword">this</span>.value = value;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IdSerializer</span> <span class="keyword">implements</span> <span class="title">JsonSerializer</span>&lt;<span class="title">T</span>&gt;() </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> JsonElement <span class="title">serialize</span><span class="params">(Id id, Type typeOfId, JsonSerializationContext context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> JsonPrimitive(id.getValue());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Gson gson = <span class="keyword">new</span> GsonBuilder().registerTypeAdapter(Id.class, <span class="keyword">new</span> IdSerializer()).create();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>自定义反序列化的一种方法   </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Id</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; clazz;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> value;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Id</span><span class="params">(Class&lt;T&gt; clazz, <span class="keyword">long</span> value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.clazz = clazz;</span><br><span class="line">    <span class="keyword">this</span>.value = value;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IdDeserializer</span> <span class="keyword">implements</span> <span class="title">JsonDeserializer</span>&lt;<span class="title">Id</span>&gt;() </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> Id <span class="title">deserialize</span><span class="params">(JsonElement json, Type typeOfT, JsonDeserializationContext context)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> JsonParseException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Id((Class)typeOfT, id.getValue());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Gson gson = <span class="keyword">new</span> GsonBuilder().registerTypeAdapter(Id.class, <span class="keyword">new</span> IdDeserializer()).create();</span><br></pre></td></tr></table></figure>
+
+<h3 id="JsonReader-JsonWriter"><a href="#JsonReader-JsonWriter" class="headerlink" title="JsonReader/JsonWriter"></a>JsonReader/JsonWriter</h3><p><code>JsonReader</code> 继承于 <code>Reader</code> 用来读取字符，<code>JsonWriter</code> 继承于 <code>Writer</code>用来写入字符。  </p>
+<ul>
+<li><code>JsonReader</code><br>用于将 <code>JSON</code> 字符串转为 <code>Java</code> 对象    </li>
+<li><code>JsonWriter</code><br>用于将 <code>Java</code> 对象写为 <code>JSON</code> 字符串    </li>
+</ul>
+<h3 id="TypeAdapter"><a href="#TypeAdapter" class="headerlink" title="TypeAdapter"></a>TypeAdapter</h3><p><code>TypeAdapter</code> 是一个抽象类，可以用来自定义类型转换，它的流式 <code>API</code> 比树式 <code>API</code> 解析更高效     </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PointAdapter</span> <span class="keyword">extends</span> <span class="title">TypeAdapter</span>&lt;<span class="title">Point</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> Point <span class="title">read</span><span class="params">(JsonReader reader)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (reader.peek() == JsonToken.NULL) &#123;</span><br><span class="line">      reader.nextNull();</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    String xy = reader.nextString();</span><br><span class="line">    String[] parts = xy.split(<span class="string">","</span>);</span><br><span class="line">    <span class="keyword">int</span> x = Integer.parseInt(parts[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">int</span> y = Integer.parseInt(parts[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Point(x, y);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(JsonWriter writer, Point value)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">      writer.nullValue();</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    String xy = value.getX() + <span class="string">","</span> + value.getY();</span><br><span class="line">    writer.value(xy);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GsonBuilder builder = <span class="keyword">new</span> GsonBuilder();</span><br><span class="line">builder.registerTypeAdapter(Point.class, <span class="keyword">new</span> PointAdapter());</span><br><span class="line"><span class="comment">// if PointAdapter didn't check for nulls in its read/write methods, you should instead use</span></span><br><span class="line"><span class="comment">// builder.registerTypeAdapter(Point.class, new PointAdapter().nullSafe());</span></span><br><span class="line">...</span><br><span class="line">Gson gson = builder.create();</span><br></pre></td></tr></table></figure>
+
+<h2 id="注解关键字"><a href="#注解关键字" class="headerlink" title="注解关键字"></a>注解关键字</h2><p>包含五个注解关键字，代码路径： <code>com.google.gson.annotations</code>    </p>
+<h3 id="Expose"><a href="#Expose" class="headerlink" title="@Expose"></a>@Expose</h3><p> <code>@Expose</code> 注解<strong>只有在</strong>如下构造方法初始化时才生效：<br><code>Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()</code><br>生效时被注解的成员变量才会参与序列化/反序列化，其他不会参与。如果不是使用该构造方法，没有任何功能。     </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Expose</span> <span class="keyword">private</span> String firstName;</span><br><span class="line">  <span class="meta">@Expose</span>(serialize = <span class="keyword">false</span>) <span class="keyword">private</span> String lastName;</span><br><span class="line">  <span class="meta">@Expose</span> (serialize = <span class="keyword">false</span>, deserialize = <span class="keyword">false</span>) <span class="keyword">private</span> String emailAddress;</span><br><span class="line">  <span class="keyword">private</span> String password;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="SerializedName"><a href="#SerializedName" class="headerlink" title="@SerializedName"></a>@SerializedName</h3><p>表示某个成员变量序列化/反序列化的名字。如果后台服务器使用的命名规则和 <code>Java</code> 规范不一致，或者返回的 <code>Json</code> 和 <code>Java</code> 类只有部分变量不一致时，通过 <code>@SerializedName</code> 注解转换一一对应关系   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">  <span class="comment">// java 字段 a 和 json 中的 name 对应</span></span><br><span class="line">  <span class="meta">@SerializedName</span>(<span class="string">"name"</span>) String a;</span><br><span class="line">  <span class="comment">// java 字段 b 和 json 中的 name1, name2, name3 都可以对应</span></span><br><span class="line">  <span class="meta">@SerializedName</span>(value=<span class="string">"name1"</span>, alternate=&#123;<span class="string">"name2"</span>, <span class="string">"name3"</span>&#125;) String b;</span><br><span class="line">  String c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Since"><a href="#Since" class="headerlink" title="@Since"></a>@Since</h3><p><strong>只有在</strong>如下构造方法初始化时才生效：<br><code>Gson gson = new GsonBuilder().setVersion(1.0).create()</code><br>注解生效表示成员变量从哪个版本开始有效  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> String firstName;</span><br><span class="line">  <span class="keyword">private</span> String lastName;</span><br><span class="line">  <span class="meta">@Since</span>(<span class="number">1.0</span>) <span class="keyword">private</span> String emailAddress;</span><br><span class="line">  <span class="meta">@Since</span>(<span class="number">1.0</span>) <span class="keyword">private</span> String password;</span><br><span class="line">  <span class="comment">// address 字段不生效，因为需要版本大于 1.1 才有效</span></span><br><span class="line">  <span class="meta">@Since</span>(<span class="number">1.1</span>) <span class="keyword">private</span> Address address;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Until"><a href="#Until" class="headerlink" title="@Until"></a>@Until</h3><p>和 <code>since</code> 一样，<strong>只有在</strong>如下构造方法初始化时才生效：<br><code>Gson gson = new GsonBuilder().setVersion(1.2).create()</code><br>注解生效时表示成员变量从哪个版本开始无效  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> String firstName;</span><br><span class="line">  <span class="keyword">private</span> String lastName;</span><br><span class="line">  <span class="comment">// 当前版本为 1.2，而这两个字段只能支持到 1.1</span></span><br><span class="line">  <span class="meta">@Until</span>(<span class="number">1.1</span>) <span class="keyword">private</span> String emailAddress;</span><br><span class="line">  <span class="meta">@Until</span>(<span class="number">1.1</span>) <span class="keyword">private</span> String password;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="JsonAdapter"><a href="#JsonAdapter" class="headerlink" title="@JsonAdapter"></a>@JsonAdapter</h3><p>表示成员变量或者类上使用指定的 <code>TypeAdapter</code> 来进行序列化/反序列化   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonAdapter</span>(UserJsonAdapter.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> String firstName, lastName;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">User</span><span class="params">(String firstName, String lastName)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.firstName = firstName;</span><br><span class="line">    <span class="keyword">this</span>.lastName = lastName;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserJsonAdapter</span> <span class="keyword">extends</span> <span class="title">TypeAdapter</span>&lt;<span class="title">User</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">(JsonWriter out, User user)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// implement write: combine firstName and lastName into name</span></span><br><span class="line">    out.beginObject();</span><br><span class="line">    out.name(<span class="string">"name"</span>);</span><br><span class="line">    out.value(user.firstName + <span class="string">" "</span> + user.lastName);</span><br><span class="line">    out.endObject();</span><br><span class="line">    <span class="comment">// implement the write method</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> User <span class="title">read</span><span class="params">(JsonReader in)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// implement read: split name into firstName and lastName</span></span><br><span class="line">    in.beginObject();</span><br><span class="line">    in.nextName();</span><br><span class="line">    String[] nameParts = in.nextString().split(<span class="string">" "</span>);</span><br><span class="line">    in.endObject();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> User(nameParts[<span class="number">0</span>], nameParts[<span class="number">1</span>]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="特殊关键字-transient"><a href="#特殊关键字-transient" class="headerlink" title="特殊关键字 transient"></a>特殊关键字 <code>transient</code></h3><p>如果被关键字 <code>transient</code> 申明了的字段，不会参与 <code>Gson</code> 的序列化和反序列化：<br><code>transient int val;</code>   </p>
+<h2 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h2><h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="Gson-转换过程中的空字段"><a href="#Gson-转换过程中的空字段" class="headerlink" title="Gson 转换过程中的空字段"></a><code>Gson</code> 转换过程中的空字段</h3><p>如果元素看起来是个 <code>list</code>，但是实际一直为空，可以直接注释掉这个字段，也就是<code>javabean</code> 中不需要定义 <code>comments</code> 字段。否则会因空报错：<br><code>com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT at line 1 column 10796 path $.data.data[3].comments[0]</code>   </p>
+<h3 id="包含相同字段解决方案"><a href="#包含相同字段解决方案" class="headerlink" title="包含相同字段解决方案"></a>包含相同字段解决方案</h3><p>比如数据格式如下：  </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">"message": "success",</span><br><span class="line">"data": &#123;</span><br><span class="line">    "has_more": false,</span><br><span class="line">    "has_new_message": false,</span><br><span class="line">    "max_time": 1503994432,</span><br><span class="line">    "data": [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"group"</span>: &#123;</span><br><span class="line">                <span class="attr">"text"</span>: <span class="string">"\u513f\u5b50\u521d\u4e2d\uff0c"</span>,</span><br><span class="line">                <span class="attr">"dislike_reason"</span>: [</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="attr">"type"</span>: <span class="number">1</span>,</span><br><span class="line">                        <span class="attr">"id"</span>: <span class="number">319</span>,</span><br><span class="line">                        <span class="attr">"title"</span>: <span class="string">"\u6076\u641e"</span></span><br><span class="line">                    &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>这里面有两个 <code>data</code>，<code>json</code> 转换为 <code>javabean</code> 时会出现重复字段，设计 <code>javabean</code> 可以通过将重复的类更换类名，但字段名不变：   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// json中的第一个 data，类名更换</span></span><br><span class="line"><span class="keyword">private</span> DataX data;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataX</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> has_more;</span><br><span class="line">    <span class="keyword">private</span> String tip;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> has_new_message;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> max_time;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> min_time;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Data&gt; data;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// json中的第二层 data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Data</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> Group group;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">int</span> type;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">float</span> display_time;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">float</span> online_time;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h2><ol>
+<li><a href="https://github.com/google/gson" target="_blank" rel="noopener">官方仓库</a>    </li>
+<li><a href="http://www.javacreed.com/category/gson/" target="_blank" rel="noopener">国外经典教程</a>   </li>
+<li><a href="http://blog.csdn.net/maplejaw_/article/details/51818570" target="_blank" rel="noopener">Gson源码解读</a>  </li>
+<li><a href="http://www.jianshu.com/p/8cc857583ff4" target="_blank" rel="noopener">Gson全解析</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/24/0015-gson/" title="Gson">http://redspider110.github.io/2017/11/24/0015-gson/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/OpenSourceLibary/" rel="tag"># OpenSourceLibary</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/24/0014-Retrofit/" rel="next" title="Retrofit">
+                <i class="fa fa-chevron-left"></i> Retrofit
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/24/0016-greenDao/" rel="prev" title="greenDao">
+                greenDao <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JSON"><span class="nav-number">1.1.</span> <span class="nav-text">JSON</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gson"><span class="nav-number">1.2.</span> <span class="nav-text">Gson</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖"><span class="nav-number">2.</span> <span class="nav-text">依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">3.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#部分特点"><span class="nav-number">3.1.</span> <span class="nav-text">部分特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaBean-的生成"><span class="nav-number">3.2.</span> <span class="nav-text">JavaBean 的生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#序列化-反序列化"><span class="nav-number">3.3.</span> <span class="nav-text">序列化/反序列化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JsonReader-JsonWriter"><span class="nav-number">3.4.</span> <span class="nav-text">JsonReader/JsonWriter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TypeAdapter"><span class="nav-number">3.5.</span> <span class="nav-text">TypeAdapter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解关键字"><span class="nav-number">4.</span> <span class="nav-text">注解关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Expose"><span class="nav-number">4.1.</span> <span class="nav-text">@Expose</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SerializedName"><span class="nav-number">4.2.</span> <span class="nav-text">@SerializedName</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Since"><span class="nav-number">4.3.</span> <span class="nav-text">@Since</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Until"><span class="nav-number">4.4.</span> <span class="nav-text">@Until</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JsonAdapter"><span class="nav-number">4.5.</span> <span class="nav-text">@JsonAdapter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊关键字-transient"><span class="nav-number">4.6.</span> <span class="nav-text">特殊关键字 transient</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用流程"><span class="nav-number">5.</span> <span class="nav-text">使用流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">6.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gson-转换过程中的空字段"><span class="nav-number">6.1.</span> <span class="nav-text">Gson 转换过程中的空字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#包含相同字段解决方案"><span class="nav-number">6.2.</span> <span class="nav-text">包含相同字段解决方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档："><span class="nav-number">7.</span> <span class="nav-text">参考文档：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

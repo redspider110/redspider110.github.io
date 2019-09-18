@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="内存泄漏（Memory Leak）是指程序中己动态分配的堆内存由于某种原因程序未释放或无法释放，造成系统内存的浪费，导致程序运行速度减慢甚至系统崩溃等严重后果。内存泄漏会使应用占用的内存，随着时间不断的增加而造成应用 OOM(Out Of Memory) 错误，使应用崩溃。">
+<meta name="keywords" content="Java,Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 内存泄露">
+<meta property="og:url" content="http://redspider110.github.io/2018/03/13/0059-android-memory-leak/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="内存泄漏（Memory Leak）是指程序中己动态分配的堆内存由于某种原因程序未释放或无法释放，造成系统内存的浪费，导致程序运行速度减慢甚至系统崩溃等严重后果。内存泄漏会使应用占用的内存，随着时间不断的增加而造成应用 OOM(Out Of Memory) 错误，使应用崩溃。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-memory-profiler-callouts_2x.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-enable-advanced-profiling.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-memeory-profiler-mem-leak.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-hprof-analyzer-task.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.361Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android 内存泄露">
+<meta name="twitter:description" content="内存泄漏（Memory Leak）是指程序中己动态分配的堆内存由于某种原因程序未释放或无法释放，造成系统内存的浪费，导致程序运行速度减慢甚至系统崩溃等严重后果。内存泄漏会使应用占用的内存，随着时间不断的增加而造成应用 OOM(Out Of Memory) 错误，使应用崩溃。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-memory-profiler-callouts_2x.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/03/13/0059-android-memory-leak/">
+
+
+
+
+
+  <title>Android 内存泄露 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/03/13/0059-android-memory-leak/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android 内存泄露</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-13T09:00:00+08:00">
+                2018-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>内存泄漏（<code>Memory Leak</code>）是指程序中己动态分配的<strong>堆内存</strong>由于某种原因程序未释放或无法释放，造成系统内存的浪费，导致程序运行速度减慢甚至系统崩溃等严重后果。内存泄漏会使应用占用的内存，随着时间不断的增加而造成应用 <code>OOM(Out Of Memory)</code> 错误，使应用崩溃。  </p>
+<a id="more"></a>
+
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><h3 id="内存分配及垃圾回收-GC"><a href="#内存分配及垃圾回收-GC" class="headerlink" title="内存分配及垃圾回收 GC"></a>内存分配及垃圾回收 <code>GC</code></h3><p>内存分配及垃圾回收的基础知识，参考：<a href="https://redspider110.github.io/2018/04/23/0076-java-gc/">JVM 内存分配及垃圾回收-内存分配</a>  </p>
+<p>小结：  </p>
+<ul>
+<li><code>GC</code> 回收的对象必须是不可达的，或者当前没有任何引用的对象  </li>
+<li>当对象在使用完成后（对我们而言已经是垃圾对象了），如果没有释放该对象的引用，会导致 <code>GC</code> 不能回收该对象而继续占用内存  </li>
+<li>垃圾对象持续占用内存，导致内存空间的浪费，就发生内存泄露了  </li>
+<li>大量的内存泄露导致有效内存减少，当再次合理申请不到足够内存时，则会出现内存溢出  </li>
+</ul>
+<h3 id="内存泄露和内存溢出"><a href="#内存泄露和内存溢出" class="headerlink" title="内存泄露和内存溢出"></a>内存泄露和内存溢出</h3><ul>
+<li>内存泄露  </li>
+</ul>
+<p><strong>垃圾对象依旧占据堆内存，没有得到正确的释放</strong>。水池的水在使用后需要将脏水排空，但是排水管修的太高，有一部分脏水占用了水池的空间。  </p>
+<ul>
+<li>内存溢出  </li>
+</ul>
+<p><strong>内存占用达到最大值，当再需要时已经无法分配</strong>，这就是内存溢出。水池已经满了，这时再放水进来就会溢出。  </p>
+<p>内存的溢出是内存分配达到了最大值，而内存泄漏是无用内存充斥了内存堆；内存泄漏会占用内存堆导致可用内存太少，很容易出现内存溢出现象。  </p>
+<h2 id="常见内存泄露场景"><a href="#常见内存泄露场景" class="headerlink" title="常见内存泄露场景"></a>常见内存泄露场景</h2><h3 id="静态变量与内存泄露"><a href="#静态变量与内存泄露" class="headerlink" title="静态变量与内存泄露"></a>静态变量与内存泄露</h3><p><code>Java</code> 中静态变量在类加载时初始化，并存储在方法区是类变量，在类卸载的时候销毁并释放清空。下面简单介绍下类加载和卸载，参考<a href="https://www.cnblogs.com/hf-cherish/p/4970267.html" target="_blank" rel="noopener">java 静态变量及类的生命周期</a> 。  </p>
+<h4 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h4><p>遇到 <code>new, getstatic, putstatic, invokestatic</code> 这 4 条字节码指令时、反射调用时、子类初始化时、虚拟机启动 <code>main</code> 主类时等等，会触发类加载并初始化。  </p>
+<h4 id="静态变量"><a href="#静态变量" class="headerlink" title="静态变量"></a>静态变量</h4><p>虚拟机在加载类的过程中为静态变量分配内存，<code>static</code> 变量在内存中只有一个，存放在方法区，属于类变量，被所有实例所共享。  </p>
+<h4 id="类卸载"><a href="#类卸载" class="headerlink" title="类卸载"></a>类卸载</h4><p>方法区会回收两部分内容：废弃常量和无用的类。类被回收时才会卸载，但是方法区回收类时条件比较严格，只有同时满足以下三个条件，才会回收： </p>
+<ul>
+<li>该类所有的实例都已经被回收（<code>GC</code>），也就是虚拟机中不存在该 <code>Class</code> 的任何实例  </li>
+<li>加载该类的 <code>ClassLoader</code> 已经被回收（<code>GC</code>）  </li>
+<li>该类的 <code>java.lang.Class</code> 对象没有在任何地方被引用，无法在任何地方通过反射访问改类的方法<br>静态变量在类没有被销毁，也没有置 <code>null</code> 的情况下，是不会被回收的（<code>GC</code>）。  </li>
+</ul>
+<h4 id="安全可靠性"><a href="#安全可靠性" class="headerlink" title="安全可靠性"></a>安全可靠性</h4><p><code>Android</code> 在资源不足的时候会杀掉一些进程，在资源足够时重启被杀掉的进程，这时可能会存在某些应用内存不足被杀后重启了。这会导致 <code>Android</code> 中的静态变量并不可靠，上次保存的静态数据可能没了，所以针对静态变量，必须保存一份到本地文件。另外，静态变量在进程退出时才会被销毁，所以在多账号的应用中，退出账号时上次保存的数据还在，需要手动重置那些与账户有关的静态数据，以免影响到另一个账户。  </p>
+<h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><p>静态变量只有在类卸载（条件很苛刻），虚拟机关闭，进程被杀等情况下，才会被回收。通常我们可以简单理解，<code>Android</code> 的静态变量和整个应用的生命周期相同，所以静态变量引用了当前类中的变量，会引起当前类对象无法被及时销毁，导致内存泄露。  </p>
+<blockquote>
+<p>静态变量要尽量少用，在用完后必须置空，养成好习惯。  </p>
+</blockquote>
+<h3 id="非静态内部类与内存泄露"><a href="#非静态内部类与内存泄露" class="headerlink" title="非静态内部类与内存泄露"></a>非静态内部类与内存泄露</h3><p>在 <code>Java</code> 中，非静态内部类都会持有外部类的引用，参考<a href="http://redspider110.gitlab.io/redspider110.gitlab.io/2018/02/07/0048-java-inner-class/" target="_blank" rel="noopener">Java 内部类</a> 。<br>通过反编译非静态内部类对应的 <code>class</code> 文件，可以看出内部类在构造方法中，传入了外部类的引用 <code>this$0</code>，内部类在访问外部类的成员或方法时，都需要传递该参数 <code>this.this$0</code>，只有静态内部类例外。这也可看出为什么静态内部类在实例化时不需要外部类实例化，而其他内部类在实例化时必须先实例化外部类了。<br>内部类虽然和外部类写在同一个文件中，但是编译完成后会生成各自的 <code>class</code> 文件，编译过程中：  </p>
+<ul>
+<li>编译器自动为非静态内部类添加一个成员变量，这个成员变量的类型和外部类的类型相同，这个成员变量就是指向外部类对象的引用  </li>
+<li>编译器自动为非静态内部类的构造方法添加一个参数，参数的类型是外部类的类型，这个参数为内部类中添加的成员变量赋值  </li>
+<li>在调用非静态内部类的构造函数初始化内部类对象时，会默认传入外部类的引用  </li>
+</ul>
+<p>换句话说：<strong>静态内部类不持有外部类对象的引用，而其他内部类都会持有</strong>。在 <code>Android</code> 中经常会使用成员内部类或者匿名内部类，特别是这些类开后台线程或者做耗时操作时，会引起外部类在退出时（仍然被非静态内部类持有引用）无法被释放，导致内存泄露。<strong>当然这种后台因为耗时任务引起的内存泄露，在耗时任务执行完后，会释放外部类的引用，从而再下次 <code>GC</code> 时，外部类可以被正常回收。如果后台任务为无限循环，则外部类会被持续持有</strong>。  </p>
+<blockquote>
+<p>尽量使用静态内部类，避免持有外部类的引用。  </p>
+</blockquote>
+<h3 id="强弱软引用与内存泄露"><a href="#强弱软引用与内存泄露" class="headerlink" title="强弱软引用与内存泄露"></a>强弱软引用与内存泄露</h3><p>为了规避内存泄露，通常使用软引用或弱引用。参考：<a href="https://redspider110.github.io/2018/04/23/0076-java-gc/">JVM 内存分配及垃圾回收-对象引用的四种分类</a>  </p>
+<h3 id="注册和取消注册"><a href="#注册和取消注册" class="headerlink" title="注册和取消注册"></a>注册和取消注册</h3><p>监听系统服务，通常要将自己 <code>Context</code> 注册到系统中，这会导致服务持有了 <code>Context</code> 的引用，如果在 <code>Activity</code> 销毁的时没有注销这些监听器，会导致内存泄漏。所以注册和取消注册一定是成对出现的：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">registerListener();</span><br><span class="line">unregisterListener();</span><br></pre></td></tr></table></figure>
+
+<h3 id="Bitmap-使用不当造成内存泄露和溢出"><a href="#Bitmap-使用不当造成内存泄露和溢出" class="headerlink" title="Bitmap 使用不当造成内存泄露和溢出"></a><code>Bitmap</code> 使用不当造成内存泄露和溢出</h3><p><code>Bitmap</code> 非常容易导致内存溢出，通常 1200 万像素的手机拍下来的照片为 <code>4048x3036</code> 像素，如果默认配置为 <code>ARGB_8888</code> （4 个字节存储），打开一张这样的图片大概需要 <code>4048*3036*4/1024=48M</code> 大小的内存，很容易导致应用内存溢出。所以 <code>Bitmap</code> 使用时需要非常小心并及时回收。参考 <code>Android</code> 官方文档：<a href="https://developer.android.com/topic/performance/graphics/index.html" target="_blank" rel="noopener">Handling Bitmaps</a> ，<a href="https://developer.android.com/topic/performance/graphics/load-bitmap.html" target="_blank" rel="noopener">Loading Large Bitmaps Efficiently</a> ，<a href="https://developer.android.com/topic/performance/graphics/cache-bitmap.html" target="_blank" rel="noopener">Caching Bitmaps</a> ，<a href="https://developer.android.com/topic/performance/graphics/manage-memory.html" target="_blank" rel="noopener">Managing Bitmap Memory</a> 。</p>
+<h3 id="其他可能引起的内存泄露"><a href="#其他可能引起的内存泄露" class="headerlink" title="其他可能引起的内存泄露"></a>其他可能引起的内存泄露</h3><ul>
+<li>资源性对象未关闭<br>如 <code>Cursor, File, Socket</code> 等的使用，最后需要 <code>close</code> 并置空。  </li>
+<li>屏幕旋转导致的 <code>Activity</code> 重建<br>反复旋转设备经常会导致应用泄漏 <code>Activity, Context, View</code> 对象，因为系统会重新创建 <code>Activity</code>，而如果在其他地方保持对这些对象之一的引用，系统将无法对其进行垃圾回收。  </li>
+</ul>
+<h2 id="常见内存泄露示例"><a href="#常见内存泄露示例" class="headerlink" title="常见内存泄露示例"></a>常见内存泄露示例</h2><blockquote>
+<p>内存泄露的根本原因：<strong>长生命周期对象引用了短生命周期对象导致。当短生命周期对象结束后，而长生命周期仍然持有这个引用，导致短生命周期对象无法被释放</strong>。  </p>
+</blockquote>
+<h3 id="静态变量-1"><a href="#静态变量-1" class="headerlink" title="静态变量"></a>静态变量</h3><p>根据上面分析，静态变量很容易引起内存泄露，应该尽量少用，用完后退出必须置空。如下为静态 <code>Activity</code> 变量和静态 <code>View</code> 引起的内存泄露示例。  </p>
+<h4 id="错误示例"><a href="#错误示例" class="headerlink" title="错误示例"></a>错误示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Activity sLeakActivity;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">staticActivityLeak</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"staticActivityLeak: "</span>);</span><br><span class="line">    sLeakActivity = <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> View sLeakView;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">staticViewLeak</span><span class="params">(View view)</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"staticViewLeak: "</span>);</span><br><span class="line">    sLeakView = view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例很简单，定义了两个静态变量分别保存当前 <code>Activity</code> 变量和某个 <code>View</code> 变量，而静态变量生命周期基本和应用生命周期相同，所以当前 <code>Activity</code> 退出时，因为静态变量持有它的引用，导致 <code>Activity</code> 实例无法被回收出现内存泄露。  </p>
+<h4 id="正确示例"><a href="#正确示例" class="headerlink" title="正确示例"></a>正确示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 使用非静态变量保存</span></span><br><span class="line"><span class="keyword">private</span> Activity mSafeActivity;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">safeActivity</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"safeActivity: "</span>);</span><br><span class="line">    mSafeActivity = <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onDestroy();</span><br><span class="line">    <span class="comment">// 2. 静态变量置空</span></span><br><span class="line">    <span class="keyword">if</span> (mSafeView != <span class="keyword">null</span>)&#123;</span><br><span class="line">        mSafeView = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解决方法也很简单，不使用静态变量，或者在 <code>Activity.onDestroy</code> 时，将静态变量置空，断开引用链关系。  </p>
+<h3 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h3><p>在 <code>Android</code> 中，单例的静态特性使得单例的生命周期和应用的生命周期一样长，而单例中引用了 <code>Activity</code> 对象。当该 <code>Activity</code> 退出时，因为单例还持有这个对象，导致该 <code>Activity</code> 无法被回收，导致内存泄露。</p>
+<h4 id="错误示例-1"><a href="#错误示例-1" class="headerlink" title="错误示例"></a>错误示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemLeakSample</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. Singleton</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonLeak</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> SingletonLeak sInstance;</span><br><span class="line">        <span class="keyword">private</span> Context mContext;</span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="title">SingletonLeak</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">            mContext = context;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingletonLeak <span class="title">getInstance</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>)&#123;</span><br><span class="line">                <span class="comment">// 构造方法，单例持有了 Activity 的引用</span></span><br><span class="line">                <span class="comment">// 导致 Activity 退出时，无法被回收</span></span><br><span class="line">                sInstance = <span class="keyword">new</span> SingletonLeak(context);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> sInstance;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 获取单例，传入了 Activity</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">staticSingletonLeak</span><span class="params">()</span></span>&#123;</span><br><span class="line">        SingletonLeak.getInstance(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，<code>MemLeakSample</code> 中调用了单例 <code>SingletonLeak</code>，并将自身传递给单例，紧接着马上关闭退出。正常情况下 <code>MemLeakSample</code> 退出后，应当释放并回收，但是因为静态单例持有了 <code>Context</code> 的引用，导致其无法被回收，引起内存泄露。  </p>
+<h4 id="正确示例-1"><a href="#正确示例-1" class="headerlink" title="正确示例"></a>正确示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. Singleton</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeSingleton</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SafeSingleton sInstance;</span><br><span class="line">    <span class="keyword">private</span> Context mContext;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SafeSingleton</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">        mContext = context;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SafeSingleton <span class="title">getInstance</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="comment">// 构造方法，单例持有的是应用的 Context</span></span><br><span class="line">            <span class="comment">// 和当前 Activity 无关，不影响 Activity 的回收</span></span><br><span class="line">            sInstance = <span class="keyword">new</span> SafeSingleton(context.getApplicationContext());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 获取单例，传入 Activity</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">safeStaticSingleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">    SafeSingleton.getInstance(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Context</code> 赋值为整个应用的上下文 <code>this.context = context.getApplicationContext();</code>，这样单例 <code>Context</code> 就和应用的生命周期相同了，和具体的 <code>Activity</code> 无关，所以 <code>MemLeakSample</code> 退出后，直接释放并回收。  </p>
+<h3 id="匿名内部类-Thread-Runnable"><a href="#匿名内部类-Thread-Runnable" class="headerlink" title="匿名内部类 - Thread/Runnable"></a>匿名内部类 - <code>Thread/Runnable</code></h3><p>后台耗时任务的匿名内部类，可能出现内存泄露。  </p>
+<h4 id="错误示例-2"><a href="#错误示例-2" class="headerlink" title="错误示例"></a>错误示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">anonymousThreadLeak</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">30000</span>);</span><br><span class="line">                Log.d(TAG, <span class="string">"run: anonymousThreadLeak, runnable, exit."</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>匿名 <code>Runnable</code> 在后台执行耗时任务，当前 <code>Activity</code> 退出，因为 <code>Runnable</code> 持有 <code>Activity</code> 的引用，导致出现内存泄露。但是当 <code>Runnable</code> 执行完后，会释放引用，下次 <code>GC</code> 时，<code>Activity</code> 能被正常回收。当然在编码时，更希望不要出现泄露的可能性。  </p>
+<h4 id="正确示例-2"><a href="#正确示例-2" class="headerlink" title="正确示例"></a>正确示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用静态内部类，避免持有外部类引用</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">30000</span>);</span><br><span class="line">            Log.d(TAG, <span class="string">"run: MyRunnable, exit."</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">safeAnonymousThread</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> MyRunnable()).start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用静态内部类，避免持有外部类引用，从根本上避免内存泄露。和 <code>Thread/Runnable</code> 类似的还有 <code>AsyncTask</code>，如果异步任务没有执行完而 <code>Activity</code> 退出，就会导致内存泄露。  </p>
+<h3 id="匿名内部类-Handler"><a href="#匿名内部类-Handler" class="headerlink" title="匿名内部类 - Handler"></a>匿名内部类 - <code>Handler</code></h3><p>所有 <code>Message</code> 都持有 <code>Handler</code> 的引用，而匿名内部类 <code>Handler</code> 会持有外部 <code>Activity</code>，形成引用链。  </p>
+<h4 id="错误示例-3"><a href="#错误示例-3" class="headerlink" title="错误示例"></a>错误示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Handler mLeakHandler = <span class="keyword">new</span> Handler()&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.handleMessage(msg);</span><br><span class="line">        Log.d(TAG, <span class="string">"mLeakHandler.handleMessage: msg.what = "</span> + msg.what);</span><br><span class="line">        mTvNonStaticInnerClass.setTextColor(Color.RED);</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">anonymousHandlerLeak</span><span class="params">()</span></span>&#123;</span><br><span class="line">    mLeakHandler.sendEmptyMessageDelayed(MSG_LEAK, <span class="number">30000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>匿名 <code>Handler</code> 在处理延时消息这段时间时，如果 <code>Activity</code> 退出，而匿名 <code>Handler</code> 持有它的引用，导致 <code>Activity</code> 无法被正常释放，引起内存泄露。  </p>
+<h4 id="正确示例-3"><a href="#正确示例-3" class="headerlink" title="正确示例"></a>正确示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> WeakReference&lt;MemLeakSample&gt; mActivity;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SafeHandler</span><span class="params">(MemLeakSample activity)</span></span>&#123;</span><br><span class="line">        mActivity = <span class="keyword">new</span> WeakReference&lt;&gt;(activity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.handleMessage(msg);</span><br><span class="line">        Log.d(TAG, <span class="string">"mSafeHandler.handleMessage: msg.what = "</span> + msg.what);</span><br><span class="line">        <span class="comment">//mActivity.get().mTvNonStaticInnerClass.setTextColor(Color.BLUE);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">private</span> SafeHandler mSafeHandler;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">safeAnonymousHandler</span><span class="params">()</span></span>&#123;</span><br><span class="line">    mSafeHandler = <span class="keyword">new</span> SafeHandler(<span class="keyword">this</span>);</span><br><span class="line">    mSafeHandler.sendEmptyMessageDelayed(MSG_SAFE, <span class="number">30000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用静态内部类继承 <code>Handler</code>，避免持有外部 <code>Activity</code> 的引用。但是 <code>Handler</code> 通常来更新 <code>UI</code>，如果使用静态内部类，则无法正常访问 <code>Activity</code> 的 <code>UI</code> 控件了，这里采用弱引用的方式，保存 <code>Activity</code> 的实例来更新 <code>UI</code>，确保在 <code>GC</code> 时，<code>Activity</code> 能被正常回收。  </p>
+<h3 id="注册系统服务监听"><a href="#注册系统服务监听" class="headerlink" title="注册系统服务监听"></a>注册系统服务监听</h3><p>通过 <code>Context.getSystemService(int name)</code> 获取系统服务，这些服务工作在各自的进程中，如果需要使用这些服务，可以注册监听器，这会导致服务持有了 <code>Context</code> 的引用，如果在 <code>Activity</code> 销毁的时没有注销这些监听器，会导致内存泄漏。  </p>
+<h4 id="错误示例-4"><a href="#错误示例-4" class="headerlink" title="错误示例"></a>错误示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> SensorManager mSensorManager;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> MySensorEventListener mySensorEventListener;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MySensorEventListener</span> <span class="keyword">implements</span> <span class="title">SensorEventListener</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSensorChanged</span><span class="params">(SensorEvent event)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAccuracyChanged</span><span class="params">(Sensor sensor, <span class="keyword">int</span> accuracy)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerSensor</span><span class="params">()</span></span>&#123;</span><br><span class="line">    mySensorEventListener = <span class="keyword">new</span> MySensorEventListener();</span><br><span class="line">    mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);</span><br><span class="line">    Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ALL);</span><br><span class="line">    mSensorManager.registerListener(mySensorEventListener, </span><br><span class="line">        sensor, SensorManager.SENSOR_DELAY_FASTEST);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerLeak</span><span class="params">()</span></span>&#123;</span><br><span class="line">    isRegisterSafe = <span class="keyword">false</span>;</span><br><span class="line">    registerSensor();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> isRegisterSafe;</span><br></pre></td></tr></table></figure>
+
+<h4 id="正确示例-4"><a href="#正确示例-4" class="headerlink" title="正确示例"></a>正确示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">safeRegister</span><span class="params">()</span></span>&#123;</span><br><span class="line">    isRegisterSafe = <span class="keyword">true</span>;</span><br><span class="line">    registerSensor();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onDestroy();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isRegisterSafe &amp;&amp; mSensorManager != <span class="keyword">null</span> </span><br><span class="line">        &amp;&amp; mySensorEventListener != <span class="keyword">null</span>)&#123;</span><br><span class="line">        mSensorManager.unregisterListener(mySensorEventListener);</span><br><span class="line">        mSensorManager = <span class="keyword">null</span>;</span><br><span class="line">        mySensorEventListener = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册后，需要在 <code>Activity.onDestroy</code> 中取消注册，避免系统服务持有当前 <code>Activity</code> 的引用，从而规避内存泄露。  </p>
+<h2 id="内存泄露检测工具"><a href="#内存泄露检测工具" class="headerlink" title="内存泄露检测工具"></a>内存泄露检测工具</h2><p><code>Android Profiler[&#39;proʊfaɪlə(r)]</code> 是 <code>Android Studio 3.0</code> 推出的一个监控工具，分为三大模块：<code>CPU</code>、内存 、网络。利用 <code>Memory Profiler</code> 来监控并分析当前应用内存的使用情况，官网地址：<a href="https://developer.android.google.cn/studio/preview/features/android-profiler.html" target="_blank" rel="noopener">Android Profiler</a> <a href="https://developer.android.google.cn/studio/profile/memory-profiler.html#overview" target="_blank" rel="noopener">Memory Profiler</a> 。<br><code>Memory Profiler</code> 可以识别导致应用卡顿、冻结甚至崩溃的内存泄漏和流失。能够显示应用内存使用量的实时图表，捕获堆转储、强制执行垃圾回收以及跟踪内存分配等功能。  </p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>打开方式：点击 <code>View &gt; Tool Windows &gt; Android Profiler</code>，或者点击工具栏中的 <code>Android Profiler</code> 图标打开 <code>Android Profiler</code>。然后点击 <code>MEMORY</code> 时间线中的任意位置可打开 <code>Memory Profiler</code>。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-memory-profiler-callouts_2x.png" alt="0059-memory-profiler-callouts_2x.png"></p>
+<p>图片中 <code>1-7</code> 按钮分别表示：  </p>
+<ol>
+<li>用于强制执行垃圾回收的按钮（<code>GC</code>）。  </li>
+<li>用于捕获堆转储的按钮。  </li>
+<li>用于记录内存分配情况的按钮。此按钮仅在连接至运行 <code>Android 7.1</code> 或更低版本的设备时才会显示。  </li>
+<li>用于放大/缩小时间线的按钮。  </li>
+<li>用于跳转至实时内存数据的按钮。  </li>
+<li><code>Event</code> 时间线，其显示 <code>Activity</code> 状态、用户输入 <code>Event</code> 和屏幕旋转 <code>Event</code>。  </li>
+<li>内存使用量时间线，其包含以下内容：  </li>
+</ol>
+<ul>
+<li>一个显示每个内存类别使用多少内存的堆叠图表，如左侧的 <code>y</code> 轴以及顶部的彩色键所示。  </li>
+<li>虚线表示分配的对象数，如右侧的 <code>y</code> 轴所示。  </li>
+<li>用于表示每个垃圾回收 <code>Event</code> 的图标。  </li>
+</ul>
+<p>如果遇到：<code>Advanced profiling is unabailable for the selected process</code> 这个问题，是因为在 <code>Android 7.1</code> 或更低版本的设备需要开启 <code>Profiler</code> 配置，<code>Android 8.0</code> 及以上不会存在。<br>解决方案：<code>Run -- Edit Configurations...</code> 打开应用配置界面，选择应用并在右边的 <code>tab</code> 中勾选 <code>Enable advanced profiling</code>。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-enable-advanced-profiling.png" alt="0059-enable-advanced-profiling.png"></p>
+<h3 id="查看内存泄露"><a href="#查看内存泄露" class="headerlink" title="查看内存泄露"></a>查看内存泄露</h3><p>点击 <code>Memory Profiler</code> 的堆转储按钮，捕获应用中象使用内存的当前状态。特别是在长时间的用户会话后，堆转储会显示那些不应再位于内存中却仍在内存中的对象，从而帮助识别内存泄漏。堆转储中可以看到：  </p>
+<ul>
+<li>应用已分配哪些类型的对象，以及每个类型分配多少  </li>
+<li>每个对象正在使用多少内存  </li>
+<li>在代码中的何处仍在引用每个对象  </li>
+</ul>
+<p>在 <code>Instance View</code> 中，每个实例都包含以下信息：</p>
+<ul>
+<li><code>Depth</code><br>从任意 <code>GC</code> 根到所选实例的最短 <code>hop</code> 数，如果不为 0 ，则表示无法回收（内存泄露可疑点）。  </li>
+<li><code>Shallow Size</code>：此实例的大小  </li>
+<li><code>Retained Size</code>：此实例支配的内存大小  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-memeory-profiler-mem-leak.png" alt="0059-memeory-profiler-mem-leak.png"></p>
+<blockquote>
+<p>从 <code>Memory Profiler</code> 中只能看出内存泄露产生了，主要是按包查看指定应用的实例引用数（<code>Depth</code>）是否为 0 。如果不为 0 ，基本可以确定存在内存泄露了，需要查看代码慢慢检查。如果为 0，下次 <code>GC</code> 时会回收这些对象。  </p>
+</blockquote>
+<h3 id="分析-hprof-文件"><a href="#分析-hprof-文件" class="headerlink" title="分析 hprof 文件"></a>分析 <code>hprof</code> 文件</h3><p><code>HPROF</code> 文件是一种二进制堆转储格式文件，包含了内存相关信息，可以直接使用 <code>AS</code> 打开这类文件。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0059-hprof-analyzer-task.png" alt="0059-hprof-analyzer-task.png"></p>
+<p>从图中可以看出，打开右上角的 <code>Analyzer Tasks</code> 页，点击开始按钮后，自动分析 <code>hprof</code> 文件中 <code>Activity/String</code>的内存泄露，通常我们用来看 <code>Activity</code> 的内存泄露。点击泄露的 <code>Activity</code> 后，在左下角能看到调用关系，可以很明确的得出具体是哪个变量引用没有释放。<br>参考网页：<a href="https://www.jianshu.com/p/7d958959cf33" target="_blank" rel="noopener">HPROF文件查看和分析工具</a>  </p>
+<h3 id="其他检查工具"><a href="#其他检查工具" class="headerlink" title="其他检查工具"></a>其他检查工具</h3><ul>
+<li><code>Leak Canary</code><br>开源内存泄露检测库<a href="https://github.com/square/leakcanary" target="_blank" rel="noopener">官网</a> ，能跟踪到内存泄露的代码具体位置，非常好用，内存泄露时会给出弹框提示。  </li>
+<li><code>MAT[Memory AnalysisTools]</code><br><code>Eclipse</code> 推出的内存泄露分析工具<a href="http://www.eclipse.org/mat/downloads.php" target="_blank" rel="noopener">官网下载地址</a> ，可以独立运行。网上有相关分析介绍<a href="https://segmentfault.com/a/1190000006884310" target="_blank" rel="noopener">腾讯Bugly-Android内存泄漏MAT分析</a> 。</li>
+<li><code>dumpsys meminfo</code> 命令<br>命令格式：<code>adb shell dumpsys meminfo package_name|pid [-d]</code>。 [Android 官网指南] <a href="https://developer.android.google.cn/studio/command-line/dumpsys.html" target="_blank" rel="noopener">https://developer.android.google.cn/studio/command-line/dumpsys.html</a> ，<a href="https://developer.android.google.cn/topic/performance/memory.html" target="_blank" rel="noopener">memory</a>  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>深入理解 <code>Java</code> 虚拟机: <code>JVM</code> 高级特性与最佳实践 第 2 版</li>
+<li><a href="http://blog.csdn.net/xyq046463/article/details/51769728" target="_blank" rel="noopener">Android内存泄漏查找和解决</a>  </li>
+<li><a href="https://segmentfault.com/a/1190000006884310" target="_blank" rel="noopener">腾讯Bugly-Android内存泄漏的简单检查与分析方法</a>  </li>
+<li><a href="https://segmentfault.com/a/1190000003984512" target="_blank" rel="noopener">腾讯Bugly-内存泄露从入门到精通三部曲之基础知识篇</a>  </li>
+<li><a href="https://segmentfault.com/a/1190000003991636" target="_blank" rel="noopener">腾讯Bugly-内存泄露从入门到精通三部曲之排查方法篇</a>  </li>
+<li><a href="https://segmentfault.com/a/1190000004018386" target="_blank" rel="noopener">腾讯Bugly-内存泄露从入门到精通三部曲之常见原因与用户实践</a>  </li>
+<li><a href="http://blog.csdn.net/qq_32618417/article/details/51703414" target="_blank" rel="noopener">单例模式造成的内存泄漏</a>  </li>
+<li><a href="https://developer.android.google.cn/studio/profile/memory-profiler.html#overview" target="_blank" rel="noopener">Memory Profiler</a>  </li>
+<li><a href="http://blog.csdn.net/double2hao/article/details/78784758" target="_blank" rel="noopener">Android Profiler内存泄漏检查</a>  </li>
+<li><a href="http://blog.csdn.net/niubitianping/article/details/72617864" target="_blank" rel="noopener">Android Profiler分析器</a>  </li>
+<li><a href="https://github.com/square/leakcanary" target="_blank" rel="noopener">github LeakCanary</a>  </li>
+<li><a href="https://segmentfault.com/a/1190000006884310" target="_blank" rel="noopener">腾讯Bugly-Android内存泄漏MAT分析</a>  </li>
+<li><a href="https://www.jianshu.com/p/7d958959cf33" target="_blank" rel="noopener">HPROF文件查看和分析工具</a>  </li>
+<li><a href="https://www.cnblogs.com/hf-cherish/p/4970267.html" target="_blank" rel="noopener">java 静态变量及类的生命周期</a>  </li>
+<li><a href="http://blog.csdn.net/zhangjg_blog/article/details/20000769" target="_blank" rel="noopener">深入理解Java中为什么内部类可以访问外部类的成员</a>  </li>
+<li><a href="https://www.jianshu.com/p/ac00e370f83d" target="_blank" rel="noopener">Android内存泄漏的八种可能-上</a>  </li>
+<li><a href="https://www.jianshu.com/p/c5ac51d804fa" target="_blank" rel="noopener">Android内存泄漏的八种可能-下</a>  </li>
+<li><a href="https://yq.aliyun.com/articles/3009" target="_blank" rel="noopener">Android 内存泄漏总结</a>  </li>
+<li><a href="https://www.jianshu.com/p/cbe2ee08ca02" target="_blank" rel="noopener">内存泄露实例分析</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/03/13/0059-android-memory-leak/" title="Android 内存泄露">http://redspider110.github.io/2018/03/13/0059-android-memory-leak/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/12/0058-design-patterns-proxy/" rel="next" title="设计模式--结构型：代理模式">
+                <i class="fa fa-chevron-left"></i> 设计模式--结构型：代理模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/22/0060-design-patterns-interpreter/" rel="prev" title="设计模式--行为型：解释器模式">
+                设计模式--行为型：解释器模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础概念"><span class="nav-number">1.</span> <span class="nav-text">基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存分配及垃圾回收-GC"><span class="nav-number">1.1.</span> <span class="nav-text">内存分配及垃圾回收 GC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存泄露和内存溢出"><span class="nav-number">1.2.</span> <span class="nav-text">内存泄露和内存溢出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见内存泄露场景"><span class="nav-number">2.</span> <span class="nav-text">常见内存泄露场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态变量与内存泄露"><span class="nav-number">2.1.</span> <span class="nav-text">静态变量与内存泄露</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载"><span class="nav-number">2.1.1.</span> <span class="nav-text">类加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#静态变量"><span class="nav-number">2.1.2.</span> <span class="nav-text">静态变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类卸载"><span class="nav-number">2.1.3.</span> <span class="nav-text">类卸载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全可靠性"><span class="nav-number">2.1.4.</span> <span class="nav-text">安全可靠性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结论"><span class="nav-number">2.1.5.</span> <span class="nav-text">结论</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#非静态内部类与内存泄露"><span class="nav-number">2.2.</span> <span class="nav-text">非静态内部类与内存泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#强弱软引用与内存泄露"><span class="nav-number">2.3.</span> <span class="nav-text">强弱软引用与内存泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注册和取消注册"><span class="nav-number">2.4.</span> <span class="nav-text">注册和取消注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bitmap-使用不当造成内存泄露和溢出"><span class="nav-number">2.5.</span> <span class="nav-text">Bitmap 使用不当造成内存泄露和溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他可能引起的内存泄露"><span class="nav-number">2.6.</span> <span class="nav-text">其他可能引起的内存泄露</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见内存泄露示例"><span class="nav-number">3.</span> <span class="nav-text">常见内存泄露示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态变量-1"><span class="nav-number">3.1.</span> <span class="nav-text">静态变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误示例"><span class="nav-number">3.1.1.</span> <span class="nav-text">错误示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正确示例"><span class="nav-number">3.1.2.</span> <span class="nav-text">正确示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单例模式"><span class="nav-number">3.2.</span> <span class="nav-text">单例模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误示例-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">错误示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正确示例-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">正确示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名内部类-Thread-Runnable"><span class="nav-number">3.3.</span> <span class="nav-text">匿名内部类 - Thread/Runnable</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误示例-2"><span class="nav-number">3.3.1.</span> <span class="nav-text">错误示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正确示例-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">正确示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#匿名内部类-Handler"><span class="nav-number">3.4.</span> <span class="nav-text">匿名内部类 - Handler</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误示例-3"><span class="nav-number">3.4.1.</span> <span class="nav-text">错误示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正确示例-3"><span class="nav-number">3.4.2.</span> <span class="nav-text">正确示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注册系统服务监听"><span class="nav-number">3.5.</span> <span class="nav-text">注册系统服务监听</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误示例-4"><span class="nav-number">3.5.1.</span> <span class="nav-text">错误示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#正确示例-4"><span class="nav-number">3.5.2.</span> <span class="nav-text">正确示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存泄露检测工具"><span class="nav-number">4.</span> <span class="nav-text">内存泄露检测工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">4.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看内存泄露"><span class="nav-number">4.2.</span> <span class="nav-text">查看内存泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析-hprof-文件"><span class="nav-number">4.3.</span> <span class="nav-text">分析 hprof 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他检查工具"><span class="nav-number">4.4.</span> <span class="nav-text">其他检查工具</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

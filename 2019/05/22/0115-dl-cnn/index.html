@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="DeepLearning,CNN,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="卷积神经网络基础，以及经典模型的介绍： LeNet-5, AlexNet, VGGNet, GoogLeNet, ResNet, MobileNet 。">
+<meta name="keywords" content="DeepLearning,CNN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CNN - 卷积神经网络">
+<meta property="og:url" content="http://redspider110.github.io/2019/05/22/0115-dl-cnn/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="卷积神经网络基础，以及经典模型的介绍： LeNet-5, AlexNet, VGGNet, GoogLeNet, ResNet, MobileNet 。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-sumary.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-convolutional.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-convolutional-kernel-filter.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-pooling-max.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-pooling-mean.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-receptive-field.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-paras-share.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-model.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-conv-pooling.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-c3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-full-connection.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-summary.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-dropout.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-data-augmentation.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-overview.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-vgg-summary.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-vgg-feature.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-module.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-overview.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-details.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure10.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2-detail.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure7.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v4-network.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v4-details.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-restnet-summary.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-restnet-v1-details.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-plain-training-error.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-learning.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-vs-vgg19.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-vgg19-traning-result.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-deep.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-v2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-depthwise.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-bn-relu.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-architecture.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-width-resolution-multpier.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-relu.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-inverted-residual-block.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-module.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-module-input-output.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-architecture.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-vs-v1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-vs-resnet.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-bn-algorithm.jpg">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CNN - 卷积神经网络">
+<meta name="twitter:description" content="卷积神经网络基础，以及经典模型的介绍： LeNet-5, AlexNet, VGGNet, GoogLeNet, ResNet, MobileNet 。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-sumary.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/05/22/0115-dl-cnn/">
+
+
+
+
+
+  <title>CNN - 卷积神经网络 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/05/22/0115-dl-cnn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CNN - 卷积神经网络</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-22T09:00:00+08:00">
+                2019-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DeepLearning/" itemprop="url" rel="index">
+                    <span itemprop="name">DeepLearning</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>卷积神经网络基础，以及经典模型的介绍： <code>LeNet-5, AlexNet, VGGNet, GoogLeNet, ResNet, MobileNet</code> 。  </p>
+<a id="more"></a>
+
+<h2 id="卷积神经网络"><a href="#卷积神经网络" class="headerlink" title="卷积神经网络"></a>卷积神经网络</h2><p><code>CNN: Convolutional Neural Networks</code> 卷积神经网络也是由输入层、输出层和多个隐藏层组成，但是隐藏层可分为卷积层 <code>Convolution</code> ，池化层 <code>Pooling</code> 、全连接层 <code>FCN:fully connected neural network</code> 。<br>在图像分类任务中，卷积和池化后的结果是每个输入图像的特征空间，然后将它喂给全连接层实现分类，即从输入图像到标签集的映射。目前主流的卷积神经网络，比如 <code>VGG, ResNet</code> 等都是由简单的 <code>CNN</code> 调整组合而来。下图为常见的卷积和池化的示例：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-sumary.jpg" alt="0115-dl-cnn-sumary.jpg"></p>
+<p>上图示例输入为 <code>277*277</code> 的 <code>RGB</code> 图像，采用 96 个 <code>11*11*3</code> 的卷积核 <code>kernels</code> 同时扫描，得到输出的特征图是 96 个 <code>267*267</code> 的二维 <code>feature map</code> ； <code>267*267</code> 是单个特征图的宽高， 96 是卷积核的个数，原本 3 通道元素在卷积的时候会被作为一个元素加起来。这些 <code>feature map</code> 可视化之后，可以看到：  </p>
+<ul>
+<li>4 和 35 表示边缘特征  </li>
+<li>23 是模糊化的输入  </li>
+<li>10 和 16 在强调灰度变化  </li>
+<li>39 强调眼睛  </li>
+<li>45 强调红色通道  </li>
+</ul>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><ul>
+<li>特征图 <code>Feature map</code><br>输入图像和卷积核做卷积后的输出图即为特征图！它表示该卷积核从输入图中提取的一个特征。  </li>
+<li>感受野 <code>Receptive field</code><br>特征图上每个像素点在输入图片上映射的区域，即该像素点为输入图中哪块像素和卷积核做卷积计算的。输入图中这块像素区域大小即为感受野，也就是感受野的大小和卷积核的大小相同。  </li>
+</ul>
+<h3 id="Convolutional-Layer-卷积层"><a href="#Convolutional-Layer-卷积层" class="headerlink" title="Convolutional Layer 卷积层"></a><code>Convolutional Layer</code> 卷积层</h3><p>卷积是一种有效提取图片特征的方法：使用一个正方形的卷积核，遍历图片上的每个像素点；图片与卷积核重合区域内相对应的每一个像素值乘以卷积核内对应点的权重，然后求和得到输出图片中的一个像素值。输入图像感受野区域和卷积核中对应位置相乘后求和，卷积核中的值表示权重；输出值为卷积核矩阵和感受野区域矩阵进行点积。<br>根据线性代数理论，点积表示向量在某个特征（向量）上的投影再乘以这个特征（向量），直接意义表示向量在某个特征（向量）上的强度；也就是说，做一次点积相当于提取了一次特征。卷积层的意义：卷积核在输入图像上从左到右，从上到下滑动，提取整幅图像在卷积核上的特征。计算过程如下图所示：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-convolutional.png" alt="0115-dl-cnn-convolutional.png"></p>
+<p>图中显示了两个卷积示例，绿色部分和红色部分；绿色部分见图中计算结果，红色部分计算如下： <code>(-1)*2+(-1)*9+(-1)*2+1*4+1*4=-5</code> 。  </p>
+<p>假设输入图像大小为 <code>n*n</code> ，卷积核大小为 <code>f*f</code> ，滑动步长为 <code>s</code> ，输入图像 <code>padding</code> 位数为 <code>p</code> ，则输出图像大小为 <code>(n+2p-f)/s + 1</code> 。输入图像和卷积核做卷积后，输出特征图大小和个数就是由这些参数决定：  </p>
+<ul>
+<li><code>padding</code> 填充<br>在输入图像外圈填充一圈像素，也就是扩大输入图像的大小；通常 <code>padding</code> 的目的是为了使得输出特征图和输入图像大小保持一致，深度学习中通常使用全零来填充外圈像素。  </li>
+<li><code>stride</code> 步长<br>表示卷积核横向和纵向上每次移动的步长。  </li>
+<li><code>channels</code> 通道数<br>通道数（有时也叫深度），卷积过程中输入和卷积核的通道数必须相同，表示输入和输出的个数。<br>输入图像如果为灰度图，则通道数为 1 ；如果为彩色图，则通道数为 3 ，分别表示输入图像红绿蓝三色；卷积核的输入通道数与输入相同，它的输出通道数表示卷积后特征图的个数。  </li>
+</ul>
+<p>卷积过程是一个提取对应特征图的过程，而特征提取由卷积核性质来决定；不同卷积核（即滤波器）对应的主观效果：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-convolutional-kernel-filter.jpg" alt="0115-dl-cnn-convolutional-kernel-filter.jpg"></p>
+<p>卷积核通常为正方形，大小为奇数，通常为 <code>1*1, 3*3, 5*5, 7*7</code> 。  </p>
+<h3 id="pooling-池化层"><a href="#pooling-池化层" class="headerlink" title="pooling 池化层"></a><code>pooling</code> 池化层</h3><p>池化 <code>pooling</code> 是一种降采样操作 <code>subsampling</code> ，主要目标是降低特征图的特征空间，或者可以认为是降低特征图的分辨率。因为特征图参数太多，而图像细节不利于高层特征的抽取。池化分为最大池化和平均池化两类：  </p>
+<ul>
+<li>最大池化<br>采样时取池化核大小中的最大值；其中池化核的大小为 <code>2*2</code> ，步长也为 <code>2*2</code> ：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-pooling-max.png" alt="0115-dl-cnn-pooling-max.png"></li>
+<li>平均池化<br>采样时取池化核大小中的平均值；其中池化核的大小为 <code>2*2</code> ，步长也为 <code>2*2</code> ：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-pooling-mean.png" alt="0115-dl-cnn-pooling-mean.png"></li>
+</ul>
+<p>假设输入大小为 <code>n*n</code> ，池化核大小为 <code>f*f</code> ，滑动步长为 <code>s</code> ，则输出大小为 <code>(n-f)/s + 1</code> ；和卷积核计算公式一样，只不过池化时不涉及 <code>padding</code> ，池化也不会改变输入和输出的通道数。  </p>
+<h3 id="全连接层"><a href="#全连接层" class="headerlink" title="全连接层"></a>全连接层</h3><p>全连接 <code>Fully Connected Network</code> 层，就是普通的神经网络层；特点是每个神经元与前后相邻层的每一个神经元都有连接关系，即全连接。<br>一张分辨率仅仅是 <code>28*28</code> 的黑白图像，就有接近 40 万个待优化参数；而现实中都为高分辨率的彩色图像，像素点非常多，且为红黄蓝三通道信息；而待优化参数过多，容易导致模型的过拟合。在图像分类中，先把输入图像通过卷积和池化后提取特征，降低参数数量，在接入全连接层输出预测的结果；全连接层就是把卷积层和池化层的输出展开成一维的输出结果。  </p>
+<h3 id="CNN-特点"><a href="#CNN-特点" class="headerlink" title="CNN 特点"></a><code>CNN</code> 特点</h3><p><code>CNN</code> 与传统的神经网络相比，主要有三大特色：局部感知、权重共享和多卷积核。  </p>
+<ul>
+<li>局部感知<br>局部感知也就是感受野，卷积核和输入图像卷积时，每次卷积核所覆盖的像素只是图像的一小部分，是局部特征，即局部感知，局部感受野。人类对外界的认知一般是从局部到全局，先对局部有感知的认识，再逐步对全体有认知，这是人类的认识模式。在图像中的空间联系也是类似，局部范围内的像素之间联系较为紧密，而距离较远的像素则相关性较弱。因而每个神经元其实没有必要对全局图像进行感知，只需要对局部进行感知，然后在更高层将局部的信息综合起来就得到了全局的信息。这种模式就是卷积神经网络中的局部感受野，它能大大降低参数。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-receptive-field.png" alt="0115-dl-cnn-receptive-field.png"></li>
+<li>权重共享<br>传统的神经网络的参数量是非常巨大的，比如 <code>1000X1000</code> 像素的图片，映射到和自己相同的大小，需要 <code>1000X1000</code> 的平方，也就是 10 的 12 次方，参数量太大了，而 <code>CNN</code> 除全连接层外，卷积层的参数完全取决于卷积核（滤波器）的大小，比如 <code>10x10</code> 的滤波器，只有 100 个参数，当然滤波器的个数不止一个，也就是下面要说的多卷积核。但与传统的神经网络相比，参数量小，计算量小，整个图片共享同一组滤波器的参数，即卷积核参数表示的权重。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-paras-share.png" alt="0115-dl-cnn-paras-share.png"></li>
+<li>多卷积核<br>一种卷积核代表提取输入图片的一种特征，为获得更多不同的特征集合，卷积层会有多个卷积核，生成不同的特征图。  </li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>大型深层的卷积神经网络 <code>CNNs</code> （请注意这里是复数）通常由多个基础 <code>CNN</code> 组成，而基础 <code>CNN</code> 结构前后连接、层内调整组成，根据功能不同，我们称这些前后连接的结构处于不同阶段 <code>Stage</code> 。不同 <code>Stage</code> 里 <code>CNN</code> 会有不同的单元和结构，比如卷积核 <code>kernel</code> 大小、个数， <code>padding, stride</code> 等可能不同，激活函数 <code>activition function</code> 可能不同， <code>pooling</code> 操作可能不存在等等。  </p>
+<h2 id="LeNet5"><a href="#LeNet5" class="headerlink" title="LeNet5"></a><code>LeNet5</code></h2><p><code>LeNet</code> 诞生于 1994 年，由 <code>Yann LeCun</code> 提出并实现，是最早的卷积神经网络之一。<br><code>LeNet-5</code> 模型相关资源：  </p>
+<ul>
+<li><a href="http://yann.lecun.com/exdb/lenet/" target="_blank" rel="noopener">LeNet-5 卷积神经网络，官网</a>  </li>
+<li><a href="http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf" target="_blank" rel="noopener">LeNet-5 论文：Gradient-Based Learning Applied to Document Recognition</a>  </li>
+</ul>
+<h3 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h3><p><code>LeNet-5</code> 神经网络结构为：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-model.jpg" alt="0115-dl-cnn-lenet-5-model.jpg"></p>
+<p><code>LeNet-5</code> 主要分为输入层，卷积层特征提取，全连接层分类识别。  </p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li>输入层<br><code>32*32*1</code> 大小的灰度图，即单通道输入。  </li>
+<li>第一层<br>卷积层，卷积核大小为 <code>5*5*1</code> ，核个数为 6 ，步长为 1 ；则输出为 <code>(32-5)/1+1=28</code> ，即输出为 <code>28*28*6</code> ，相当于提取了 6 个 <code>28*28</code> 的特征图 <code>Feature Map</code> 。同一个卷积核对应的神经元使用相同的 <code>w</code> 权重和 <code>b</code> 偏置；一个卷积核有 <code>5*5=25</code> 个 <code>w</code> 和 1 个 <code>b</code> ，一共 6 个卷积核，因此卷积后每个神经元的参数个数为 <code>(5*5*1+1)*6=156</code> ，即卷积层总参数为 156 个。第一层使用的是全连接，一共 <code>28*28</code> 个神经元，因此连接数为 <code>28*28*156=122304</code> 个连接数。  </li>
+<li>第二层<br>池化层，池化核大小为 <code>2*2</code> ，步长为 1 ；池化后输出为 <code>14*14*6</code> ，特征图大小减半；这一层的计算方法是：将池化核中每个元素相加，再乘以权重 <code>w</code> ，最后加上偏置 <code>b</code> ，然后通过 <code>sigmoid</code> 激活函数。每个池化核中 4 个元素使用相同的 <code>w</code> 和 <code>b</code> ，一共 6 个池化核，因此参数个数为 <code>(1+1)*6=12</code> 个；池化也是全连接，一共 <code>14*14</code> 个神经元，因此连接数为 <code>(2*2+1)*6*14*14=5880</code> 个。 <code>LeNet-5</code> 中卷积和池化示意图：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-conv-pooling.png" alt="0115-dl-cnn-lenet-5-conv-pooling.png"></li>
+<li>第三层<br>卷积层，卷积核大小为 <code>5*5</code> ，核个数为 16 ，步长为 1 ；则输出大小为 <code>(14-5)/1+1=10</code> ，即输出为 <code>10*10*16</code> ；这一层并没有使用全连接，参考 <code>LeNet-5</code> 论文，该层连接如下图所示；比如第一列表示第三层的第 0 个特征图只和第二层的第 0,1,2 这三个特征图连接；有 3 个连接的特征图个数为 6 个、有 4 个连接的特征图个数为 9 个、有 6 个连接的特征图个数为 1 个；所以参数数目为 <code>(5*5*3+1)*6 + (5*5*4+1)*9 + (5*5*6+1)*1=1516</code> 个；一共有 <code>10*10</code> 个神经元，因此总连接数为 <code>10*10*1516=151600</code> 个。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-c3.png" alt="0115-dl-cnn-lenet-5-c3.png"></li>
+<li>第四层<br>池化层，池化核大小为 <code>2*2</code> ，步长为 1 ；池化层输入为上一层的 <code>10*10*16</code> ，池化核效果是大小减半，所以池化层输出为 <code>5*5*16</code> 。参数计算方法和第二层池化层一样，池化核的每个元素共用权重和偏置，因此参数个数为 <code>(1+1)*16=32</code> ；池化是全连接，一共 <code>5*5</code> 个神经元，因此连接数为 <code>(2*2+1)*16*5*5=2000</code> 。  </li>
+<li>第五层<br>卷积层，卷积核大小为 <code>5*5</code> ，卷积核有 120 个，步长为 1 ；输出大小为 <code>(5-5)/1+1=1</code> ，即输出为 <code>1*1*120</code> ；因为输入大小和卷积核大小一样，所以卷积后称为单个像素的特征图，卷积过程刚好使得卷积层和全连接层表现一样；如果输入分辨率加大，则改层就不是全连接层了。参数个数为 <code>(5*5*16+1)*120=48120</code> ，输出刚好只有 <code>1*1</code> 个神经元，全连接数为 <code>1*1*48120=48120</code> 。  </li>
+<li>第六层<br>全连接层，输出为 84 个单元，每个单元表示一个像素，对应于一个 <code>7*12</code> 的比特图。如果 -1 表示白色， 1 表示黑色，这个 84 个单元刚好组成 <code>7*12</code> 的黑白图，对应下图中的一个编码。参数个数为 <code>(120+1)*84=10164</code> ，全连接数也是 10164 ；全连接层点积结果加上偏置后，通过 <code>sigmoid</code> 激活函数。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-lenet-5-full-connection.png" alt="0115-dl-cnn-lenet-5-full-connection.png"></li>
+<li>第七层<br>输出层，输出为 10 个节点，分别表示数字 0-9 。该层采用径向基函数 <code>RBF</code> 的连接方式计算输出结果。参数个数为 <code>84*10=840</code> ，连接个数也为 840 。  </li>
+</ul>
+<h2 id="AlexNet"><a href="#AlexNet" class="headerlink" title="AlexNet"></a><code>AlexNet</code></h2><p><code>AlexNet</code> 是 <code>Alex Krizhevsky, Ilya Sutskever</code> 在多伦多大学 <code>Geoff Hinton</code> 的实验室设计出的一个深层卷积神经网络；该模型是 2012 年年提出并夺得了当年 <code>ImageNet LSVRC</code> 的冠军，且准确率远超第二名（ <code>top5</code> 错误率为 15.3% ，第二名为 26.2% ）。 <code>AlexNet</code> 可以说是具有历史意义的一个网络结构，在此之前深度学习已经沉寂了很长时间，从它诞生之后， <code>ImageNet</code> 以后举行的比赛，冠军都是用卷积神经网络 <code>CNN</code> 来做的，并且层次越来越深，使得 <code>CNN</code> 成为在图像识别分类的核心算法模型，带来了深度学习的大爆发。<br>而仔细分析 <code>AlexNet</code> ，可以看出它实际上是参考了 <code>LeNet-5</code> ，只是 <code>LeNet</code> 当年受到了计算机硬件性能的限制。  </p>
+<p><code>AlexNet</code> 模型的相关资源：  </p>
+<ul>
+<li><a href="https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks" target="_blank" rel="noopener">论文：ImageNet Classification with Deep Convolutional Neural Networks</a>  </li>
+<li><a href="http://vision.stanford.edu/teaching/cs231b_spring1415/slides/alexnet_tugce_kyunghee.pdf" target="_blank" rel="noopener">stanford 课件</a>  </li>
+</ul>
+<h3 id="模型结构及特点"><a href="#模型结构及特点" class="headerlink" title="模型结构及特点"></a>模型结构及特点</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-summary.png" alt="0115-dl-cnn-alexnet-summary.png"></p>
+<p><code>AlexNet</code> 一共有 5 个卷积层和 3 个全连接层，该模型的特点：  </p>
+<ul>
+<li>使用 <code>ReLU</code> 作为激励函数<br>传统的神经网络普遍使用 <code>Sigmoid, tanh</code> 等非线性函数作为激励函数，然而它们容易出现梯度弥散或梯度饱和的情况。以 <code>Sigmoid</code> 函数为例，当输入的值非常大或者非常小的时候，这些神经元的梯度接近于 0 ；如果输入的初始值很大的话，梯度在反向传播时因为需要乘上一个 <code>Sigmoid</code> 导数，会造成梯度越来越小，导致网络变的很难学习。在 <code>AlexNet</code> 中使用了 <code>ReLU: Rectified Linear Units</code> 激励函数；由于它是线性的，且导数始终为 1 ，计算量大大减少，收敛速度会比 <code>Sigmoid, tanh</code> 快很多。  </li>
+<li>全连接层使用了随机 <code>Dropout</code><br>为了防止神经网络过拟合，引入了 <code>Dropout</code> 的概念；对于某一层神经元，随机的将概率置为 0 ，即这个神经元不参加前向和后向传播（如同被删除一样）； <code>Dropout</code> 可以看作是模型组合，每次生成的网络结构都不一样，通过组合多个模型来减少过拟合。 <code>Dropout</code> 是 <code>AlexNet</code> 中的一项非常大的创新，以至于神经网络之父 <code>Hinton</code> 在很多演讲中都拿出来讲解。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-dropout.png" alt="0115-dl-cnn-alexnet-dropout.png"></li>
+<li>数据扩充<br>神经网络为了避免过拟合，加大加深网络结构，需要海量数据来进行训练，能有效提高算法的准确率。但实际上数据往往是有限的，可以通过一些变换将现有数据生成新的数据来扩充数据集。图像数据中可以通过：水平翻转，随机裁剪、平移变换，颜色、光照变换等来快速扩充。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-data-augmentation.png" alt="0115-dl-cnn-alexnet-data-augmentation.png"></li>
+<li>重叠池化 <code>Overlapping Pooling</code><br>池化核移动步长小于核大小，也就是移动时会出现重叠元素；重叠池化能避免过拟合问题。  </li>
+<li>局部归一化 <code>LRN: Local Response Normalization</code><br>模仿真实神经元的侧抑制机制，实现局部抑制，尤其当使用 <code>ReLU</code> 作为激励函数时非常有效； <code>LRN</code> 能提高网络的泛化能力，使 <code>top 1/5</code> 错误率下降了 <code>1.4/1.2%</code> 。  </li>
+<li>多 <code>GPU</code> 训练<br>神经网络规模太大，单个 <code>GPU</code> 无法满足计算需求，该网络模型使用 2 个 <code>GPU</code> 分别训练一半的模型；多用一个 <code>GPU</code> 对训练时间影响并不明显，但使 <code>top 1/5</code> 错误率下降了 <code>1.7/1.2%</code> 。  </li>
+</ul>
+<p>其中 <code>ReLU</code> 激励函数和正则化使用 <code>Dropout</code> 成为后续 <code>CNN</code> 的标配。  </p>
+<h3 id="模型解析"><a href="#模型解析" class="headerlink" title="模型解析"></a>模型解析</h3><p>所有激活函数都使用 <code>ReLU</code> ；所有的池化层都为 <code>3*3</code> 步长为 2 的最大池化。  </p>
+<ul>
+<li>第一段<br>总体为：卷积 -&gt; 激励 -&gt; 池化 -&gt; <code>LRN</code> ；其中输入大小为 <code>227x227x3</code> 的红黄蓝三基色图；卷积核大小为 <code>11*11</code> ，通道数为 96 个，步长为 4 ，则第一层的输出大小根据计算公式 <code>(n+2p-f)/s + 1</code> 为 <code>(227+0-11)/4+1=55</code> ，即输出层为 <code>55*55*96</code> ；输出通过 <code>ReLU</code> 激活函数；通过池化层后，输出为 <code>(55-3)/2+1=27</code> ，即池化层输出为 <code>27*27*96</code> ；通过 <code>LRN</code> 进行归一化处理，归一化后分为两组 <code>27*27*48</code> 分别送给两个 <code>GPU</code> 训练。  </li>
+<li>第二段<br>总体为：卷积 -&gt; 激励 -&gt; 池化 -&gt; <code>LRN</code> ；其中输入为第一层归一化后的输出 <code>27*27*96</code> （分为两组分别给两个 <code>GPU</code> 训练）；为了方便计算输入做了 2 个像素的 0 填充，卷积核大小为 <code>5*5</code> ，通道数为 256 ，移动步长为 1 ，则卷积后的输出大小为 <code>(27+2*2-5)/1+1=27</code> ，即卷积后的输出为 2 组 <code>27*27*128</code> ；通过 <code>ReLU</code> 激活函数；池化后为 2 组 <code>13*13*128</code> ；再将这两组数据归一化后，分别送给两个 <code>GPU</code> 训练。  </li>
+<li>第三段<br>总体为：卷积 -&gt; 激励 ；这一层没有池化和 <code>LRN</code> ；输入为第二层的输出： 2 组 <code>13*13*128</code> ；先做 1 像素的 0 填充，卷积核大小为 <code>3*3</code> ，通道数为 192 ，步长为 1 ，卷积后的大小为 <code>(13+2-3)/1+1=13</code> ，即卷积后的输出为 2 组 <code>13*13*192</code> ；输出经过 <code>ReLU</code> 激活函数后，直接进入下一层。注意该层模型中两个 <code>GPU</code> 之间存在虚线，即每个 <code>GPU</code> 都需要计算第二层的所有数据。  </li>
+<li>第四段<br>总体为：卷积 -&gt; 激励 ；这一层也没有池化和 <code>LRN</code> ；输入为第三层输出的 2 组 <code>13*13*196</code> ；第四层和第三层唯一的区别是，第四层两个 <code>GPU</code> 间没有虚线连接，即第四层每个 <code>GPU</code> 只需计算第三层一半的输出。  </li>
+<li>第五段<br>总体为：卷积 -&gt; 激励 -&gt; 池化 ；这一层没有 <code>LRN</code> ；输入为第四层输出的 2 组 <code>13*13*196</code> ；先做 1 像素的 0 填充，卷积核大小为 <code>3*3</code> ，通道数为 256 ，步长为 1 ，卷积后的大小为 <code>(13+2-3)/1+1=13</code> ，即卷积后的输出为 2 组 <code>13*13*128</code> ；输出经过 <code>ReLU</code> 激活函数；再经过池化层，输出为 2 组 <code>6*6*128</code> 。  </li>
+<li>第六段<br>总体为：卷积（全连接） -&gt; 激励 -&gt; <code>Dropout</code> ；这一层属于全连接层，但是使用卷积来实现的；输入为第五层输出的 2 组 <code>6*6*128</code> ，卷积核的尺寸刚好和输入一样大，卷积核中每个系数都和输入对应像素相乘，一一对应，因此该层也为全连接层，卷积核通道数为 4096 ，则卷积后的输出为 2 组 <code>1*1*2048</code> ，即有 4096 个神经元；通过 <code>ReLU</code> 激活函数后；再通过随机的 <code>Dropout</code> ，概率选择为 50% ，即丢掉一半的网络特征。  </li>
+<li>第七段<br>总体为：全连接 -&gt; 激励 -&gt; <code>Dropout</code> 。  </li>
+<li>第八段<br>第八段为全连接层，输出为 1000 个分类结果的评分。  </li>
+</ul>
+<p>如下为 <code>AlexNet</code> 模型的简图：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-alexnet-overview.png" alt="0115-dl-cnn-alexnet-overview.png"></p>
+<h2 id="VGG"><a href="#VGG" class="headerlink" title="VGG"></a><code>VGG</code></h2><p><code>VGGNet</code> 是 <code>Visual Geometry Group</code> 牛津大学计算机视觉组和 <code>Google DeepMind</code> 公司的研究员一起研发的深度卷积神经网络，该模型是 2014 年提出并取得了 <code>ImageNet-ILSVRC</code> 竞赛的第二名（第一名是 <code>GoogLeNet</code> ）和定位项目的第一名。<br><code>VGGNet</code> 首次将网络深度提升到了 19 层，并且使用较小的卷积核，证明了增加网络的深度能够在一定程度上影响网络最终的性能，使错误率大幅下降；该网络拓展性很强，迁移到其它图片数据上的泛化性也非常好， <strong><code>VGG</code> 常被用来提取图像特征</strong>。<br><code>VGG</code> 模型相关资源：  </p>
+<ul>
+<li><a href="http://www.robots.ox.ac.uk/~vgg/research/very_deep/" target="_blank" rel="noopener">牛津大学官网</a>  </li>
+<li><a href="https://arxiv.org/abs/1409.1556" target="_blank" rel="noopener">对应论文为 Very Deep Convolutional Networks for Large-Scale Image Recognition</a>  </li>
+<li><a href="http://www.robots.ox.ac.uk/~karen/pdf/ILSVRC_2014.pdf" target="_blank" rel="noopener">VGG 会议 pdf</a>  </li>
+</ul>
+<h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><p><code>VGGNet</code> 可以看成是加深版本的 <code>AlexNet</code> ，都是由卷积层、全连接层两大部分构成：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-vgg-summary.png" alt="0115-dl-cnn-vgg-summary.png"></p>
+<p><code>VGG16, VGG19</code> 是常用模型，它们通常是从图像中提取 <code>CNN</code> 特征的首选算法；主要缺点在于参数量非常大，有 140M 左右需要更大的存储空间。  </p>
+<h3 id="模型特点"><a href="#模型特点" class="headerlink" title="模型特点"></a>模型特点</h3><p><code>VGGNet</code> 的特点可以通过下图体现：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-vgg-feature.png" alt="0115-dl-cnn-vgg-feature.png"></p>
+<p><code>VGGNet</code> 结构简洁清晰，由 5 段卷积层（每段可能会有 3 到 5 个卷积层），3 个全连接层， <code>Softmax</code> 输出层构成，所有隐藏层的激活函数都采用 <code>ReLU</code> 函数，池化层采用最大池化 <code>max-pooling</code> 。  </p>
+<ul>
+<li>输入层<br>固定为 <code>224*224</code> 大小，红黄蓝三基色图像。在训练期间，唯一的预处理是输入图像中每个像素中减去在训练集上计算的 <code>RGB</code> 均值，这个预处理可以加快学习。  </li>
+<li>卷积核<br>卷积核固定为 <code>3*3</code> 大小，所有的卷积操作都遵循 <code>SAME</code> 原则； <code>3*3</code> 会比大卷积核需要更少的参数；两个 <code>3*3</code> 卷积核串联（所需参数个数 <code>2*3*3=18</code> ）获取的感受野大小相当于一个 <code>5*5</code> 卷积核（所需参数个数 <code>1*5*5=25</code> ）；而三个 <code>3*3</code> 卷积核串联（所需参数个数 <code>3*3*3=27</code> ）获取的感受野相当于一个 <code>7*7</code> 的卷积核（所需参数个数 <code>1*7*7=49</code> ）。<br>使用 <code>3*3</code> 卷积核有三个优点：多个卷积核能获取更大的感受野；增加非线性映射；需要更少的参数。  </li>
+<li>通道数<br>第一段卷积层统一使用 64 个通道，之后逐段翻倍，直到第五段卷积层统一使用 512 个通道。通道数越大，提取的特征信息越多。  </li>
+<li>激活函数<br>隐藏层配置的激活函数都是非线性 <code>ReLU</code> 函数。  </li>
+<li>池化核<br>池化核固定为 <code>2*2</code> 大小，全部采用相同的最大池化方式，步长为 2 。池化主要目标是缩小宽和高，控制了计算量的规模。  </li>
+<li>全连接层<br>三个全连接层的配置是相同的，前两个都有 4096 个通道，第三个需要执行 1000 维的分类，因此只包含 1000 个通道（每个通道对应一个类别）。<br><code>VGGNet</code> 模型中，在测试阶段，会将全连接层全部转换为卷积层；第一层 <code>7*7*512</code> 和 4096 个神经元做全连接，测试时转换为和 <code>1*1*4096</code> 的卷积核做卷积。<br>测试阶段将全连接转换成卷积后，则可以对任意分辨率的图做卷积，而不需要缩放到 <code>224*224</code> 的输入大小。  </li>
+<li><code>Softmax</code> 层<br>全连接最后一层通过 <code>Softmax</code> 转换为预测结果的概率。  </li>
+</ul>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p><code>VGGNet</code> 模型探讨并证明了以下观点：  </p>
+<ul>
+<li>用多层的卷积层组合配以小尺寸的滤波器，能实现大尺寸滤波器的感受野，同时还能使参数数量更少  </li>
+<li>层深度的增加，能有效提升网络的性能  </li>
+<li>模型融合的性能优于单模型的性能  </li>
+<li>训练期间分阶段降低学习率有助模型收敛  </li>
+</ul>
+<p><code>VGG</code> 模型中除了输入的图像是 <code>224×224</code> 的 <code>RGB</code> 图像，其他参数基本和 <code>AlexNet</code> 一致； <code>VGG</code> 中 <code>BCDE</code> 版本网络的参数初始化均来自于版本 <code>A</code> 网络（即参数预初始化），由于网络 <code>A</code> 较小，因此收敛较快，先训练一个网络 <code>A</code> ，然后将其训练好的参数作为后面网络的初始值（前面四个卷积层和最后的三个全连接层）。其它的参数进行随机初始化，从 (0,0.01) 的高斯分布中进行初始化。</p>
+<h2 id="GoogLeNet"><a href="#GoogLeNet" class="headerlink" title="GoogLeNet"></a><code>GoogLeNet</code></h2><p><code>GoogLeNet</code> 是 <code>Google</code> 公司设计的网络模型（其中 <code>L</code> 大写表示致敬 <code>LeNet</code> ），该模型在 2014 年取得 <code>ImageNet-ILSVRC</code> 分类挑战赛第一名（第二名是 <code>VGGNet</code> ）。<br><code>GoogLeNet</code> 相关资源：  </p>
+<ul>
+<li><a href="https://arxiv.org/abs/1409.4842" target="_blank" rel="noopener">Inception v1-Going Deeper with Convolutions</a>  </li>
+<li><a href="https://arxiv.org/abs/1502.03167v3" target="_blank" rel="noopener">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a></li>
+<li><a href="https://arxiv.org/abs/1512.00567v3" target="_blank" rel="noopener">Inception v2,v3-Rethinking the Inception Architecture for Computer Vision</a></li>
+<li><a href="https://arxiv.org/abs/1602.07261v2" target="_blank" rel="noopener">Inception-v4-Inception-ResNet and the Impact of Residual Connections on Learning</a></li>
+</ul>
+<h3 id="解决的问题"><a href="#解决的问题" class="headerlink" title="解决的问题"></a>解决的问题</h3><p>通常提升网络性能主要是增加网络深度和宽度：深度指网络层次数，宽度指神经元数量。但是这会导致：  </p>
+<ul>
+<li>参数过多时，如果训练数据有限，很容易产生过拟合  </li>
+<li>参数过多时，计算复杂度太大  </li>
+<li>网络越深，越容易出现梯度弥散（越往后梯度越容易消失）  </li>
+</ul>
+<p>解决思路是在增加网络深度和宽度的同时，减少参数；为了减少参数，将全连接变成稀疏连接，但大部分硬件都是针对密集矩阵做的优化，所以稀疏矩阵中计算数虽然变少，但是计算量并没有质的提升。<br><code>GoogLeNet</code> 提出了 <code>Inception</code> 网络结构，用来构造一种神经元，搭建稀疏高计算性能的网络结构。  </p>
+<h3 id="1-1-卷积核"><a href="#1-1-卷积核" class="headerlink" title="1*1 卷积核"></a><code>1*1</code> 卷积核</h3><p><code>Network in Network</code> 中最早提出 <code>1*1</code> 卷积核的概念； <code>1*1</code> 卷积核可以起到降维（升维）的作用，并减少参数。比如当前层为 <code>x*x*m</code> 即图像大小为 <code>x*x</code> ，特征层数为 <code>m</code> ，然后如果将其通过 <code>1*1</code> 的卷积核，特征层数为 <code>n</code> ，那么只要 <code>n&lt;m</code> 这样就能起到降维的目的。如果使用 <code>1*1</code> 的卷积核，这个操作实现的就是多个 <code>feature map</code> 的线性组合，实现通道个数上的变化。如果卷积后添加非线性记录，能提升网络的表达能力。  </p>
+<h3 id="Inception-网络结构"><a href="#Inception-网络结构" class="headerlink" title="Inception 网络结构"></a><code>Inception</code> 网络结构</h3><p><a href="https://upload-images.jianshu.io/upload_images/606437-79b639f7b1025db1.png" target="_blank" rel="noopener">Inception Module 查看大图</a>  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-module.png" alt="0115-dl-cnn-googlenet-inception-module.png"></p>
+<p><code>Inception</code> 结构：将前一层的数据，同时通过 <code>1*1, 3*3, 5*5</code> 的卷积，以及 <code>3*3</code> 的池化，最终再汇总到一起形成该结构的输出；既增加了网络的宽度，又增加了网络尺度的适应性；该结构使用不同尺寸卷积核来提取特征，每个卷积后都会通过 <code>ReLU</code> 增加网络的非线性特征。为了避免 <code>3*3, 5*5</code> 卷积计算量太大，以及最终的特征图厚度太大，分别在卷积前和池化后加上了 <code>1*1</code> 卷积核，有效降低特征图数量。<br>可以理解为 <code>Inception</code> 结构有多个分支，每个分支提取不同的特征图，每个分支输出的特征图尺寸大小是相同的，但是厚度不一样，最终汇总成一个统一的输出；该结构设计了一个稀疏网络结构，但是能够产生稠密的数据，既增加神经网络表现，又保证计算资源的使用效率。  </p>
+<h3 id="GoogLeNet-模型"><a href="#GoogLeNet-模型" class="headerlink" title="GoogLeNet 模型"></a><code>GoogLeNet</code> 模型</h3><p><a href="https://upload-images.jianshu.io/upload_images/606437-0c721098646ce0d7.jpg" target="_blank" rel="noopener">GoogLeNet 结构，查看大图</a>  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-overview.jpg" alt="0115-dl-cnn-googlenet-overview.jpg"></p>
+<p>模型特点：  </p>
+<ul>
+<li>采用了模块化的 <code>Inception</code> 结构，方便添加和修改  </li>
+<li>在分类器之前采用了平均池化接入  </li>
+</ul>
+<h3 id="模型解析-1"><a href="#模型解析-1" class="headerlink" title="模型解析"></a>模型解析</h3><p><a href="https://upload-images.jianshu.io/upload_images/606437-0426a9564cae4a89.png" target="_blank" rel="noopener">模型细节，查看大图</a>  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-details.png" alt="0115-dl-cnn-googlenet-details.png"></p>
+<p><code>GoogLeNet</code> 模型细节中：<code>#3x3 reduce, #5x5 reduce</code> 表示在 <code>3x3, 5x5</code> 卷积之前使用的 <code>1*1</code> 卷积；这样起名易于理解 <code>1*1</code> 卷积核的作用。  </p>
+<ul>
+<li>输入层<br>输入图像为 <code>224x224x3</code> ，且都进行了零均值化的预处理操作（图像每个像素减去均值）。  </li>
+<li>第一段<br>卷积层，使用 <code>7x7</code> 的卷积核，滑动步长 2 ， <code>padding</code> 为 3 ， 64 通道，输出为 <code>112x112x64</code> ，卷积后通过 <code>ReLU</code> 激活；再经过 <code>3x3</code> 的 <code>max pooling</code> ，步长为 2 ，输出大小为 <code>(112-3)/2+1=56</code> ，即 <code>56x56x64</code> ，再通过 <code>ReLU</code> 激活。  </li>
+<li>第二段<br>卷积层，使用 <code>3x3</code> 的卷积核，滑动步长 1 ， <code>padding</code> 为 1 ， 192 通道，输出为 <code>56x56x192</code> ，卷积后通过 <code>ReLU</code> 激活；再经过 <code>3x3</code> 的 <code>max pooling</code> ，步长为 2 ，输出大小为 <code>(56-3)/2+1=28</code> ，即 <code>28x28x192</code> ，再通过 <code>ReLU</code> 激活。  </li>
+<li>第三段 <code>Inception a</code><br>有四个分支，采用不同尺寸的卷积核提取特征图：  <ul>
+<li>分支一： 64 个 <code>1x1</code> 的卷积后通过 <code>RuLU</code> ，输出为 <code>28x28x64</code>  </li>
+<li>分支二： 96 个 <code>1x1</code> 的卷积后，作为 <code>3x3</code> 卷积核之前的降维，变成 <code>28x28x96</code> ，然后通过 <code>ReLU</code> ；再进行 128 个 <code>3x3</code> 的卷积， <code>padding</code> 为 1 ，输出 <code>28x28x128</code>  </li>
+<li>分支三： 16 个 <code>1x1</code> 的卷积后，作为 <code>5x5</code> 卷积核之前的降维，变成 <code>28x28x16</code> ，然后通过 <code>ReLU</code> ；再进行 32 个 <code>5x5</code> 的卷积， <code>padding</code> 为 2 ，输出 <code>28x28x32</code>  </li>
+<li>分支四：使用 <code>3x3</code> 的池化核 <code>padding</code> 为 1 ，进行最大池化，输出 <code>28x28x192</code> ，然后进行 32 个 <code>1x1</code> 的卷积，输出 <code>28x28x32</code><br>最终将所有分支的结果进行连接，即将特征图厚度叠加：<code>64+128+32+32=256</code> ，这一层最终输出为 <code>28*28*256</code> 。  </li>
+</ul>
+</li>
+<li>第三段 <code>Inception b</code><br>有四个分支，采用不同尺寸的卷积核提取特征图：  <ul>
+<li>分支一： 128 个 <code>1x1</code> 的卷积后通过 <code>RuLU</code> ，输出为 <code>28x28x128</code>  </li>
+<li>分支二： 128 个 <code>1x1</code> 的卷积后，作为 <code>3x3</code> 卷积核之前的降维，变成 <code>28x28x128</code> ，然后通过 <code>ReLU</code> ；再进行 192 个 <code>3x3</code> 的卷积， <code>padding</code> 为 1 ，输出 <code>28x28x192</code>  </li>
+<li>分支三： 32 个 <code>1x1</code> 的卷积后，作为 <code>5x5</code> 卷积核之前的降维，变成 <code>28x28x32</code> ，然后通过 <code>ReLU</code> ；再进行 96 个 <code>5x5</code> 的卷积， <code>padding</code> 为 2 ，输出 <code>28x28x96</code>  </li>
+<li>分支四：使用 <code>3x3</code> 的池化核 <code>padding</code> 为 1 ，进行最大池化，输出 <code>28x28x256</code> ，然后进行 64 个 <code>1x1</code> 的卷积，输出 <code>28x28x64</code><br>最终将所有分支的结果进行连接，即将特征图厚度叠加：<code>128+192+96+64=480</code> ，这一层最终输出为 <code>28*28*480</code> 。  </li>
+</ul>
+</li>
+</ul>
+<p>根据模型细节的详细参数，依次类推剩下各层。  </p>
+<h3 id="Inception-V2"><a href="#Inception-V2" class="headerlink" title="Inception V2"></a><code>Inception V2</code></h3><p><code>Inception V2</code> 版本最大的改变是将大尺寸卷积核分解成小尺寸卷积核，保持非对称结构，并将卷积和池化并行计算。  </p>
+<ul>
+<li>大尺寸卷积核分解<br>使用 2 个 <code>3*3</code> 卷积核替代 <code>5*5</code> 卷积核； <code>n*n</code> 卷积都可以使用 <code>1*n</code> 和 <code>n*1</code> 非对称替换。  </li>
+<li>减少特征图大小<br>减小特征图大小通常使用池化和卷积叠加，但是谁先谁后会产生不同的影响：先池化再 <code>Inception</code> 卷积，会导致特征缺失；先 <code>Inception</code> 卷积再池化，计算量会很大。为了保持特征并减低计算量，修改了 <code>V1</code> 的网络结构，将卷积和池化并行进行：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure10.png" alt="0115-dl-cnn-googlenet-v2--figure10.png"></li>
+</ul>
+<p><code>Inception V2</code> 版本的网络结构细节图：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2-detail.png" alt="0115-dl-cnn-googlenet-v2-detail.png"></p>
+<p>其中的 <code>Figure 5,6,7</code> 分别表示：  </p>
+<ul>
+<li>第三段的： <code>5*5</code> 卷积核使用 2 个 <code>3*3</code> 的卷积<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure5.png" alt="0115-dl-cnn-googlenet-v2--figure5.png"></li>
+<li>第四段的： <code>n*n</code> 卷积核都是用 <code>1*n</code> 和 <code>n*1</code> 叠加<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure6.png" alt="0115-dl-cnn-googlenet-v2--figure6.png"></li>
+<li>第五段的： 靠近输出的 <code>3*3</code> 卷积核使用 <code>1*3</code> 和 <code>3*1</code> 并行计算<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v2--figure7.png" alt="0115-dl-cnn-googlenet-v2--figure7.png"></li>
+</ul>
+<h3 id="Inception-V3"><a href="#Inception-V3" class="headerlink" title="Inception V3"></a><code>Inception V3</code></h3><p><code>Inception V3</code> 版本在 <code>V2</code> 版本上做了比较小的改进，添加了如下功能：  </p>
+<ul>
+<li><code>7*7</code> 的卷积核分解  </li>
+<li>全连接层使用了辅助分类器，并通过 <code>BN</code> 处理  </li>
+<li>使用标签平滑  </li>
+</ul>
+<p><code>Inception V3</code> 网络结构添加部分：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v3.png" alt="0115-dl-cnn-googlenet-v3.png"></p>
+<h3 id="Inception-V4"><a href="#Inception-V4" class="headerlink" title="Inception V4"></a><code>Inception V4</code></h3><p><code>Inception V4</code> 是在 <code>V3</code> 版本上做了比较小的改进，使得网络结构变得更复杂：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v4-network.png" alt="0115-dl-cnn-googlenet-v4-network.png"></p>
+<p>每个 <code>Inception</code> 结构和 <code>Reducing</code> 结构细节如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-v4-details.png" alt="0115-dl-cnn-googlenet-v4-details.png"></p>
+<p><code>Inception V4</code> 的测试结果显示，即使不适用残差结构，也能得到较深的层次和很好的准确率。  </p>
+<h3 id="Inception-ResNet"><a href="#Inception-ResNet" class="headerlink" title="Inception-ResNet"></a><code>Inception-ResNet</code></h3><p>微软的残差网络流行后， <code>GoogLeNet</code> 在 <code>Inception</code> 中也引入了残差结构，并提出了 <code>Inception-ResNet-V1, Inception-ResNet-V2</code> 模型，其中 <code>V1, V2</code> 主要区别在于残差结构中卷积层数不一样：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-restnet-summary.png" alt="0115-dl-cnn-googlenet-inception-restnet-summary.png"></p>
+<p>每个 <code>Inception</code> 残差结构和 <code>Reducing</code> 结构细节如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-googlenet-inception-restnet-v1-details.png" alt="0115-dl-cnn-googlenet-inception-restnet-v1-details.png"></p>
+<h3 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h3><p><code>GoogLeNet</code> 的几篇论文中详细描述了各个版本的网络模型， <code>Inception</code> 结构的细节，以及各结构对应的分类结果。  </p>
+<h2 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a><code>ResNet</code></h2><p><code>DRN: Deep Residual Networks</code> 深度残差网络，即 <code>ResNet: Residual Networks</code> ，是微软研究院的 <code>Kaiming He</code> 等四人提出的，通过使用 <code>ResNet Unit</code> 成功训练出了 152 层的神经网络，在 2015 年 <code>ImageNet</code> 竞赛上的 <code>classification, localization, detection</code> 以及 <code>Microsoft COCO</code> 竞赛中 <code>detection, segmentation</code> ，全部获得第一名，而且对应论文 <code>Deep Residual Learning for Image Recognition</code> 也获得了 <code>CVPR2016</code> 的最佳论文。<br><code>ResNet</code> 相关资源：  </p>
+<ul>
+<li><a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">Deep Residual Learning for Image Recognition</a>  </li>
+<li><a href="https://arxiv.org/abs/1603.05027" target="_blank" rel="noopener">Identity Mappings in Deep Residual Networks</a>  </li>
+</ul>
+<h3 id="解决的问题-1"><a href="#解决的问题-1" class="headerlink" title="解决的问题"></a>解决的问题</h3><p>从 <code>AlexNet</code> 到 <code>VGGNet</code> ，可以看出深度学习网络层数越多，学习能力越好；但是对于常规网络 <code>plain network</code> ，直接堆叠深度，从实验效果来看：随着网络层级的不断增加，模型精度不断得到提升，而当网络层级增加到一定的数目以后，训练精度和测试精度迅速下降。这说明当网络变得很深以后，深度网络就变得更加难以训练了！  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-plain-training-error.png" alt="0115-dl-cnn-resnet-plain-training-error.png"></p>
+<p>从神经网络的反向传播链式法则中可以知道，神经网络在反向传播过程中要不断地传播梯度，来调整参数矩阵；而当网络层数加深时，梯度在传播过程中会逐渐消失，导致无法对前面网络层的权重进行有效的调整；所以普通网络中层数超过一定深度后，反而错误率会出现上升！  </p>
+<p><code>ResNet</code> 残差网络提出了一个网络结构，它借鉴了 <a href="http://papers.nips.cc/paper/5850-training-very-deep-networks" target="_blank" rel="noopener">Training Very Deep Networks</a> 论文中的 <code>Highway Networks</code> 即跨层链接思想，使用了恒等映射 <code>identity mapping</code> 。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-learning.png" alt="0115-dl-cnn-resnet-learning.png"></p>
+<p>这个残差模块中，通过捷径连接 <code>shortcut connections</code> 的方式，直接把输入 <code>x</code> 传到输出，使得输出结果变为 <code>H(x)=F(x)+x</code> ；当 <code>F(x)=0</code> 时，那么 <code>H(x)=x</code> ，即恒等映射。因此 <code>ResNet</code> 残差网络改变了学习目标，即将残差 <code>F(x)=H(x)-x</code> 结果训练逼近于 0 ，这样即使网络加深，准确率也不会下降。  </p>
+<blockquote>
+<p>残差网络结构打破了神经网络层数的约束，可以使层数达到成百上千层。  </p>
+</blockquote>
+<h3 id="残差网络"><a href="#残差网络" class="headerlink" title="残差网络"></a>残差网络</h3><p>残差网络在 <code>VGG-19</code> 上的对比效果：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-vs-vgg19.png" alt="0115-dl-cnn-resnet-vs-vgg19.png"></p>
+<p>左边展示 <code>VGG19</code> ，中间为基于 <code>VGG19</code> 直接扩充到 34 层，右边为使用残差结构扩充到 34 层。残差结构中实线和虚线的区别：  </p>
+<ul>
+<li>实线连接：表示通道数相同，比如输入 <code>x</code> 和输出 <code>F(x)</code> 都是 <code>3*3*64</code> ，所以输出结果可以直接相加 <code>H(x)=F(x)+x</code>  </li>
+<li>虚线连接：表示通道数不同，比如输入 <code>x</code> 为 <code>3*3*64</code> ，而输出 <code>F(x)</code> 为 <code>3*3*128</code> ，需要调整计算公式 <code>H(x)=F(x)+Wx</code> ，其中 <code>W</code> 是卷积操作，用来调整 <code>x</code> 的维度  </li>
+</ul>
+<p>实验结果如下：直接扩充错误率反而会上升，而 <code>ResNet</code> 扩充后错误率下降。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-vgg19-traning-result.png" alt="0115-dl-cnn-resnet-vgg19-traning-result.png"></p>
+<h3 id="深度残差"><a href="#深度残差" class="headerlink" title="深度残差"></a>深度残差</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-deep.png" alt="0115-dl-cnn-resnet-deep.png"></p>
+<p>作者在提出 <code>ResNet 50/100/150</code> 深度残差网络时，为了减少计算量，提出了深度残差模型，也就是使用小卷积 <code>1*1</code> 来减少特征图。<br>残差网络 <code>ResNet</code> 不仅解决了反向传播中退化问题，而且减少了参数的计算量。  </p>
+<h3 id="ResNet-V2"><a href="#ResNet-V2" class="headerlink" title="ResNet-V2"></a><code>ResNet-V2</code></h3><p>对于残差结构， <code>BN</code> 归一化和 <code>ReLU</code> 激活层的位置，对准确率有较大影响，测试结果如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-resnet-v2.png" alt="0115-dl-cnn-resnet-v2.png"></p>
+<p><code>weight</code> 表示卷积层；其中图 <code>a</code> 是 <code>ResNet-V1</code> 使用的残差结构，策略是先卷积后激活；而图 <code>e</code> 则被称为 <code>ResNet-V2</code> ，策略是先激活后卷积。其中 <code>BN</code> 对数据起到了正则化的效果，所以训练后测试结果更理想。  </p>
+<h2 id="MobileNet"><a href="#MobileNet" class="headerlink" title="MobileNet"></a><code>MobileNet</code></h2><p><code>MobileNet</code> 是 <code>Google</code> 在 2017 年为移动设备设计的通用计算机视觉神经网络，支持图像分类、目标检测、分隔等。<br><code>MobileNet</code> 相关资源：  </p>
+<ul>
+<li><a href="https://arxiv.org/abs/1704.04861" target="_blank" rel="noopener">MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</a>  </li>
+<li><a href="https://arxiv.org/abs/1801.04381v4" target="_blank" rel="noopener">MobileNetV2: Inverted Residuals and Linear Bottlenecks</a>  </li>
+<li><a href="https://github.com/tensorflow/models/tree/master/research/slim/nets/mobilenet" target="_blank" rel="noopener">MobileNet 源码</a>  </li>
+</ul>
+<h3 id="深度可分离卷积"><a href="#深度可分离卷积" class="headerlink" title="深度可分离卷积"></a>深度可分离卷积</h3><p><code>MobileNet</code> 的核心是深度可分离卷积 <code>Depthwise Separable Convolution</code> ，该模型将标准卷积分解为深度卷积 <code>dw:Depthwise</code> 以及一个 <code>1*1</code> 的卷积 <code>pw:Pointwise</code>。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-depthwise.png" alt="0115-dl-cnn-mobilenet-depthwise.png"></p>
+<p>上图展示的是卷积核卷积的过程：输入 <code>F</code> 的尺寸为 <code>(Df, Df, M)</code> ，卷积后输出 <code>G</code> 的尺寸为 <code>Dg, Dg, N</code> ：  </p>
+<ul>
+<li>标准卷积<br>标准卷积核 <code>K</code> 尺寸为 <code>Dk, Dk, M</code> ，通道数为 <code>N</code> ；计算量为 <code>Dk * Dk * M * N * Df * Df</code> 。  </li>
+<li>深度可分离卷积<br>将标准卷积核拆分为深度卷积 <code>dw</code> 和 <code>1*1</code> 逐点卷积 <code>pw</code> ；计算量为 <code>Dk * Dk * M * Df * Df + M * N * Df * Df</code> 。  <ul>
+<li>深度卷积核 <code>dw</code> ，负责滤波作用，尺寸 <code>Dk, Dk, 1</code> ，通道数为 <code>M</code> ；卷积后该层输出为 <code>Dg, Dg, M</code>  </li>
+<li><code>1*1</code> 卷积核 <code>pw</code> ，用于转换通道数，尺寸为 <code>1, 1, M</code> ，通道数为 <code>N</code> ；卷积后输出为 <code>Dg, Dg, N</code>  </li>
+</ul>
+</li>
+</ul>
+<p>深度可分离卷积，在不改变卷积结果的情况下，大大降低了计算量，缩减量为 <code>1/N + 1/(Dk*Dk)</code> 。<br>同时，每次分解都会增加 <code>BN</code> 和 <code>ReLU</code> 激活：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-bn-relu.png" alt="0115-dl-cnn-mobilenet-bn-relu.png"></p>
+<h3 id="MobileNetV1-网络结构"><a href="#MobileNetV1-网络结构" class="headerlink" title="MobileNetV1 网络结构"></a><code>MobileNetV1</code> 网络结构</h3><p><code>MobileNetV1</code> 网络结构模型如下， <code>dw</code> 表示深度可分离卷积：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-architecture.png" alt="0115-dl-cnn-mobilenet-architecture.png"></p>
+<p>最后的 <code>FC</code> 层没有非线性激活函数，其他层都有 <code>BN, ReLU</code> 非线性函数。<br>网络结构除了使用深度可分离卷积外，还有一个特点是：<strong>直接使用步长为 2 的 <code>s2</code> 卷积运算来代替池化</strong>。  </p>
+<h3 id="宽度乘法器-Width-Multiplier"><a href="#宽度乘法器-Width-Multiplier" class="headerlink" title="宽度乘法器 Width Multiplier"></a>宽度乘法器 <code>Width Multiplier</code></h3><p>宽度乘法器用于控制模型的输入和输出通道数，使得模型变得更薄；假设宽度因子 <code>Width multiplier</code> 为 <code>α</code> ，即输入通道数从 <code>M</code> 变为 <code>αM</code> ，输出通道数从 <code>N</code> 变为 <code>αN</code> ；<br>深度可分离卷积计算量降低为 <code>Dk * Dk * αM * Df * Df + αM * αN * Df * Df</code> ，宽度因子使得计算量和参数降低约 <code>α*α</code> 倍，可以很方便的控制模型大小。 宽度因子取值范围为 <code>α∈(0,1]</code> ，通常设置为 <code>1, 0.75, 0.5, 0.25</code> 。  </p>
+<h3 id="分辨率乘法器-Resolution-Multiplier"><a href="#分辨率乘法器-Resolution-Multiplier" class="headerlink" title="分辨率乘法器 Resolution Multiplier"></a>分辨率乘法器 <code>Resolution Multiplier</code></h3><p>分辨率乘法器用于控制输入的分辨率，假设分辨率因子 <code>Resolution Multiplier</code> 为 <code>ρ</code> ，即输入图片尺寸从 <code>Df</code> 变为 <code>ρDf</code> ；<br>深度可分离卷积计算量为 <code>Dk * Dk * αM * ρDf * ρDf + αM * αN * ρDf * ρDf</code> ，分辨率因子使得计算量和参数降低约为 <code>ρ*ρ</code> 倍；分比率因子取值范围为 <code>ρ∈(0,1]</code> ，通常设置输入分辨率为 <code>224,192,160,128</code> 。  </p>
+<p><code>Width Multiplier, Resolution Multiplier</code> 对参数及计算量的影响：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-width-resolution-multpier.png" alt="0115-dl-cnn-mobilenet-width-resolution-multpier.png"></p>
+<h3 id="Linear-Bottlenecks"><a href="#Linear-Bottlenecks" class="headerlink" title="Linear Bottlenecks"></a><code>Linear Bottlenecks</code></h3><p>在深度神经网络中，当前层的维度为 <code>hi*wi*di</code> ，其中 <code>d</code> 表示通道数，也称为宽度；当通道数过低时， <code>ReLu</code> 激活函数会有很大的信息损耗；如下图所示，低维度情况下，张量的的恢复较差，几乎变形；高维度时则恢复较好：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-relu.png" alt="0115-dl-cnn-mobilenet-v2-relu.png"></p>
+<p>所谓 <code>Bottleneck</code> ，指的是输入和输出的维度差异较大，就像一个瓶颈一样。  </p>
+<h3 id="Inverted-residual-block"><a href="#Inverted-residual-block" class="headerlink" title="Inverted residual block"></a><code>Inverted residual block</code></h3><p>深度残差网络 <code>ResNet</code> 结构可以很好的增大网络深度，基于残差模块引入了 <code>Inverted residual block</code> 即倒置残差模块，示意图如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-inverted-residual-block.png" alt="0115-dl-cnn-mobilenet-v2-inverted-residual-block.png"></p>
+<p>实现思路是：先通过 <code>1*1</code> 卷积核增加通道数，再进行深度可分离卷积，最后通过 <code>1*1</code> 卷积核减少通道数。  </p>
+<h3 id="MobileNetV2-版本网络结构"><a href="#MobileNetV2-版本网络结构" class="headerlink" title="MobileNetV2 版本网络结构"></a><code>MobileNetV2</code> 版本网络结构</h3><p>基于 <code>Linear Bottlenecks</code> 和 <code>Inverted residual block</code> 提出了 <code>MobileNet V2</code> 版本，其模块结构如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-module.png" alt="0115-dl-cnn-mobilenet-v2-module.png"></p>
+<ul>
+<li>深度可分离卷积引入了残差  </li>
+<li>使用 <code>1*1</code> 卷积核降低深度时，使用线性激活替代了 <code>ReLU</code> 激活函数  </li>
+</ul>
+<p>输入经过 <code>V2</code> 结构后对应的输出为：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-module-input-output.png" alt="0115-dl-cnn-mobilenet-v2-module-input-output.png"></p>
+<p><code>MobileNetV2</code> 完整结构如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-architecture.png" alt="0115-dl-cnn-mobilenet-v2-architecture.png"></p>
+<p>其中 <code>t</code> 代表单元的扩张系数， <code>c</code> 代表 <code>channel</code> 数， <code>n</code> 为单元重复个数， <code>s</code> 为 <code>stride</code> 步长数。  </p>
+<h3 id="V2-和-V1-的比较"><a href="#V2-和-V1-的比较" class="headerlink" title="V2 和 V1 的比较"></a><code>V2</code> 和 <code>V1</code> 的比较</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-vs-v1.png" alt="0115-dl-cnn-mobilenet-v2-vs-v1.png"></p>
+<ul>
+<li>在 <code>dw</code> 卷积前引入了一个 <code>pw</code> 卷积，用于提高输入通道数  </li>
+<li>在最后 <code>pw</code> 卷积之后，去掉了 <code>ReLU</code> 激活函数，在低维度情况下， <code>ReLU</code> 会破坏特征不如线性效果好  </li>
+</ul>
+<h3 id="V2-和-ResNet-的比较"><a href="#V2-和-ResNet-的比较" class="headerlink" title="V2 和 ResNet 的比较"></a><code>V2</code> 和 <code>ResNet</code> 的比较</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-mobilenet-v2-vs-resnet.png" alt="0115-dl-cnn-mobilenet-v2-vs-resnet.png"></p>
+<p>两者网络结构基本一样，区别在于：  </p>
+<ul>
+<li><code>ResNet</code> 使用标准卷积，而 <code>MobileNetV2</code> 使用 <code>dw</code> 卷积  </li>
+<li><code>ResNet</code> 第一个 <code>1*1</code> 卷积是降维，最后一个 <code>1*1</code> 卷积是升维，网络特征图模型为沙漏型； <code>MobileNetV2</code> 第一个 <code>1*1</code> 卷积是升维，最后一个 <code>1*1</code> 卷积是降维，网络特征图模型为纺锤型  </li>
+</ul>
+<h2 id="BN-Batch-Normalization"><a href="#BN-Batch-Normalization" class="headerlink" title="BN: Batch Normalization"></a><code>BN: Batch Normalization</code></h2><p><code>BN: Batch Normalization</code> 也就是“批量归一化”，在深度神经网络训练过程中， <code>BN</code> 可以对神经网络每一层的输入做归一化处理。论文地址：  </p>
+<ul>
+<li><a href="https://arxiv.org/abs/1502.03167v3" target="_blank" rel="noopener">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a></li>
+</ul>
+<h3 id="Internal-Covariate-Shift"><a href="#Internal-Covariate-Shift" class="headerlink" title="Internal Covariate Shift"></a><code>Internal Covariate Shift</code></h3><p>在深层网络训练的过程中，由于网络中参数变化而引起内部结点<strong>数据分布发生变化</strong>的这一过程被称作 <code>ICS:Internal Covariate Shift</code> ，也就是隐藏层的输入分布总是变化。</p>
+<p><code>Internal Covariate Shift</code> 带来的问题：  </p>
+<ul>
+<li>上层网络需要不停调整来适应输入数据分布的变化，导致网络学习速度的降低  </li>
+<li>网络的训练过程容易陷入梯度饱和区，减缓网络收敛速度  </li>
+</ul>
+<p>可以通过固定输入值的分布为了解决这些问题，而常见的方法就是白化 <code>Whitening</code> 。白化是机器学习里面常用的一种规范化数据分布的方法，主要是 <code>PCA</code> 白化与 <code>ZCA</code> 白化。白化是对输入数据分布进行变换，进而达到以下两个目的：  </p>
+<ul>
+<li>使得输入特征分布具有相同的均值与方差。其中 <code>PCA</code> 白化保证了所有特征分布均值为 0 ，方差为 1 ；而 <code>ZCA</code> 白化则保证了所有特征分布均值为 0 ，方差相同  </li>
+<li>去除特征之间的相关性  </li>
+</ul>
+<p>通过白化操作，我们可以减缓 <code>ICS</code> 的问题，进而固定了每一层网络输入分布，加速网络训练过程的收敛。但是对每一层进行白化过程，计算成本太高；并且由于白化改变了网络每一层的分布，从而改变了网络层中本身数据的表达能力。  </p>
+<h3 id="BN-算法"><a href="#BN-算法" class="headerlink" title="BN 算法"></a><code>BN</code> 算法</h3><p><code>BN</code> 的基本思想是：在将输入送给神经元之前，先归一化将输入的分布规范化成在固定区间范围的标准分布（均值为 0 ，方差为 1 ），然后再对其做平移和伸缩变换；计算公式如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0115-dl-cnn-bn-algorithm.jpg" alt="0115-dl-cnn-bn-algorithm.jpg"></p>
+<p><code>BN</code> 引入了两个可学习的参数：缩放系数 <code>γ</code> 和平移系数 <code>β</code> ，这两个参数的引入是为了恢复数据本身的表达能力，对规范化后的数据进行线性变换。另外，由于 <code>γ</code> 和 <code>β</code> 是可训练的，那么意味着神经网络会随着训练过程自己挑选一个最适合的分布。  </p>
+<p><code>DNN</code> 的归一化就是白化操作，在神经网络训练过程中对整体训练数据做归一化带来的计算量太大，这也是白化遇到的问题；而 <code>BN</code> 简化了白化操作：  </p>
+<ul>
+<li>直接对输入信号的每个维度做归一化 <code>normalize each scalar feature independently</code>  </li>
+<li>在小批量训练数据中做归一化，即 <code>mini-batch</code> 中计算均值和方差（而不是整体所有数据）  </li>
+<li>缩放系数 <code>γ</code> 和平移系数 <code>β</code> 保证了模型的表达能力不会归一化后而下降  </li>
+</ul>
+<h3 id="BN-的优点"><a href="#BN-的优点" class="headerlink" title="BN 的优点"></a><code>BN</code> 的优点</h3><ul>
+<li>使得模型对网络中减轻了对参数初始化的依赖，简化调参过程，使得网络学习更加稳定</li>
+<li>使得网络中每层输入数据的分布相对稳定，加速模型学习速度  </li>
+<li>允许网络使用饱和性激活函数（例如 <code>sigmoid, tanh</code> 等），缓解梯度消失问题  </li>
+<li>一定程度上增加了泛化能力，具有一定正则化效果（<code>Dropout</code> 等技术可以去掉）  </li>
+</ul>
+<p>通常在非线性映射前增加 <code>BN</code> ，也就是数据在送入激活函数前先通过 <code>BN</code> 将输入归一化。 <code>Google</code> 发表 <code>BN</code> 论文是在 <code>VGGNet</code> 上做的实验。  </p>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><ul>
+<li>搞清楚分类、定位、目标检测、分隔的用途，以及对应常见模型  </li>
+<li>2017 <code>CVPR</code> 最佳论文 <code>DenseNet</code>  </li>
+<li>2018 <code>CVPR</code> 最佳论文 <code>Taskonomy: Disentangling Task Transfer Learning</code>  </li>
+<li><code>SSD, YOLO</code> 模型介绍  </li>
+<li>对抗模型  </li>
+<li><code>ShuffleNetV2</code> 等小规模模型  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.zhihu.com/topic/20043586/intro" target="_blank" rel="noopener">卷积神经网络-知乎百科</a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1620906" target="_blank" rel="noopener">大话卷积神经网络 CNN </a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1632862" target="_blank" rel="noopener">大话 CNN 经典模型：LeNet</a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1633143" target="_blank" rel="noopener">大话 CNN 经典模型：AlexNet</a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1634322" target="_blank" rel="noopener">大话CNN经典模型：VGGNet</a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1637819" target="_blank" rel="noopener">大话CNN经典模型：GoogLeNet(从Inception v1到v4的演进)</a>  </li>
+<li><a href="https://my.oschina.net/u/876354/blog/1622896" target="_blank" rel="noopener">大话深度残差网络（DRN）ResNet网络原理</a>  </li>
+<li><a href="https://blog.csdn.net/chenyuping333/article/details/82344334" target="_blank" rel="noopener">详解深度学习之经典网络架构 ResNet 两代</a>  </li>
+<li><a href="https://blog.csdn.net/u011974639/article/details/79199306" target="_blank" rel="noopener">轻量级网络–MobileNet 论文解读</a>  </li>
+<li><a href="https://blog.csdn.net/mzpmzk/article/details/82976871" target="_blank" rel="noopener">MobileNetV1 &amp; MobileNetV2 简介</a>  </li>
+<li><a href="https://blog.ddlee.cn/posts/c9816b0a/" target="_blank" rel="noopener">论文笔记 MobileNet V2</a>  </li>
+<li><a href="https://blog.csdn.net/c9Yv2cf9I06K2A9E/article/details/79276708" target="_blank" rel="noopener">详解深度学习中的Normalization，不只是BN</a>  </li>
+<li><a href="https://zhuanlan.zhihu.com/p/34879333" target="_blank" rel="noopener">Batch Normalization原理与实战</a>  </li>
+<li><a href="https://www.cnblogs.com/guoyaohua/p/8724433.html" target="_blank" rel="noopener">深入理解 BN Batch Normalization</a>  </li>
+<li><a href="https://blog.csdn.net/leviopku/article/details/83109422" target="_blank" rel="noopener">Batch-Normalization详细解析</a>  </li>
+<li><a href="https://www.zhihu.com/question/38102762" target="_blank" rel="noopener">深度学习中 Batch Normalization为什么效果好</a>  </li>
+<li><a href="https://blog.csdn.net/mzpmzk/article/details/82976871" target="_blank" rel="noopener">MobileNetV1 &amp; MobileNetV2 简介</a>  </li>
+<li><a href="https://blog.csdn.net/qq_31531635/article/details/80508306" target="_blank" rel="noopener">翻译：深度学习之MobileNetV1</a>  </li>
+<li><a href="http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture9.pdf" target="_blank" rel="noopener">cs231n 整理的 ImageNet 中经典模型：</a>  </li>
+<li><a href="https://blog.csdn.net/haolexiao/article/details/77073258" target="_blank" rel="noopener"><code>1*1</code> 卷积核的作用</a>  </li>
+<li><a href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar10.html" target="_blank" rel="noopener">斯坦福：卷积可视化</a>  </li>
+<li><a href="https://www.zhihu.com/question/52668301?sort=created" target="_blank" rel="noopener">卷积神经网络是什么</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/05/22/0115-dl-cnn/" title="CNN - 卷积神经网络">http://redspider110.github.io/2019/05/22/0115-dl-cnn/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/DeepLearning/" rel="tag"># DeepLearning</a>
+          
+            <a href="/tags/CNN/" rel="tag"># CNN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/17/0114-dl-machine-learning/" rel="next" title="机器学习、深度学习、神经网络">
+                <i class="fa fa-chevron-left"></i> 机器学习、深度学习、神经网络
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/27/0116-dl-tensorflow/" rel="prev" title="TensorFlow 相关">
+                TensorFlow 相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#卷积神经网络"><span class="nav-number">1.</span> <span class="nav-text">卷积神经网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Convolutional-Layer-卷积层"><span class="nav-number">1.2.</span> <span class="nav-text">Convolutional Layer 卷积层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pooling-池化层"><span class="nav-number">1.3.</span> <span class="nav-text">pooling 池化层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全连接层"><span class="nav-number">1.4.</span> <span class="nav-text">全连接层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CNN-特点"><span class="nav-number">1.5.</span> <span class="nav-text">CNN 特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.6.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LeNet5"><span class="nav-number">2.</span> <span class="nav-text">LeNet5</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网络模型"><span class="nav-number">2.1.</span> <span class="nav-text">网络模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">2.2.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AlexNet"><span class="nav-number">3.</span> <span class="nav-text">AlexNet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型结构及特点"><span class="nav-number">3.1.</span> <span class="nav-text">模型结构及特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型解析"><span class="nav-number">3.2.</span> <span class="nav-text">模型解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VGG"><span class="nav-number">4.</span> <span class="nav-text">VGG</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型结构"><span class="nav-number">4.1.</span> <span class="nav-text">模型结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型特点"><span class="nav-number">4.2.</span> <span class="nav-text">模型特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">4.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GoogLeNet"><span class="nav-number">5.</span> <span class="nav-text">GoogLeNet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解决的问题"><span class="nav-number">5.1.</span> <span class="nav-text">解决的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-卷积核"><span class="nav-number">5.2.</span> <span class="nav-text">1*1 卷积核</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inception-网络结构"><span class="nav-number">5.3.</span> <span class="nav-text">Inception 网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GoogLeNet-模型"><span class="nav-number">5.4.</span> <span class="nav-text">GoogLeNet 模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型解析-1"><span class="nav-number">5.5.</span> <span class="nav-text">模型解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inception-V2"><span class="nav-number">5.6.</span> <span class="nav-text">Inception V2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inception-V3"><span class="nav-number">5.7.</span> <span class="nav-text">Inception V3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inception-V4"><span class="nav-number">5.8.</span> <span class="nav-text">Inception V4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inception-ResNet"><span class="nav-number">5.9.</span> <span class="nav-text">Inception-ResNet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-2"><span class="nav-number">5.10.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ResNet"><span class="nav-number">6.</span> <span class="nav-text">ResNet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解决的问题-1"><span class="nav-number">6.1.</span> <span class="nav-text">解决的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#残差网络"><span class="nav-number">6.2.</span> <span class="nav-text">残差网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深度残差"><span class="nav-number">6.3.</span> <span class="nav-text">深度残差</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ResNet-V2"><span class="nav-number">6.4.</span> <span class="nav-text">ResNet-V2</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MobileNet"><span class="nav-number">7.</span> <span class="nav-text">MobileNet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#深度可分离卷积"><span class="nav-number">7.1.</span> <span class="nav-text">深度可分离卷积</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MobileNetV1-网络结构"><span class="nav-number">7.2.</span> <span class="nav-text">MobileNetV1 网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#宽度乘法器-Width-Multiplier"><span class="nav-number">7.3.</span> <span class="nav-text">宽度乘法器 Width Multiplier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分辨率乘法器-Resolution-Multiplier"><span class="nav-number">7.4.</span> <span class="nav-text">分辨率乘法器 Resolution Multiplier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Bottlenecks"><span class="nav-number">7.5.</span> <span class="nav-text">Linear Bottlenecks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inverted-residual-block"><span class="nav-number">7.6.</span> <span class="nav-text">Inverted residual block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MobileNetV2-版本网络结构"><span class="nav-number">7.7.</span> <span class="nav-text">MobileNetV2 版本网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#V2-和-V1-的比较"><span class="nav-number">7.8.</span> <span class="nav-text">V2 和 V1 的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#V2-和-ResNet-的比较"><span class="nav-number">7.9.</span> <span class="nav-text">V2 和 ResNet 的比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BN-Batch-Normalization"><span class="nav-number">8.</span> <span class="nav-text">BN: Batch Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Internal-Covariate-Shift"><span class="nav-number">8.1.</span> <span class="nav-text">Internal Covariate Shift</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BN-算法"><span class="nav-number">8.2.</span> <span class="nav-text">BN 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BN-的优点"><span class="nav-number">8.3.</span> <span class="nav-text">BN 的优点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续"><span class="nav-number">9.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">10.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

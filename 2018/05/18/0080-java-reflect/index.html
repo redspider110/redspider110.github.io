@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="通常在程序中对象类型都是编译期就确定下来的，而 Java 反射机制的核心是 JVM 在运行时才动态加载类或调用方法、属性，这样对象的类型在编译期是未知的，也就是可以通过反射机制直接创建编译期未知的对象。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 反射">
+<meta property="og:url" content="http://redspider110.github.io/2018/05/18/0080-java-reflect/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="通常在程序中对象类型都是编译期就确定下来的，而 Java 反射机制的核心是 JVM 在运行时才动态加载类或调用方法、属性，这样对象的类型在编译期是未知的，也就是可以通过反射机制直接创建编译期未知的对象。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0080-GenericDeclaration-impl-uml.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0080-AccessibleObject-impl-uml.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 反射">
+<meta name="twitter:description" content="通常在程序中对象类型都是编译期就确定下来的，而 Java 反射机制的核心是 JVM 在运行时才动态加载类或调用方法、属性，这样对象的类型在编译期是未知的，也就是可以通过反射机制直接创建编译期未知的对象。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0080-GenericDeclaration-impl-uml.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/05/18/0080-java-reflect/">
+
+
+
+
+
+  <title>Java 反射 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/05/18/0080-java-reflect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 反射</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-18T09:00:00+08:00">
+                2018-05-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>通常在程序中对象类型都是编译期就确定下来的，而 <code>Java</code> 反射机制的核心是 <code>JVM</code> 在运行时才动态加载类或调用方法、属性，这样对象的类型在编译期是未知的，也就是可以通过反射机制直接创建编译期未知的对象。  </p>
+<a id="more"></a>
+
+<p>反射并没有太多理论基础，主要是熟悉各种 <code>API</code> ，通过反射在运行时获得程序或程序集中每一个类型成员和成员变量的信息。  </p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="反射能做什么"><a href="#反射能做什么" class="headerlink" title="反射能做什么"></a>反射能做什么</h3><ul>
+<li>对于任意一个类，都能够知道这个类的所有属性和方法  </li>
+<li>对于任意一个对象，都能够调用它的任意一个方法和属性  </li>
+</ul>
+<h3 id="反射常见用途"><a href="#反射常见用途" class="headerlink" title="反射常见用途"></a>反射常见用途</h3><ul>
+<li>编译期已知类名<br>如果编译器已知类名、类对象，可以通过反射简写代码（比如工厂模式中去掉条件判断等），或者获取类的私有属性、方法、构造方法等。 </li>
+<li>编译期未知类名<br>无法导入到当前类，可以通过反射动态加载类。通过配置文件或者泛型动态加载。<br>反射最重要的用途就是开发各种通用框架，动态加载类。很多框架（比如 <code>Spring</code>）都是配置化的（通过 <code>XML</code> 文件配置 <code>JavaBean, Action</code> 等），为了保证框架的通用性，他们可能根据配置文件加载不同的对象或类，调用不同的方法，这个时候就必须用到反射——运行时动态加载需要加载的对象。  </li>
+</ul>
+<h3 id="基本数据类型类对象"><a href="#基本数据类型类对象" class="headerlink" title="基本数据类型类对象"></a>基本数据类型类对象</h3><ul>
+<li>基本数据类型<br><code>boolean.class, char.class, byte.class, short.class, int.class, long.class, float.class, double.class</code>  </li>
+<li><code>void</code> 类型<br><code>void.class</code>  </li>
+</ul>
+<h3 id="获取类对象的方法"><a href="#获取类对象的方法" class="headerlink" title="获取类对象的方法"></a>获取类对象的方法</h3><ul>
+<li>编译器已知类名<br><code>Class&lt;?&gt; myObjectClass = MyObject.class;</code>  </li>
+<li>已有类对象<br><code>Class&lt;?&gt; clazz = object.getClass();</code>  </li>
+<li>已知完整类全名反射<br><code>Class&lt;?&gt; myObjectClass = Class.forName(&quot;com.simple.User&quot;);</code>  </li>
+<li>类加载器加载二进制字节流<br><code>Class clazz = classLoader.loadClass(&quot;com.***.User&quot;);</code>，注意类加载器的双亲委派模型确保能找到该类。只要能拿到 <code>.class</code> 文件对应的二进制字节流，就能通过反射获取 <code>Class</code> 的所有信息。  </li>
+<li>类的内部类<br><code>Class API</code> 可以遍历内部类或者指定类。或者使用完整类全名反射，注意：内部类和外部类之间使用美元符连接 <code>$</code> ：<br><code>Class&lt;?&gt; myObjectClass = Class.forName(&quot;com.simple.User$InnerClass&quot;);</code>  </li>
+</ul>
+<p>每个 <code>Class</code> 在类加载过程中，会将类对象加载到方法区中，确保 <code>JVM</code> 中只存在一个类对象，它保存了类相关的类型信息，属性，方法，构造方法等等。  </p>
+<h2 id="常见类和对应-API"><a href="#常见类和对应-API" class="headerlink" title="常见类和对应 API"></a>常见类和对应 <code>API</code></h2><h3 id="AnnotatedElement"><a href="#AnnotatedElement" class="headerlink" title="AnnotatedElement"></a><code>AnnotatedElement</code></h3><p><code>AnnotatedElement</code> 注解元素贯穿了整个反射的基础类。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断指定类型注解是否存在</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">isAnnotationPresent</span><span class="params">(Class&lt;? extends Annotation&gt; </span></span></span><br><span class="line"><span class="function"><span class="params">        annotationClass)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定类型注解，包含父类</span></span><br><span class="line">    &lt;T extends Annotation&gt; <span class="function">T <span class="title">getAnnotation</span><span class="params">(Class&lt;T&gt; annotationClass)</span></span>;</span><br><span class="line">    <span class="comment">// 返回所有注解</span></span><br><span class="line">    Annotation[] getAnnotations();</span><br><span class="line">    <span class="comment">// 返回指定类型的注解数组，包含父类中的</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T[] getAnnotationsByType</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类上指定类型的注解</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T getDeclaredAnnotation</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类上指定类型的注解数组</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T[] getDeclaredAnnotationsByType</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类上注解数组</span></span><br><span class="line">    Annotation[] getDeclaredAnnotations();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Member"><a href="#Member" class="headerlink" title="Member"></a><code>Member</code></h3><p><code>Member</code> 表示类的成员：字段属性、构造方法、普通方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Member</span> </span>&#123;</span><br><span class="line">    <span class="comment">// public 成员，包含父类</span></span><br><span class="line">    <span class="keyword">int</span> PUBLIC = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 当前类声明，包含私有的</span></span><br><span class="line">    <span class="keyword">int</span> DECLARED = <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 内部类在哪个类中声明定义</span></span><br><span class="line">    Class&lt;?&gt; getDeclaringClass();</span><br><span class="line">    <span class="function">String <span class="title">getName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 获取访问控制符</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getModifiers</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 判断是否为编译器生成</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isSynthetic</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="AccessibleObject"><a href="#AccessibleObject" class="headerlink" title="AccessibleObject"></a><code>AccessibleObject</code></h3><p><code>AccessibleObject</code> 表示可访问对象，用来修改查询访问控制符。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccessibleObject</span> <span class="keyword">implements</span> <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 设置可访问性</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setAccessible</span><span class="params">(AccessibleObject[] array, <span class="keyword">boolean</span> flag)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAccessible</span><span class="params">(<span class="keyword">boolean</span> flag)</span> <span class="keyword">throws</span> SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否有权限访问</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isAccessible</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="GenericDeclaration"><a href="#GenericDeclaration" class="headerlink" title="GenericDeclaration"></a><code>GenericDeclaration</code></h3><p><code>GenericDeclaration</code> 声明类型变量的接口，代表着泛型。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GenericDeclaration</span> <span class="keyword">extends</span> <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回泛型中定义的类型变量数组</span></span><br><span class="line">    <span class="keyword">public</span> TypeVariable&lt;?&gt;[] getTypeParameters();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Field"><a href="#Field" class="headerlink" title="Field"></a><code>Field</code></h3><p><code>Field</code> 代表类中的字段、属性。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Field</span> <span class="keyword">extends</span> <span class="title">AccessibleObject</span> <span class="keyword">implements</span> <span class="title">Member</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回定义该字段的类</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getDeclaringClass() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为枚举常量</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEnumConstant</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为编译器生成</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSynthetic</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回类型</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getType() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回泛型类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">getGenericType</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回对象该字段当前值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">get</span><span class="params">(Object obj)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">getBoolean</span><span class="params">(Object obj)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getDouble</span><span class="params">(Object obj)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 设置对象该字段的值；第一个表示对象，第二个表示值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(Object obj, Object value)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setBoolean</span><span class="params">(Object obj, <span class="keyword">boolean</span> z)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDouble</span><span class="params">(Object obj, <span class="keyword">double</span> d)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException</span></span><br><span class="line"><span class="function">    <span class="comment">// 返回该字段被注解类型</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> AnnotatedType <span class="title">getAnnotatedType</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Executable"><a href="#Executable" class="headerlink" title="Executable"></a><code>Executable</code></h3><p><code>Executable</code> 1.8 新增的抽象类，是构造方法和普通方法的基类。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Executable</span> <span class="keyword">extends</span> <span class="title">AccessibleObject</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Member</span>, <span class="title">GenericDeclaration</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 返回形参的类型数组</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> Class&lt;?&gt;[] getParameterTypes();</span><br><span class="line">    <span class="comment">// 返回形参个数，由子类实现</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getParameterCount</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 参数为泛型，获取形参类型数组，如返回形参为 &#123;java.util.List&lt;T&gt;, boolean&#125;</span></span><br><span class="line">    <span class="keyword">public</span> Type[] getGenericParameterTypes() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回参数数组</span></span><br><span class="line">    <span class="keyword">public</span> Parameter[] getParameters() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否采用可变量参数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isVarArgs</span><span class="params">()</span>  </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 返回参数注解数组</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> Annotation[][] getParameterAnnotations();</span><br><span class="line">    <span class="comment">// 返回方法返回值的被注解类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> AnnotatedType <span class="title">getAnnotatedReturnType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回方法接受者的被注解类型，通常返回值为定义该方法所在类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AnnotatedType <span class="title">getAnnotatedReceiverType</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回方法形参的被注解类型数组</span></span><br><span class="line">    <span class="keyword">public</span> AnnotatedType[] getAnnotatedParameterTypes() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回方法抛出异常，对应被注解类型数组</span></span><br><span class="line">    <span class="keyword">public</span> AnnotatedType[] getAnnotatedExceptionTypes() &#123;...&#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Constructor"><a href="#Constructor" class="headerlink" title="Constructor"></a><code>Constructor</code></h3><p><code>Constructor</code> 代表类中的构造方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Constructor</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">Executable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回定义该构造方法的类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Class&lt;T&gt; <span class="title">getDeclaringClass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 创建实例，对应类的空参数构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">newInstance</span><span class="params">(Object ... initargs)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InstantiationException, IllegalAccessException,</span></span><br><span class="line"><span class="function">               IllegalArgumentException, InvocationTargetException</span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Method"><a href="#Method" class="headerlink" title="Method"></a><code>Method</code></h3><p><code>Method</code> 代表类中的普通方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Method</span> <span class="keyword">extends</span> <span class="title">Executable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回定义该方法的类</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getDeclaringClass() &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 返回返回值对应类</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getReturnType() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回返回值泛型类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">getGenericReturnType</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 调用对象的方法：obj 表示对象，args 表示方法需要的可变量参数</span></span><br><span class="line">    <span class="comment">// 返回值为 Object 也可以代表返回值为数组</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object obj, Object... args)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalAccessException, IllegalArgumentException,</span></span><br><span class="line"><span class="function">           InvocationTargetException</span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为桥方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isBridge</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 判断是否为 default 方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isDefault</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回注解元素的默认值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getDefaultValue</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Class"><a href="#Class" class="headerlink" title="Class"></a><code>Class</code></h3><p><code>Class</code> 反射基石，可以对 <code>.class</code> 文件全解析，获取字段、构造方法、普通方法、内部类、注解等功能。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Class</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>,</span></span><br><span class="line"><span class="class">    <span class="title">GenericDeclaration</span>, <span class="title">Type</span>, <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// ************* 获取名称 *******************</span></span><br><span class="line">    <span class="comment">// 返回类全名、基本数据类型、Void</span></span><br><span class="line">    <span class="comment">// 如果是数组则使用 [ 表示维度，类型会编码。如：int[] 返回 [I </span></span><br><span class="line">    <span class="comment">// boolean[2][3] 返回 [[Z ；Object[] 返回 [Ljava.lang.Object</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// getName 的前面加上 class 或 interface ，如：class java.lang.String</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回简单类名及数组类型，如 String, boolean[][]</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSimpleName</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回类全名，如果是数组返回 int[], boolean[][]    </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTypeName</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回类全名，如果是内部类，使用 . 代替 $，如 OuterClass.InnerClass</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getCanonicalName</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ************* 类对象、实例、加载器 ****************</span></span><br><span class="line">    <span class="comment">// 根据类全限定名返回类对象，默认会执行类初始化</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; forName(String className)&#123;...&#125;</span><br><span class="line">    <span class="comment">// 根据类全限定名，指定类加载器返回类对象，initialize 决定是否初始化</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; forName(String name, <span class="keyword">boolean</span> initialize</span><br><span class="line">        , ClassLoader loader)</span><br><span class="line">    <span class="comment">// 类对象创建类实例</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">newInstance</span><span class="params">()</span> <span class="keyword">throws</span> InstantiationException, </span></span><br><span class="line"><span class="function">        IllegalAccessException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回类加载器</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ClassLoader <span class="title">getClassLoader</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ************* 内部类 ****************</span></span><br><span class="line">    <span class="comment">// 返回局部内部类或者匿名内部类，具体是在哪个方法中定义的</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Method <span class="title">getEnclosingMethod</span><span class="params">()</span> <span class="keyword">throws</span> SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回内部类在哪个构造方法中定义</span></span><br><span class="line">    <span class="keyword">public</span> Constructor&lt;?&gt; getEnclosingConstructor() </span><br><span class="line">        <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回内部类在哪个外部类中定义</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getEnclosingClass() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回成员内部类是在哪个类中定义的</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getDeclaringClass() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为匿名类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isAnonymousClass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为局部内部类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isLocalClass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为成员内部类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isMemberClass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回所有 public 成员内部类数组，包含父类定义的 public 成员内部类</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt;[] getClasses() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类定义的所有内部类，包含 private 内部类</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt;[] getDeclaredClasses() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// *************类属性、普通方法、构造方法****************</span></span><br><span class="line">    <span class="comment">// 返回所有 public 字段数组，包含父类定义 public 字段</span></span><br><span class="line">    <span class="keyword">public</span> Field[] getFields() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回所有 public 方法数组，包含父类定义 public 方法，默认继承 Object</span></span><br><span class="line">    <span class="keyword">public</span> Method[] getMethods() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回所有 public 构造方法数组</span></span><br><span class="line">    <span class="keyword">public</span> Constructor&lt;?&gt;[] getConstructors() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定名称 pulic 字段，包含父类定义的 public 字段</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Field <span class="title">getField</span><span class="params">(String name)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchFieldException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定名称及参数类型的 public 方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Method <span class="title">getMethod</span><span class="params">(String name, Class&lt;?&gt;... parameterTypes)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchMethodException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定参数的 public 构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Constructor&lt;T&gt; <span class="title">getConstructor</span><span class="params">(Class&lt;?&gt;... parameterTypes)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchMethodException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类定义的所有字段，包含 private 字段</span></span><br><span class="line">    <span class="keyword">public</span> Field[] getDeclaredFields() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类定义的所有方法，包含 private 方法</span></span><br><span class="line">    <span class="keyword">public</span> Method[] getDeclaredMethods() <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类定义的所有构造方法，包含 private 构造方法</span></span><br><span class="line">    <span class="keyword">public</span> Constructor&lt;?&gt;[] getDeclaredConstructors() </span><br><span class="line">        <span class="keyword">throws</span> SecurityException &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类中定义的，指定名称字段，包含 private 字段</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Field <span class="title">getDeclaredField</span><span class="params">(String name)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchFieldException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类中定义的，指定名称及参数类型的方法，包含 private 方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Method <span class="title">getDeclaredMethod</span><span class="params">(String name, Class&lt;?&gt;... parameterTypes)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchMethodException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定参数构造方法，包含 private 构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Constructor&lt;T&gt; <span class="title">getDeclaredConstructor</span><span class="params">(Class&lt;?&gt;... parameterTypes)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NoSuchMethodException, SecurityException </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ************* 注解 ****************</span></span><br><span class="line">    <span class="comment">// 判断类对象是否为注解</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isAnnotation</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类上指定类型的注解</span></span><br><span class="line">    <span class="keyword">public</span> &lt;A extends Annotation&gt; <span class="function">A <span class="title">getAnnotation</span><span class="params">(Class&lt;A&gt; annotationClass)</span></span>&#123;&#125;</span><br><span class="line">    <span class="comment">// 判断指定类型注解是否存在</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> isAnnotationPresent</span><br><span class="line">        (Class&lt;? extends Annotation&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定类型的注解数组，包含父类中的</span></span><br><span class="line">    <span class="keyword">public</span> &lt;A extends Annotation&gt; A[] getAnnotationsByType</span><br><span class="line">        (Class&lt;A&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回所有注解</span></span><br><span class="line">    <span class="keyword">public</span> Annotation[] getAnnotations() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前类使用的注解数组，不包含父类</span></span><br><span class="line">    <span class="keyword">public</span> Annotation[] getDeclaredAnnotations()  &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回 extends 后的父类的被注解类型，Object、接口、基本数据类、void 都返回 null</span></span><br><span class="line">    <span class="comment">// 即使父类没有被注解，也会返回包含父类的被注解类型</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AnnotatedType <span class="title">getAnnotatedSuperclass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回 implements 后的接口的被注解类型数组</span></span><br><span class="line">    <span class="comment">// 即使所有接口都没有被注解，也会返回包含这些接口的被注解类型数组</span></span><br><span class="line">    <span class="keyword">public</span> AnnotatedType[] getAnnotatedInterfaces() &#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ************* 泛型 ****************</span></span><br><span class="line">    <span class="comment">// 返回类的类型变量数组</span></span><br><span class="line">    <span class="keyword">public</span> TypeVariable&lt;Class&lt;T&gt;&gt;[] getTypeParameters() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回泛型的父类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">getGenericSuperclass</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回类实现的泛型接口数组</span></span><br><span class="line">    <span class="keyword">public</span> Type[] getGenericInterfaces() &#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ************* 其他 ****************</span></span><br><span class="line">    <span class="comment">// 返回类的父类，但是 Object, 接口，基本数据类型，void 都返回 null</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">native</span> Class&lt;? <span class="keyword">super</span> T&gt; getSuperclass();</span><br><span class="line">    <span class="comment">// 返回类实现的接口数组</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt;[] getInterfaces() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 获取数组的组件类型，如：int[] 返回 int</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">native</span> Class&lt;?&gt; getComponentType();</span><br><span class="line">    <span class="comment">// 返回访问控制符</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">getModifiers</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 获取资源文件</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> InputStream <span class="title">getResourceAsStream</span><span class="params">(String name)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 获取资源文件</span></span><br><span class="line">    <span class="keyword">public</span> java.net.<span class="function">URL <span class="title">getResource</span><span class="params">(String name)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断是否为枚举</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEnum</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回枚举类的值数组</span></span><br><span class="line">    <span class="keyword">public</span> T[] getEnumConstants() &#123;...&#125;</span><br><span class="line">    <span class="comment">// 对象安全转换</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">cast</span><span class="params">(Object obj)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 类安全转换</span></span><br><span class="line">    <span class="keyword">public</span> &lt;U&gt; Class&lt;? extends U&gt; asSubclass(Class&lt;U&gt; clazz) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断类对象是否为编译器生成类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSynthetic</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 判断当前类对象是否表示为数组</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">isArray</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>get***</code> 和 <code>getDeclared***</code> 的区别  </p>
+<ul>
+<li><code>getDeclared***</code><br>获取当前类中所有的字段属性，方法等，包含私有的，但不包含父类。  </li>
+<li><code>get***</code><br>获取公共的字段属性，方法等，包含父类的。  </li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>泛型中类型变量定义声明<br><code>GenericDeclaration</code> 表示类型变量声明的接口，其实现类为：<code>Class, Constructor, Method</code>，也就是说只有在<strong>类、构造方法、普通方法</strong>定义时才能声明类型变量，其他地方不允许。 </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0080-GenericDeclaration-impl-uml.png" alt="0080-GenericDeclaration-impl-uml.png"></p>
+<ul>
+<li>访问权限控制<br><code>AccessibleObject</code> 表示可以控制访问权限的对象，其实现类为：<code>Field, Constructor, Method</code>。也就是说只有在<strong>字段、构造方法、普通方法</strong>上可以设置访问权限 <code>AccessibleObject.setAccessible(true)</code>，并访问非 <code>public</code> 类型。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0080-AccessibleObject-impl-uml.png" alt="0080-AccessibleObject-impl-uml.png"></p>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><h3 id="辅助类-Array"><a href="#辅助类-Array" class="headerlink" title="辅助类 Array"></a>辅助类 <code>Array</code></h3><p><code>Array</code>  提供一系列静态方法用来动态创建和访问数组。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Array</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 实例化指定类型，指定长度的一维数组</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newInstance</span><span class="params">(Class&lt;?&gt; componentType, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> NegativeArraySizeException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 实例化指定类型，指定维度的数组</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newInstance</span><span class="params">(Class&lt;?&gt; componentType, <span class="keyword">int</span>... dimensions)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, NegativeArraySizeException </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回数组长度</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">getLength</span><span class="params">(Object array)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException</span>;</span><br><span class="line">    <span class="comment">// 返回指定位置的数组，返回值 Object 也可以表示数组</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> Object <span class="title">get</span><span class="params">(Object array, <span class="keyword">int</span> index)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br><span class="line">    <span class="comment">// 返回 boolean 值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">getBoolean</span><span class="params">(Object array, <span class="keyword">int</span> index)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">double</span> <span class="title">getDouble</span><span class="params">(Object array, <span class="keyword">int</span> index)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br><span class="line">    <span class="comment">// 对数组指定位置设置对应值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(Object array, <span class="keyword">int</span> index, Object value)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br><span class="line">    <span class="comment">// 设置 boolean 值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">setBoolean</span><span class="params">(Object array, <span class="keyword">int</span> index, <span class="keyword">boolean</span> z)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">setDouble</span><span class="params">(Object array, <span class="keyword">int</span> index, <span class="keyword">double</span> d)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException, ArrayIndexOutOfBoundsException</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="定义数组"><a href="#定义数组" class="headerlink" title="定义数组"></a>定义数组</h3><p><code>Java</code> 中可以明确类型定义数组，也可以使用 <code>Object/Class&lt;?&gt;</code> 来表示数组：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">String[] strings = &#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;;</span><br><span class="line">Class&lt;?&gt; classes = <span class="keyword">int</span>[].class;</span><br><span class="line">Object object = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line"><span class="comment">// Array 创建一维数组</span></span><br><span class="line">Object object1 = Array.newInstance(String.class, <span class="number">2</span>);</span><br><span class="line"><span class="comment">// Array 创建三维数组</span></span><br><span class="line">Object object2 = Array.newInstance(<span class="keyword">int</span>.class, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p>反射中通常使用 <code>Object/Class&lt;?&gt;</code> 来表示参数或返回值，注意：它们同时代表了数组类型。  </p>
+<h3 id="判断是否为数组"><a href="#判断是否为数组" class="headerlink" title="判断是否为数组"></a>判断是否为数组</h3><p>判断当前类对象或实例是否表示数组，可以使用 <code>Class.isArray()</code> 来判断：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="keyword">int</span>[].class.isArray());          <span class="comment">// true</span></span><br><span class="line">System.out.println(strings.getClass().isArray());   <span class="comment">// true</span></span><br><span class="line">System.out.println(object.getClass().isArray());    <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="反射中转换为数组"><a href="#反射中转换为数组" class="headerlink" title="反射中转换为数组"></a>反射中转换为数组</h3><p>通过反射调用方法后返回 <code>Object/Class&lt;?&gt;</code> ，可以先判断是否为数组，然后再做转换。转换可以显示强制转换为对应类型数组，也可以通过 <code>java.lang.reflect.Array</code> 辅助类来处理。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 判断是否为数组</span></span><br><span class="line"><span class="keyword">if</span> (object.getClass().isArray()) &#123;</span><br><span class="line">    <span class="comment">// 显示强制转换</span></span><br><span class="line">    <span class="keyword">int</span>[] converts = (<span class="keyword">int</span>[]) object;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i : converts) &#123;</span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Array 辅助类，先获取数组长度，再获取数组最后一个值</span></span><br><span class="line">    System.out.println(Array.get(object, Array.getLength(object) - <span class="number">1</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h3><p>反射创建类实例，有两种方法：  </p>
+<ul>
+<li><code>Constructor.newInstance()</code><br>构造方法实例化，可以传递构造方法的参数。  </li>
+<li><code>Class.newInstance()</code><br>直接通过类来实例化，相当于构造方法空参数来实例化。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">"com.ymzs.javabase.reflect.ReflectedClass"</span>);</span><br><span class="line"><span class="comment">// 类直接实例化</span></span><br><span class="line">Object object1 = clazz.newInstance();</span><br><span class="line">System.out.println(<span class="string">"object1 = "</span> + object1);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造方法实例化</span></span><br><span class="line">Constructor constructor = clazz.getConstructor(String.class, <span class="keyword">byte</span>[].class);</span><br><span class="line"><span class="keyword">byte</span>[] paras = &#123;<span class="number">1</span>, <span class="number">2</span>&#125;;</span><br><span class="line">Object object2 = constructor.newInstance(<span class="string">"s"</span>, paras);</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取和设置字段属性"><a href="#获取和设置字段属性" class="headerlink" title="获取和设置字段属性"></a>获取和设置字段属性</h3><p>先将类实例化，然后使用该实例修改字段属性；如果是 <code>static</code> 字段，它属于类的字段属性，所以将实例设置为 <code>null</code>。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 先将类实例化</span></span><br><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">"com.ymzs.javabase.reflect.ReflectedClass"</span>);</span><br><span class="line"><span class="comment">// Object object = clazz.newInstance();</span></span><br><span class="line">Object object = clazz.newInstance();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 通过 getDeclaredField 可以获取任意字段，包含私有的</span></span><br><span class="line">Field declaredField = clazz.getDeclaredField(<span class="string">"mPrivateStr"</span>);</span><br><span class="line">System.out.println(<span class="string">"Declared Field is: "</span> + declaredField);</span><br><span class="line"><span class="comment">// 私有属性设置为可访问</span></span><br><span class="line">declaredField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">String value = (String) declaredField.get(object);</span><br><span class="line">System.out.println(<span class="string">"get private: "</span> + declaredField.getName() + <span class="string">" = "</span> + value);</span><br><span class="line">String changeString = <span class="string">"ChangePrivateString"</span>;</span><br><span class="line"><span class="comment">// 设置</span></span><br><span class="line">declaredField.set(object, changeString);</span><br><span class="line">value = (String) declaredField.get(object);</span><br><span class="line">System.out.println(<span class="string">"set private: "</span> + declaredField.getName() + <span class="string">" = "</span> + value);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 通过 getField 只能修改公共字段，包含父类的</span></span><br><span class="line">Field publicField = clazz.getField(<span class="string">"mSuperClassPublicStr"</span>);</span><br><span class="line"><span class="comment">// 设置</span></span><br><span class="line">publicField.set(object, <span class="string">"ChangePublicString"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 静态 static 属于类，实例传入 null</span></span><br><span class="line">Field staticPublicField = clazz.getField(<span class="string">"sPublicStr"</span>);</span><br><span class="line"><span class="comment">// 设置</span></span><br><span class="line">staticPublicField.set(<span class="keyword">null</span>, <span class="string">"changeStaticString"</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="调用方法"><a href="#调用方法" class="headerlink" title="调用方法"></a>调用方法</h3><p>先将类实例化，然后使用该实例调用方法；如果是 <code>static</code> 字段，它属于类方法，所以将实例设置为 <code>null</code>。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">"com.ymzs.javabase.reflect.ReflectedClass"</span>);</span><br><span class="line"><span class="comment">// 1. 通个 getMethod 获取公共方法，包含父类的</span></span><br><span class="line">Method publicMethod = clazz.getMethod(<span class="string">"superPublicMethod"</span>, <span class="keyword">int</span>.class);</span><br><span class="line"><span class="comment">// 2. 通过 getDeclaredMethod 获取任意方法，包含私有的</span></span><br><span class="line">Method declaredMethod = clazz.getDeclaredMethod(<span class="string">"testPrivateMethod"</span></span><br><span class="line">    , <span class="keyword">new</span> Class[]&#123;<span class="keyword">byte</span>[].class&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 类实例化</span></span><br><span class="line">Object object = clazz.newInstance();</span><br><span class="line"><span class="comment">// 方法的数组参数</span></span><br><span class="line"><span class="keyword">byte</span>[] parameters = &#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>&#125;;</span><br><span class="line"><span class="comment">// 私有方法设置为可访问</span></span><br><span class="line">declaredMethod.setAccessible(<span class="keyword">true</span>);</span><br><span class="line"><span class="comment">// 4. 调用方法</span></span><br><span class="line">Object results = declaredMethod.invoke(object, parameters);</span><br><span class="line"><span class="comment">// 5. 判断方法返回结果是否为数组  </span></span><br><span class="line"><span class="keyword">if</span> (results.getClass().isArray())&#123;</span><br><span class="line">    <span class="comment">// 如果为数组，强制转换</span></span><br><span class="line">    String[] array = (String[]) results;</span><br><span class="line">    String value = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">for</span> (String s : array)&#123;</span><br><span class="line">        value += s;</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"Declared method return value: "</span> + value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 获取 static 方法，实例传入 null</span></span><br><span class="line">Method staticMethod = clazz.getMethod(<span class="string">"staticMethod"</span>, String.class);</span><br><span class="line">System.out.println(<span class="string">"Static Method return value: "</span> </span><br><span class="line"><span class="comment">// 6. 调用静态方法</span></span><br><span class="line">    + staticMethod.invoke(<span class="keyword">null</span>, <span class="string">"110"</span>));</span><br></pre></td></tr></table></figure>
+
+<h3 id="内部类"><a href="#内部类" class="headerlink" title="内部类"></a>内部类</h3><p>通过反射接口可以获取内部类是在哪个<strong>类/构造方法/普通方法</strong>中定义，以及判断它们属于<strong>成员/匿名/局部</strong>内部类的哪一种。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 内部类定义</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterClass</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Runnable runnable;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 成员内部类 </span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemberInnerClass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 匿名内部类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">OuterClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">        runnable = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="comment">//</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 局部内部类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">testMethodClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">MethodClass</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MethodClass();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码  </span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testInnerClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"***********testInnerClass***********"</span>);</span><br><span class="line">    OuterClass outerClass = <span class="keyword">new</span> OuterClass();</span><br><span class="line">    Class&lt;?&gt; clazz = outerClass.testMethodClass().getClass();</span><br><span class="line">    System.out.println(<span class="string">"Method class from : "</span> + clazz.getEnclosingMethod());</span><br><span class="line">    System.out.println(<span class="string">"Outer class is : "</span> + clazz.getEnclosingClass());</span><br><span class="line">    System.out.println(<span class="string">"is Method class: "</span> + clazz.isLocalClass());   <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">    clazz = OuterClass.MemberInnerClass.class;</span><br><span class="line">    System.out.println(<span class="string">"Member class from: "</span> + clazz.getDeclaringClass());</span><br><span class="line">    System.out.println(<span class="string">"Outer class is : "</span> + clazz.getEnclosingClass());</span><br><span class="line">    System.out.println(<span class="string">"is Member class: "</span> + clazz.isMemberClass());  <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">    clazz = outerClass.runnable.getClass();</span><br><span class="line">    System.out.println(<span class="string">"Anonymous class from : "</span> </span><br><span class="line">        + clazz.getEnclosingConstructor());</span><br><span class="line">    System.out.println(<span class="string">"Outer class is : "</span> + clazz.getEnclosingClass());</span><br><span class="line">    System.out.println(<span class="string">"is Anonymous class = "</span> </span><br><span class="line">        + clazz.isAnonymousClass());                                  <span class="comment">// true</span></span><br><span class="line">    System.out.println(<span class="string">"***********testInnerClass***********"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试结果</span></span><br><span class="line">Method class from :public java.lang.Object com.*.OuterClass.testMethodClass()</span><br><span class="line">Outer class is : class com.***.OuterClass</span><br><span class="line">is Method class: true</span><br><span class="line">Member class from: class com.***.OuterClass</span><br><span class="line">Outer class is : class com.ymzs.***.OuterClass</span><br><span class="line">is Member class: true</span><br><span class="line">Anonymous class from : public com.***.OuterClass()</span><br><span class="line">Outer class is : class com.***.OuterClass</span><br><span class="line">is Anonymous <span class="class"><span class="keyword">class</span> </span>= <span class="keyword">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="反射常见场景"><a href="#反射常见场景" class="headerlink" title="反射常见场景"></a>反射常见场景</h2><ul>
+<li>反射与泛型<br>反射与泛型的混合使用在很多框架中都会出现，应用非常广泛。基础知识点可以参考<a href="https://redspider110.github.io/2018/05/15/0079-java-type/">Java Type类型</a> ，主要是通过反射获取泛型相关信息。  </li>
+<li>反射与注解<br>反射是注解解析方式的一种，在运行时解析注解并实现对应功能。  </li>
+<li>动态代理<br>代理模式的一种，通过反射动态生成代理对象。设计模式参考：<a href="https://redspider110.github.io/2018/03/12/0058-design-patterns-proxy/">代理模式</a>  </li>
+</ul>
+<h2 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h2><p>代理模式：<strong>为其他对象提供一种代理以控制对这个对象的访问。</strong> 这是设计模式中对代理模式的介绍，代理模式分为静态代理和动态代理。静态代理即编译期前代码及代理关系就已经明确存在；动态代理是通过反射机制动态地生成代理对象，也就是代码编译中并不知道代理关系，动态代理将代理和被代理对象进行了解耦。<code>Java</code> 反射技术是在内存中，动态生成一个新类来实现动态代理。  </p>
+<blockquote>
+<p><strong><code>Java</code> 中只能为接口 <code>interface</code> 实现动态代理</strong>。  </p>
+</blockquote>
+<h3 id="基础类"><a href="#基础类" class="headerlink" title="基础类"></a>基础类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 动态代理必须通过这个接口来实现代理方法调用</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 调用被代理对象的方法  </span></span><br><span class="line"><span class="comment">     * Object: 被代理的真实对象</span></span><br><span class="line"><span class="comment">     * method：被代理实例对应的方法</span></span><br><span class="line"><span class="comment">     * args：传入的参数数组</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> Throwable</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Proxy 辅助类，用来创建代理对象类或者实例</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Proxy</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建动态代理对应的 class 对象</span></span><br><span class="line">    <span class="comment">// ClassLoader 动态代理类的类加载器；interfaces 为接口数组  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Class&lt;?&gt; getProxyClass(ClassLoader loader,</span><br><span class="line">        Class&lt;?&gt;... interfaces) <span class="keyword">throws</span> IllegalArgumentException</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * JVM 运行时动态创建代理对象，对应类名为 com.sun.proxy.$Proxy**</span></span><br><span class="line"><span class="comment">    * ClassLoader: 代理对象的类加载器</span></span><br><span class="line"><span class="comment">    * Class&lt;?&gt;[]：被代理对象对应的接口数组（多态）</span></span><br><span class="line"><span class="comment">    * InvocationHandler：我们实现的动态代理对象</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newProxyInstance</span><span class="params">(ClassLoader loader,</span></span></span><br><span class="line"><span class="function"><span class="params">        Class&lt;?&gt;[] interfaces, InvocationHandler h)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException </span>&#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">// 1. 目标接口，被动态代理</span><br><span class="line">public interface Subject &#123;</span><br><span class="line">    void operation();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 2. RealSubject，真实对象</span><br><span class="line">public class RealSubject implements Subject&#123;</span><br><span class="line">    public void operation()&#123;</span><br><span class="line">        System.out.println(&quot;RealSubject::operation.&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 3. DynamicProxy，实现动态代理</span><br><span class="line">public class DynamicProxy implements InvocationHandler&#123;</span><br><span class="line">    private Object object;</span><br><span class="line"></span><br><span class="line">    public DynamicProxy(Object object) &#123;</span><br><span class="line">        this.object = object;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public Object invoke(Object o, Method method, Object[] objects) </span><br><span class="line">        throws Throwable &#123;</span><br><span class="line">        // 可以在这里增加权限控制，或者添加其他功能</span><br><span class="line">        ...</span><br><span class="line">        Object result = method.invoke(object, objects);</span><br><span class="line">        ...</span><br><span class="line">        return result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 4. Test</span><br><span class="line">public class TestDynamicProxy &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        RealSubject realSubject = new RealSubject();</span><br><span class="line">        InvocationHandler dynamicProxy = new DynamicProxy(realSubject);</span><br><span class="line"></span><br><span class="line">        Subject subject = (Subject) Proxy.newProxyInstance(</span><br><span class="line">                Subject.class.getClassLoader(),</span><br><span class="line">                new Class[]&#123;Subject.class&#125;, dynamicProxy);</span><br><span class="line">        System.out.println(subject.getClass());</span><br><span class="line">        subject.operation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 5. Result</span><br><span class="line">class com.sun.proxy.$Proxy0</span><br><span class="line">RealSubject::operation.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>InvocationHandler.invoke</code><br>在这里实现动态代理，同时可以在动态代理前增加权限检查，或者添加功能（相当于装饰模式）。  </li>
+<li><code>com.sun.proxy.$Proxy0</code><br>从输出的 <code>Log</code> 可以看出，动态代理是重新生成了一个新的类 <code>com.sun.proxy.$Proxy0</code>，并实现了动态代理的功能。新类命名格式：<code>包名 + $Proxy + id 序号</code>。    </li>
+</ul>
+<h2 id="ClassDump-工具"><a href="#ClassDump-工具" class="headerlink" title="ClassDump 工具"></a><code>ClassDump</code> 工具</h2><h3 id="工具介绍"><a href="#工具介绍" class="headerlink" title="工具介绍"></a>工具介绍</h3><p><code>ClassDump</code> 是 <code>HotSpot</code> 虚拟机特有的，它是 <code>HotSpot SA: Serviceability Agent</code> 中的一个工具。<code>ClassDump</code> 可以在运行时 <code>dump</code> 类文件，特别是动态生成或者运行时被修改了字节码的类。<br><code>HotSpot</code> 有一套私有 <code>API</code> 提供了对 <code>JVM</code> 内部数据结构的审视功能，称为 <code>Serviceability Agent</code>。可以通过 <code>API</code> 直接写 <code>Java</code> 代码来查看一个跑在 <code>HotSpot</code> 上的 <code>Java</code> 进程的内部状态。它也提供了一些封装好的工具，可以直接在命令行上跑，包括 <code>ClassDump</code> 工具。<code>SA</code> 的一个重要特征是它是“进程外审视工具”。也就是说 <code>SA</code> 并不运行在要审视的目标进程中，而是运行在一个独立的 <code>Java</code> 进程中，通过操作系统上提供的调试 <code>API</code> 来连接到目标进程上。这样 <code>SA</code> 的运行不会受到目标进程状态的影响，因而可以用于审视一个已经挂起的 <code>Java</code> 进程。一个被调试器连接上的进程会被暂停下来。所以在 <code>SA</code> 连接到目标进程时，目标进程也是一直处于暂停状态的，直到 <code>SA</code> 解除连接。如果需要在线上使用SA的话需要小心，不要通过 <code>SA</code> 做过于耗时的分析，宁可先把数据都抓出来，把连接解除掉之后再离线分析。目前的使用经验是，连接上一个小 <code>Java</code> 进程的话很快就好了，但连接上一个“大”的 <code>Java</code> 进程（堆比较大、加载的类比较多）可能会在连接阶段卡住好几分钟，线上需要慎用。<br><code>ClassDump</code> 的特点：需要目标 <code>Java</code> 进程必须在运行中；连接时会导致目标进程暂停。  </p>
+<h3 id="示例过滤器"><a href="#示例过滤器" class="headerlink" title="示例过滤器"></a>示例过滤器</h3><p>示例：使用 <code>ClassDump</code> 工具 <code>Dump</code> 出动态代理生成的类，其类特点是文件名都是 <code>com.sun.proxy.$Proxy</code> 开头的 <code>class</code> 文件。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sun.jvm.hotspot.oops.InstanceKlass;</span><br><span class="line"><span class="keyword">import</span> sun.jvm.hotspot.tools.jcore.ClassFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClassNameFilter</span> <span class="keyword">implements</span> <span class="title">ClassFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CLASSNAME_PREFIX = <span class="string">"com/sun/proxy/$Proxy"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canInclude</span><span class="params">(InstanceKlass instanceKlass)</span> </span>&#123;</span><br><span class="line">        String klassName = instanceKlass.getName().asString();</span><br><span class="line">        <span class="keyword">return</span> klassName.startsWith(CLASSNAME_PREFIX);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：过滤器中需要过滤的类名是以 <code>/</code> 分割的而不是 <code>.</code> ，如：<code>com/sun/proxy/$Proxy</code> 。  </p>
+<h3 id="执行过程"><a href="#执行过程" class="headerlink" title="执行过程"></a>执行过程</h3><blockquote>
+<p>当前是在 <code>Ubuntu</code> 环境中运行的，执行时必须使用 <code>root</code> 权限（使用 <code>sudo</code> 也会报错）。  </p>
+</blockquote>
+<p>修改动态代理源文件，<strong>确保进程持续运行</strong>。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestDynamicProxy</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        RealSubject realSubject = <span class="keyword">new</span> RealSubject();</span><br><span class="line">        ...</span><br><span class="line">        subject.operation();</span><br><span class="line">        <span class="comment">// 添加这一句，使进程阻塞等待，不会退出</span></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行该测试程序，并查看对应的进程名：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 找到目标进程 id: 81249</span><br><span class="line">root@server005:~/classdump# jps</span><br><span class="line">83496 Jps</span><br><span class="line">119412 ServerLauncher</span><br><span class="line">81249 TestDynamicProxy</span><br></pre></td></tr></table></figure>
+
+<p><code>MyClassNameFilter.java</code> 文件并不需要编译（也编译不过导入的包名找不到），在 <code>MyClassNameFilter.java</code> 文件所在目录运行，<a href="https://www.cnblogs.com/wade-luffy/p/7080541.html" target="_blank" rel="noopener">命令使用方法</a>：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 0. root 用户下执行</span><br><span class="line">// 1. 指定过滤器类文件为 MyClassNameFilter</span><br><span class="line">// 2. 指定 classdump 进程 id：81249</span><br><span class="line">root@server005:~/classdump# java -classpath "$JAVA_HOME/lib/sa-jdi.jar" -Dsun.jvm.hotspot.tools.jcore.filter=MyClassNameFilter sun.jvm.hotspot.tools.jcore.ClassDump 81249</span><br><span class="line">Warning: Can not create class filter!</span><br><span class="line">Attaching to process ID 81249, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 24.121-b00</span><br><span class="line">root@server005:~/classdump# tree com/</span><br><span class="line">com/</span><br><span class="line">└── sun</span><br><span class="line">    └── proxy</span><br><span class="line">        └── $Proxy0.class</span><br><span class="line"></span><br><span class="line">2 directories, 1 file</span><br></pre></td></tr></table></figure>
+
+<p>执行完毕后，会生成三个代码目录：<code>com, java, sun</code>，其中 <code>com</code> 为动态代理中生成的类，其他为加载的系统类。  </p>
+<p>没有使用 <code>root</code> 账号运行出现的错误：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 1. 直接使用其他账户运行，无法 attach 到目标进程</span><br><span class="line">Warning: Can not create class filter!</span><br><span class="line">Attaching to process ID 80662, please wait...</span><br><span class="line">Error attaching to process: sun.jvm.hotspot.debugger.DebuggerException: Can't attach to the process</span><br><span class="line"></span><br><span class="line">// 2. sudo 运行，无法打开对应库文件</span><br><span class="line">Attaching to process ID 81297, please wait...</span><br><span class="line">Error attaching to process: sun.jvm.hotspot.debugger.DebuggerException: cannot open binary file</span><br></pre></td></tr></table></figure>
+
+<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><p>使用 <code>jd-gui</code> 打开 <code>$Proxy0.class</code> 文件分析动态代理生成的类实现了哪些功能：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 继承了 Proxy 类，并实现了 Subject 接口，</span></span><br><span class="line"><span class="comment">// 动态代理前提条件就要求被代理是接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> $<span class="title">Proxy0</span></span></span><br><span class="line"><span class="class">  <span class="keyword">extends</span> <span class="title">Proxy</span></span></span><br><span class="line"><span class="class">  <span class="keyword">implements</span> <span class="title">Subject</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Method m1;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Method m0;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Method m3;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Method m2;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">public</span> $Proxy0(InvocationHandler paramInvocationHandler)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">super</span>(paramInvocationHandler);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 静态代码块，类加载时执行</span></span><br><span class="line">  <span class="keyword">static</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// 使用了反射技术</span></span><br><span class="line">      <span class="comment">// 获取 Object 的默认方法：equals, toString, hashCode</span></span><br><span class="line">      <span class="comment">// 获取 Subject 定义的方法：operation</span></span><br><span class="line">      m1 = Class.forName(<span class="string">"java.lang.Object"</span>).getMethod(<span class="string">"equals"</span>, </span><br><span class="line">        <span class="keyword">new</span> Class[] &#123; Class.forName(<span class="string">"java.lang.Object"</span>) &#125;);</span><br><span class="line">      m0 = Class.forName(<span class="string">"java.lang.Object"</span>).getMethod(<span class="string">"hashCode"</span>, </span><br><span class="line">        ew Class[<span class="number">0</span>]);</span><br><span class="line">      m3 = Class.forName(<span class="string">"Subject"</span>).getMethod(<span class="string">"operation"</span>, <span class="keyword">new</span> Class[<span class="number">0</span>]);</span><br><span class="line">      m2 = Class.forName(<span class="string">"java.lang.Object"</span>).getMethod(<span class="string">"toString"</span>, </span><br><span class="line">        <span class="keyword">new</span> Class[<span class="number">0</span>]);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ..</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object paramObject)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    ..</span><br><span class="line">      <span class="keyword">return</span> ((Boolean)<span class="keyword">this</span>.h.invoke(<span class="keyword">this</span>, m1, </span><br><span class="line">        <span class="keyword">new</span> Object[] &#123; paramObject &#125;)).booleanValue();</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">toString</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">      <span class="keyword">return</span> (String)<span class="keyword">this</span>.h.invoke(<span class="keyword">this</span>, m2, <span class="keyword">null</span>);</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">      <span class="keyword">return</span> ((Integer)<span class="keyword">this</span>.h.invoke(<span class="keyword">this</span>, m0, <span class="keyword">null</span>)).intValue();</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 通过反射 InvocationHandler.invoke 调用目标方法</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">operation</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">this</span>.h.invoke(<span class="keyword">this</span>, m3, <span class="keyword">null</span>);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Error|RuntimeException localError)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">throw</span> localError;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Throwable localThrowable)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> UndeclaredThrowableException(localThrowable);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出生成的代理类，最终是通过 <code>InvocationHandler</code> 来调用目标方法的。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/reflection/index.html" target="_blank" rel="noopener">Java reflect guide</a>  </li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html" target="_blank" rel="noopener">Class: Java Doc</a>  </li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Field.html" target="_blank" rel="noopener">Field: Java Doc</a>  </li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Method.html" target="_blank" rel="noopener">Method: Java Doc</a>  </li>
+<li>疯狂 <code>Java</code> 讲义-第二版 – 第 18 章 类加载机制与反射  </li>
+<li><a href="https://www.jianshu.com/p/607ff4e79a13" target="_blank" rel="noopener">Java 反射完全解析</a>  </li>
+<li><a href="https://www.cnblogs.com/penghongwei/p/3300094.html" target="_blank" rel="noopener">Java 反射-数组</a>  </li>
+<li><a href="https://www.cnblogs.com/bethunebtj/p/7761596.html" target="_blank" rel="noopener">Java synthetic 关键字</a>  </li>
+<li><a href="https://www.ibm.com/developerworks/cn/java/j-jtp08305.html" target="_blank" rel="noopener">Java 动态代理</a>  </li>
+<li><a href="https://blog.csdn.net/luanlouis/article/details/24589193" target="_blank" rel="noopener">Java动态代理机制详解</a>  </li>
+<li><a href="https://blog.csdn.net/briblue/article/details/73928350" target="_blank" rel="noopener">轻松学 Java 中动态代理</a>  </li>
+<li><a href="https://blog.csdn.net/kisimple/article/details/43372803" target="_blank" rel="noopener">HotSpot SA #2：ClassDump</a>  </li>
+<li><a href="http://rednaxelafx.iteye.com/blog/727938" target="_blank" rel="noopener">R大–dump Java 进程里的类对应的 Class 文件</a>  </li>
+<li><a href="https://www.cnblogs.com/wade-luffy/p/7080541.html" target="_blank" rel="noopener">从 Java 进程里 dump 出类的字节码文件</a>  </li>
+<li><a href="http://hg.openjdk.java.net/jdk7u/jdk7u/hotspot/file/2cd3690f644c/agent/src/share/classes/sun/jvm/hotspot/tools/jcore/ClassDump.java" target="_blank" rel="noopener">ClassDump.java 源码</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/05/18/0080-java-reflect/" title="Java 反射">http://redspider110.github.io/2018/05/18/0080-java-reflect/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/15/0079-java-type/" rel="next" title="Java Type 类型">
+                <i class="fa fa-chevron-left"></i> Java Type 类型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/29/0081-java-annotation-parsing-reflect/" rel="prev" title="Java 注解解析 -- 反射">
+                Java 注解解析 -- 反射 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反射能做什么"><span class="nav-number">1.1.</span> <span class="nav-text">反射能做什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反射常见用途"><span class="nav-number">1.2.</span> <span class="nav-text">反射常见用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本数据类型类对象"><span class="nav-number">1.3.</span> <span class="nav-text">基本数据类型类对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取类对象的方法"><span class="nav-number">1.4.</span> <span class="nav-text">获取类对象的方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见类和对应-API"><span class="nav-number">2.</span> <span class="nav-text">常见类和对应 API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AnnotatedElement"><span class="nav-number">2.1.</span> <span class="nav-text">AnnotatedElement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Member"><span class="nav-number">2.2.</span> <span class="nav-text">Member</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AccessibleObject"><span class="nav-number">2.3.</span> <span class="nav-text">AccessibleObject</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GenericDeclaration"><span class="nav-number">2.4.</span> <span class="nav-text">GenericDeclaration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Field"><span class="nav-number">2.5.</span> <span class="nav-text">Field</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Executable"><span class="nav-number">2.6.</span> <span class="nav-text">Executable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Constructor"><span class="nav-number">2.7.</span> <span class="nav-text">Constructor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Method"><span class="nav-number">2.8.</span> <span class="nav-text">Method</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class"><span class="nav-number">2.9.</span> <span class="nav-text">Class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.10.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数组"><span class="nav-number">3.</span> <span class="nav-text">数组</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#辅助类-Array"><span class="nav-number">3.1.</span> <span class="nav-text">辅助类 Array</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义数组"><span class="nav-number">3.2.</span> <span class="nav-text">定义数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#判断是否为数组"><span class="nav-number">3.3.</span> <span class="nav-text">判断是否为数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反射中转换为数组"><span class="nav-number">3.4.</span> <span class="nav-text">反射中转换为数组</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">4.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化"><span class="nav-number">4.1.</span> <span class="nav-text">实例化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取和设置字段属性"><span class="nav-number">4.2.</span> <span class="nav-text">获取和设置字段属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调用方法"><span class="nav-number">4.3.</span> <span class="nav-text">调用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类"><span class="nav-number">4.4.</span> <span class="nav-text">内部类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射常见场景"><span class="nav-number">5.</span> <span class="nav-text">反射常见场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态代理"><span class="nav-number">6.</span> <span class="nav-text">动态代理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础类"><span class="nav-number">6.1.</span> <span class="nav-text">基础类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">6.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ClassDump-工具"><span class="nav-number">7.</span> <span class="nav-text">ClassDump 工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#工具介绍"><span class="nav-number">7.1.</span> <span class="nav-text">工具介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例过滤器"><span class="nav-number">7.2.</span> <span class="nav-text">示例过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#执行过程"><span class="nav-number">7.3.</span> <span class="nav-text">执行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结果分析"><span class="nav-number">7.4.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

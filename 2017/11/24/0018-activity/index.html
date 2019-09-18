@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,FourComponents,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本概念Activity 用来做界面显示，交互，也是程序的入口。">
+<meta name="keywords" content="Android,FourComponents">
+<meta property="og:type" content="article">
+<meta property="og:title" content="四大组件 -- Activity">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/24/0018-activity/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="基本概念Activity 用来做界面显示，交互，也是程序的入口。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_activity_lifecycle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_lifecycle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_restore_instance.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_Activity_stack_diagram_backstack.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_diagram_multitasking.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_diagram_multiple_instances.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.341Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="四大组件 -- Activity">
+<meta name="twitter:description" content="基本概念Activity 用来做界面显示，交互，也是程序的入口。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_activity_lifecycle.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/24/0018-activity/">
+
+
+
+
+
+  <title>四大组件 -- Activity | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/24/0018-activity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">四大组件 -- Activity</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T17:00:00+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><code>Activity</code> 用来做界面显示，交互，也是程序的入口。</p>
+<a id="more"></a>
+
+<h2 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h2><h3 id="生命周期流转图"><a href="#生命周期流转图" class="headerlink" title="生命周期流转图"></a>生命周期流转图</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_activity_lifecycle.png" alt="0018_activity_lifecycle.png"></p>
+<blockquote>
+<p>注意: 在实现生命周期方法时必须始终先调用超类实现，然后再执行其他操作。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResume</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onResume();</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// my code.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="生命周期回调方法汇总表"><a href="#生命周期回调方法汇总表" class="headerlink" title="生命周期回调方法汇总表"></a>生命周期回调方法汇总表</h3><ul>
+<li>生命周期回调方法汇总表  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_lifecycle.png" alt="0018_lifecycle.png"></p>
+<ul>
+<li><code>onPause</code> 和 <code>onStop</code> 的区别<br><code>onPause</code>：失去焦点，不可交互<br><code>onStop</code>：完全被遮挡，<code>Activity</code> 不可见   </li>
+</ul>
+<p><strong>示例</strong>：<code>Activity</code> 在弹出 <code>Dialog</code> 时，只是失去焦点，并没有完全不可见，所以只会执行 <code>onPause</code> ；而 <code>Activity</code> 在启动另一个 <code>Activity</code> 时被完全遮挡，就会执行到 <code>onStop</code></p>
+<h3 id="A-启动-B-生命周期的执行顺序"><a href="#A-启动-B-生命周期的执行顺序" class="headerlink" title="A 启动 B 生命周期的执行顺序"></a><code>A</code> 启动 <code>B</code> 生命周期的执行顺序</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 启动A</span><br><span class="line">A:: onCreate -&gt; A:: onStart -&gt; A:: onResume</span><br><span class="line">// 点击A中的button启动B</span><br><span class="line">A:: onPause -&gt; B:: onCreate -&gt; B:: onStart -&gt; B:: onResume -&gt; A:: onStop</span><br><span class="line">// 在B中点击Back退出</span><br><span class="line">B:: onPause -&gt; A:: onRestart -&gt; A:: onStart -&gt; A:: onResume -&gt; B:: onStop -&gt; B:: onDestroy</span><br><span class="line">// 在A中点击Back退出</span><br><span class="line">A:: onPause -&gt; A:: onStop -&gt; A:: onDestroy</span><br></pre></td></tr></table></figure>
+
+<p>可以清楚的看到在 <code>A</code> 启动 <code>B</code> 的流程中，<code>onPause</code> 在失去焦点后就立即执行，当 <code>B</code> 完全启动后并遮挡了 <code>A</code>，<code>onStop</code> 才开始执行。同理，<code>B</code> 在退出过程中，等 <code>A</code> 完全恢复并遮挡 <code>B</code> 后，<code>B</code> 才开始执行 <code>onStop -&gt; onDestroy</code>。<br><code>onStop -&gt; onRestart</code> 这个流程出现在：<code>Activity</code> 被遮挡但没有销毁，下次恢复时就会执行 <code>onRestart -&gt; onStart</code>。</p>
+<h3 id="finish-对生命周期的影响"><a href="#finish-对生命周期的影响" class="headerlink" title="finish() 对生命周期的影响"></a><code>finish()</code> 对生命周期的影响</h3><ul>
+<li>在 <code>onCreate</code> 中调用，执行顺序 <code>onCreate -&gt; onDestroy</code></li>
+<li>在 <code>onStart</code> 中调用，执行顺序 <code>onCreate -&gt; onStart -&gt; onStop -&gt; onDestroy</code></li>
+</ul>
+<h3 id="Activity-重建的影响因素"><a href="#Activity-重建的影响因素" class="headerlink" title="Activity 重建的影响因素"></a><code>Activity</code> 重建的影响因素</h3><p>如下因素的变化，都会导致 <code>Activity</code> 重建，也就是会走 <code>onDestroy -&gt; onCreate</code>：</p>
+<ul>
+<li>mcc<br>国际移动用户识别码所属国家代号是改变了，<code>sim</code> 被侦测到了，去更新 <code>mcc</code>。 <code>mcc</code> 是移动用户所属国家代号  </li>
+<li>mnc<br><code>MNC</code> 是移动网号码，最多由两位数字组成，用于识别移动用户所归属的移动通信网  </li>
+<li>locale<br>地址改变了，用户选择了一个新的语言会显示出来  </li>
+<li>touchscreen<br>触摸屏是改变了，通常是不会发生的  </li>
+<li>keyboard<br>键盘发生了改变，例如用户用了外部的键盘  </li>
+<li>keyboardHidden<br>键盘的可用性发生了改变  </li>
+<li>navigation<br>导航发生了变化，通常也不会发生  </li>
+<li>screenLayout<br>屏幕的显示发生了变化，不同的显示被激活  </li>
+<li>fontScale<br>字体比例发生了变化，选择了不同的全局字体  </li>
+<li>uiMode<br>用户的模式发生了变化  </li>
+<li>orientation<br>屏幕方向改变了  </li>
+<li>screenSize<br>屏幕大小改变了  </li>
+<li>smallestScreenSize<br>屏幕的物理大小改变了，如：连接到一个外部的屏幕上  </li>
+</ul>
+<p>这些影响因素可以在 <code>AndroidManifest.xml</code> 中设置来<strong>屏蔽</strong>掉，凡是在这申明后，将不会影响生命周期。    </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">".fourcomponents.ActivityLifeCycleA"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:configChanges</span>=<span class="string">"***"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="屏幕旋转对生命周期的影响"><a href="#屏幕旋转对生命周期的影响" class="headerlink" title="屏幕旋转对生命周期的影响"></a>屏幕旋转对生命周期的影响</h3><ul>
+<li>常规流程 <code>Activity</code> 销毁重建<br>屏幕旋转会完整的触发这两个生命周期，其中状态恢复在 <code>onCreate</code> 和 <code>onRestoreInstanceState</code> 中都可以实现</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TAG:: onCreate</span><br><span class="line">TAG:: onStart</span><br><span class="line">TAG:: onResume</span><br><span class="line">// 开始旋转屏幕，Activity被销毁</span><br><span class="line">TAG:: onPause</span><br><span class="line">// 触发状态保存</span><br><span class="line">TAG:: onSaveInstanceState, outState.value = hello InstanceState</span><br><span class="line">TAG:: onStop</span><br><span class="line">TAG:: onDestroy</span><br><span class="line">// Activity重建</span><br><span class="line">TAG:: onCreate</span><br><span class="line">// 状态恢复，可以在onCreate中恢复</span><br><span class="line">TAG:: onCreate, savedInstanceState.value = hello InstanceState</span><br><span class="line">TAG:: onStart</span><br><span class="line">// 触发状态回复，也可以在这里恢复</span><br><span class="line">TAG:: onRestoreInstanceState</span><br><span class="line">TAG:: onRestoreInstanceState, savedInstanceState.value = hello InstanceState</span><br><span class="line">TAG:: onResume</span><br><span class="line">// 界面显示</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>避免 <code>Activity</code> 销毁重建<br>在屏幕旋转时，避免 <code>Activity</code> 销毁重建，可以在 <code>AndroidManifest.xml</code> 中设置对应属性（<code>Android 3.2</code> 及以上需要设置 <code>screenSize</code>）：  </li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">".fourcomponents.ActivityLifeCycleA"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:configChanges</span>=<span class="string">"orientation|screenSize"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置后屏幕旋转将<strong>完全不影响</strong> <code>Activity</code> 的生命周期，如果想监听屏幕旋转，可以重写如下方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onConfigurationChanged</span><span class="params">(Configuration newConfig)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onConfigurationChanged(newConfig);</span><br><span class="line">    Log.d(TAG, <span class="string">"onConfigurationChanged: newConfig = "</span> + newConfig);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="“锁屏-解锁”对生命周期的影响"><a href="#“锁屏-解锁”对生命周期的影响" class="headerlink" title="“锁屏/解锁”对生命周期的影响"></a>“锁屏/解锁”对生命周期的影响</h3><p>“锁屏/解锁” 整个流程包含：锁屏，亮屏，解锁三个步骤：  </p>
+<h4 id="不涉及横竖屏切换"><a href="#不涉及横竖屏切换" class="headerlink" title="不涉及横竖屏切换"></a>不涉及横竖屏切换</h4><p>如：当前 <code>Activity</code> 为竖屏，在竖屏状态下，锁屏并解锁，不做方向切换，即正常流程：<br>锁屏：<code>onPause -&gt; onStop</code><br>解锁：<code>onRestart -&gt; onStart -&gt; onResume</code>  </p>
+<h4 id="涉及横竖屏切换"><a href="#涉及横竖屏切换" class="headerlink" title="涉及横竖屏切换"></a>涉及横竖屏切换</h4><p>如：当前 <code>Activity</code> 为横屏，在横屏状态下锁屏会显示锁屏界面，涉及方向切换，当前 <code>Activity</code> 会被销毁重建。<br>锁屏：<code>onPause -&gt; onStop -&gt; onDestroy -&gt; onCreate -&gt; onStart -&gt; onResume -&gt; onPause</code>  </p>
+<ul>
+<li>解锁后当前 <code>Activity</code> 变为竖屏<br>解锁：<code>onResume</code>  </li>
+<li>解锁后当前 <code>Activity</code> 仍然转换为横屏<br>即会出现当前 <code>Activity</code> 销毁重建过程<br>解锁：<code>onResume -&gt; onPause -&gt; onStop -&gt; onDestroy -&gt; onCreate -&gt; onStart -&gt; onResume</code>  </li>
+</ul>
+<h4 id="横竖屏切换监听屏幕旋转"><a href="#横竖屏切换监听屏幕旋转" class="headerlink" title="横竖屏切换监听屏幕旋转"></a>横竖屏切换监听屏幕旋转</h4><p>如：当前 <code>Activity</code> 为横屏，并且设置了属性 <code>android:configChanges=&quot;orientation|screenSize&quot;</code> 。即当前 <code>Activity</code> 不会销毁重建，方向切换时会被监听。<br>锁屏：<code>onPause -&gt; onStop -&gt; onConfigurationChanged</code>，此时当前 <code>Activity</code> 已经被切换到竖屏。<br>解锁：<code>onRestart -&gt; onStart -&gt; onResume -&gt; onConfigurationChanged</code>  </p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><ul>
+<li>屏幕旋转<br>如果涉及屏幕旋转，当前 <code>Activity</code> 在“锁屏/解锁”两个阶段都会出现销毁重建（<code>onDestroy -&gt; onCreate</code>），如果此时监听了屏幕旋转，则在方向切换时仅执行 <code>onConfigurationChanged</code>。  </li>
+<li>锁屏<br>总体来说会先执行 <code>onPause -&gt; onStop</code>，即<strong>不可见流程</strong>。如果屏幕旋转当前 <code>Activity</code> 重建，<strong>会执行到 <code>onPause</code>，同时解锁会直接从 <code>onResume</code> 开始</strong>；如果监听了旋转，则屏幕切换时仅会执行 <code>onConfigurationChanged</code>。  </li>
+<li>亮屏<br>不影响生命周期</li>
+<li>解锁<br>总体来说会先执行 <code>onRestart --&gt; onResume</code>，即<strong>恢复可见流程</strong>。如果当前 <code>Activity</code> 重建过，则直接从 <code>onResume</code> 恢复；如果监听了旋转，则屏幕切换时仅会执行 <code>onConfigurationChanged</code>。  </li>
+</ul>
+<blockquote>
+<p>?为什么锁屏时，如果出现 <code>Activity</code> 销毁重建时，只执行到 <code>onPause</code>，而不执行 <code>onStop</code> ? </p>
+</blockquote>
+<h3 id="Home-键对生命周期的影响"><a href="#Home-键对生命周期的影响" class="headerlink" title="Home 键对生命周期的影响"></a><code>Home</code> 键对生命周期的影响</h3><p>按下 <code>Home</code> 键<strong>不影响</strong>生命周期，正常的不可见和恢复可见流程：<br>不可见流程：<code>onPause -&gt; onStop</code><br>恢复可见流程：<code>onRestart -&gt; onStart -&gt; onResume</code>  </p>
+<h3 id="状态栏下拉对生命周期的影响"><a href="#状态栏下拉对生命周期的影响" class="headerlink" title="状态栏下拉对生命周期的影响"></a>状态栏下拉对生命周期的影响</h3><p>下拉状态栏<strong>不影响</strong>生命周期，但是如果需要监听状态栏下拉，可以重写如下方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onWindowFocusChanged</span><span class="params">(<span class="keyword">boolean</span> hasFocus)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onWindowFocusChanged(hasFocus);</span><br><span class="line">    <span class="comment">// 状态栏弹出和收回，都会触发这次事件</span></span><br><span class="line">    Log.d(TAG, <span class="string">"onWindowFocusChanged: "</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="保存-Activity-的状态"><a href="#保存-Activity-的状态" class="headerlink" title="保存 Activity 的状态"></a>保存 <code>Activity</code> 的状态</h2><p>状态保存和恢复<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_restore_instance.png" alt="0018_restore_instance.png"></p>
+<p>涉及到两个函数：<code>onSaveInstanceState()</code> 和 <code>onRestoreInstanceState()</code> ，这两个函数大部分情况下并不会成对出现。<br>如果没有重写这两个函数，系统 <code>Activity</code> 类的 <code>onSaveInstanceState()</code> 默认实现也会恢复部分 <code>Activity</code> 状态。具体地讲，默认实现会为布局中的每个 <code>View</code> 调用相应的 <code>onSaveInstanceState()</code> 方法，让每个视图都能提供有关自身的应保存信息。<code>Android</code>框架中几乎每个小部件都会根据需要实现此方法，以便在重建 <code>Activity</code> 时自动保存和恢复对 <code>UI</code> 所做的任何可见更改。例如 <code>EditText</code> 小部件保存用户输入的任何文本，<code>CheckBox</code> 小部件保存复选框的选中或未选中状态。</p>
+<blockquote>
+<p>注意：想要保存其状态的每个小部件，必须提供一个唯一的 <code>ID</code>（通过 <code>android:id</code> 属性）。如果小部件没有 <code>ID</code>，则系统无法保存其状态；如果是相同的 <code>ID</code>，数据会被覆盖，在恢复时数据显示出错。</p>
+</blockquote>
+<h3 id="保存的数据"><a href="#保存的数据" class="headerlink" title="保存的数据"></a>保存的数据</h3><p>数据通过 <code>Bundle</code> 保存起来，使用 <code>putString()</code> 和 <code>putInt()</code> 等方法以[名称-值]对形式保存有关 <code>Activity</code> 状态的瞬时数据，如成员变量，<code>UI</code> 状态等。如果需要保存持久数据，需要在 <code>onPause</code> 中保存。</p>
+<h3 id="onSaveInstanceState-触发时机"><a href="#onSaveInstanceState-触发时机" class="headerlink" title="onSaveInstanceState()触发时机"></a><code>onSaveInstanceState()</code>触发时机</h3><p>在 <code>Activity</code> 不可见时触发，也就是 <code>onPause --&gt; onSaveInstanceState --&gt; onStop</code>，但是系统并不是每次都会调用。</p>
+<h4 id="调用"><a href="#调用" class="headerlink" title="调用"></a>调用</h4><p>遵循一个重要原则，即当系统存在“未经你许可”销毁 <code>Activity</code> 的可能时，<code>onSaveInstanceState</code> 会被系统调用，这是系统的责任：必须要提供一个机会让你保存你的数据。  </p>
+<ul>
+<li>启动另外一个 <code>Activity</code> 并被遮挡   </li>
+<li>屏幕旋转时当前 <code>Activity</code> 销毁并被重新创建  </li>
+<li><code>Home</code> 键相关操作  </li>
+<li>按下电源键灭屏  </li>
+</ul>
+<h4 id="不调用"><a href="#不调用" class="headerlink" title="不调用"></a>不调用</h4><ul>
+<li>直接退出当前 <code>Activity</code>   </li>
+<li>被 <code>kill</code> 命令杀掉  </li>
+</ul>
+<h3 id="onRestoreInstanceState-触发时机"><a href="#onRestoreInstanceState-触发时机" class="headerlink" title="onRestoreInstanceState()触发时机"></a><code>onRestoreInstanceState()</code>触发时机</h3><p>在 <code>Activity</code> 恢复可见时触发，也就是 <code>onStart --&gt; onRestoreInstanceState --&gt; onResume</code>，同样系统也不是每次都会调用。 </p>
+<h4 id="调用-1"><a href="#调用-1" class="headerlink" title="调用"></a>调用</h4><p>重要原则，即当 <code>Activity</code> 确实已经被销毁。  </p>
+<ul>
+<li>屏幕旋转时当前 <code>Activity</code> 销毁并被重新创建  </li>
+</ul>
+<h4 id="不调用-1"><a href="#不调用-1" class="headerlink" title="不调用"></a>不调用</h4><ul>
+<li>当 <code>Activity</code> 并没有销毁而只是进入生命周期恢复过程中，并不会被调用，直接走流程 <code>onRestart --&gt; onStart --&gt; onResume</code>  </li>
+<li>被 <code>kill</code> 命令杀掉  </li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>可以参考：“屏幕旋转对生命周期的影响”中“常规流程 <code>Activity</code> 销毁重建”的 <code>log</code> 打印。  </p>
+<h2 id="Activity存储方式：栈"><a href="#Activity存储方式：栈" class="headerlink" title="Activity存储方式：栈"></a><code>Activity</code>存储方式：栈</h2><h3 id="基本概念-1"><a href="#基本概念-1" class="headerlink" title="基本概念"></a>基本概念</h3><ul>
+<li>返回栈(Back Stack)<br>返回栈： 这些 <code>Activity</code> 按照各自的打开顺序排列在栈中，表示 <code>Activity</code> 的存储方式。返回栈以“后进先出”对象结构运行，并且栈中的 <code>Activity</code> <strong>永远不会重新排列</strong>，仅推入和弹出栈。由当前 <code>Activity</code> 启动时推入堆栈；用户使用“返回”按钮退出时弹出堆栈。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_Activity_stack_diagram_backstack.png" alt="0018_Activity_stack_diagram_backstack.png"></p>
+<p>源码中查看推测是如下结构来存储返回栈的，但是似乎不像是栈的操作？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TaskRecord.java中定义，暂时没有看出来是栈存储结构？</span></span><br><span class="line"><span class="comment">/** List of all activities in the task arranged in history order */</span></span><br><span class="line"><span class="keyword">final</span> ArrayList&lt;ActivityRecord&gt; mActivities;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>任务(Task)<br>任务：在执行特定作业时与用户交互的一系列 <code>Activity</code>，使用返回栈记录这些 <code>Activity</code> 的执行顺序。任务分为前台任务和后台任务，前台任务接受用户交互；任务被移动到后台时，整个返回栈顺序不变。任务可以是同一个应用程序中的 <code>Activity</code>，也可以是跨应用的 <code>Activity</code>，放到同一个任务中，以维护这种无缝的用户体验。 </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_diagram_multitasking.png" alt="0018_diagram_multitasking.png"></p>
+<p>源码中通过如下方式来记录前后台任务列表，每个任务对应一个 <code>TaskRecord</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityStatck.java</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The back history of all previous (and possibly still</span></span><br><span class="line"><span class="comment"> * running) activities.  It contains #TaskRecord objects.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;TaskRecord&gt; mTaskHistory = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>前后台任务切换时，仅仅把需要的后台任务移动到最前面，其他任务顺序不变：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityStatck::moveTaskToFrontLocked方法中</span></span><br><span class="line">...</span><br><span class="line"><span class="comment">// Shift all activities with this task up to the top</span></span><br><span class="line"><span class="comment">// of the stack, keeping them in the same internal order.</span></span><br><span class="line">insertTaskAtTop(tr, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><ul>
+<li>命令<br><code>adb shell dumpsys activity</code>，通过该命令可以显示所有 <code>Activity</code> 的任务及存储信息，对应源码为：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. ActivityManagerService.java</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dumpActivitiesLocked</span><span class="params">(***)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 2. ActivityStackSupervisior.java</span></span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">dumpActivitiesLocked</span><span class="params">(***)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 3. TaskRecord.java</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"><span class="comment">// 4. ActivityRecord.java</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="comment">// 5. ProcessRecord.java</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>任务只包含同一个应用的 <code>Activity</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Display #0 (activities from top to bottom):</span><br><span class="line">Task id #482</span><br><span class="line">  TaskRecord&#123;5c00e23 #482 A=com.ymzs.androidbasicknowledge U=0 sz=5&#125;</span><br><span class="line">  Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity &#125;</span><br><span class="line">    Hist #4: ActivityRecord&#123;18068e4d u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t482&#125;</span><br><span class="line">    Hist #3: ActivityRecord&#123;3048f0d9 u0 </span><br><span class="line">// 在ActivityLifeCycleB中再次启动ActivityLifeCycleA</span><br><span class="line">com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB t482&#125;</span><br><span class="line">    Hist #2: ActivityRecord&#123;214418e1 u0 </span><br><span class="line">// 在ActivityLifeCycleA中启动ActivityLifeCycleB </span><br><span class="line">com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB t482&#125;</span><br><span class="line">    Hist #1: ActivityRecord&#123;1e375a73 u0 </span><br><span class="line">// 启动ActivityLifeCycleA </span><br><span class="line">com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t482&#125;</span><br><span class="line">    Hist #0: ActivityRecord&#123;19cecd32 u0 </span><br><span class="line">// 启动MainActivity </span><br><span class="line">com.ymzs.androidbasicknowledge/.MainActivity t482&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于返回栈中的 <code>Activity</code> <strong>永远不会重新排列</strong>，因此如果应用启动特定 <code>Activity</code>，则会创建该 <code>Activity</code> 的新实例并推入堆栈中（而不是将 <code>Activity</code> 的任一先前实例置于顶部），因此应用中的一个 <code>Activity</code> 可能会多次实例化。如上面 <code>Log</code> 显示，<code>A</code> 和 <code>B</code> 有多次实例化。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0018_diagram_multiple_instances.png" alt="0018_diagram_multiple_instances.png"></p>
+<ul>
+<li>任务包含不同应用的 <code>Activity</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// 1. ActivityManagerService::dumpActivitiesLocked打印</span><br><span class="line">ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)</span><br><span class="line">// 2. ActivityStackSupervisior::dumpActivitiesLocked打印</span><br><span class="line">Display #0 (activities from top to bottom):</span><br><span class="line">  Stack #1:</span><br><span class="line">    Task id #478</span><br><span class="line">      // 3. TaskRecord::toString打印，其中A表示affinity的值，sz表示size</span><br><span class="line">      TaskRecord&#123;f8000a3 #478 A=com.ymzs.mytensorflowandroid U=0 sz=2&#125;</span><br><span class="line">      Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.mytensorflowandroid/.MainActivity &#125;</span><br><span class="line">      // MainActivity中启动图库应用com.android.gallery3d/.app.Gallery</span><br><span class="line">      // 4. ActivityRecord::toString打印，t表示task_id</span><br><span class="line">      Hist #1: ActivityRecord&#123;1ce46759 u0 com.android.gallery3d/.app.Gallery t478&#125;</span><br><span class="line">          Intent &#123; act=android.intent.action.PICK dat=content://media/external/images/media cmp=com.android.gallery3d/.app.Gallery &#125;</span><br><span class="line">          // 5. ProcessRecord::toString打印，13594表示进程id，u0a10表示userid</span><br><span class="line">          ProcessRecord&#123;24a57d18 13594:com.android.gallery3d/u0a10&#125;</span><br><span class="line">      // 程序入口，启动MainActivity</span><br><span class="line">      Hist #0: ActivityRecord&#123;1a87e335 u0 com.ymzs.mytensorflowandroid/.MainActivity t478&#125;</span><br><span class="line">          Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.mytensorflowandroid/.MainActivity bnds=[276,999][540,1292] &#125;</span><br><span class="line">          ProcessRecord&#123;3ac41fa0 13096:com.ymzs.mytensorflowandroid/u0a155&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用清单文件定义启动模式"><a href="#使用清单文件定义启动模式" class="headerlink" title="使用清单文件定义启动模式"></a>使用清单文件定义启动模式</h2><p>在清单文件中声明 <code>Activity</code> 时，可以使用 <code>android:launchMode</code> 属性指定 <code>Activity</code> 应该如何与任务关联，默认为 <code>android:launchMode=&quot;standard&quot;</code>，<code>launchMode</code> 属性的启动模式共有四种：</p>
+<h3 id="standard"><a href="#standard" class="headerlink" title="standard"></a>standard</h3><p>系统默认，<code>Activity</code> 会被多次实例化。 </p>
+<h3 id="singleTop"><a href="#singleTop" class="headerlink" title="singleTop"></a>singleTop</h3><p>如果当前任务的<strong>顶部</strong>已存在该 <code>Activity</code> 的一个实例，则系统不会创建 <code>Activity</code> 的新实例；如果不在顶部，则和 <code>standard</code> 一样，创建多个实例。假设任务的返回栈顺序是 <code>A-B-C-D</code>，并且 <code>D</code> 位于顶部，再启动 <code>D</code> 时，示例对比：  </p>
+<ul>
+<li>如果 <code>D</code> 为 <code>standard</code> 模式，将会新建D的实例，返回栈为 <code>A-B-C-D-D</code>  </li>
+<li>如果 <code>D</code> 为 <code>singleTop</code> 模式，不会创建D的实例，返回栈还是 <code>A-B-C-D</code>  </li>
+</ul>
+<h3 id="singleTask"><a href="#singleTask" class="headerlink" title="singleTask"></a>singleTask</h3><p>系统根据 <code>taskAffinity</code> 来决定是否开启新任务，<code>taskAffinity</code> 如果不设置，默认值为包名。已有的任务中如果已经存在该 <code>Activity</code> 实例，下次调用时会把该任务的返回栈中位于这个实例上面<strong>所有的 <code>Activity</code> 全部结束掉</strong>，即最终这个 <code>Activity</code> 实例会位于该任务的堆栈顶端中。  </p>
+<ul>
+<li><code>taskAffinity</code> 为默认值或包名，在原任务中装载该 <code>Activity</code>。如下示例：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 任务及返回栈信息</span><br><span class="line">// MainActivity --&gt; A --&gt; B</span><br><span class="line">Task id #507</span><br><span class="line">  TaskRecord&#123;24103cd5 #507 A=com.ymzs.androidbasicknowledge U=0 sz=3&#125;</span><br><span class="line">  Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity &#125;</span><br><span class="line">    Hist #2: ActivityRecord&#123;3cae8310 u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB t507&#125;</span><br><span class="line">    Hist #1: ActivityRecord&#123;227bef6a u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t507&#125;</span><br><span class="line">    Hist #0: ActivityRecord&#123;db2c04f u0 com.ymzs.androidbasicknowledge/.MainActivity t507&#125;</span><br><span class="line"></span><br><span class="line">// MainActivity --&gt; A --&gt; B --&gt; A，即B中重新启动A</span><br><span class="line">// B被结束掉，并执行onDestroy销毁，A重新回到返回栈栈顶</span><br><span class="line">Task id #507</span><br><span class="line">  TaskRecord&#123;24103cd5 #507 A=com.ymzs.androidbasicknowledge U=0 sz=2&#125;</span><br><span class="line">  Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity &#125;</span><br><span class="line">    Hist #1: ActivityRecord&#123;227bef6a u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t507&#125;</span><br><span class="line">    Hist #0: ActivityRecord&#123;db2c04f u0 com.ymzs.androidbasicknowledge/.MainActivity t507&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应的生命周期流程：<br><code>B:: onPause -&gt; A:: onNewIntent -&gt; A:: onRestart -&gt; A:: onStart -&gt; A:: onResume -&gt; B:: onStop -&gt; B:: onDestroy</code>  </p>
+<ul>
+<li><code>taskAffinity</code> 不是包名，开启新的任务并加载该 <code>Activity</code> 到底部，后续新开启的 <code>Activity</code> 也会在这个新任务中。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 启动流程仍然是MainActivity --&gt; A --&gt; B</span><br><span class="line">Stack #1:</span><br><span class="line">  // 开启A，A的affinity名称为com.ymzs.androidbasicknowledge.singleTask，后续开启的B也在这个任务中</span><br><span class="line">  // 如果B再调用A，则B被返回栈弹出销毁，使A到栈顶显示</span><br><span class="line">  Task id #509</span><br><span class="line">    TaskRecord&#123;1fb922e2 #509 A=com.ymzs.androidbasicknowledge.singleTask U=0 sz=2&#125;</span><br><span class="line">    Intent &#123; flg=0x10000000 cmp=com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA &#125;</span><br><span class="line">      Hist #1: ActivityRecord&#123;3b4246dc u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB t509&#125;</span><br><span class="line">      Hist #0: ActivityRecord&#123;3cd3c703 u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t509&#125;</span><br><span class="line"></span><br><span class="line">  // 程序入口进入MainActivity， affinity名称为包名com.ymzs.androidbasicknowledge</span><br><span class="line">  Task id #508</span><br><span class="line">    TaskRecord&#123;740e673 #508 A=com.ymzs.androidbasicknowledge U=0 sz=1&#125;</span><br><span class="line">    Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity &#125;</span><br><span class="line">      Hist #0: ActivityRecord&#123;98712e4 u0 com.ymzs.androidbasicknowledge/.MainActivity t508&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="singleInstance"><a href="#singleInstance" class="headerlink" title="singleInstance"></a>singleInstance</h3><p>系统会启动一个新的任务来装载该 <code>Activity</code>，并且该 <code>Activity</code> 始终是其任务<strong>唯一仅有</strong>的成员，也就是 <code>Activity</code> 和任务是一一对应的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// 启动顺序 MainActivity --&gt; ActivityLifeCycleA --&gt; ActivityLifeCycleB</span><br><span class="line">ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)</span><br><span class="line">Display #0 (activities from top to bottom):</span><br><span class="line">  Stack #1:</span><br><span class="line">    // MainActivity和ActivityLifeCycleB属于同一应用程序，默认放到同一个任务中</span><br><span class="line">    Task id #489</span><br><span class="line">      TaskRecord&#123;8812eba #489 A=com.ymzs.androidbasicknowledge U=0 sz=2&#125;</span><br><span class="line">      Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity &#125;</span><br><span class="line">        Hist #1: ActivityRecord&#123;2408fb5a u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB t489&#125;</span><br><span class="line">          Intent &#123; flg=0x10400000 cmp=com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleB &#125;</span><br><span class="line">          ProcessRecord&#123;37f1bd8e 13928:com.ymzs.androidbasicknowledge/u0a156&#125;</span><br><span class="line">        Hist #0: ActivityRecord&#123;214f1aee u0 com.ymzs.androidbasicknowledge/.MainActivity t489&#125;</span><br><span class="line">          Intent &#123; act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.ymzs.androidbasicknowledge/.MainActivity bnds=[804,999][1068,1292] &#125;</span><br><span class="line">          ProcessRecord&#123;37f1bd8e 13928:com.ymzs.androidbasicknowledge/u0a156&#125;</span><br><span class="line"></span><br><span class="line">    // ActivityLifeCycleA设置为&quot;singleInstance&quot;模式，因此该Activity单独且唯一的存在于一个任务中</span><br><span class="line">    Task id #490</span><br><span class="line">      TaskRecord&#123;1dbdd3e5 #490 A=com.ymzs.androidbasicknowledge U=0 sz=1&#125;</span><br><span class="line">      Intent &#123; flg=0x10000000 cmp=com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA &#125;</span><br><span class="line">        Hist #0: ActivityRecord&#123;4b095d9 u0 com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA t490&#125;</span><br><span class="line">          Intent &#123; flg=0x10000000 cmp=com.ymzs.androidbasicknowledge/.fourcomponents.ActivityLifeCycleA &#125;</span><br><span class="line">          ProcessRecord&#123;37f1bd8</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意:<br>进入顺序为 <code>MainActivity --&gt; ActivityLifeCycleA --&gt; ActivityLifeCycleB</code><br>但是退出顺序为 <code>ActivityLifeCycleB --&gt; MainActivity --&gt; ActivityLifeCycleA</code></p>
+</blockquote>
+<p>从 <code>Log</code> 中可以看出，<code>MainActivity</code> 和 <code>ActivityLifeCycleB</code> 是在同一个任务中的返回栈中，所以按返回键会先退出 <code>ActivityLifeCycleB</code>，然后按照栈的顺序进入 <code>MainActivity</code>，再次按返回键退出 <code>MainActivity</code> 后，前台任务完全退出，进入 <code>ActivityLifeCycleA</code> 所在的任务。 </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>实例数，<code>standard</code> 标准模式会开启多个实例，<code>singleTop</code> 有条件单个实例，<code>singleTask</code> 和 <code>singleInstance</code> 都是单个实例（单例模式）。  </li>
+<li><code>taskAffinity</code> 决定了 <code>singleTask</code> 是否开启新的任务  </li>
+</ul>
+<h2 id="启动模式引入新的方法-onNewIntent"><a href="#启动模式引入新的方法-onNewIntent" class="headerlink" title="启动模式引入新的方法 onNewIntent"></a>启动模式引入新的方法 <code>onNewIntent</code></h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p><code>protected void onNewIntent(Intent intent) {}</code><br>如果 <code>Activity</code> 已经实例化但需要重新加载时，会先执行 <code>onNewIntent</code>，然后再执行生命周期函数。</p>
+<h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><ul>
+<li><code>singleTop</code> 中，如果 <code>B</code> 已经在栈顶，执行顺序 <code>B:: onPause --&gt; B:: onNewIntent --&gt; B:: onResume</code>   </li>
+<li><code>singleTask</code> 和 <code>singleInstance</code> 中，如果 <code>A</code> 已经存在于任务中，则再次启动 <code>A</code> 时，执行顺序 <code>A:: onNewIntent --&gt; A:: onRestart --&gt; A:: onStart --&gt; A:: onResume</code>  </li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>重写 <code>onNewIntent</code>，必须调用 <code>setIntent</code> 来更新 <code>intent</code>，否则默认 <code>getIntent</code> 还是拿到之前的 <code>intent</code>。参考源码注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* &lt;p&gt;Note that &#123;@link #getIntent&#125; still returns the original Intent.  You</span><br><span class="line">* can use &#123;@link #setIntent&#125; to update it to this new Intent.</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-Intent-标志定义启动模式"><a href="#使用-Intent-标志定义启动模式" class="headerlink" title="使用 Intent 标志定义启动模式"></a>使用 <code>Intent</code> 标志定义启动模式</h2><p>启动 <code>Activity</code> 时，可以通过在传递给 <code>startActivity()</code> 的 <code>Intent</code> 中加入相应的标志，修改 <code>Activity</code> 与其任务的默认关联方式。</p>
+<blockquote>
+<p>注意：<code>Intent</code> 中设置的标志优先级高于 <code>Activity</code> 在清单文件中的定义  </p>
+</blockquote>
+<p>可用于修改默认行为的标志包括：</p>
+<ul>
+<li>FLAG_ACTIVITY_NEW_TASK<br>如果 <code>taskAffinity</code> 的任务存在，则不用新开任务，不管该 <code>Activity</code> 是否存在都会创建新实例。如果不存在则新开任务，比如在 <code>BroadcastReceiver</code> 中开启 <code>Activity</code> 就需要使用该标志</li>
+<li>FLAG_ACTIVITY_SINGLE_TOP<br>与 <code>singleTop</code> 启动模式有相同的行为</li>
+<li>FLAG_ACTIVITY_CLEAR_TOP<br>如果 <code>Activity</code> 已在当前任务中运行，则会销毁当前任务返回栈中顶部的所有 <code>Activity</code>，直到该 <code>Activity</code> 位于栈顶</li>
+</ul>
+<h2 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
+<li>屏幕旋转，需要有平滑的用户体验  </li>
+<li>用户数据在 <code>Activity</code> 跳转时不能丢失  </li>
+<li>特定场景下进程可能会被杀掉·  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/24/0018-activity/" title="四大组件 -- Activity">http://redspider110.github.io/2017/11/24/0018-activity/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/FourComponents/" rel="tag"># FourComponents</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/24/0017-glide/" rel="next" title="Glide">
+                <i class="fa fa-chevron-left"></i> Glide
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/27/0019-fragment/" rel="prev" title="Fragment">
+                Fragment <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生命周期"><span class="nav-number">2.</span> <span class="nav-text">生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期流转图"><span class="nav-number">2.1.</span> <span class="nav-text">生命周期流转图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期回调方法汇总表"><span class="nav-number">2.2.</span> <span class="nav-text">生命周期回调方法汇总表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#A-启动-B-生命周期的执行顺序"><span class="nav-number">2.3.</span> <span class="nav-text">A 启动 B 生命周期的执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#finish-对生命周期的影响"><span class="nav-number">2.4.</span> <span class="nav-text">finish() 对生命周期的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Activity-重建的影响因素"><span class="nav-number">2.5.</span> <span class="nav-text">Activity 重建的影响因素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#屏幕旋转对生命周期的影响"><span class="nav-number">2.6.</span> <span class="nav-text">屏幕旋转对生命周期的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“锁屏-解锁”对生命周期的影响"><span class="nav-number">2.7.</span> <span class="nav-text">“锁屏/解锁”对生命周期的影响</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#不涉及横竖屏切换"><span class="nav-number">2.7.1.</span> <span class="nav-text">不涉及横竖屏切换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#涉及横竖屏切换"><span class="nav-number">2.7.2.</span> <span class="nav-text">涉及横竖屏切换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#横竖屏切换监听屏幕旋转"><span class="nav-number">2.7.3.</span> <span class="nav-text">横竖屏切换监听屏幕旋转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">2.7.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Home-键对生命周期的影响"><span class="nav-number">2.8.</span> <span class="nav-text">Home 键对生命周期的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态栏下拉对生命周期的影响"><span class="nav-number">2.9.</span> <span class="nav-text">状态栏下拉对生命周期的影响</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保存-Activity-的状态"><span class="nav-number">3.</span> <span class="nav-text">保存 Activity 的状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保存的数据"><span class="nav-number">3.1.</span> <span class="nav-text">保存的数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onSaveInstanceState-触发时机"><span class="nav-number">3.2.</span> <span class="nav-text">onSaveInstanceState()触发时机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#调用"><span class="nav-number">3.2.1.</span> <span class="nav-text">调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不调用"><span class="nav-number">3.2.2.</span> <span class="nav-text">不调用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onRestoreInstanceState-触发时机"><span class="nav-number">3.3.</span> <span class="nav-text">onRestoreInstanceState()触发时机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#调用-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不调用-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">不调用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">3.4.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity存储方式：栈"><span class="nav-number">4.</span> <span class="nav-text">Activity存储方式：栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念-1"><span class="nav-number">4.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">4.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用清单文件定义启动模式"><span class="nav-number">5.</span> <span class="nav-text">使用清单文件定义启动模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#standard"><span class="nav-number">5.1.</span> <span class="nav-text">standard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#singleTop"><span class="nav-number">5.2.</span> <span class="nav-text">singleTop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#singleTask"><span class="nav-number">5.3.</span> <span class="nav-text">singleTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#singleInstance"><span class="nav-number">5.4.</span> <span class="nav-text">singleInstance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动模式引入新的方法-onNewIntent"><span class="nav-number">6.</span> <span class="nav-text">启动模式引入新的方法 onNewIntent</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">6.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-2"><span class="nav-number">6.2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">6.3.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-Intent-标志定义启动模式"><span class="nav-number">7.</span> <span class="nav-text">使用 Intent 标志定义启动模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注意事项-1"><span class="nav-number">8.</span> <span class="nav-text">注意事项</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

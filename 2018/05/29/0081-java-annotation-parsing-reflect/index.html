@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java 注解的解析有两种方式：反射和注释处理器（APT/JSR 269）。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 注解解析 -- 反射">
+<meta property="og:url" content="http://redspider110.github.io/2018/05/29/0081-java-annotation-parsing-reflect/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Java 注解的解析有两种方式：反射和注释处理器（APT/JSR 269）。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0081-AnnotatedElement-uml.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.373Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 注解解析 -- 反射">
+<meta name="twitter:description" content="Java 注解的解析有两种方式：反射和注释处理器（APT/JSR 269）。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0081-AnnotatedElement-uml.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/05/29/0081-java-annotation-parsing-reflect/">
+
+
+
+
+
+  <title>Java 注解解析 -- 反射 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/05/29/0081-java-annotation-parsing-reflect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 注解解析 -- 反射</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-29T09:00:00+08:00">
+                2018-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Java</code> 注解的解析有两种方式：反射和注释处理器（<code>APT/JSR 269</code>）。  </p>
+<a id="more"></a>
+
+<p>本文主要介绍通过反射来解析注解，它是在运行时解析的，所以反射要求注解必须是 <code>@Retention(RetentionPolicy.RUNTIME)</code> 类型的。在 <code>.class</code> 文件和 <code>JVM</code> 中都会保留注解信息，运行时才能通过反射来获取并解析注解。但是反射比较慢，所以需要考虑效率问题。  </p>
+<h2 id="注解体系"><a href="#注解体系" class="headerlink" title="注解体系"></a>注解体系</h2><p>所有的注解都是 <code>Annotation</code> 的子接口，类中所有的元素都是 <code>AnnotatedElement</code> 的实现。  </p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 所有注解的父接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Annotation</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">toString</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回注解自身的类型，如：interface com.***.CustomAnnotation</span></span><br><span class="line">    Class&lt;? extends Annotation&gt; annotationType();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被注解元素</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断指定类型注解是否存在</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">isAnnotationPresent</span><span class="params">(Class&lt;? extends Annotation&gt; </span></span></span><br><span class="line"><span class="function"><span class="params">        annotationClass)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回指定类型注解，包含父类</span></span><br><span class="line">    &lt;T extends Annotation&gt; <span class="function">T <span class="title">getAnnotation</span><span class="params">(Class&lt;T&gt; annotationClass)</span></span>;</span><br><span class="line">    <span class="comment">// 返回所有注解</span></span><br><span class="line">    Annotation[] getAnnotations();</span><br><span class="line">    <span class="comment">// 返回指定类型的注解数组，包含父类中的</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T[] getAnnotationsByType</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前元素上指定类型的注解</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T getDeclaredAnnotation</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前元素上指定类型的注解数组</span></span><br><span class="line">    <span class="keyword">default</span> &lt;T extends Annotation&gt; T[] getDeclaredAnnotationsByType</span><br><span class="line">        (Class&lt;T&gt; annotationClass) &#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回当前元素上注解的数组</span></span><br><span class="line">    Annotation[] getDeclaredAnnotations();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0081-AnnotatedElement-uml.png" alt="0081-AnnotatedElement-uml.png"></p>
+<h2 id="注解的本质"><a href="#注解的本质" class="headerlink" title="注解的本质"></a>注解的本质</h2><blockquote>
+<p>注解的位置只能放到类型前面，不能放到变量名，方法名之前。  </p>
+</blockquote>
+<h3 id="注解是接口"><a href="#注解是接口" class="headerlink" title="注解是接口"></a>注解是接口</h3><p>注解使用关键字 <code>@interface</code> 来表示，实际上它也的确是接口。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Target</span>(ElementType.FIELD)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> BindView &#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>BindView</code> 用来注解字段，并且在运行时也保留了注解信息。反编译结果如下：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/annotation$ javap -v -c BindView.class</span><br><span class="line">...</span><br><span class="line">// 反编译发现注解实际就是一个接口文件，并继承了 Annotation</span><br><span class="line">public interface BindView extends java.lang.annotation.Annotation</span><br><span class="line">  SourceFile: "BindView.java"</span><br><span class="line">  RuntimeVisibleAnnotations:</span><br><span class="line">    0: #9(#4=e#10.#11)</span><br><span class="line">    1: #12(#4=[e#13.#14])</span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: 51</span><br><span class="line">  flags: ACC_PUBLIC, ACC_INTERFACE, ACC_ABSTRACT, ACC_ANNOTATION</span><br><span class="line">Constant pool:</span><br><span class="line">   ...</span><br><span class="line">&#123;</span><br><span class="line">  public abstract int value();</span><br><span class="line">    flags: ACC_PUBLIC, ACC_ABSTRACT</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反编译后发现所有的注解实际是接口，并且继承了 <code>Annotation</code>。所以<strong>使用反射解析注解时，可以使用父接口 <code>Annotation</code> 来表示任意注解类型</strong>。  </p>
+<h3 id="注解在-class-文件中"><a href="#注解在-class-文件中" class="headerlink" title="注解在 class 文件中"></a>注解在 <code>class</code> 文件中</h3><p>自定义注解如果标注为 <code>CLASS, RUNTIME</code>，表示会在 <code>class</code> 文件中保留注解信息。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAnnotation</span></span>&#123;</span><br><span class="line">    <span class="meta">@BindView</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类中使用 <code>@BindView</code> 注解整型变量 <code>i</code>，反编译结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/annotation$ javap -v -c TestAnnotation</span><br><span class="line">...</span><br><span class="line">public class TestAnnotation</span><br><span class="line">  SourceFile: "TestAnnotation.java"</span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: 51</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   ...</span><br><span class="line"><span class="meta">   #</span><span class="bash">7 = Utf8               LBindView;</span></span><br><span class="line"><span class="meta">   #</span><span class="bash">8 = Utf8               value</span></span><br><span class="line"><span class="meta">   #</span><span class="bash">9 = Integer            2</span></span><br><span class="line">  ...</span><br><span class="line">&#123;</span><br><span class="line">  public int i;</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    RuntimeVisibleAnnotations:</span><br><span class="line">      0: #7(#8=I#9)</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反编译后发现，变量 <code>i</code> 中保留了一个 <code>RuntimeVisibleAnnotations</code> 标记。后续反射解析时，就是通过这个标记来获取相关注解的。  </p>
+<h2 id="AnnotatedType-体系介绍"><a href="#AnnotatedType-体系介绍" class="headerlink" title="AnnotatedType 体系介绍"></a><code>AnnotatedType</code> 体系介绍</h2><p><code>AnnotatedType</code> 体系是 <code>Java 8</code> 新加的，是泛型 <code>Type</code> 体系对应的被注解类型。<br><code>AnnotatedType</code> 既能获取被注解元素的类型，也能获取该元素上的注解数组。示例：<code>@CustomAnnotation(&quot;value&quot;) CustomClass</code>  </p>
+<ul>
+<li><code>AnnotatedType.getType</code><br>被注解元素的类型，即 <code>CustomClass</code> 。  </li>
+<li><code>AnnotatedElement.getAnnotations</code><br>该元素上的注解数组，即 <code>{CustomAnnotation}</code> 。  </li>
+</ul>
+<p><code>AnnotatedType</code> 类型并不是一定会有注解，只是代表拥有被注解的能力。比如 <code>int i</code> ，<code>AnnotatedType</code> 仅仅代表整型 <code>int</code>，而它并没有被注解。  </p>
+<h3 id="源码分析-1"><a href="#源码分析-1" class="headerlink" title="源码分析"></a>源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 被注解类型  </span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedType</span> <span class="keyword">extends</span> <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回被注解元素的具体类型，如 CustomClass</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">getType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被注解的类型变量  </span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedTypeVariable</span> <span class="keyword">extends</span> <span class="title">AnnotatedType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回被注解类型变量边界数组</span></span><br><span class="line">    AnnotatedType[] getAnnotatedBounds();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代表被注解的成员是数组，必须递归解析，每次只能拿到第一维数组的注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedArrayType</span> <span class="keyword">extends</span> <span class="title">AnnotatedType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回被注解元素的数组元素类型</span></span><br><span class="line">    <span class="comment">// 返回值可能还是 AnnotatedArrayType , 所以需要递归解析</span></span><br><span class="line">    <span class="comment">// 比如 boolean[][][] 三维数组，返回值为 boolean[][]</span></span><br><span class="line">    <span class="function">AnnotatedType <span class="title">getAnnotatedGenericComponentType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被注解泛型通配符类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedWildcardType</span> <span class="keyword">extends</span> <span class="title">AnnotatedType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 被注解泛型通配符下界</span></span><br><span class="line">    AnnotatedType[] getAnnotatedLowerBounds();</span><br><span class="line">    <span class="comment">// 被注解泛型通配符上界</span></span><br><span class="line">    AnnotatedType[] getAnnotatedUpperBounds();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被注解参数化类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedParameterizedType</span> <span class="keyword">extends</span> <span class="title">AnnotatedType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 被注解参数化类型数组，即泛型参数列表数组</span></span><br><span class="line">    AnnotatedType[] getAnnotatedActualTypeArguments();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明了两个类型变量 S, T，其中 S 的边界是多限定</span></span><br><span class="line"><span class="comment">// 继承父类 Thread</span></span><br><span class="line"><span class="comment">// 实现了接口 Runnable, Cloneable, Serializable</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestGenericAnnotation</span>&lt;</span></span><br><span class="line">    @AnyAnnotation("classTypeParameter") S extends Number </span><br><span class="line">    &amp; <span class="meta">@AnyAnnotation</span>(<span class="string">"classTypeParameterBounds"</span>) Comparable, </span><br><span class="line">    T extends Cloneable, U&gt;</span><br><span class="line">        extends <span class="meta">@AnyAnnotation</span>(<span class="string">"extends"</span>) Thread</span><br><span class="line">        implements <span class="meta">@AnyAnnotation</span>(<span class="string">"implements1"</span>) Runnable, </span><br><span class="line">            Cloneable, <span class="meta">@AnyAnnotation</span>(<span class="string">"implements2"</span>) Serializable &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 字段属性注释的标准写法</span></span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"field"</span>) </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> typeAnnotatedBoolean;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span></span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"array4"</span>) <span class="keyword">boolean</span></span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"array1"</span>) []</span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"array2"</span>) []</span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"array3"</span>) []</span><br><span class="line">        typeAnnotatedArray;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="meta">@AnyAnnotation</span>(<span class="string">"typeVariable"</span>) S s;</span><br><span class="line">    <span class="keyword">public</span> <span class="meta">@AnyAnnotation</span>(<span class="string">"beforeType"</span>) <span class="keyword">int</span> array[];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 泛型字段</span></span><br><span class="line">    <span class="keyword">public</span> <span class="meta">@AnyAnnotation</span>(<span class="string">"map1"</span>) Map&lt;</span><br><span class="line">            <span class="meta">@AnyAnnotation</span>(<span class="string">"map2"</span>) ? extends <span class="meta">@AnyAnnotation</span>(<span class="string">"map3"</span>) String,</span><br><span class="line">            <span class="meta">@AnyAnnotation</span>(<span class="string">"map4"</span>) List&lt;<span class="meta">@AnyAnnotation</span>(<span class="string">"map5"</span>) Object&gt;&gt;</span><br><span class="line">            typeAnnotatedMap;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方法注释的标准写法</span></span><br><span class="line">    <span class="meta">@AnyAnnotation</span>(<span class="string">"return"</span>) </span><br><span class="line">    <span class="keyword">public</span> &lt;<span class="meta">@AnyAnnotation</span>(<span class="string">"methodTypeParameter"</span>) U, V&gt; Class&lt;?&gt;</span><br><span class="line">    typeAnnotatedMethod(</span><br><span class="line">        <span class="meta">@AnyAnnotation</span>(<span class="string">"formalParameter"</span>) TestGenericAnnotation arg)</span><br><span class="line">        <span class="keyword">throws</span> <span class="meta">@AnyAnnotation</span>(<span class="string">"throwException"</span>) ClassNotFoundException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方法中的局部变量注解无法通过反射来解析，只能在编译前解析</span></span><br><span class="line">        <span class="meta">@AnyAnnotation</span>(<span class="string">"local_variable_type"</span>) <span class="keyword">int</span> foo = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="反射解析注解"><a href="#反射解析注解" class="headerlink" title="反射解析注解"></a>反射解析注解</h2><h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h3><p>反射解析注解都使用的是动态代理技术访问注解的键值对，解析类源码文件：<a href="http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/reflect/annotation/AnnotationParser.java" target="_blank" rel="noopener">AnnotationParser.java</a>, <a href="http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/reflect/annotation/AnnotationInvocationHandler.java" target="_blank" rel="noopener">AnnotationInvocationHandler.java</a>   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class AnnotationParser &#123;</span><br><span class="line"></span><br><span class="line">    // 解析注解，并将注解作为键值对返回</span><br><span class="line">    public static Map&lt;Class&lt;? extends Annotation&gt;, Annotation&gt; </span><br><span class="line">    parseAnnotations(byte[] rawAnnotations, ConstantPool constPool</span><br><span class="line">        , Class&lt;?&gt; container) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    // 最终都是通过 annotationForMap 来生成注解</span><br><span class="line">    // 使用了动态代理来访问原始注解</span><br><span class="line">    public static Annotation annotationForMap(</span><br><span class="line">        final Class&lt;? extends Annotation&gt; type, </span><br><span class="line">        final Map&lt;String, Object&gt; memberValues)&#123;</span><br><span class="line">        </span><br><span class="line">     return AccessController.doPrivileged(new PrivilegedAction&lt;Annotation&gt;()&#123;</span><br><span class="line">            public Annotation run() &#123;</span><br><span class="line">                return (Annotation) Proxy.newProxyInstance(</span><br><span class="line">                    type.getClassLoader(), new Class&lt;?&gt;[] &#123; type &#125;,</span><br><span class="line">                    new AnnotationInvocationHandler(type, memberValues));</span><br><span class="line">            &#125;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码打印反射获取的 <code>Annotation</code> 类类型：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line">Annotation[] annotations = TestAnnotation.class.getDeclaredAnnotations();</span><br><span class="line"><span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">    System.out.println(annotation.getClass());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试结果输出</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">com</span>.<span class="title">sun</span>.<span class="title">proxy</span>.$<span class="title">Proxy1</span></span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">com</span>.<span class="title">sun</span>.<span class="title">proxy</span>.$<span class="title">Proxy3</span></span></span><br></pre></td></tr></table></figure>
+
+<p>从输出结果可以看出，反射获取的 <code>Annotation</code> 类类型都是动态代理生成新类的类名。  </p>
+<h3 id="常规解析"><a href="#常规解析" class="headerlink" title="常规解析"></a>常规解析</h3><p>被注解的的类：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MetaAnnotation</span>(</span><br><span class="line">        author = <span class="string">"xmt"</span>,</span><br><span class="line">        date = <span class="string">"2018.4.27"</span>,</span><br><span class="line">        currentVersion = <span class="number">2</span>,</span><br><span class="line">        reviewer = &#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;</span><br><span class="line">)</span><br><span class="line"><span class="meta">@Roles</span>(value = &#123;<span class="meta">@Role</span>(name = <span class="string">"doctor"</span>), <span class="meta">@Role</span>(name = <span class="string">"police"</span>)&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAnnotation</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@BindView</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">public</span> String view;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Creatable</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TestAnnotation</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TestAnnotation</span><span class="params">(<span class="keyword">int</span> i)</span></span>&#123;</span><br><span class="line">        count = i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * This is testable method.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Testable</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testJavaDoc</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Annotation viewValue = "</span> + view);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testAnnotationMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注解反射解析：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAnnotationParsingReflect</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Class&lt;?&gt; clazz = TestAnnotation.class;</span><br><span class="line">    <span class="keyword">private</span> Object testAnnotation = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 反射解析类</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类上的注解</span></span><br><span class="line">        Annotation[] annotations = clazz.getDeclaredAnnotations();</span><br><span class="line">        <span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">            <span class="comment">// 解析自定义的 MetaAnnotation 注解</span></span><br><span class="line">            <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> MetaAnnotation)&#123;</span><br><span class="line">                MetaAnnotation metaAnnotation = (MetaAnnotation) annotation;</span><br><span class="line">                System.out.println(<span class="string">"author: "</span> + metaAnnotation.author());</span><br><span class="line">                System.out.println(<span class="string">"date: "</span> + metaAnnotation.date());</span><br><span class="line">                System.out.println(<span class="string">"currentVersion: "</span> </span><br><span class="line">                    + metaAnnotation.currentVersion());</span><br><span class="line">                StringBuilder builder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">                <span class="keyword">for</span> (String s : metaAnnotation.reviewer())&#123;</span><br><span class="line">                    builder.append(s);</span><br><span class="line">                    builder.append(<span class="string">" "</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"reviewer: "</span> + builder.toString());</span><br><span class="line">            <span class="comment">// 解析自定义 Roles 注解</span></span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> Roles)&#123;</span><br><span class="line">                Roles roles = (Roles) annotation;</span><br><span class="line">                <span class="comment">// 重复注解的解析</span></span><br><span class="line">                <span class="keyword">for</span> ( Role role : roles.value())&#123;</span><br><span class="line">                    System.out.println(<span class="string">"name: "</span> + role.name());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解析构造方法上的注解</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingConstructor</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类中的构造方法</span></span><br><span class="line">        Constructor[] constructors = clazz.getDeclaredConstructors();</span><br><span class="line">        <span class="keyword">for</span> (Constructor constructor : constructors)&#123;</span><br><span class="line">            <span class="comment">// 获取每个构造方法上的注解</span></span><br><span class="line">            Annotation[] annotations = constructor.getDeclaredAnnotations();</span><br><span class="line">            <span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">                <span class="comment">// 解析自定义 Creatable 注解</span></span><br><span class="line">                <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> Creatable)&#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">// 如果被 Creatable 注解过的构造方法</span></span><br><span class="line">                        <span class="comment">// 自动实例化一个对象</span></span><br><span class="line">                        testAnnotation = constructor.newInstance(<span class="keyword">null</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解析属性上的注解</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingField</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类中的属性字段</span></span><br><span class="line">        Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">        <span class="keyword">for</span> (Field field : fields)&#123;</span><br><span class="line">            <span class="comment">// 获取每个字段上的注解</span></span><br><span class="line">            Annotation[] annotations = field.getDeclaredAnnotations();</span><br><span class="line">            <span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">                <span class="comment">// 解析自定义 BindView 注解</span></span><br><span class="line">                <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> BindView)&#123;</span><br><span class="line">                    <span class="keyword">if</span> (testAnnotation != <span class="keyword">null</span>)&#123;</span><br><span class="line">                        <span class="keyword">int</span> value = ((BindView) annotation).value();</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            <span class="comment">// 如果被 BindView 注解的字段</span></span><br><span class="line">                            <span class="comment">// 将注解的成员变量值赋值给该字段</span></span><br><span class="line">                            field.set(testAnnotation, String.valueOf(value));</span><br><span class="line">                            System.out.println(<span class="string">"set testAnnotation."</span> </span><br><span class="line">                                + field.getName() + <span class="string">" = "</span> + value);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 解析普通方法上的注解</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类中的普通方法</span></span><br><span class="line">        Method[] methods = clazz.getDeclaredMethods();</span><br><span class="line">        <span class="keyword">for</span> (Method method : methods)&#123;</span><br><span class="line">            <span class="comment">// 获取该方法上的注解</span></span><br><span class="line">            Annotation[] annotations = method.getDeclaredAnnotations();</span><br><span class="line">            <span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">                <span class="comment">// 解析自定义 Testable 注解</span></span><br><span class="line">                <span class="keyword">if</span> (annotation <span class="keyword">instanceof</span> Testable)&#123;</span><br><span class="line">                    <span class="keyword">if</span> (testAnnotation != <span class="keyword">null</span>)&#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            <span class="comment">// 如果被 Testable 注解</span></span><br><span class="line">                            <span class="comment">// 自动调用该方法</span></span><br><span class="line">                            method.invoke(testAnnotation, <span class="keyword">null</span>);</span><br><span class="line">                            System.out.println(<span class="string">"invoke testAnnotation."</span> </span><br><span class="line">                                + method.getName());</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TestAnnotationParsingReflect reflect = </span><br><span class="line">            <span class="keyword">new</span> TestAnnotationParsingReflect();</span><br><span class="line">        reflect.parsingClass();</span><br><span class="line">        reflect.parsingConstructor();</span><br><span class="line">        reflect.parsingField();</span><br><span class="line">        reflect.parsingMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="AnnotatedType-体系解析"><a href="#AnnotatedType-体系解析" class="headerlink" title="AnnotatedType 体系解析"></a><code>AnnotatedType</code> 体系解析</h3><p><code>AnnotatedType</code> 是 <code>Java 8</code> 新增加强型注解，可以注解到任意代码位置，如下示例为解析 <code>TestGenericAnnotation</code> 类中的所有注解。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestGenericAnnotationParsingReflect</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 被解析的类为 TestGenericAnnotation</span></span><br><span class="line">    <span class="keyword">private</span> Class&lt;?&gt; clazz = TestGenericAnnotation.class;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 解析类上的注解</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 解析类型变量列表</span></span><br><span class="line">        TypeVariable&lt;?&gt;[] typeVariables = clazz.getTypeParameters();</span><br><span class="line">        <span class="keyword">if</span> (typeVariables != <span class="keyword">null</span> &amp;&amp; typeVariables.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; typeVariables.length; i++) &#123;</span><br><span class="line">                <span class="comment">// 获取类型变量的注解数组，遍历解析</span></span><br><span class="line">                Annotation[] annotations = typeVariables[i].getAnnotations();</span><br><span class="line">                <span class="keyword">for</span> (Annotation annotation : annotations) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Annotation: "</span> + annotation);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 获取类型变量的边界数组</span></span><br><span class="line">                AnnotatedType[] annotatedBounds = </span><br><span class="line">                    typeVariables[i].getAnnotatedBounds();</span><br><span class="line">                <span class="comment">// default extends Object, so it's always true.</span></span><br><span class="line">                <span class="keyword">if</span> (annotatedBounds != <span class="keyword">null</span> &amp;&amp; annotatedBounds.length &gt; <span class="number">0</span> )&#123;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; annotatedBounds.length; j++)&#123;</span><br><span class="line">                        System.out.println(<span class="string">"TypeVariable bounds: "</span> </span><br><span class="line">                            + annotatedBounds[j].getType());</span><br><span class="line">                        String boundName = </span><br><span class="line">                            annotatedBounds[j].getType().getTypeName();</span><br><span class="line">                        <span class="comment">// 边界不是 Object，即显示指定了类型变量边界</span></span><br><span class="line">                        <span class="keyword">if</span> (!boundName.equals(Object.class.getTypeName()))&#123;</span><br><span class="line">                            <span class="comment">// 获取每个边界的注解数组</span></span><br><span class="line">                            Annotation[] annotations1 = </span><br><span class="line">                                annotatedBounds[j].getAnnotations();</span><br><span class="line">                            <span class="comment">// 遍历解析边界的所有注解</span></span><br><span class="line">                            <span class="keyword">for</span> (Annotation annotation : annotations1) &#123;</span><br><span class="line">                             System.out.println(<span class="string">"Annotation: "</span> + annotation);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解析当前类继承的父类</span></span><br><span class="line">        Class&lt;?&gt; superClass = clazz.getSuperclass();</span><br><span class="line">        <span class="comment">// 确保父类不是 Object，即显示指定了 extends 父类</span></span><br><span class="line">        <span class="keyword">if</span> (superClass != <span class="keyword">null</span> &amp;&amp; superClass != Object.class)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Super Class: "</span> + superClass.getSimpleName());</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取父类的被注解类型</span></span><br><span class="line">            AnnotatedType annotatedSuperclass = </span><br><span class="line">                clazz.getAnnotatedSuperclass();</span><br><span class="line">            <span class="keyword">if</span> (annotatedSuperclass != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 获取父类上的注解数组，并遍历解析</span></span><br><span class="line">                Annotation[] annotations = </span><br><span class="line">                    annotatedSuperclass.getAnnotations();</span><br><span class="line">                <span class="keyword">for</span> (Annotation annotation : annotations) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Annotation: "</span> + annotation);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解析当前类实现的接口数组</span></span><br><span class="line">        <span class="comment">//Class&lt;?&gt;[] interfaces = clazz.getInterfaces();</span></span><br><span class="line">        AnnotatedType[] annotatedTypes = clazz.getAnnotatedInterfaces();</span><br><span class="line">        <span class="keyword">if</span> (annotatedTypes != <span class="keyword">null</span> &amp;&amp; annotatedTypes.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; annotatedTypes.length; i++) &#123;</span><br><span class="line">                <span class="comment">// 接口名称</span></span><br><span class="line">                String interfaceName = </span><br><span class="line">                    annotatedTypes[i].getType().getTypeName();</span><br><span class="line">                System.out.println(<span class="string">"Implements interface: "</span> + interfaceName);</span><br><span class="line">                <span class="comment">// 获取每个接口的注解数组，并遍历解析注解</span></span><br><span class="line">                Annotation[] annotations =annotatedTypes[i].getAnnotations();</span><br><span class="line">                <span class="keyword">for</span> (Annotation annotation : annotations)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"Annotation: "</span> + annotation);</span><br><span class="line">                    appendAnnotation(builder, annotation);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 递归解析 AnnotatedType 类型</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">recurseParsingAnnotatedType</span><span class="params">(AnnotatedType annotatedType)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 被注解元素的类型</span></span><br><span class="line">        System.out.println(<span class="string">"recurseParsingAnnotatedType: "</span> </span><br><span class="line">            + annotatedType.getType());</span><br><span class="line">        <span class="comment">// 获取该元素上的注解数组，遍历解析</span></span><br><span class="line">        Annotation[] annotations = annotatedType.getAnnotations();</span><br><span class="line">        <span class="keyword">for</span> (Annotation annotation : annotations) &#123;</span><br><span class="line">            System.out.println(<span class="string">"Annotation: "</span> + annotation);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (annotatedType <span class="keyword">instanceof</span> AnnotatedArrayType)&#123;</span><br><span class="line">            <span class="comment">// 被注解元素是数组类型，必须递归，每次只能获取第一维的数组的注解</span></span><br><span class="line">            AnnotatedArrayType arrayType = (AnnotatedArrayType)annotatedType;</span><br><span class="line">            <span class="comment">// 获取注解元素的数组原始类型</span></span><br><span class="line">            AnnotatedType genericComponentType = </span><br><span class="line">                arrayType.getAnnotatedGenericComponentType();</span><br><span class="line">            <span class="comment">// genericComponentType 返回的注解只是第一维的，递归获取剩下的维度</span></span><br><span class="line">            recurseParsingAnnotatedType(genericComponentType);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (annotatedType <span class="keyword">instanceof</span> AnnotatedParameterizedType)&#123;</span><br><span class="line">            <span class="comment">// 被注解元素是泛型</span></span><br><span class="line">            AnnotatedParameterizedType parameterizedType = </span><br><span class="line">                (AnnotatedParameterizedType) annotatedType;</span><br><span class="line">            <span class="comment">// 获取泛型的参数列表</span></span><br><span class="line">            AnnotatedType[] annotatedTypes = </span><br><span class="line">                parameterizedType.getAnnotatedActualTypeArguments();</span><br><span class="line">            <span class="comment">// 递归解析各个参数的注解类型</span></span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType type : annotatedTypes)&#123;</span><br><span class="line">                recurseParsingAnnotatedType(type);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (annotatedType <span class="keyword">instanceof</span> AnnotatedTypeVariable) &#123;</span><br><span class="line">            <span class="comment">// 被注解元素是类型变量</span></span><br><span class="line">            AnnotatedTypeVariable typeVariable = </span><br><span class="line">                (AnnotatedTypeVariable) annotatedType;</span><br><span class="line">            <span class="comment">// 获取类型变量的边界</span></span><br><span class="line">            AnnotatedType[] typeBounds = typeVariable.getAnnotatedBounds();</span><br><span class="line">            <span class="comment">// 递归解析类型变量的边界</span></span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType type : typeBounds)&#123;</span><br><span class="line">                recurseParsingAnnotatedType(type);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (annotatedType <span class="keyword">instanceof</span> AnnotatedWildcardType) &#123;</span><br><span class="line">            <span class="comment">// 被注解元素为泛型通配符</span></span><br><span class="line">            AnnotatedWildcardType wildcardType = </span><br><span class="line">                (AnnotatedWildcardType) annotatedType;</span><br><span class="line">            <span class="comment">// 获取泛型通配符下界</span></span><br><span class="line">            AnnotatedType[] lowerBounds = </span><br><span class="line">                wildcardType.getAnnotatedLowerBounds();</span><br><span class="line">            <span class="comment">// 递归解析边界</span></span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType type : lowerBounds)&#123;</span><br><span class="line">                recurseParsingAnnotatedType(type);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获取泛型通配符上界</span></span><br><span class="line">            AnnotatedType[] upperBounds = </span><br><span class="line">                wildcardType.getAnnotatedUpperBounds();</span><br><span class="line">            <span class="comment">// 递归解析边界</span></span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType type : upperBounds)&#123;</span><br><span class="line">                recurseParsingAnnotatedType(type);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 解析字段属性上的注解类型</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingFields</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类中所有字段属性</span></span><br><span class="line">        Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">        <span class="keyword">for</span> (Field field : fields)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Field: "</span> + field.toGenericString());</span><br><span class="line">            <span class="comment">// 获取字段属性元素的被注解类型</span></span><br><span class="line">            AnnotatedType annotatedType = field.getAnnotatedType();</span><br><span class="line">            <span class="comment">// 递归遍历解析该注解类型</span></span><br><span class="line">            recurseParsingAnnotatedType(annotatedType);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 解析普通方法上的注解类型</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parsingMethods</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前类中所有方法</span></span><br><span class="line">        Method[] methods = clazz.getDeclaredMethods();</span><br><span class="line">        <span class="keyword">for</span> (Method method : methods)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Method: "</span> + method.toGenericString());</span><br><span class="line">            <span class="comment">// 获取方法的返回值注解类型，并递归解析该注解类型</span></span><br><span class="line">            AnnotatedType returnType = method.getAnnotatedReturnType();</span><br><span class="line">            recurseParsingAnnotatedType(returnType);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取方法的参数列表数组，并递归解析数组的注解类型</span></span><br><span class="line">            AnnotatedType[] parameterTypes = </span><br><span class="line">                method.getAnnotatedParameterTypes();</span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType parameterType : parameterTypes) &#123;</span><br><span class="line">                recurseParsingAnnotatedType(parameterType);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取方法接收者注解类型，通常为定义该方法的类</span></span><br><span class="line">            AnnotatedType receiverType = method.getAnnotatedReceiverType();</span><br><span class="line">            <span class="comment">// 遍历解析该注解类型</span></span><br><span class="line">            recurseParsingAnnotatedType(receiverType);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取方法抛出的异常数组，并递归解析异常数组的注解类型</span></span><br><span class="line">            AnnotatedType[] exceptionTypes = </span><br><span class="line">                method.getAnnotatedExceptionTypes();</span><br><span class="line">            <span class="keyword">for</span> (AnnotatedType exceptionType : exceptionTypes)&#123;</span><br><span class="line">                recurseParsingAnnotatedType(exceptionType);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TestGenericAnnotationParsingReflect parsingReflect </span><br><span class="line">            = <span class="keyword">new</span> TestGenericAnnotationParsingReflect();</span><br><span class="line">        parsingReflect.parsingClass();</span><br><span class="line">        parsingReflect.parsingFields();</span><br><span class="line">        <span class="comment">// parsingReflect.parsingConstructors();</span></span><br><span class="line">        parsingReflect.parsingMethods();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.programcreek.com/java-api-examples/index.php?api=java.lang.reflect.AnnotatedType" target="_blank" rel="noopener">Java Code Examples: AnnotatedType</a>  </li>
+<li><a href="http://www.trinea.cn/android/java-annotation-android-open-source-analysis/" target="_blank" rel="noopener">Annotation 及几个常用开源项目注解原理简析</a>  </li>
+<li><a href="http://rednaxelafx.iteye.com/blog/1148983" target="_blank" rel="noopener">annotation反射–动态代理</a>  </li>
+<li><a href="https://blog.csdn.net/kisimple/article/details/43709505" target="_blank" rel="noopener">Annotation实现浅析</a>  </li>
+<li><a href="https://blog.csdn.net/chendeng8899/article/details/8490661" target="_blank" rel="noopener">Java .class文件包含的注解信息</a>  </li>
+<li><a href="https://www.jianshu.com/p/28edf5352b63" target="_blank" rel="noopener">Annotation-原理到案例</a>  </li>
+<li><a href="https://blog.csdn.net/sun_promise/article/details/51315032" target="_blank" rel="noopener">Java 8 新特性：扩展注解</a>  </li>
+<li><a href="http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/reflect/annotation/AnnotationParser.java" target="_blank" rel="noopener">AnnotationParser.java</a>  </li>
+<li><a href="http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/reflect/annotation/AnnotationInvocationHandler.java" target="_blank" rel="noopener">AnnotationInvocationHandler.java</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/05/29/0081-java-annotation-parsing-reflect/" title="Java 注解解析 -- 反射">http://redspider110.github.io/2018/05/29/0081-java-annotation-parsing-reflect/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/18/0080-java-reflect/" rel="next" title="Java 反射">
+                <i class="fa fa-chevron-left"></i> Java 反射
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/05/0082-java-annotation-parsing-processor/" rel="prev" title="Java 注解解析 -- 处理器解析">
+                Java 注解解析 -- 处理器解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#注解体系"><span class="nav-number">1.</span> <span class="nav-text">注解体系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">1.1.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">1.2.</span> <span class="nav-text">类图结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解的本质"><span class="nav-number">2.</span> <span class="nav-text">注解的本质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注解是接口"><span class="nav-number">2.1.</span> <span class="nav-text">注解是接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解在-class-文件中"><span class="nav-number">2.2.</span> <span class="nav-text">注解在 class 文件中</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnnotatedType-体系介绍"><span class="nav-number">3.</span> <span class="nav-text">AnnotatedType 体系介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析-1"><span class="nav-number">3.1.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">3.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射解析注解"><span class="nav-number">4.</span> <span class="nav-text">反射解析注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理"><span class="nav-number">4.1.</span> <span class="nav-text">动态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常规解析"><span class="nav-number">4.2.</span> <span class="nav-text">常规解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AnnotatedType-体系解析"><span class="nav-number">4.3.</span> <span class="nav-text">AnnotatedType 体系解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

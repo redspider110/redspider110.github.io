@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,Shell,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Linux Shell 小知识汇总。">
+<meta name="keywords" content="Linux,Shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Shell 命令及相关知识">
+<meta property="og:url" content="http://redspider110.github.io/2018/10/08/0107-linux-shell/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Linux Shell 小知识汇总。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.383Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux Shell 命令及相关知识">
+<meta name="twitter:description" content="Linux Shell 小知识汇总。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/10/08/0107-linux-shell/">
+
+
+
+
+
+  <title>Linux Shell 命令及相关知识 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/10/08/0107-linux-shell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux Shell 命令及相关知识</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-08T09:00:00+08:00">
+                2018-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Linux Shell</code> 小知识汇总。  </p>
+<a id="more"></a>
+
+<h2 id="basename-获取文件名"><a href="#basename-获取文件名" class="headerlink" title="basename 获取文件名"></a><code>basename</code> 获取文件名</h2><p>描述：从带路径的字符串中获取文件名称，或者截取字符串。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">var1=/usr/lib/abcdefg.so.bak  </span><br><span class="line">var2=/usr/sbin/ifconfiggg  </span><br><span class="line">all_name=`basename $var1`  </span><br><span class="line">// 获取文件名称</span><br><span class="line">sub_name1=`basename $var1 .bak`  </span><br><span class="line">// 截取字符串</span><br><span class="line">sub_name2=`basename $var2 gg`  </span><br><span class="line">  </span><br><span class="line">echo "all_name: $all_name"      // all_name: abcdefg.so.bak  </span><br><span class="line">echo "sub_name1: $sub_name1"    // sub_name1: abcdefg.so  </span><br><span class="line">echo "sub_name2: $sub_name2"    // sub_name2: ifconfig</span><br></pre></td></tr></table></figure>
+
+<h2 id="screen-的使用"><a href="#screen-的使用" class="headerlink" title="screen 的使用"></a><code>screen</code> 的使用</h2><p>作用：后台开启终端，执行各种命令。即使当前终端已经退出，不会影响 <code>screen</code> 的后台终端命令的执行。  </p>
+<h3 id="新建和连接"><a href="#新建和连接" class="headerlink" title="新建和连接"></a>新建和连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">screen -dmS back_xmt    // 新建</span><br><span class="line">screen -r back_xmt      // 连接</span><br></pre></td></tr></table></figure>
+
+<h3 id="断开连接"><a href="#断开连接" class="headerlink" title="断开连接"></a>断开连接</h3><p>断开连接只是回到当前终端，后台 <code>screen</code> 命令会继续执行。  </p>
+<ul>
+<li>断开<br>连接后，同时按下 <code>ctrl+a</code> 进入，再接着按 <code>d</code>，断开连接。  </li>
+<li>关闭<br>连接后，同时按下 <code>ctrl+a</code> 进入，再接着按 <code>k</code>，关闭连接。  </li>
+</ul>
+<h2 id="amp-挂后台"><a href="#amp-挂后台" class="headerlink" title="&amp; 挂后台"></a><code>&amp;</code> 挂后台</h2><p>示例：<code>vi 1.txt &amp;</code> 。<br>查看：<code>jobs</code> 查看挂后台有几个进程。<br>前置切换：<code>fg 1</code> ，其中 1 表示 <code>jobs</code> 查看到的第一个程序。  </p>
+<h2 id="管理普通用户"><a href="#管理普通用户" class="headerlink" title="管理普通用户"></a>管理普通用户</h2><h3 id="创建和删除用户"><a href="#创建和删除用户" class="headerlink" title="创建和删除用户"></a>创建和删除用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adduser fcopyuser</span><br><span class="line">userdel fcopyuser</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看用户所在组-groups"><a href="#查看用户所在组-groups" class="headerlink" title="查看用户所在组 groups"></a>查看用户所在组 <code>groups</code></h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu1404:~# groups xmt</span><br><span class="line">xmt : xmt</span><br></pre></td></tr></table></figure>
+
+<h3 id="管理用户组-gpasswd"><a href="#管理用户组-gpasswd" class="headerlink" title="管理用户组 gpasswd"></a>管理用户组 <code>gpasswd</code></h3><ul>
+<li>将用户加入管理员组：  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gpasswd -a xmt sudo</span><br><span class="line">gpasswd -a xmt adm</span><br></pre></td></tr></table></figure>
+
+<p>再次查看，账号已经具有管理员权限：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu1404:~# groups xmt</span><br><span class="line">xmt : xmt adm sudo</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将用户移出某个组<br><code>gpasswd -d xmt rootgroup</code>  </li>
+</ul>
+<h2 id="expect-功能"><a href="#expect-功能" class="headerlink" title="expect 功能"></a><code>expect</code> 功能</h2><p><code>linux shell</code> 命令行自动交互，比如自动登录，或者自动输入密码，可以使用 <code>expect</code> 功能。  </p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><code>sudo apt-get install expect</code>  </p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>自动输入 <code>scp</code> 需要的密码：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">CMD_EXPECT=/usr/bin/expect</span><br><span class="line"></span><br><span class="line">function check_cmd_expect()&#123;</span><br><span class="line">        if [ ! -f $CMD_EXPECT ];</span><br><span class="line">        then</span><br><span class="line">            echo "Please Install expect: sudo apt-get install expect!"</span><br><span class="line">            exit</span><br><span class="line">        fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function scp_source()&#123;</span><br><span class="line">        $&#123;CMD_EXPECT&#125;&lt;&lt;EOF</span><br><span class="line">        set timeout 1200;</span><br><span class="line">        spawn /usr/bin/scp server@10.1.1.138:/home/server/test.tgz ./</span><br><span class="line">        expect "*password:"</span><br><span class="line">        send "server\r"  // 自动填入密码 server</span><br><span class="line">        expect eof</span><br><span class="line">EOF</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">check_cmd_expect</span><br><span class="line">scp_source</span><br></pre></td></tr></table></figure>
+
+<h2 id="crontab-定时任务"><a href="#crontab-定时任务" class="headerlink" title="crontab 定时任务"></a><code>crontab</code> 定时任务</h2><h3 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h3><p>格式：<code>M H D m d cmd</code> 。其中：  </p>
+<ul>
+<li><code>M</code>: 分钟（0-59）  </li>
+<li><code>H</code>：小时（0-23）  </li>
+<li><code>D</code>：天（1-31）  </li>
+<li><code>m</code>: 月（1-12）  </li>
+<li><code>d</code>: 一星期内的天（0~6，0为星期天）  </li>
+<li><code>cmd</code> 要运行的程序，程序被送入 <code>sh</code> 执行。  </li>
+</ul>
+<blockquote>
+<p>该命令中只有 <code>USER, HOME, SHELL</code> 这三个环境变量，如果需要使用其他环境变量，需要在 <code>cmd</code> 中 <code>export</code> 这些变量。  </p>
+</blockquote>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><ul>
+<li><code>crontab –l</code>：查看当前的任务  </li>
+<li><code>crontab –e</code>：编辑（新建）任务  </li>
+<li><code>crontab –r</code>：删除任务表  </li>
+<li><code>sudo service cron restart</code>：重启 <code>crontab</code> 服务  </li>
+</ul>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><p>定时执行脚本：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">定时每天 10 点 21 分执行脚本</span></span><br><span class="line">21 10 * * * /home/xmt/share/Temp/delete/1.sh</span><br><span class="line"><span class="meta">#</span><span class="bash">定时每隔 2 分钟执行脚本</span></span><br><span class="line">*/2 * * * * /home/fcopyuser/HO9021/daily_build/daily_build.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="TAR-常用命令"><a href="#TAR-常用命令" class="headerlink" title="TAR 常用命令"></a><code>TAR</code> 常用命令</h2><ul>
+<li>压缩：<code>tar zcf dest.tgz source</code><br>注意：<code>source</code> 不要带路径，否则会将路径目录也压缩进去。如 <code>/home/source</code>，会把 <code>home</code> 这个目录也压缩到包中。<br>压缩命令 <code>z</code> 表示用 <code>gzip</code> 压缩；如果不带 <code>z</code> 表示仅打包。  </li>
+<li>解压：<code>tar zxf dest.tgz</code>  </li>
+<li>不解压，直接查看压缩包有哪些文件：<code>tar tvf dest.tgz</code>  </li>
+<li>分卷压缩<br><code>tar zcf - test.pdf | split -b 5M - dir/test.tar.gz</code> ，注意两个短横不能漏掉； <code>-b</code> 后面表示每卷最大值。  </li>
+</ul>
+<h2 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h2><h3 id="获取字符串中的数字"><a href="#获取字符串中的数字" class="headerlink" title="获取字符串中的数字"></a>获取字符串中的数字</h3><p>如：<code>echo &quot;ere1j32kk4&quot; | tr -cd &#39;[0-9\n]&#39;     #1324</code> 。  </p>
+<h2 id="当前时间-date"><a href="#当前时间-date" class="headerlink" title="当前时间 date"></a>当前时间 <code>date</code></h2><p>命令：<code>date +%Y%m%d%H%M%S     # 20141126104053</code> 。格式：<code>Y</code> 年，<code>m</code> 月，<code>d</code> 日，<code>H</code> 小时，<code>M</code> 分，<code>S</code> 秒。  </p>
+<h2 id="查看服务器上用户登录日志"><a href="#查看服务器上用户登录日志" class="headerlink" title="查看服务器上用户登录日志"></a>查看服务器上用户登录日志</h2><p><code>cat /var/log/auth.log</code>  </p>
+<h2 id="把自己的命令添加到环境变量中"><a href="#把自己的命令添加到环境变量中" class="headerlink" title="把自己的命令添加到环境变量中"></a>把自己的命令添加到环境变量中</h2><ul>
+<li><p>新建 <code>bin</code> 目录：<code>mkdir –p $HOME/bin</code>  </p>
+</li>
+<li><p>新建可执行命令：<code>touch my.sh ;chmod +x my.sh</code>  </p>
+</li>
+<li><p><code>bin</code> 目录加入到环境变量中  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu1404:~# vi ~/.bashrc</span><br><span class="line"><span class="meta">#</span><span class="bash"> add my <span class="built_in">exec</span> bin</span></span><br><span class="line">PATH=$PATH:$HOME/bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重新加载环境变量：<code>source ~/.bashrc</code>  </p>
+</li>
+<li><p>至此 <code>bin</code> 目录下所有可执行文件都加入到环境变量了  </p>
+</li>
+</ul>
+<h2 id="7z-格式文件操作"><a href="#7z-格式文件操作" class="headerlink" title="7z 格式文件操作"></a><code>7z</code> 格式文件操作</h2><h3 id="解压缩"><a href="#解压缩" class="headerlink" title="解压缩"></a>解压缩</h3><p>示例 1 ：当前目录解压：<code>7za x po9041_20141202.7z</code><br>示例 2 ：解压到指定目录：<code>7za x po9041_20141202.7z -opo9041_20141202</code><br><strong>其中 <code>-o</code> 后面不能有空格</strong>。  </p>
+<h3 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h3><h2 id="使用-du-查看大小并按照大小排序"><a href="#使用-du-查看大小并按照大小排序" class="headerlink" title="使用 du 查看大小并按照大小排序"></a>使用 <code>du</code> 查看大小并按照大小排序</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">du -sh `du -s * | sort -rn| awk '&#123;print $2&#125;'`</span><br></pre></td></tr></table></figure>
+
+<h2 id="开机自启动脚本"><a href="#开机自启动脚本" class="headerlink" title="开机自启动脚本"></a>开机自启动脚本</h2><h3 id="新建脚本"><a href="#新建脚本" class="headerlink" title="新建脚本"></a>新建脚本</h3><p>创建脚本后，并将脚本拷贝到 <code>/etc/init.d/</code> 目录下。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo -s</span><br><span class="line">touch new_service.sh</span><br><span class="line">chmod +x new_service.sh</span><br><span class="line">mv new_service.sh /etc/init.d/</span><br></pre></td></tr></table></figure>
+
+<h3 id="update-rc-d-命令"><a href="#update-rc-d-命令" class="headerlink" title="update-rc.d 命令"></a><code>update-rc.d</code> 命令</h3><p><code>update-rc.d</code> 命令用来设置开机启动的优先级。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">update-rc.d &lt;basename&gt; start|stop &lt;order&gt; &lt;runlevels&gt;</span><br><span class="line">update-rc.d &lt;basename&gt; defaults &lt;order&gt;</span><br><span class="line">update-rc.d -f &lt;basename&gt; remove</span><br></pre></td></tr></table></figure>
+
+<p>其中：<code>update-rc.d sample_init_script defaults</code> 命令等效于（中间是一个英文句点符号）：<code>update-rc.d sample_init_script start 20 2 3 4 5 . stop 20 0 1 6 .</code>，表示在 <code>2, 3, 4, 5</code> 这五个运行级别中，由小到大第 20 个开始运行 <code>sample_init_script</code>；在 0 1 6 这 3 个运行级别中，第 20 个关闭 <code>sample_init_script</code> 。这是合并起来的写法，注意它有 2 个点号。<br>比如，我们将 <code>gerrit_start</code> 脚本放在第 99 顺位命令后执行：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@gm-20180529:/etc/init.d# update-rc.d gerrit_start defaults 99</span><br><span class="line">update-rc.d: warning: /etc/init.d/gerrit_start missing LSB information</span><br><span class="line">update-rc.d: see &lt;http://wiki.debian.org/LSBInitScripts&gt;</span><br><span class="line"> Adding system startup for /etc/init.d/gerrit_start ...</span><br><span class="line">   /etc/rc0.d/K99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc1.d/K99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc6.d/K99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc2.d/S99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc3.d/S99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc4.d/S99gerrit_start -&gt; ../init.d/gerrit_start</span><br><span class="line">   /etc/rc5.d/S99gerrit_start -&gt; ../init.d/gerrit_start</span><br></pre></td></tr></table></figure>
+
+<h3 id="sysv-rc-conf-命令"><a href="#sysv-rc-conf-命令" class="headerlink" title="sysv-rc-conf 命令"></a><code>sysv-rc-conf</code> 命令</h3><p><code>sysv-rc-conf</code> 命令可以直观的查看，并勾选运行级别。  </p>
+<ul>
+<li>安装：<code>apt-get install sysv-rc-conf</code>  </li>
+<li>查看  </li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@gm-20180529:~# sysv-rc-conf</span><br><span class="line">x service      1       2       3       4       5       0       6       S     </span><br><span class="line">x --------------------------------------------------------------------------</span><br><span class="line">x gerrit_st$  [ ]     [X]     [X]     [X]     [X]     [ ]     [ ]     [ ]</span><br></pre></td></tr></table></figure>
+
+<h2 id="grep-常见操作"><a href="#grep-常见操作" class="headerlink" title="grep 常见操作"></a><code>grep</code> 常见操作</h2><h3 id="在指定文件类型中搜索"><a href="#在指定文件类型中搜索" class="headerlink" title="在指定文件类型中搜索"></a>在指定文件类型中搜索</h3><p>比如在 <code>cpp, java, h</code> 文件中搜索字符串 <code>adjustment</code> ，命令如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep --include=*.&#123;cpp,java,h&#125; -irsn &quot;adjustment&quot; frameworks/</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h2><p>在当前用户 <code>shell</code> 环境下设置代理，打开 <code>~/.bashrc</code> 文件，添加如下代码：  </p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># http_proxy</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">"ip:port"</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">"ip:port"</span></span><br><span class="line"><span class="built_in">export</span> no_proxy=<span class="string">"localhost, 127.0.0.1, *.my.lan"</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>ip:port</code> 是代理服务器的地址以及开放的端口；重新连接或者执行 <code>source ~/.bashrc</code> 生效！验证结果：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">xmt@server138:~$ wget https://www.google.com</span><br><span class="line">--2019-05-17 17:40:28--  https://www.google.com/</span><br><span class="line">Connecting to 10.50.100.113:3128... connected.</span><br><span class="line">Proxy request sent, awaiting response... 200 OK</span><br><span class="line">Length: unspecified [text/html]</span><br><span class="line">Saving to: ‘index.html.1’</span><br><span class="line"></span><br><span class="line">    [ &lt;=&gt;        ] 11,889      --.-K/s   in 0.02s</span><br><span class="line"></span><br><span class="line">2019-05-17 17:40:29 (739 KB/s) - ‘index.html.1’ saved [11889]</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="http://linux.vbird.org/" target="_blank" rel="noopener">鸟哥的私房菜</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/10/08/0107-linux-shell/" title="Linux Shell 命令及相关知识">http://redspider110.github.io/2018/10/08/0107-linux-shell/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/Shell/" rel="tag"># Shell</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/27/0106-algorithms-binary-tree/" rel="next" title="算法 - 二叉树">
+                <i class="fa fa-chevron-left"></i> 算法 - 二叉树
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/05/0108-android-classloading/" rel="prev" title="Android 类加载机制">
+                Android 类加载机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#basename-获取文件名"><span class="nav-number">1.</span> <span class="nav-text">basename 获取文件名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#screen-的使用"><span class="nav-number">2.</span> <span class="nav-text">screen 的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#新建和连接"><span class="nav-number">2.1.</span> <span class="nav-text">新建和连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#断开连接"><span class="nav-number">2.2.</span> <span class="nav-text">断开连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#amp-挂后台"><span class="nav-number">3.</span> <span class="nav-text">&amp; 挂后台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#管理普通用户"><span class="nav-number">4.</span> <span class="nav-text">管理普通用户</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建和删除用户"><span class="nav-number">4.1.</span> <span class="nav-text">创建和删除用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看用户所在组-groups"><span class="nav-number">4.2.</span> <span class="nav-text">查看用户所在组 groups</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理用户组-gpasswd"><span class="nav-number">4.3.</span> <span class="nav-text">管理用户组 gpasswd</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#expect-功能"><span class="nav-number">5.</span> <span class="nav-text">expect 功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">5.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">5.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crontab-定时任务"><span class="nav-number">6.</span> <span class="nav-text">crontab 定时任务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#格式"><span class="nav-number">6.1.</span> <span class="nav-text">格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用方法"><span class="nav-number">6.2.</span> <span class="nav-text">使用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">6.3.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TAR-常用命令"><span class="nav-number">7.</span> <span class="nav-text">TAR 常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串操作"><span class="nav-number">8.</span> <span class="nav-text">字符串操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取字符串中的数字"><span class="nav-number">8.1.</span> <span class="nav-text">获取字符串中的数字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当前时间-date"><span class="nav-number">9.</span> <span class="nav-text">当前时间 date</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看服务器上用户登录日志"><span class="nav-number">10.</span> <span class="nav-text">查看服务器上用户登录日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#把自己的命令添加到环境变量中"><span class="nav-number">11.</span> <span class="nav-text">把自己的命令添加到环境变量中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7z-格式文件操作"><span class="nav-number">12.</span> <span class="nav-text">7z 格式文件操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#解压缩"><span class="nav-number">12.1.</span> <span class="nav-text">解压缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#压缩"><span class="nav-number">12.2.</span> <span class="nav-text">压缩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-du-查看大小并按照大小排序"><span class="nav-number">13.</span> <span class="nav-text">使用 du 查看大小并按照大小排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开机自启动脚本"><span class="nav-number">14.</span> <span class="nav-text">开机自启动脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#新建脚本"><span class="nav-number">14.1.</span> <span class="nav-text">新建脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update-rc-d-命令"><span class="nav-number">14.2.</span> <span class="nav-text">update-rc.d 命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sysv-rc-conf-命令"><span class="nav-number">14.3.</span> <span class="nav-text">sysv-rc-conf 命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grep-常见操作"><span class="nav-number">15.</span> <span class="nav-text">grep 常见操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在指定文件类型中搜索"><span class="nav-number">15.1.</span> <span class="nav-text">在指定文件类型中搜索</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置代理"><span class="nav-number">16.</span> <span class="nav-text">设置代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">17.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

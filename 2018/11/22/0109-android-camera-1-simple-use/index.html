@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Camera,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="调用手机自带的 Camera 应用，并获取图片、视频的简单使用步骤。">
+<meta name="keywords" content="Android,Camera">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Camera 简单使用">
+<meta property="og:url" content="http://redspider110.github.io/2018/11/22/0109-android-camera-1-simple-use/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="调用手机自带的 Camera 应用，并获取图片、视频的简单使用步骤。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.385Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Camera 简单使用">
+<meta name="twitter:description" content="调用手机自带的 Camera 应用，并获取图片、视频的简单使用步骤。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/11/22/0109-android-camera-1-simple-use/">
+
+
+
+
+
+  <title>Android Camera 简单使用 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/11/22/0109-android-camera-1-simple-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android Camera 简单使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-22T09:00:00+08:00">
+                2018-11-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>调用手机自带的 <code>Camera</code> 应用，并获取图片、视频的简单使用步骤。  </p>
+<a id="more"></a>
+
+<p>本文是基于手机系统已经自带 <code>Camera</code> 应用的前提下，通过发出 <code>Intent</code> 请求 <code>Camera</code> 应用响应拍照和录像。  </p>
+<h2 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h2><p>不管是拍照还是录像，都需要申请使用 <code>camera</code> ；<code>Android M</code> 及以上版本还需要动态申请权限。  </p>
+<h3 id="AndroidManifest-xml-申请功能"><a href="#AndroidManifest-xml-申请功能" class="headerlink" title="AndroidManifest.xml 申请功能"></a><code>AndroidManifest.xml</code> 申请功能</h3><p>在 <code>AndroidManifest.xml</code> 文件中申请使用 <code>camera</code> 硬件功能。  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">...</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">uses-feature</span> <span class="attr">android:name</span>=<span class="string">"android.hardware.camera"</span></span></span><br><span class="line"><span class="tag">                  <span class="attr">android:required</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>android:required</code><br>表示手机中必须有 <code>camera</code> 应用软件（如果为 <code>false</code> 的话，表示不需要存在，通常情况下间接表示当前应用已经实现了 <code>camera</code> 功能）。  </li>
+<li>运行时判断是否支持 <code>camera</code> 硬件功能<br><code>PackageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)</code> 返回当前手机是否支持 <code>camera</code> 硬件。  </li>
+</ul>
+<h3 id="动态申请权限"><a href="#动态申请权限" class="headerlink" title="动态申请权限"></a>动态申请权限</h3><ul>
+<li>检查是否已经授权<br><code>ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA);</code>  </li>
+<li>申请权限<br><code>requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);</code>  </li>
+<li>确认用户是否授权  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRequestPermissionsResult</span><span class="params">(<span class="keyword">int</span> requestCode, </span></span></span><br><span class="line"><span class="function"><span class="params">        @NonNull String[] permissions, @NonNull <span class="keyword">int</span>[] grantResults)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (requestCode == REQUEST_CAMERA_PERMISSION) &#123;</span><br><span class="line">        <span class="keyword">if</span> (grantResults.length != <span class="number">1</span> || </span><br><span class="line">            grantResults[<span class="number">0</span>] != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">            ... <span class="comment">// show error dialog.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onRequestPermissionsResult(requestCode, </span><br><span class="line">            permissions, grantResults);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="拍照"><a href="#拍照" class="headerlink" title="拍照"></a>拍照</h2><h3 id="Intent"><a href="#Intent" class="headerlink" title="Intent"></a><code>Intent</code></h3><p>拍照对应的 <code>Intent</code> 为 <code>MediaStore.ACTION_IMAGE_CAPTURE</code> 。通过 <code>Intent</code> 来启动手机中的 <code>camera</code> 应用：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> REQUEST_IMAGE_CAPTURE = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchTakePictureIntent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Intent takePictureIntent=<span class="keyword">new</span> Intent(MediaStore.ACTION_IMAGE_CAPTURE);</span><br><span class="line">    <span class="keyword">if</span> (takePictureIntent.resolveActivity(getPackageManager()) != <span class="keyword">null</span>)&#123;</span><br><span class="line">        startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取缩略图-thumbnail"><a href="#获取缩略图-thumbnail" class="headerlink" title="获取缩略图 thumbnail"></a>获取缩略图 <code>thumbnail</code></h3><p>手机中的 <code>camera</code> 应用在拍完照后，会返回一个 <code>Intent</code> 数据，其中字段 <code>data</code> 包含了一个 <code>Bitmap</code> 格式的缩略图，通过 <code>ImageView</code> 来显示。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onActivityResult</span><span class="params">(<span class="keyword">int</span> requestCode, </span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> resultCode, Intent data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (requestCode == REQUEST_IMAGE_CAPTURE </span><br><span class="line">        &amp;&amp; resultCode == RESULT_OK) &#123;</span><br><span class="line">        Bundle extras = data.getExtras();</span><br><span class="line">        Bitmap imageBitmap = (Bitmap) extras.get(<span class="string">"data"</span>);</span><br><span class="line">        mImageView.setImageBitmap(imageBitmap);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="录像"><a href="#录像" class="headerlink" title="录像"></a>录像</h2><h3 id="Intent-1"><a href="#Intent-1" class="headerlink" title="Intent"></a><code>Intent</code></h3><p>录像对应的 <code>Intent</code> 为 <code>MediaStore.ACTION_VIDEO_CAPTURE</code> ； </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> REQUEST_VIDEO_CAPTURE = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchTakeVideoIntent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Intent takeVideoIntent=<span class="keyword">new</span> Intent(MediaStore.ACTION_VIDEO_CAPTURE);</span><br><span class="line">    <span class="keyword">if</span> (takeVideoIntent.resolveActivity(getPackageManager()) != <span class="keyword">null</span>)&#123;</span><br><span class="line">        startActivityForResult(takeVideoIntent,REQUEST_VIDEO_CAPTURE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看视频"><a href="#查看视频" class="headerlink" title="查看视频"></a>查看视频</h3><p>手机中的 <code>camera</code> 应用在录像完后，返回的 <code>Intent</code> 中，包含一个录像文件对应的 <code>Uri</code>，根据 <code>Uri</code> 来显示录像，通过 <code>VideoView</code> 来显示。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onActivityResult</span><span class="params">(<span class="keyword">int</span> requestCode, <span class="keyword">int</span> resultCode,</span></span></span><br><span class="line"><span class="function"><span class="params">        Intent data)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (requestCode == REQUEST_VIDEO_CAPTURE </span><br><span class="line">        &amp;&amp; resultCode == RESULT_OK) &#123;</span><br><span class="line">        Uri videoUri = data.getData();</span><br><span class="line">        mVideoView.setVideoURI(videoUri);</span><br><span class="line">        <span class="comment">// mVideoView.start();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="图片保存及后期处理"><a href="#图片保存及后期处理" class="headerlink" title="图片保存及后期处理"></a>图片保存及后期处理</h2><h3 id="外部存储权限"><a href="#外部存储权限" class="headerlink" title="外部存储权限"></a>外部存储权限</h3><p>外部存储文件分为：  </p>
+<ul>
+<li>公共文件：<code>getExternalStoragePublicDirectory()</code><br>可以被其他应用自由访问，应用卸载仍然保留；存储路径为 <code>/sdcard/</code> 或者 <code>/storage/emulated0/</code> 。 </li>
+<li>私有文件：<code>getExternalFilesDir(String customDir)</code><br>应用私有文件，在应用卸载时会被删除；存储路径为 <code>/Android/data/&lt;package_name&gt;/files/customDir</code> 。  </li>
+</ul>
+<p>但不管是那种类型，都需要申请权限：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span></span></span><br><span class="line"><span class="tag">                 <span class="attr">android:maxSdkVersion</span>=<span class="string">"18"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>创建应用私有的图片存储文件：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> File <span class="title">createImageFile</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// Create an image file name</span></span><br><span class="line">    String timeStamp = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyyMMdd_HHmmss"</span>)</span><br><span class="line">            .format(<span class="keyword">new</span> Date());</span><br><span class="line">    String imageFileName = <span class="string">"JPEG_"</span> + timeStamp + <span class="string">"_"</span>;</span><br><span class="line">    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);</span><br><span class="line">    File image = File.createTempFile(</span><br><span class="line">            imageFileName,  <span class="comment">// prefix</span></span><br><span class="line">            <span class="string">".jpg"</span>,         <span class="comment">// suffix</span></span><br><span class="line">            storageDir      <span class="comment">// directory</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Save a file: path for use with ACTION_VIEW intents</span></span><br><span class="line">    mCurrentPhotoPath = image.getAbsolutePath();</span><br><span class="line">    <span class="keyword">return</span> image;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用间文件共享-FileProvider"><a href="#应用间文件共享-FileProvider" class="headerlink" title="应用间文件共享 FileProvider"></a>应用间文件共享 <code>FileProvider</code></h3><p><code>Android StrictMode</code> 禁止在应用向外部公开 <code>file://URI</code> ，否则应用发出包含文件 <code>URI</code> 的 <code>Intent</code> 时，会抛出 <code>FileUriExposedException</code> 异常。如果需要在应用间共享文件，可以通过 <code>FileProvider</code> 发送 <code>content://URI</code>，并授予 <code>URI</code> 临时访问权限。<br>在 <code>AndroidManifest.xml</code> 注册 <code>FileProvider</code> ：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">provider</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">"android.support.v4.content.FileProvider"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:authorities</span>=<span class="string">"com.example.android.fileprovider"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">"false"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:grantUriPermissions</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">"android.support.FILE_PROVIDER_PATHS"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:resource</span>=<span class="string">"@xml/file_paths"</span>&gt;</span><span class="tag">&lt;/<span class="name">meta-data</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">provider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中需要注意两点：  </p>
+<ul>
+<li><code>authorities</code> ：在使用 <code>FileProvider.getUriForFile</code> 返回 <code>Uri</code> 时，使用的权限需要和这里匹配  </li>
+<li><code>file_paths</code> ：该 <code>xml</code> 配置文件中需要指定应用需要共享文件的目录，通常为应用私有文件目录  <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">paths</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">external-path</span> <span class="attr">name</span>=<span class="string">"my_images"</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">path</span>=<span class="string">"Android/data/com.*.knowledge/files/Pictures"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">paths</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="保存到指定路径"><a href="#保存到指定路径" class="headerlink" title="保存到指定路径"></a>保存到指定路径</h3><p>在发起拍照的 <code>Intent</code> 中，将在外部存储空间存储图片的绝对路径转换为 <code>Uri</code> 后，写入 <code>MediaStore.EXTRA_OUTPUT</code> 字段。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchTakePictureIntent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Intent takePictureIntent = <span class="keyword">new</span> Intent(MediaStore.ACTION_IMAGE_CAPTURE);</span><br><span class="line">    <span class="keyword">if</span> (takePictureIntent.resolveActivity(getPackageManager()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);</span></span><br><span class="line">        <span class="comment">// Create the File where the photo should go</span></span><br><span class="line">        File photoFile = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            photoFile = createImageFile();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">            <span class="comment">// Error occurred while creating the File</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Continue only if the File was successfully created</span></span><br><span class="line">        <span class="keyword">if</span> (photoFile != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Uri photoURI = FileProvider.getUriForFile(<span class="keyword">this</span>,</span><br><span class="line">                    <span class="string">"com.*.knowledge.camera.file.provider"</span>,</span><br><span class="line">                    photoFile);</span><br><span class="line">            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);</span><br><span class="line">            startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果指定了保存路径 <code>MediaStore.EXTRA_OUTPUT</code> ，返回的 <code>Intent</code> 将不再带有 <code>Bitmap</code> 缩略图。如果想显示图片，需要通过指定的保存路径来获取。  </p>
+</blockquote>
+<h3 id="添加到媒体数据库"><a href="#添加到媒体数据库" class="headerlink" title="添加到媒体数据库"></a>添加到媒体数据库</h3><p>如果新增了多媒体文件，通过发送广播 <code>Intent.ACTION_MEDIA_SCANNER_SCAN_FILE</code> 来通知系统扫描这个文件，并加入多媒体数据库中。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addPicToMediaDB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Intent mediaScanIntent = </span><br><span class="line">        <span class="keyword">new</span> Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);</span><br><span class="line">    File f = <span class="keyword">new</span> File(mCurrentPhotoPath);</span><br><span class="line">    Uri contentUri = Uri.fromFile(f);</span><br><span class="line">    mediaScanIntent.setData(contentUri);</span><br><span class="line">    sendBroadcast(mediaScanIntent);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果图片存储路径为 <code>getExternalFilesDir</code> ，媒体扫描时无法扫描这些 <code>APP</code> 私有的目录；也就是说，如果希望能添加到多媒体数据中，不能将图片存储到 <code>getExternalFilesDir</code> 目录下。  </p>
+</blockquote>
+<h3 id="缩放图片"><a href="#缩放图片" class="headerlink" title="缩放图片"></a>缩放图片</h3><p>如果按照 <code>ImageView</code> 宽高来缩放图片时，必须要在 <code>xml</code> 中先指定 <code>ImageView</code> 的宽高，不能设置为 <code>wrap_content</code> ，否则获取到的宽高为 0 。<br>通过 <code>BitmapFactory.Options</code> 先获取原始图片的大小，再根据 <code>ImageView</code> 的宽高来计算比率，设置到 <code>BitmapFactory.Options.inSampleSize</code> 中。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scalePic</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Get the dimensions of the View</span></span><br><span class="line">    <span class="keyword">int</span> targetW = mImageView.getWidth();</span><br><span class="line">    <span class="keyword">int</span> targetH = mImageView.getHeight();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the dimensions of the bitmap</span></span><br><span class="line">    BitmapFactory.Options bmOptions = <span class="keyword">new</span> BitmapFactory.Options();</span><br><span class="line">    bmOptions.inJustDecodeBounds = <span class="keyword">true</span>;</span><br><span class="line">    BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);</span><br><span class="line">    <span class="keyword">int</span> photoW = bmOptions.outWidth;</span><br><span class="line">    <span class="keyword">int</span> photoH = bmOptions.outHeight;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Determine how much to scale down the image</span></span><br><span class="line">    <span class="keyword">int</span> scaleFactor = Math.min(photoW/targetW, photoH/targetH);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Decode the image file into a Bitmap sized to fill the View</span></span><br><span class="line">    bmOptions.inJustDecodeBounds = <span class="keyword">false</span>;</span><br><span class="line">    bmOptions.inSampleSize = scaleFactor;</span><br><span class="line">    bmOptions.inPurgeable = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);</span><br><span class="line">    mImageView.setImageBitmap(bitmap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><h3 id="权限-1"><a href="#权限-1" class="headerlink" title="权限"></a>权限</h3><p>不管是录像还是拍照，使用前需要定义使用 <code>camera</code> 硬件，并动态申请权限。  </p>
+<h3 id="拍照和录像的-Intent"><a href="#拍照和录像的-Intent" class="headerlink" title="拍照和录像的 Intent"></a>拍照和录像的 <code>Intent</code></h3><ul>
+<li>拍照：<code>MediaStore.ACTION_IMAGE_CAPTURE</code>  </li>
+<li>录像：<code>MediaStore.ACTION_VIDEO_CAPTURE</code>  </li>
+</ul>
+<h3 id="返回数据"><a href="#返回数据" class="headerlink" title="返回数据"></a>返回数据</h3><ul>
+<li>拍照：返回 <code>Bitmap</code> ，数据在 <code>Intent.Bundle</code> 中的 <code>data</code> 字段  </li>
+<li>录像：返回 <code>Uri</code> ，数据在 <code>Intent.getData</code>  </li>
+</ul>
+<h3 id="保存文件及分享"><a href="#保存文件及分享" class="headerlink" title="保存文件及分享"></a>保存文件及分享</h3><p>通过 <code>getExternalFilesDir</code> 获取应用的私有文件目录，通过 <code>FileProvider</code> 共享给其他应用。  </p>
+<h3 id="缩放图片因子"><a href="#缩放图片因子" class="headerlink" title="缩放图片因子"></a>缩放图片因子</h3><p>通过设置 <code>BitmapFactory.Options.inSampleSize</code> 的值，来达到缩放图片的效果。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://developer.android.com/training/camera/" target="_blank" rel="noopener">Android developer Camera</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/11/22/0109-android-camera-1-simple-use/" title="Android Camera 简单使用">http://redspider110.github.io/2018/11/22/0109-android-camera-1-simple-use/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Camera/" rel="tag"># Camera</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/05/0108-android-classloading/" rel="next" title="Android 类加载机制">
+                <i class="fa fa-chevron-left"></i> Android 类加载机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/26/0109-android-camera-2-basic/" rel="prev" title="Camera 相关名词等">
+                Camera 相关名词等 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#权限"><span class="nav-number">1.</span> <span class="nav-text">权限</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AndroidManifest-xml-申请功能"><span class="nav-number">1.1.</span> <span class="nav-text">AndroidManifest.xml 申请功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态申请权限"><span class="nav-number">1.2.</span> <span class="nav-text">动态申请权限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#拍照"><span class="nav-number">2.</span> <span class="nav-text">拍照</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Intent"><span class="nav-number">2.1.</span> <span class="nav-text">Intent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取缩略图-thumbnail"><span class="nav-number">2.2.</span> <span class="nav-text">获取缩略图 thumbnail</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#录像"><span class="nav-number">3.</span> <span class="nav-text">录像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Intent-1"><span class="nav-number">3.1.</span> <span class="nav-text">Intent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看视频"><span class="nav-number">3.2.</span> <span class="nav-text">查看视频</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图片保存及后期处理"><span class="nav-number">4.</span> <span class="nav-text">图片保存及后期处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#外部存储权限"><span class="nav-number">4.1.</span> <span class="nav-text">外部存储权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用间文件共享-FileProvider"><span class="nav-number">4.2.</span> <span class="nav-text">应用间文件共享 FileProvider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#保存到指定路径"><span class="nav-number">4.3.</span> <span class="nav-text">保存到指定路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加到媒体数据库"><span class="nav-number">4.4.</span> <span class="nav-text">添加到媒体数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缩放图片"><span class="nav-number">4.5.</span> <span class="nav-text">缩放图片</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#权限-1"><span class="nav-number">5.1.</span> <span class="nav-text">权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拍照和录像的-Intent"><span class="nav-number">5.2.</span> <span class="nav-text">拍照和录像的 Intent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#返回数据"><span class="nav-number">5.3.</span> <span class="nav-text">返回数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#保存文件及分享"><span class="nav-number">5.4.</span> <span class="nav-text">保存文件及分享</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缩放图片因子"><span class="nav-number">5.5.</span> <span class="nav-text">缩放图片因子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

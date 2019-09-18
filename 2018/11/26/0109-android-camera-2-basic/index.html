@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Camera,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Camera 中相关名词解释，图像视频基础格式等基础知识。">
+<meta name="keywords" content="Android,Camera">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Camera 相关名词等">
+<meta property="og:url" content="http://redspider110.github.io/2018/11/26/0109-android-camera-2-basic/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Camera 中相关名词解释，图像视频基础格式等基础知识。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-baisc-camera-hardware.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-yuv-format.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-bayer-format.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-noraml.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-noraml-shutter.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-shutter.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-single-shot.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-brust-mode.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.385Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Camera 相关名词等">
+<meta name="twitter:description" content="Camera 中相关名词解释，图像视频基础格式等基础知识。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-baisc-camera-hardware.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/11/26/0109-android-camera-2-basic/">
+
+
+
+
+
+  <title>Camera 相关名词等 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/11/26/0109-android-camera-2-basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Camera 相关名词等</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-26T09:00:00+08:00">
+                2018-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Camera</code> 中相关名词解释，图像视频基础格式等基础知识。  </p>
+<a id="more"></a>
+
+<h2 id="摄像头"><a href="#摄像头" class="headerlink" title="摄像头"></a>摄像头</h2><p>摄像头的简单结构：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-baisc-camera-hardware.jpg" alt="0109-android-camera-2-baisc-camera-hardware.jpg"></p>
+<h3 id="感光材质"><a href="#感光材质" class="headerlink" title="感光材质"></a>感光材质</h3><p>摄像头传感器将镜头中的光信号转换为电信号，再经过内部 <code>A/D</code> 转换为数字信号，感光材质分为： <code>CCD, CMOS</code> 两种：  </p>
+<ul>
+<li><code>CCD</code><br><code>CCD: Charge Coupled Device</code> ，电荷耦合器件传感器：使用一种高感光度的半导体材料制成，能把光线转变成电荷，通过模数转换器芯片转换成电信号。 <code>CCD</code> 由许多独立的感光单位组成，通常以百万像素为单位。当 <code>CCD</code> 表面受到光照时，每个感光单位都会将电荷反映在组件上，所有的感光单位产生的信号加在一起，就构成了一幅完整的图像。 <code>CCD</code> 传感器以日本厂商为主导，全球市场上有 90% 被日本厂商垄断，索尼、松下、夏普是龙头。  </li>
+<li><code>CMOS</code><br><code>CMOS: Complementary Metal-Oxide Semiconductor</code> ，互补性氧化金属半导体：主要是利用硅和锗做成的半导体，使其在 <code>CMOS</code> 上共存着带 <code>N(-)</code> 和 <code>P(+)</code> 级的半导体，这两个互补效应所产生的电流可以被处理芯片记录并解读成影像。 <code>CMOS</code> 传感器主要以美国、韩国和中国台湾为主导，主要生产厂家是美国的 <code>OmnVison, Agilent, Micron</code> ，中国台湾的锐像、原相、泰视等，韩国的三星、现代。  </li>
+</ul>
+<h3 id="RGB"><a href="#RGB" class="headerlink" title="RGB"></a><code>RGB</code></h3><p><code>RGB: Red Green Blue</code> ，指的是红黄蓝三基色。传统的红绿蓝格式有： <code>RGB565, RGB888</code> 等，其 <code>16bit</code> 数据格式为 <code>5bit R + 6bit G + 5bit B</code> ， <code>G</code> 多一位是因为人眼对绿色比较敏感。  </p>
+<h3 id="YUV"><a href="#YUV" class="headerlink" title="YUV"></a><code>YUV</code></h3><p><code>YUV: luma (Y) + chroma (UV)</code> ，指的是亮度和色度表示的像素格式。这样分开的好处就是不但可以避免相互干扰，还可以降低色度的采样率而不会对图像质量影响太大。色度 <code>UV</code> 定义了颜色的两个方面：色调 <code>Cb</code> 与饱和度 <code>Cr</code>；其中 <code>Cr</code> 反映了 <code>RGB</code> 输入信号红色部分与 <code>RGB</code> 信号亮度值之间的差异； <code>Cb</code> 反映的是 <code>RGB</code> 输入信号蓝色部分与 <code>RGB</code> 信号亮度值之间的差异。主要采样格式有 <code>YCbCr 4:2:0, 4:2:2, 4:1:1, 4:4:4</code> 等：<br>人眼对色度的敏感程度要低于对亮度的敏感程度，人类视网膜上的视网膜杆细胞要多于视网膜锥细胞，说得通俗一些，视网膜杆细胞的作用就是识别亮度，而视网膜锥细胞的作用就是识别色度。所以眼睛对于亮和暗的分辨要比对颜色的分辨精细一些，因此存储时没有必要存储全部颜色信号。不同的采样格式，存储的色度信号不同，比如 <code>YCbCr 4:4:4</code> 即每 4 点 <code>Y</code> 采样，就有相对应的 4 点 <code>Cb</code> 和 4 点 <code>Cr</code> ；换句话说，在这种格式中色度信号的分辨率和亮度信号的分辨率是相同的。每种采样格式对应的图示如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-yuv-format.png" alt="0109-android-camera-2-basic-yuv-format.png"></p>
+<p><code>YUV</code> 与 <code>RGB</code> 是可以相互转换的，转换公式如下：（ <code>RGB</code> 取值范围均为 0-255 ）  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Y = 0.299R + 0.587G + 0.114B</span><br><span class="line">U = -0.147R - 0.289G + 0.436B</span><br><span class="line">V = 0.615R - 0.515G - 0.100B</span><br><span class="line">R = Y + 1.14V</span><br><span class="line">G = Y - 0.39U - 0.58V</span><br><span class="line">B = Y + 2.03U</span><br></pre></td></tr></table></figure>
+
+<h3 id="Bayer-格式"><a href="#Bayer-格式" class="headerlink" title="Bayer 格式"></a><code>Bayer</code> 格式</h3><p><code>Bayer</code> 格式图片是柯达公司科学家 <code>Bryce Bayer</code> 发明的，<code>Bayer Array</code> 拜耳阵列被广泛运用数字图像。<code>Bayer</code> 格式是相机内部的原始图片, 一般后缀名为 <code>.raw</code> ，因此也成为 <code>RAW</code> 格式。<br>对于彩色图像，通常需要采集 <code>RGB</code> 三种颜色，最简单的方法就是用滤镜的方法，红色的滤镜透过红色的波长，绿色的滤镜透过绿色的波长，蓝色的滤镜透过蓝色的波长。如果要采集 <code>RGB</code> 三基色，则需要三块滤镜；但是 <code>Bayer</code> 阵列很好的解决这个问题。<code>Bayer</code> 格式图片在一块滤镜上设置的不同的颜色，通过分析人眼对颜色的感知发现，人眼对绿色比较敏感，所以滤镜的 <code>RGB</code> 通常为 1:2:1 组合。下图中灰色的一层表示感光元件，每个方块代表一个像素块，上面一层彩色的就是 <code>Bayer</code> 滤镜。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-bayer-format.jpg" alt="0109-android-camera-2-basic-bayer-format.jpg"></p>
+<p>由于感光元件每个像素只记录一种颜色信息，所以需要使用插值算法将 <code>Bayer</code> 图像恢复会彩色图像。  </p>
+<h3 id="其他术语"><a href="#其他术语" class="headerlink" title="其他术语"></a>其他术语</h3><ul>
+<li><code>Lens SHADING</code> 镜头均匀性<br>镜头均匀性指画面中心的明亮度到四周的明亮度比值。 <code>Lens shading</code> 分为两种：亮度阴影 <code>luma shading</code> 和色彩偏差 <code>color shading</code> ； <code>luma shading</code> 产生的原因是镜头的通光量从中心到边角依次较少，导致图像看起来，中间亮度正常，四周偏暗。   </li>
+<li><code>OIS</code> 光学防抖<br><code>OIS: Optical Stabilization</code> 光学防抖  </li>
+<li><code>Tone Map</code> 色调映射<br><code>Tonemapping</code> 通常被理解为将颜色值从高动态范围 <code>HDR</code> 映射到低动态范围 <code>LDR</code> 的过程。 <code>Tonemapping</code> 只有在相机启用 <code>HDR</code> 时才能正常工作。建议给光源高于正常强度的亮度，从而让其具有更大的范围。   </li>
+<li><code>ANTIBANDING</code> 灯源工频干扰模式<br><code>ANTIBANDING</code> 是指照明光源干扰产生的明暗条纹问题。  </li>
+<li><code>HOT_PIXEL</code> 热点校正<br>传感器的热噪声：热点 <code>hot pixel</code> ，是因为芯片温度过高产生的噪点  </li>
+<li><code>LENS FACING</code> 镜头人头方向<br>摄像头镜头成像方向与屏幕预览的关系。  </li>
+<li><code>APERTURES</code> 光圈  </li>
+<li><code>FOCAL LENGTH</code> 光学变焦焦距  </li>
+<li><code>AE</code> 自动曝光<br>自动曝光 <code>Auto Exposure</code> ：就是光圈和快门的组合。光圈，快门速度， <code>ISO</code> ； <code>Gamma</code> 即人眼对亮度的响应曲线。  </li>
+<li><code>AWE</code> 自动白平衡<br>自动白平衡 <code>Auto White Balance</code> ：简单来说就是：摄像机对白色物体的还原。相关概念：色温。<br>定义：要求在不同色温环境下，照白色的物体，屏幕中的图像应也是白色的。色温表示光谱成份，光的颜色。色温低表示长波光成分多。当色温改变时，光源中三基色(红、绿、蓝)的比例会发生变化，需要调节三基色的比例来达到彩色的平衡，这就是白平衡调节的实际。  </li>
+<li><code>AF</code> 自动对焦<br>自动对焦 <code>Auto Focus</code> 可以分成两大类：一类是基于镜头与被拍摄目标之间距离测量的测距自动对焦，另一类是基于对焦屏上成像清晰的聚焦检测自动对焦(清晰度算法)。变焦就是把远处的物体拉近。对焦是让图像清晰。  </li>
+<li><code>3A</code><br><code>3A</code> 是 <code>AE, AWE, AF</code> 的统称。  </li>
+<li><code>ISO</code> 感光度  </li>
+<li><code>Shtter</code> 快门  </li>
+<li>光学变焦和数码变焦<br>通过镜头的调整，拉近拉远所要拍摄的对象，保持像素不变和画质基本不变，却可以拍到自己理想的物像。数码变焦：其实没有什么变焦，只是从原图片中截取出来放大，屏幕上看到变大了，实际上画质并没有本质提高，而像素比相机能拍摄的最大像素降低了。  </li>
+<li><code>Black level</code> 黑电平<br>黑电平 <code>Black Level Correction</code> 也就是黑色的最低点，以 <code>8bit</code> 数据来说，指在经过一定校准的显示装置上，没有一行光亮输出的视频信号电平。定义图像数据为 0 时对应的信号电平。<br><code>8bit</code> 数据，单个像素的有效值为 0-255，但是实际 <code>AD</code> 芯片（模数转换芯片）的精度可能无法将电压值很小的一部分转换出来。因此 <code>sensor</code> 在出厂的时候，厂家会在 <code>AD</code> 的输入之前加上一个固定的偏移量，比如设置为图像数据输出范围 5-250 等，最低电平不为零。因此我们就需要对图像数据范围进行调整，使其最小值为零，这就是黑电平校正。</li>
+</ul>
+<h3 id="ZSL"><a href="#ZSL" class="headerlink" title="ZSL"></a><code>ZSL</code></h3><p><code>ZSL:Zero Shutter Lag</code> 直译为零秒延时拍照， <code>Camera</code> 拍照的时候往往会有一些延迟的体验，比如从按下拍照键到照片拍好放到内存里，这有一个时间差； <code>ZSL</code> 就是为了消除这种延迟，提供一种“拍即视”的体验。  </p>
+<ul>
+<li>普通模式下拍照数据流<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-noraml.png" alt="0109-android-camera-2-basic-capture-noraml.png"><br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-noraml-shutter.png" alt="0109-android-camera-2-basic-capture-noraml-shutter.png"></li>
+<li><code>ZSL</code> 拍照数据流<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl.png" alt="0109-android-camera-2-basic-capture-zsl.png"><br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-shutter.png" alt="0109-android-camera-2-basic-capture-zsl-shutter.png"></li>
+</ul>
+<p><code>ZSL</code> 下的拍照又分为：普通拍照 <code>Single shot</code> 和连拍功能 <code>Brust mode</code> ，它们对应的数据流为：  </p>
+<ul>
+<li><code>single shot</code><br>预览之后， <code>sensor</code> 和 <code>VFE</code> 会产生快照和预览帧，并且会把最新的一些帧保留在图像 <code>buffer</code> 中。一旦“取图”事件被触发，系统就会在第一时间内从图像 <code>buffer</code> 中把相关的图像找出并返回给用户，这就是 <code>ZSL</code> 零秒延迟。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-single-shot.png" alt="0109-android-camera-2-basic-capture-zsl-single-shot.png"></li>
+<li><code>brust mode</code><br><code>Burst mode</code> 是 <code>single shot</code> 特征的自然延伸。此功能允许用户捕获的不仅是当前帧，但也有几个帧之前和之后的当前帧的少数几个帧，从而捕捉到一个序列的图像到内存。这将为用户提供不同的快照时间，从中选择一个或多个帧来保存。应用了多少帧的选择自由是多少追溯帧和未来帧在记忆的局限性上，追溯和未来帧是相对于真正的快门时间的。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0109-android-camera-2-basic-capture-zsl-brust-mode.png" alt="0109-android-camera-2-basic-capture-zsl-brust-mode.png"></li>
+</ul>
+<h2 id="技术指标"><a href="#技术指标" class="headerlink" title="技术指标"></a>技术指标</h2><h3 id="图像解析度-分辨率-Resolution-："><a href="#图像解析度-分辨率-Resolution-：" class="headerlink" title="图像解析度/分辨率(Resolution)："></a>图像解析度/分辨率(Resolution)：</h3><table>
+<thead>
+<tr>
+<th align="left">规格</th>
+<th align="left">宽 x 高</th>
+<th align="left">像素点</th>
+<th align="left">像素简称</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">QSIF/QQVGA</td>
+<td align="left">160 x 120</td>
+<td align="left">19200</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">QCIF</td>
+<td align="left">176 x 144</td>
+<td align="left">25344</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">SIF/QVGA</td>
+<td align="left">320 x 240</td>
+<td align="left">76800</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">CIF</td>
+<td align="left">352 x 288</td>
+<td align="left">101376</td>
+<td align="left">10万像素</td>
+</tr>
+<tr>
+<td align="left">VGA</td>
+<td align="left">640 x 480</td>
+<td align="left">307200</td>
+<td align="left">30万像素(35万是指648X488)</td>
+</tr>
+<tr>
+<td align="left">SVGA</td>
+<td align="left">800 x 600</td>
+<td align="left">480000</td>
+<td align="left">50万像素</td>
+</tr>
+<tr>
+<td align="left">XGA</td>
+<td align="left">1024 x 768</td>
+<td align="left">786438</td>
+<td align="left">80万像素</td>
+</tr>
+<tr>
+<td align="left">SXGA</td>
+<td align="left">1280 x 1024</td>
+<td align="left">1310720</td>
+<td align="left">130万像素</td>
+</tr>
+<tr>
+<td align="left">UXGA</td>
+<td align="left">1600 x 1200</td>
+<td align="left">1920000</td>
+<td align="left">200万像素</td>
+</tr>
+<tr>
+<td align="left">QXGA</td>
+<td align="left">2048 x 1536</td>
+<td align="left">3145728</td>
+<td align="left">300万像素(320W)</td>
+</tr>
+<tr>
+<td align="left">QSXGA</td>
+<td align="left">2592 x 1944</td>
+<td align="left">5038848</td>
+<td align="left">500万像素</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">2816 x 2112</td>
+<td align="left">2947392</td>
+<td align="left">600万像素</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">3072 x 2304</td>
+<td align="left">7077888</td>
+<td align="left">700万像素</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">3200 x 2400</td>
+<td align="left">7680000</td>
+<td align="left">770万像素</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">3264 x 2448</td>
+<td align="left">7990272</td>
+<td align="left">800万像素</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">3876 x 2584</td>
+<td align="left">10015584</td>
+<td align="left">1000万像素</td>
+</tr>
+</tbody></table>
+<h3 id="彩色深度-色彩位数-："><a href="#彩色深度-色彩位数-：" class="headerlink" title="彩色深度(色彩位数)："></a>彩色深度(色彩位数)：</h3><ul>
+<li>256 色灰阶：有 256 种灰色（包括黑白）  </li>
+<li>15 或 16 位彩色（高彩色）： 65536 种颜色  </li>
+<li>24 位彩色（真彩色）：每种原色都有 256 个层次，它们的组合便有 <code>256*256*256</code> 种颜色  </li>
+<li>32 位彩色：除了 24 位彩色的颜色外，额外的 8 位是储存重叠图层的图形资料( <code>alpha</code> 频道)  </li>
+</ul>
+<h2 id="编码格式"><a href="#编码格式" class="headerlink" title="编码格式"></a>编码格式</h2><h3 id="图像格式"><a href="#图像格式" class="headerlink" title="图像格式"></a>图像格式</h3><ul>
+<li><code>RAW</code><br><code>RAW</code> 格式：<code>RAW Image Format</code> ，表示未经加工的图片。可以理解为 <code>RAW</code> 图像就是 <code>CMOS</code> 或者 <code>CCD</code> 图像感应器将捕捉到的光源信号转化为数字信号的原始数据。<code>RAW</code> 文件是一种记录了数码相机传感器的原始信息，同时记录了由相机拍摄所产生的一些元数据（<code>Metadata</code>，如 <code>ISO</code> 的设置、快门速度、光圈值、白平衡等）的文件。<code>RAW</code> 是未经处理、也未经压缩的格式，可以把 <code>RAW</code> 概念化为“原始图像编码数据”或更形象的称为“数字底片”。  </li>
+<li><code>TIFF</code><br><code>TIFF: Tagged Image File Format</code> 标签图像文件格式，是一种主要用来存储包括照片和艺术图在内的图像的文件格式，与 <code>JPEG, PNG</code> 一起成为流行的高位彩色图像格式。  </li>
+<li><code>DNG</code><br><code>DNG: Digital News Gathering</code> 数字负片，是一种用于数码相机生成的原始数据文件的公共存档格式。<code>DNG</code> 文件格式是一种跨平台文件格式，用于存储来自摄像机传感器的像素数据，并且应用最少的预处理。<code>DNG</code> 文件允许在用户定义的颜色空间中定义像素数据，并且具有允许在后处理期间将该像素数据转换为标准 <code>CIE XYZ</code> 颜色空间的关联元数据。<code>DNG</code> 解决了不同型号相机的原始数据文件之间缺乏开放式标准的问题, 从而有助于确保摄影师们将来能够访问他们的文件。<code>DNG</code> 格式中的图像数据基于 <code>TIFF</code> 格式。  </li>
+<li><code>JPEG</code>  </li>
+<li><code>PNG</code>  </li>
+</ul>
+<h3 id="视频格式"><a href="#视频格式" class="headerlink" title="视频格式"></a>视频格式</h3><ul>
+<li><code>YUV</code><br><code>YUV</code> 存储格式有两大类：  <ul>
+<li><code>planar</code> ：先连续存储所有像素点的 <code>Y</code> ，紧接着存储所有像素点的 <code>U</code> ，随后是所有像素点的 <code>V</code>  </li>
+<li><code>packed</code> ：每个像素点的 <code>Y, U, V</code> 是连续交替存储的  </li>
+</ul>
+</li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://wenku.baidu.com/view/5d308b1458fafab069dc02ad.html" target="_blank" rel="noopener">camera摄像头成像方向与LCD屏预览关系</a>  </li>
+<li><a href="https://www.cnblogs.com/fjutacm/p/220631977df995512d136e4dbd411951.html" target="_blank" rel="noopener">camera理论基础和工作原理</a>  </li>
+<li><a href="https://wenku.baidu.com/view/4ca852f2ec3a87c24128c418.html" target="_blank" rel="noopener">斐讯：camera基础介绍</a>  </li>
+<li><a href="https://blog.csdn.net/bingqingsuimeng/article/details/61917513" target="_blank" rel="noopener">图像bayer格式介绍</a>  </li>
+<li><a href="https://blog.csdn.net/zathing/article/details/19757233" target="_blank" rel="noopener">RGB与Bayer滤镜</a>  </li>
+<li><a href="http://www.ceeger.com/Components/script-Tonemapping.html" target="_blank" rel="noopener">色调映射 Tonemapping</a>  </li>
+<li><a href="https://blog.csdn.net/kris_fei/article/details/77057473" target="_blank" rel="noopener">ZSL功能小结</a>  </li>
+<li><a href="http://blog.chinaunix.net/uid-7213935-id-5753468.html" target="_blank" rel="noopener">ZSL简介</a>  </li>
+<li><a href="https://www.cnblogs.com/whw19818/p/5853407.html" target="_blank" rel="noopener">摄像头基础介绍</a>  </li>
+<li><a href="https://blog.csdn.net/zdz8889/article/details/45769289" target="_blank" rel="noopener">黑电平校正</a>  </li>
+<li><a href="http://www.cnblogs.com/azraelly/archive/2013/01/01/2841269.html" target="_blank" rel="noopener">图文详解YUV420数据格式</a>  </li>
+<li><a href="https://blog.csdn.net/leixiaohua1020/article/details/50534150" target="_blank" rel="noopener">雷神：RGB、YUV像素数据处理</a>  </li>
+<li><a href="http://www.yuvplayer.com/" target="_blank" rel="noopener">YUV 播放器</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/11/26/0109-android-camera-2-basic/" title="Camera 相关名词等">http://redspider110.github.io/2018/11/26/0109-android-camera-2-basic/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Camera/" rel="tag"># Camera</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/22/0109-android-camera-1-simple-use/" rel="next" title="Android Camera 简单使用">
+                <i class="fa fa-chevron-left"></i> Android Camera 简单使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/28/0109-android-camera-3-api2/" rel="prev" title="Android Camera API2 介绍">
+                Android Camera API2 介绍 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#摄像头"><span class="nav-number">1.</span> <span class="nav-text">摄像头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#感光材质"><span class="nav-number">1.1.</span> <span class="nav-text">感光材质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RGB"><span class="nav-number">1.2.</span> <span class="nav-text">RGB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#YUV"><span class="nav-number">1.3.</span> <span class="nav-text">YUV</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bayer-格式"><span class="nav-number">1.4.</span> <span class="nav-text">Bayer 格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他术语"><span class="nav-number">1.5.</span> <span class="nav-text">其他术语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZSL"><span class="nav-number">1.6.</span> <span class="nav-text">ZSL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术指标"><span class="nav-number">2.</span> <span class="nav-text">技术指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#图像解析度-分辨率-Resolution-："><span class="nav-number">2.1.</span> <span class="nav-text">图像解析度/分辨率(Resolution)：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#彩色深度-色彩位数-："><span class="nav-number">2.2.</span> <span class="nav-text">彩色深度(色彩位数)：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编码格式"><span class="nav-number">3.</span> <span class="nav-text">编码格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#图像格式"><span class="nav-number">3.1.</span> <span class="nav-text">图像格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视频格式"><span class="nav-number">3.2.</span> <span class="nav-text">视频格式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

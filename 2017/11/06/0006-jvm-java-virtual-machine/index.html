@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,jvm,虚拟机,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="锁在Java程序运行时环境中，JVM需要对两类线程共享的数据进行协调：1）保存在堆中的实例变量2）保存在方法区中的类变量 这两类数据是被所有线程共享的。  死锁产生死锁 4 个必要条件 互斥条件一个资源每次只能被一个进程使用     保持和等待条件一个进程因请求资源而阻塞时，对已获得的资源保持不放    不剥夺条件进程已获得的资源，在未使用完之前，不能强行剥夺   环路等待条件若干进程之间形成一种">
+<meta name="keywords" content="Java,jvm,虚拟机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM：深入理解Java虚拟机--读书笔记">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/06/0006-jvm-java-virtual-machine/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="锁在Java程序运行时环境中，JVM需要对两类线程共享的数据进行协调：1）保存在堆中的实例变量2）保存在方法区中的类变量 这两类数据是被所有线程共享的。  死锁产生死锁 4 个必要条件 互斥条件一个资源每次只能被一个进程使用     保持和等待条件一个进程因请求资源而阻塞时，对已获得的资源保持不放    不剥夺条件进程已获得的资源，在未使用完之前，不能强行剥夺   环路等待条件若干进程之间形成一种">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0006-jvm-java-virtual-machine-jvm-runtime-model.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0006-jvm-java-virtual-machine-parents-delegation-model.jpg">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.335Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM：深入理解Java虚拟机--读书笔记">
+<meta name="twitter:description" content="锁在Java程序运行时环境中，JVM需要对两类线程共享的数据进行协调：1）保存在堆中的实例变量2）保存在方法区中的类变量 这两类数据是被所有线程共享的。  死锁产生死锁 4 个必要条件 互斥条件一个资源每次只能被一个进程使用     保持和等待条件一个进程因请求资源而阻塞时，对已获得的资源保持不放    不剥夺条件进程已获得的资源，在未使用完之前，不能强行剥夺   环路等待条件若干进程之间形成一种">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0006-jvm-java-virtual-machine-jvm-runtime-model.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/06/0006-jvm-java-virtual-machine/">
+
+
+
+
+
+  <title>JVM：深入理解Java虚拟机--读书笔记 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/06/0006-jvm-java-virtual-machine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JVM：深入理解Java虚拟机--读书笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-06T16:03:00+08:00">
+                2017-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><p>在Java程序运行时环境中，JVM需要对两类线程共享的数据进行协调：<br>1）保存在堆中的实例变量<br>2）保存在方法区中的类变量</p>
+<p>这两类数据是被所有线程共享的。 </p>
+<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><h3 id="产生死锁-4-个必要条件"><a href="#产生死锁-4-个必要条件" class="headerlink" title="产生死锁 4 个必要条件"></a>产生死锁 4 个必要条件</h3><ul>
+<li>互斥条件<br>一个资源每次只能被一个进程使用    </li>
+<li>保持和等待条件<br>一个进程因请求资源而阻塞时，对已获得的资源保持不放   </li>
+<li>不剥夺条件<br>进程已获得的资源，在未使用完之前，不能强行剥夺  </li>
+<li>环路等待条件<br>若干进程之间形成一种头尾相接的循环等待资源关系</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><h3 id="解除死锁的方法"><a href="#解除死锁的方法" class="headerlink" title="解除死锁的方法"></a>解除死锁的方法</h3><p>破坏 <code>4</code> 个条件同时成立：<br>A．进程互斥，m&lt;nw时可能会出现死锁，其中m表示资源总数，n表示互斥进程数，w表示每个进程需要的资源数<br>B．在m&lt;nw时，避免死锁的方法，先均匀分配1个资源，剩下的全都分给某一个进程，确保这个进程能获取足够多的资源完成并退出。<br>C. 也就是说B中是理想避免死锁的方法，但还是可能出现死锁，比如剩下部分并没有全部分给单个进程，而是再次均匀分配就出现死锁了。<br>D. 当两个进程都在请求资源，但是没有资源可用时，则称这两个进程为阻塞节点，资源图称为是不可以简化的、是死锁的。</p>
+<h2 id="volatile-关键字"><a href="#volatile-关键字" class="headerlink" title="volatile 关键字"></a>volatile 关键字</h2><h2 id="synchronize-关键字"><a href="#synchronize-关键字" class="headerlink" title="synchronize 关键字"></a>synchronize 关键字</h2><p>synchronized的字节码表示：<a href="http://www.cnblogs.com/javaminer/p/3889023.html" target="_blank" rel="noopener">synchronized关键字及实现细节</a><br>在 <code>Java</code> 语言中存在两种内建的 <code>synchronized</code> 语法：  </p>
+<ul>
+<li><code>synchronized</code> 语句<br>对于 <code>synchronized</code> 语句当 <code>Java</code> 源代码被 <code>javac</code> 编译成 <code>bytecode</code> 的时候，会在同步块的入口位置和退出位置分别插入 <code>monitorenter</code> 和 <code>monitorexit</code> 字节码指令  </li>
+<li><code>synchronized</code> 方法<br>而 <code>synchronized</code> 方法则会被翻译成普通的方法调用和返回指令。如: <code>invokevirtual、areturn</code> 指令，在 <code>JVM</code> 字节码层面并没有任何特别的指令来实现被 <code>synchronized</code> 修饰的方法，而是在 <code>Class</code> 文件的方法表中将该方法的 <code>access_flags</code> 字段中的 <code>synchronized</code> 标志位置 1 ，表示该方法是同步方法并使用调用该方法的对象或该方法所属的 <code>Class</code> 在 <code>JVM</code> 的内部对象表示 <code>Klass</code> 做为锁对象。  </li>
+</ul>
+<h2 id="并发主要关注那些问题"><a href="#并发主要关注那些问题" class="headerlink" title="并发主要关注那些问题"></a>并发主要关注那些问题</h2><p>线程安全，内存管理及垃圾回收，java并发</p>
+<h2 id="JVM-内存模型及多线程并发"><a href="#JVM-内存模型及多线程并发" class="headerlink" title="JVM 内存模型及多线程并发"></a>JVM 内存模型及多线程并发</h2><p>原子性，可见性，有序性</p>
+<ul>
+<li><a href="http://ifeve.com/syn-jmm/" target="_blank" rel="noopener">同步和Java内存模型</a></li>
+<li><a href="http://hllvm.group.iteye.com/group/wiki/2877-synchronized-volatile" target="_blank" rel="noopener">Java线程安全总结</a></li>
+<li><a href="http://blog.csdn.net/u012152619/article/details/46968883" target="_blank" rel="noopener">JVM内存模型</a></li>
+<li><a href="http://blog.csdn.net/suifeng3051/article/details/52611233" target="_blank" rel="noopener">volatile和synchronized的区别</a></li>
+</ul>
+<h2 id="Java-运行时数据区域"><a href="#Java-运行时数据区域" class="headerlink" title="Java 运行时数据区域"></a><code>Java</code> 运行时数据区域</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0006-jvm-java-virtual-machine-jvm-runtime-model.png" alt="0006-jvm-java-virtual-machine-jvm-runtime-model.png"></p>
+<p>程序计数器、虚拟机栈，本地方法栈的生命周期都和当前线程保持一致，这三块区域属于当前线程私有的。而方法区、堆、常量池是所有线程共享的数据区  </p>
+<h3 id="程序计数器-The-pc-Register"><a href="#程序计数器-The-pc-Register" class="headerlink" title="程序计数器  The pc Register"></a>程序计数器  <code>The pc Register</code></h3><h3 id="Java-虚拟机栈-Java-Virtual-Machine-Stacks"><a href="#Java-虚拟机栈-Java-Virtual-Machine-Stacks" class="headerlink" title="Java 虚拟机栈  Java Virtual Machine Stacks"></a><code>Java</code> 虚拟机栈  <code>Java Virtual Machine Stacks</code></h3><p>每个方法在执行时都会创建一个栈帧存储：局部变量表、操作数栈、动态链接、方法返回地址等。常说的 <code>Java</code> 内存分为堆内存 <code>Heap</code> 和栈内存 <code>Stack</code>，这里的栈指的就是虚拟机栈，或者说是虚拟机栈中的局部变量表部分。</p>
+<ul>
+<li>局部变量表<br>存放了编译期可知的各种基本数据类型，对象引用（<code>reference</code> 类型）和 <code>returnAddress</code> 类型（指向一条字节码指令的地址）   </li>
+<li>基本数据类型<br><code>boolean, byte, char, short, int, float, long, double</code>   </li>
+<li>存储空间<br>其中 <code>64</code> 位长度的 <code>long</code> 和 <code>double</code> 类型的数据会占用 <code>2</code> 个局部变量空间，其余的数据类型只占用 <code>1</code> 个（比如 32 位虚拟机，一个变量空间占用32位）。根据 <code>long</code> 和 <code>double</code> 的非原子性协议，把这两个数据类型分割为两次 32 位读写操作（即需求读取两次）。不过局部变量是线程私有数据，即使两次读写也不会引起数据安全问题。</li>
+</ul>
+<h3 id="本地方法栈-Native-Method-Stacks"><a href="#本地方法栈-Native-Method-Stacks" class="headerlink" title="本地方法栈  Native Method Stacks"></a>本地方法栈  <code>Native Method Stacks</code></h3><h3 id="堆-Heap"><a href="#堆-Heap" class="headerlink" title="堆 Heap"></a>堆 <code>Heap</code></h3><p>所有对象的实例及数组都是在堆上分配的。</p>
+<h3 id="方法区-Method-Area"><a href="#方法区-Method-Area" class="headerlink" title="方法区  Method Area"></a>方法区  <code>Method Area</code></h3><p>别名：<code>Non Heap</code>，</p>
+<h3 id="运行时常量池-Run-Time-Constant-Pool"><a href="#运行时常量池-Run-Time-Constant-Pool" class="headerlink" title="运行时常量池 Run-Time Constant Pool"></a>运行时常量池 <code>Run-Time Constant Pool</code></h3><h3 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h3><ul>
+<li><p>StackOverFlowError<br>如果现场请求的栈深度大于虚拟机所允许的深度，将抛出该异常<br>虚拟机栈和本地方法栈区域可能会抛出该异常   </p>
+</li>
+<li><p>OutOfMemoryError<br>如果虚拟机栈可以动态扩展，扩展时无法申请到足够的内存，将抛出该异常<br>只有程序计数器中不会抛出 <code>OutOfMemory</code>，其他数据区域都可能会抛出   </p>
+</li>
+</ul>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><code>Java</code> 引用分为：强引用、软引用、弱引用、虚引用。这 4 种引用强度一次逐渐减弱。垃圾回收时会根据引用类型来决定是否回收这些内存  </p>
+<ul>
+<li><p>强引用 <code>Strong Reference</code><br>最常见的应用： <code>Object obj = new Object()</code>，这类引用就是强引用，也就是我们一般声明对象是时虚拟机生成的引用。垃圾回收时需要严格判断当前对象是否被强引用，只要强引用还存在，则不会被垃圾回收。  </p>
+</li>
+<li><p>软引用 <code>Soft Reference</code><br>使用 <code>SoftReference</code> 类来实现软引用，用来描述有用但并非必需的对象。对于软引用关联着的对象在垃圾回收时，虚拟机会根据当前系统的剩余内存来决定是否对软引用进行回收。如果剩余内存比较紧张，则虚拟机会回收软引用所引用的空间；如果剩余内存相对富裕，则不会进行回收。在系统要发生内存溢出异常之前，会将这些对象进行回收范围之中进行第二次回收，如果这次回收还没有足够的内存，才会抛出内存溢出异常。换句话说，虚拟机在发生 <code>OutOfMemory</code> 时，肯定是没有软引用存在的。  </p>
+</li>
+<li><p>弱引用 <code>Weak Reference</code><br>使用 <code>WeakReference</code> 类来实现弱引用，用来描述非必需对象，但是强度比软引用更弱一些。被弱引用关联的对象只能生存到下一次垃圾收集发生之前，当垃圾回收发生时，无论当前内存是否足够，被弱引用关联的对象都会被回收，因此其生命周期只存在于一个垃圾回收周期内。  </p>
+</li>
+<li><p>虚引用 <code>Phantom Reference</code><br>使用 <code>PhantomReference</code> 类来实现虚引用，唯一目的是对象在被回收时能收到一个系统通知。也称为幽灵引用或者幻影引用，是最弱的一种引用关系。虚引用完全不会影响对象的生存时间，也无法通过虚引用来取得对象的实例  </p>
+</li>
+<li><p>总结<br>软引用：当虚拟机内存不足时，会回收它指向的对象<br>弱引用：随时可能会被垃圾回收器回收，不一定要等到虚拟机内存不足时才强制回收<br>软引用多用作来实现缓存机制（<code>cache</code>），而弱引用一般用来防止内存泄漏，要保证内存被虚拟机回收  </p>
+</li>
+</ul>
+<h2 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h2><h3 id="Class-文件的魔数"><a href="#Class-文件的魔数" class="headerlink" title="Class 文件的魔数"></a><code>Class</code> 文件的魔数</h3><p>魔数为： <code>0xCAFEBABE</code>，即 <code>Class</code> 文件的前 4 个字节固定为这串数字  </p>
+<h3 id="65536-方法数"><a href="#65536-方法数" class="headerlink" title="65536 方法数"></a>65536 方法数</h3><p>常量池包含 14 种常量类型（每个都有各自的数据结构），其中包含一个  <code>CONSANT_Utf8_info</code> 类型的常量： <code>u1 type; u2 length; u1 bytes</code>。<code>Class</code> 文件中的方法，字段等都是该常量来描述的，所有该常量的最大长度也就是 <code>Java</code> 中方法、字段名的最大长度。<code>length</code> 的最大值即为 <code>u2</code> 类型能表达的最大值 <code>65536</code> 。所以 <code>Java</code> 程序如果定义了超过 <code>64KB</code> 英文字符的变量、方法名、方法数等，将无法编译  </p>
+<h3 id="类加载前的初始化"><a href="#类加载前的初始化" class="headerlink" title="类加载前的初始化"></a>类加载前的初始化</h3><p>有且只有 5 种情况必须对类进行初始化  </p>
+<ul>
+<li>遇到 <code>new, getstatic, putstatic, invokestatic</code> 这 4 条字节码指令时，如果类没有进行过初始化，则需要先触发其初始化。生成这几条指令的场景为：<br>使用 <code>new</code> 关键字实例化对象；读取或设置类的静态字段（但是被 <code>final</code> 或者进入常量池的静态字段除外）；调用一个类的静态方法   </li>
+<li>使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用的时候，如果类没有进行过初始化，需要先触发初始化  </li>
+<li>初始化一个类的时候，如果发现父类还没有初始化，先触发父类初始化  </li>
+<li>用户指定要执行额主类：即包含 <code>main</code> 主类的先初始化  </li>
+<li>如果 <code>java.lang.invoke.MethodHandle</code> 实例最后解析的结果为 <code>REF_getStatic, REF_putStatic, REF_invokeStatic</code> 的方法句柄，如果没有初始化会触发其初始化  </li>
+</ul>
+<h3 id="类变量"><a href="#类变量" class="headerlink" title="类变量"></a>类变量</h3><p>类中被 <code>static</code> 修饰的变量，会被赋值两次。</p>
+<ul>
+<li>类加载准备阶段<br>准备阶段赋值为系统初始值，如：<code>int=0;reference=null</code>  </li>
+<li>类加载初始化阶段<br>初始化阶段赋值为执行 <code>Java</code> 语句的赋值，即类变量真实的值  </li>
+</ul>
+<h3 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h3><h4 id="类的加载器的-3-种分类"><a href="#类的加载器的-3-种分类" class="headerlink" title="类的加载器的 3 种分类"></a>类的加载器的 3 种分类</h4><ul>
+<li>启动类加载器 <code>Bootstrap ClassLoader</code><br>这个是 <code>C++</code> 实现，虚拟机的一部分，负责将 <code>JAVA_HOME\lib</code> 目录下的类库加载到虚拟机内存中，无法被用户直接使用  </li>
+<li>扩展类加载器 <code>Extension ClassLoader</code><br>由 <code>sun.misc.Launcher$ExtClassLoader</code> 实现，负责加载 <code>JAVA_HOME\lib\ext</code> 中的类库，用户可以直接使用这些扩展类加载器  </li>
+<li>应用程序类加载器 <code>Application ClassLoader</code><br>由 <code>sun.misc.Launcher$AppClassLoader</code> 实现，负责加载 <code>CLASSPATH</code> 中的类库。这个类加载器是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以一般称为系统类加载器，用户可以直接使用  </li>
+</ul>
+<h4 id="双亲委派模型-Parents-Delegation-Model"><a href="#双亲委派模型-Parents-Delegation-Model" class="headerlink" title="双亲委派模型 Parents Delegation Model"></a>双亲委派模型 <code>Parents Delegation Model</code></h4><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0006-jvm-java-virtual-machine-parents-delegation-model.jpg" alt="0006-jvm-java-virtual-machine-parents-delegation-model.jpg"></p>
+<p>上图所示的类加载器之间的层次关系，称为类加载器的双亲委派模型。该模型要求除了顶层启动类加载器外，其余的类加载器都应当有自己的父类加载器。这里的父子关系不是继承关系，而是组合关系来复用父类代码。<br>双亲委派模型原则：某个特定的类加载器在接到加载类的请求时，首先将加载任务委托给父类加载器，依次递归，如果父类加载器可以完成类加载任务，就成功返回；只有父类加载器无法完成此加载任务时，才自己去加载。</p>
+<h2 id="方法调用：分派"><a href="#方法调用：分派" class="headerlink" title="方法调用：分派"></a>方法调用：分派</h2><p>方法调用并不等同于方法执行，方法调用阶段唯一的任务就是确定被调用方法的版本（具体调用哪个方法）。<code>Class</code> 文件的编译过程中不包含链接步骤，所有的方法调用在 <code>Class</code> 文件里面存储的都只是符号引用，而不是方法在实际运行时内存布局中的入口地址。方法调用在类加载期间，甚至运行期间才能确定目标方法的入口地址（直接引用)。  </p>
+<h3 id="变量静态类型和实际类型"><a href="#变量静态类型和实际类型" class="headerlink" title="变量静态类型和实际类型"></a>变量静态类型和实际类型</h3><p>先看一段代码：<code>Human man = new Man()</code>  </p>
+<ul>
+<li><p>静态类型 <code>Static Type</code><br>其中 <code>Human</code> 称为变量的静态类型，或者叫外观类型 <code>Apparent Type</code>。静态类型仅仅在使用时有可能会出现改变，但在编译期能够明确最终的静态类型  </p>
+</li>
+<li><p>实际类型 <code>Actual Type</code><br>其中 <code>Man</code> 称为变量的实际类型。实际类型在运行期才能确定，编译器无法判定对象的实际类型是什么  </p>
+</li>
+<li><p>示例  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实际类型变化，运行时才能确定  </span></span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">man = <span class="keyword">new</span> Woman();</span><br><span class="line"><span class="comment">// 静态类型变化，使用时就确定了</span></span><br><span class="line">sr.sayHello((Man) man);</span><br><span class="line">sr.sayHello((Woman) man);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>引申<br>根据内存模型，<code>man</code> 是存储在虚拟栈中，属于局部变量表中的引用变量；而 <code>new Man()</code> 表示在堆中分配一块存储区，引用变量的值为指向这块堆的指针  </p>
+</li>
+</ul>
+<h3 id="重载与重写及分派"><a href="#重载与重写及分派" class="headerlink" title="重载与重写及分派"></a>重载与重写及分派</h3><ul>
+<li>重载<br>编译器在编译阶段通过参数的<strong>静态类型</strong>来作为<strong>重载</strong>的判断依据：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">(Human guy)</span></span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">syaHello</span><span class="params">(Man guy)</span></span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 根据静态类型的特点，调用的是 sayHello(Human)</span></span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">sayHello(man);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重写<br>只有在运行时根据<strong>实际类型</strong>，虚拟机才能确定调用哪个重写的方法  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Man</span> <span class="keyword">extends</span> <span class="title">Human</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Woman</span> <span class="keyword">extends</span> <span class="title">Human</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">Human woman = <span class="keyword">new</span> Woman();</span><br><span class="line"><span class="comment">// 根据实际类型的特点，调用子类的方法</span></span><br><span class="line">man.sayHello();</span><br><span class="line">woman.sayHello();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>静态分派<br>依赖静态类型来定位方法具体执行哪个版本（重载时），这个分派动作称为静态分派。典型应用：重载。在静态分派过程中，如果没有指定显示的静态类型，会发生类型的自动转换来匹配最可能的类型， 如：<code>sayHello(&#39;a&#39;)</code>，如果没有明确重载 <code>sayHello(char c)</code> 方法，会按照 ：<code>char -&gt; int -&gt; long -&gt; float -&gt; double -&gt;Character -&gt;Serializable --&gt; Object</code> 的顺序转型。其中：  </li>
+<li><code>char</code> 转为 <code>int</code>： 表示 <code>a</code> 除了代表字符串，还可以代表数字 97  </li>
+<li><code>char</code> 转为它的封装类型 <code>Character</code> ：是一次自动装箱过程    </li>
+<li><code>char</code> 转为 <code>Serializable</code> 是因为 <code>Character</code> 实现了<strong>序列化</strong>和<strong>可比较</strong><br>但是如果同时重载了 <code>sayHello(Serializable s)</code> 和 <code>sayHello(Comparable c)</code> 会提示类型模糊，编译报错  </li>
+<li>动态分派<br>在运行期根据实际类型确定方法执行哪个版本（重写），这个分派过程称为动态分派  </li>
+</ul>
+<h2 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h2><p>本质是参数化类型 <code>Parametersized Type</code> 的应用，也就是说操作的数据类型被指定为一个参数。这种参数类型可以用在类、接口和方法的创建中，分别被称为泛型类、泛型接口和泛型方法。<br><code>Java</code> 的泛型只在源码中存在，在编译后的字节码文件中都会被替换为原生类型 <code>Raw Type</code>，并且在相应的地方插入了强制转型代码。 <code>Java</code> 语言泛型的实现方法称为<strong>类型擦除</strong>（<code>Type Erasure</code>），这种实现也被称为伪泛型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 源码</span></span><br><span class="line">Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;String, String&gt;();</span><br><span class="line">map.put(<span class="string">"hello"</span>, <span class="string">"world"</span>);</span><br><span class="line">System.out.println(map.get(<span class="string">"hello"</span>));</span><br><span class="line"><span class="comment">// 反编译结果：类型擦除后在使用时做强行转换</span></span><br><span class="line">Map map = <span class="keyword">new</span> HashMap();</span><br><span class="line">map.put(<span class="string">"hello"</span>, <span class="string">"world"</span>);</span><br><span class="line">System.out.println((String) map.get(<span class="string">"hello"</span>));</span><br></pre></td></tr></table></figure>
+
+<h3 id="特征签名"><a href="#特征签名" class="headerlink" title="特征签名"></a>特征签名</h3><p>方法特征签名：仅仅包括方法名称、参数类型以及参数顺序。（不包含返回值）</p>
+<h3 id="Class-文件格式中方法表"><a href="#Class-文件格式中方法表" class="headerlink" title="Class 文件格式中方法表"></a><code>Class</code> 文件格式中方法表</h3><p>包含的几个重要字段：名称、描述符、属性组等  </p>
+<ul>
+<li><p>名称<br>全限定名：比如 <code>com/google/dagger/DaggerClass;</code> 是这个类的全限定名，仅仅是把类全名的 <code>.</code> 替换为 <code>/</code> 而已，再以分号结束<br>简单名称：指没有类型和参数修饰的方法或者字段名称，比如这个类中的 <code>inc()</code> 方法和 <code>m</code> 字段，简单名称分别为 <code>inc</code> 和 <code>m</code><br><code>Class</code> 文件格式方法表中的 <code>name_index</code> 指的就是简单名称  </p>
+</li>
+<li><p>描述符<br>描述符的作用用来描述字段的数据类型、方法的参数列表（包含数量、类型和顺序）和返回值。根据描述符规则：基本数据类型和无返回值的 <code>Void</code> 类型都用首字母大写来表示；对象类型使用字符 <code>L</code> 加对象的全限定名来表示；数组类型每一个维度使用一个前置 <code>[</code> 字符来描述。示例：  </p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] --&gt; [I</span><br><span class="line">java.lang.String[][] --&gt; [[Ljava/lang/String;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> --&gt; <span class="params">()</span>V</span></span><br><span class="line"><span class="function">java.lang.String.<span class="title">toString</span><span class="params">()</span> --&gt; <span class="params">()</span>Ljava/lang/String</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(<span class="keyword">char</span>[] source, <span class="keyword">int</span> offset, <span class="keyword">int</span> Count)</span> --&gt; <span class="params">([CII)</span>I</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只有描述符不一致的两个方法才能再同一个 <code>Class</code> 文件中共存  </p>
+</blockquote>
+<ul>
+<li><p>属性组<br>每个方法可以有任意个与之相关的属性（20 个）    </p>
+<p><code>Sigature</code> 属性：<br>在 <code>Java</code> 语言中，任何类、接口、初始化方法或成员的泛型签名如果包含了类型变量或者参数化类型，则 <code>Signature</code> 属性会记录泛型签名信息。所以<strong>类型擦除</strong>仅仅是对方法的字节码进行了擦除，实际上 <code>Signature</code> 属性保留了泛型信息  </p>
+</li>
+</ul>
+<h3 id="泛型重载"><a href="#泛型重载" class="headerlink" title="泛型重载"></a>泛型重载</h3><ul>
+<li>源码<br>方法 <code>mytest</code> 重载，参数类型都是泛型 <code>List&lt;E&gt;</code>  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestGeneric</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">mytest</span><span class="params">(List&lt;Integer&gt; s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">mytest</span><span class="params">(List&lt;String&gt; s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[]agrs)</span></span>&#123;</span><br><span class="line">        mytest(<span class="keyword">new</span> ArrayList&lt;String&gt;());</span><br><span class="line">        mytest(<span class="keyword">new</span> ArrayList&lt;Integer&gt;());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译<br>根据特征签名的定义（不包含返回值），以及泛型的类型擦除特性，<code>mytest</code> 特征签名是一样的，所以在编译过程中报错：<br><code>name clash: mytest(List&lt;String&gt;) and mytest(List&lt;Integer&gt;) have the same erasure</code>  </li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// java 7及以上不能编译通过</span><br><span class="line">xmt@server005:~/test/java$ java -version</span><br><span class="line">java version "1.7.0_91"</span><br><span class="line">OpenJDK Runtime Environment (IcedTea 2.6.3) (7u91-2.6.3-0ubuntu0.12.04.1)</span><br><span class="line">OpenJDK 64-Bit Server VM (build 24.91-b01, mixed mode)</span><br><span class="line">xmt@server005:~/test/java$ javac TestGeneric.java</span><br><span class="line">TestGeneric.java:9: error: name clash: mytest(List&lt;String&gt;) and mytest(List&lt;Integer&gt;) have the same erasure</span><br><span class="line">    public static String mytest(List&lt;String&gt; s) &#123;</span><br><span class="line">                         ^</span><br><span class="line">1 error</span><br><span class="line"></span><br><span class="line">// java 6可以编译通过</span><br><span class="line">xmt@server005:~/test/java$ java -version</span><br><span class="line">java version "1.6.0_31"</span><br><span class="line">Java(TM) SE Runtime Environment (build 1.6.0_31-b04)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 20.6-b01, mixed mode)</span><br><span class="line">xmt@server005:~/test/java$ javac TestGeneric.java</span><br><span class="line">xmt@server005:~/test/java$ java TestGeneric</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>Java 6</code> 能通过编译的原因，是因为 <code>class</code> 文件只需要描述符（返回值不同）不一致就可以共存，并且 <code>Singture</code> 属性保留了泛型信息，所以能正常编译和运行。但是 <code>Java 7</code> 开始，从编译开始就检查泛型的特征签名，所以无法编译通过<br>参考： <a href="https://www.zhihu.com/question/37802781" target="_blank" rel="noopener">Java 泛型重载 jdk 1.7</a>，<a href="http://jianleixing.iteye.com/blog/2017732" target="_blank" rel="noopener">描述符与特征签名</a></p>
+<h2 id="自动装箱和拆箱-（Boxing-and-Unboxing-Conversation）"><a href="#自动装箱和拆箱-（Boxing-and-Unboxing-Conversation）" class="headerlink" title="自动装箱和拆箱 （Boxing and Unboxing Conversation）"></a>自动装箱和拆箱 （Boxing and Unboxing Conversation）</h2><p>基本类型自动转换为对应的封装类型（对象）即为自动装箱（<code>Auto Boxing Conversation</code>）；反之，封装类型自动转换为基本类型为拆箱（<code>Unboxing Conversation</code>）</p>
+<h3 id="类型及转换"><a href="#类型及转换" class="headerlink" title="类型及转换"></a>类型及转换</h3><ul>
+<li><p>对应类型<br><code>boolean, byte, short, char, int, long, float, double</code> 对应的封装类型：<br><code>Boolean, Byte, Short, Character, Integer, Long, Float, Double</code></p>
+</li>
+<li><p>转换过程<br>装箱： <code>*.valueOf(*)</code><br>拆箱：<code>*.intValue()</code>   </p>
+</li>
+</ul>
+<p>源码如下，展示了常见的自动装箱和拆箱的用法  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自动装箱</span></span><br><span class="line">Integer i = <span class="number">1</span>; </span><br><span class="line"><span class="comment">// 自动拆箱</span></span><br><span class="line"><span class="keyword">int</span> j = i;</span><br><span class="line"></span><br><span class="line">List&lt;Integer&gt; intList = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line"><span class="comment">// 自动装箱</span></span><br><span class="line">intList.add(<span class="number">1</span>);</span><br><span class="line"><span class="comment">// 自动拆箱</span></span><br><span class="line"><span class="keyword">int</span> number = intList.get(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>经过反编译后，可以明确看到装箱和拆箱的动作：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Integer localInteger = Integer.valueOf(<span class="number">1</span>);  <span class="comment">// 装箱</span></span><br><span class="line"><span class="keyword">int</span> i = localInteger.intValue();  <span class="comment">// 拆箱</span></span><br><span class="line"></span><br><span class="line">ArrayList localArrayList = <span class="keyword">new</span> ArrayList();</span><br><span class="line">localArrayList.add(Integer.valueOf(<span class="number">1</span>));  <span class="comment">// 装箱</span></span><br><span class="line"><span class="keyword">int</span> j = ((Integer)localArrayList.get(<span class="number">0</span>)).intValue();  <span class="comment">// 拆箱</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="自动装箱后的比较"><a href="#自动装箱后的比较" class="headerlink" title="自动装箱后的比较"></a>自动装箱后的比较</h3><blockquote>
+<p>因为是对象比较，所以建议直接使用 <code>equal</code> 而不是 <code>==</code>  </p>
+</blockquote>
+<p><code>==</code> 比较的是对象的首地址。但是 <code>Java</code> 做了部分优化，在如下范围内使用的是相同的对象（封装类型的缓存），范围外则在装箱的过程中重新生成一个对象。</p>
+<ul>
+<li>char<br><code>[\u0000, \u007f]</code>：即 <code>ASCII</code> 码表中的 128 个字符   </li>
+<li>byte/short/int/long<br><code>[-128, 128)</code>：在 <code>-128 &lt;= x &lt; 128</code> 范围内，共用相同的对象（缓存），即 <code>byte</code> 能够表达的范围  </li>
+<li>float/double<br>没有缓存，直接重新生成一个新对象   </li>
+<li>示例  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// char</span></span><br><span class="line">Character ca = <span class="string">'\u007f'</span>, cb = <span class="string">'\u007f'</span>;</span><br><span class="line">Character cc = <span class="string">'\u0080'</span>, cd = <span class="string">'\u0080'</span>;</span><br><span class="line">System.out.println(ca == cb);  <span class="comment">//ture</span></span><br><span class="line">System.out.println(cc == cd);  <span class="comment">//false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// byte, short, int, long: [-128, 128)</span></span><br><span class="line">Short sa = -<span class="number">128</span>, sb = -<span class="number">128</span>;</span><br><span class="line">Short sc = -<span class="number">129</span>, sd = -<span class="number">129</span>;</span><br><span class="line">Integer ia = <span class="number">1</span>, ib = <span class="number">1</span>;</span><br><span class="line">Integer ic = <span class="number">128</span>, id = <span class="number">128</span>;</span><br><span class="line">Long la = <span class="number">1L</span>, lb = <span class="number">1L</span>;</span><br><span class="line">Long lc = <span class="number">128L</span>, ld = <span class="number">128L</span>;</span><br><span class="line">System.out.println(sa == sb);  <span class="comment">//true</span></span><br><span class="line">System.out.println(sc == sd);  <span class="comment">//fasle</span></span><br><span class="line">System.out.println(ia == ib);  <span class="comment">//true</span></span><br><span class="line">System.out.println(ic == id);  <span class="comment">//fasle</span></span><br><span class="line">System.out.println(la == lb);  <span class="comment">//true</span></span><br><span class="line">System.out.println(lc == ld);  <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="String-的自动拆装箱"><a href="#String-的自动拆装箱" class="headerlink" title="String 的自动拆装箱"></a><code>String</code> 的自动拆装箱</h3><p>概念：<code>Java</code> 中的 <code>&quot;abc&quot;</code> 对应的实际是常量，存储在常量池中  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对应的都是常量池中 "abc" 的地址</span></span><br><span class="line">String str1 = <span class="string">"abc"</span>;</span><br><span class="line">String str2 = <span class="string">"abc"</span>;</span><br><span class="line">System.out.println(str2==str1);  <span class="comment">//输出为 true </span></span><br><span class="line">System.out.println(str2.equals(str1));  <span class="comment">//输出为 true </span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 重新分配了一个对象，所以对象的首地址并不一样</span></span><br><span class="line">String str3 =<span class="keyword">new</span> String(<span class="string">"abc"</span>);</span><br><span class="line">String str4 =<span class="keyword">new</span> String(<span class="string">"abc"</span>); </span><br><span class="line">System.out.println(str3 == str4);  <span class="comment">//输出为 false </span></span><br><span class="line">System.out.println(str3.equals(str4));  <span class="comment">//输出为 true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>内存空间<br>自动装箱涉及到重新生成对象，所以频繁大量的使用会创建很多无用的对象，增加 <code>GC</code> 压力，拉低程序的性能  </li>
+<li>拆箱空指针异常<br>如果封装类型并没有初始化，在拆箱时会报空指针异常，因为编译过程无法检测到，只能在运行时出现，需要特别注意  </li>
+</ul>
+<h2 id="内存泄露和内存溢出"><a href="#内存泄露和内存溢出" class="headerlink" title="内存泄露和内存溢出"></a>内存泄露和内存溢出</h2><ul>
+<li>内存泄露 <code>Memory Leak</code><br>内存泄露是对象在内存中还活着占用内存，但是无法被垃圾回收。指对象到 <code>GC Roots</code> 的引用链   </li>
+<li>内存溢出 <code>Memory Overflow</code><br>无法申请到足够的内存  </li>
+</ul>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><p>finalize</p>
+<p>方法名。Java 技术允许使用 finalize() 方法在垃圾收集器将对象从内存中清除出去之前做必要的清理工作。这个方法是由垃圾收集器在确定这个对象没有被引用时对这个对象调用的。它是在 Object 类中定义的，因此所有的类都继承了它。子类覆盖 finalize() 方法以整理系统资源或者执行其他清理工作。finalize() 方法是在垃圾收集器删除对象之前对这个对象调用的。 </p>
+<p>Java中所有类都从Object类中继承finalize()方法。</p>
+<p>当垃圾回收器(garbage colector)决定回收某对象时，就会运行该对象的finalize()方法。值得C++程序员注意的是，finalize()方法并不能等同与析构函数。Java中是没有析构函数的。C++的析构函数是在对象消亡时运行的。由于C++没有垃圾回收，对象空间手动回收，所以一旦对象用不到时，程序员就应当把它delete()掉。所以析构函数中经常做一些文件保存之类的收尾工作。但是在Java中很不幸，如果内存总是充足的，那么垃圾回收可能永远不会进行，也就是说filalize()可能永远不被执行，显然指望它做收尾工作是靠不住的。</p>
+<p>那么finalize()究竟是做什么的呢？它最主要的用途是回收特殊渠道申请的内存。Java程序有垃圾回收器，所以一般情况下内存问题不用程序员操心。但有一种JNI(Java Native Interface)调用non-Java程序（C或C++），finalize()的工作就是回收这部分的内存。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="多线程并发时，提到-long-和-double-类型避免脏数据，需要使用-volatile-修饰？"><a href="#多线程并发时，提到-long-和-double-类型避免脏数据，需要使用-volatile-修饰？" class="headerlink" title="多线程并发时，提到 long 和 double 类型避免脏数据，需要使用 volatile 修饰？"></a>多线程并发时，提到 <code>long</code> 和 <code>double</code> 类型避免脏数据，需要使用 <code>volatile</code> 修饰？</h3><p><code>long</code> 和 <code>double</code> 的非原子协定：<code>Java</code> 的内存模型要求，变量的读取操作和写入操作都必须是原子操作的，但是对于非 <code>volatile</code> 类型的 <code>long, double</code> 有些不同，因为这两个变量是 64 位存储，<code>JVM</code> 允许将 64 位的读操作或写操作分解为 2 个 32 位的操作。这样，当在多线程环境中读取一个非 <code>volatile</code> 的 <code>long, double</code> 变量时，可能会出现读取到这个变量一个值的高 32 位和另一个值的低 32 位，从而导致数据出问题。<br>但是商用虚拟机基本不会出现这种情况，可以不用过于担心。  </p>
+<h3 id="多线程并发时需锁住内存模型中的哪一块数据？"><a href="#多线程并发时需锁住内存模型中的哪一块数据？" class="headerlink" title="多线程并发时需锁住内存模型中的哪一块数据？"></a>多线程并发时需锁住内存模型中的哪一块数据？</h3><p>并发只影响共享变量：堆内存或方法全局变量。其他线程独享的数据不必关心，比如方法内部变量等等  </p>
+<h2 id="图书"><a href="#图书" class="headerlink" title="图书"></a>图书</h2><ol>
+<li>Java多线程编程核心技术</li>
+<li>深入理解Java虚拟机:JVM高级特性与最佳实践 第2版</li>
+<li><a href="https://docs.oracle.com/javase/specs/index.html" target="_blank" rel="noopener">Java 规范官方文档</a><br>包含语言规范和 JVM 规范  </li>
+<li>java并发编程的艺术</li>
+</ol>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://zhuanlan.zhihu.com/791072385Java" target="_blank" rel="noopener">Java深入学习</a>  </li>
+<li><a href="https://zhuanlan.zhihu.com/p/29654978" target="_blank" rel="noopener">Java各种锁</a>  </li>
+<li><a href="http://www.cnblogs.com/javaminer/p/3889023.html" target="_blank" rel="noopener">synchronized关键字及实现细节</a>  </li>
+<li><a href="http://blog.csdn.net/u013142781/article/details/51697672" target="_blank" rel="noopener">Java对象锁和类锁全面解析</a>  </li>
+<li><a href="http://hllvm.group.iteye.com/group/wiki/2877-synchronized-volatile" target="_blank" rel="noopener">java线程安全总结</a></li>
+<li><a href="http://www.cnblogs.com/wxd0108/p/5479442.html" target="_blank" rel="noopener">Java中的多线程</a></li>
+<li><a href="http://ifeve.com/syn-jmm/" target="_blank" rel="noopener">同步和Java内存模型</a></li>
+<li><a href="http://hllvm.group.iteye.com/group/wiki/2877-synchronized-volatile" target="_blank" rel="noopener">Java线程安全总结</a></li>
+<li><a href="http://blog.csdn.net/u012152619/article/details/46968883" target="_blank" rel="noopener">JVM内存模型</a></li>
+<li><a href="http://www.cnblogs.com/zhengbin" target="_blank" rel="noopener">jvm并发算法blog</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/06/0006-jvm-java-virtual-machine/" title="JVM：深入理解Java虚拟机--读书笔记">http://redspider110.github.io/2017/11/06/0006-jvm-java-virtual-machine/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/jvm/" rel="tag"># jvm</a>
+          
+            <a href="/tags/虚拟机/" rel="tag"># 虚拟机</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/02/0005-java-concurrent/" rel="next" title="Java 多线程并发">
+                <i class="fa fa-chevron-left"></i> Java 多线程并发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/17/0007-java-executor/" rel="prev" title="Java Executor 框架">
+                Java Executor 框架 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#锁"><span class="nav-number">1.</span> <span class="nav-text">锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#死锁"><span class="nav-number">2.</span> <span class="nav-text">死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#产生死锁-4-个必要条件"><span class="nav-number">2.1.</span> <span class="nav-text">产生死锁 4 个必要条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">2.2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解除死锁的方法"><span class="nav-number">2.3.</span> <span class="nav-text">解除死锁的方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile-关键字"><span class="nav-number">3.</span> <span class="nav-text">volatile 关键字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronize-关键字"><span class="nav-number">4.</span> <span class="nav-text">synchronize 关键字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#并发主要关注那些问题"><span class="nav-number">5.</span> <span class="nav-text">并发主要关注那些问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-内存模型及多线程并发"><span class="nav-number">6.</span> <span class="nav-text">JVM 内存模型及多线程并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-运行时数据区域"><span class="nav-number">7.</span> <span class="nav-text">Java 运行时数据区域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍"><span class="nav-number">7.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#程序计数器-The-pc-Register"><span class="nav-number">7.2.</span> <span class="nav-text">程序计数器  The pc Register</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-虚拟机栈-Java-Virtual-Machine-Stacks"><span class="nav-number">7.3.</span> <span class="nav-text">Java 虚拟机栈  Java Virtual Machine Stacks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈-Native-Method-Stacks"><span class="nav-number">7.4.</span> <span class="nav-text">本地方法栈  Native Method Stacks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆-Heap"><span class="nav-number">7.5.</span> <span class="nav-text">堆 Heap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区-Method-Area"><span class="nav-number">7.6.</span> <span class="nav-text">方法区  Method Area</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行时常量池-Run-Time-Constant-Pool"><span class="nav-number">7.7.</span> <span class="nav-text">运行时常量池 Run-Time Constant Pool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常"><span class="nav-number">7.8.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用"><span class="nav-number">8.</span> <span class="nav-text">引用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载"><span class="nav-number">9.</span> <span class="nav-text">类加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Class-文件的魔数"><span class="nav-number">9.1.</span> <span class="nav-text">Class 文件的魔数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#65536-方法数"><span class="nav-number">9.2.</span> <span class="nav-text">65536 方法数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载前的初始化"><span class="nav-number">9.3.</span> <span class="nav-text">类加载前的初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类变量"><span class="nav-number">9.4.</span> <span class="nav-text">类变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载器"><span class="nav-number">9.5.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#类的加载器的-3-种分类"><span class="nav-number">9.5.1.</span> <span class="nav-text">类的加载器的 3 种分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派模型-Parents-Delegation-Model"><span class="nav-number">9.5.2.</span> <span class="nav-text">双亲委派模型 Parents Delegation Model</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法调用：分派"><span class="nav-number">10.</span> <span class="nav-text">方法调用：分派</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#变量静态类型和实际类型"><span class="nav-number">10.1.</span> <span class="nav-text">变量静态类型和实际类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重载与重写及分派"><span class="nav-number">10.2.</span> <span class="nav-text">重载与重写及分派</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型"><span class="nav-number">11.</span> <span class="nav-text">泛型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#特征签名"><span class="nav-number">11.1.</span> <span class="nav-text">特征签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class-文件格式中方法表"><span class="nav-number">11.2.</span> <span class="nav-text">Class 文件格式中方法表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#泛型重载"><span class="nav-number">11.3.</span> <span class="nav-text">泛型重载</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动装箱和拆箱-（Boxing-and-Unboxing-Conversation）"><span class="nav-number">12.</span> <span class="nav-text">自动装箱和拆箱 （Boxing and Unboxing Conversation）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类型及转换"><span class="nav-number">12.1.</span> <span class="nav-text">类型及转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动装箱后的比较"><span class="nav-number">12.2.</span> <span class="nav-text">自动装箱后的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String-的自动拆装箱"><span class="nav-number">12.3.</span> <span class="nav-text">String 的自动拆装箱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">12.4.</span> <span class="nav-text">注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存泄露和内存溢出"><span class="nav-number">13.</span> <span class="nav-text">内存泄露和内存溢出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#垃圾回收"><span class="nav-number">14.</span> <span class="nav-text">垃圾回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">15.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发时，提到-long-和-double-类型避免脏数据，需要使用-volatile-修饰？"><span class="nav-number">15.1.</span> <span class="nav-text">多线程并发时，提到 long 和 double 类型避免脏数据，需要使用 volatile 修饰？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发时需锁住内存模型中的哪一块数据？"><span class="nav-number">15.2.</span> <span class="nav-text">多线程并发时需锁住内存模型中的哪一块数据？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图书"><span class="nav-number">16.</span> <span class="nav-text">图书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">17.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

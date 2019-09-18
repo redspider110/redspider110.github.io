@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,DOM,XML,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="XML 简介XML(EXtensible Markup Language) 指可扩展标记语言，是一种标记语言类似 HTML。设计宗旨是传输数据，而非显示数据，是 W3C 的推荐标准。">
+<meta name="keywords" content="Java,DOM,XML">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 使用 DOM 操作 XML 文件">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/30/0036-java-xml-dom-md/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="XML 简介XML(EXtensible Markup Language) 指可扩展标记语言，是一种标记语言类似 HTML。设计宗旨是传输数据，而非显示数据，是 W3C 的推荐标准。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0036-xml-tree.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0036-node-tree.gif">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.349Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 使用 DOM 操作 XML 文件">
+<meta name="twitter:description" content="XML 简介XML(EXtensible Markup Language) 指可扩展标记语言，是一种标记语言类似 HTML。设计宗旨是传输数据，而非显示数据，是 W3C 的推荐标准。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0036-xml-tree.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/30/0036-java-xml-dom-md/">
+
+
+
+
+
+  <title>Java 使用 DOM 操作 XML 文件 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/30/0036-java-xml-dom-md/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 使用 DOM 操作 XML 文件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-30T19:09:51+08:00">
+                2017-11-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="XML-简介"><a href="#XML-简介" class="headerlink" title="XML 简介"></a><code>XML</code> 简介</h2><p><code>XML(EXtensible Markup Language)</code> 指可扩展标记语言，是一种标记语言类似 <code>HTML</code>。设计宗旨是传输数据，而非显示数据，是 <code>W3C</code> 的推荐标准。  </p>
+<a id="more"></a>
+
+<h3 id="树结构"><a href="#树结构" class="headerlink" title="树结构"></a>树结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0036-xml-tree.gif" alt="0036-xml-tree.gif"></p>
+<p>对应的标准 <code>XML</code> 文件为：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bookstore</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">book</span> <span class="attr">category</span>=<span class="string">"COOKING"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span>Everyday Italian<span class="tag">&lt;/<span class="name">title</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">author</span>&gt;</span>Giada De Laurentiis<span class="tag">&lt;/<span class="name">author</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">year</span>&gt;</span>2005<span class="tag">&lt;/<span class="name">year</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">price</span>&gt;</span>30.00<span class="tag">&lt;/<span class="name">price</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">book</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">book</span> <span class="attr">category</span>=<span class="string">"CHILDREN"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span>Harry Potter<span class="tag">&lt;/<span class="name">title</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">author</span>&gt;</span>J K. Rowling<span class="tag">&lt;/<span class="name">author</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">year</span>&gt;</span>2005<span class="tag">&lt;/<span class="name">year</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">price</span>&gt;</span>29.99<span class="tag">&lt;/<span class="name">price</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">book</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">book</span> <span class="attr">category</span>=<span class="string">"WEB"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">title</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span>Learning XML<span class="tag">&lt;/<span class="name">title</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">author</span>&gt;</span>Erik T. Ray<span class="tag">&lt;/<span class="name">author</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">year</span>&gt;</span>2003<span class="tag">&lt;/<span class="name">year</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">price</span>&gt;</span>39.95<span class="tag">&lt;/<span class="name">price</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">book</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bookstore</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="名称解释"><a href="#名称解释" class="headerlink" title="名称解释"></a>名称解释</h3><ul>
+<li>声明<br>第一行为 <code>XML</code> 的声明，包含 <code>XML</code> 的版本 <code>version</code> ，字符编码集 <code>encoding</code>，是否独立 <code>standalone</code>。注意：这三个声明顺序不能颠倒。  </li>
+<li><code>version</code><br>版本，基本上都是 1.0 版本。</li>
+<li><code>encoding</code><br>编码，常用编码 <code>utf-8</code>  </li>
+<li><code>standalone</code><br>表示该 <code>XML</code> 是不是独立的，如果是 <code>yes</code>，则表示这个 <code>XML</code> 文档是独立的，不能引用外部的 <code>DTD</code> 规范文件；如果是 <code>no</code>，则该 <code>XML</code> 文档不是独立的，表示可以用外部的 <code>DTD</code> 规范文档。一般情况下不设置。  </li>
+<li>根元素<br><code>bookstore</code>：表示根元素。  </li>
+<li>元素 <code>element</code><br><code>book</code>：表示为元素，可以并列多个。<code>title, author, year, price</code>：也是元素，它们是 <code>book</code> 的子元素。只是 <code>book</code> 元素没有值，而 <code>title</code> 它们每个元素有一个对应值。  </li>
+<li>文本 <code>text</code><br><code>&lt;title lang=&quot;en&quot;&gt;Everyday Italian&lt;/title&gt;</code>：元素 <code>title</code> 的文本为 <code>Everyday Italian</code>。</li>
+<li>属性 <code>attribute</code><br><code>category, lang</code>：表示为元素的属性，每个元素可以有多个属性，用空格分开。<code>Android</code> 中布局文件就是典型的多属性无文本方案。  </li>
+<li>属性的名称和值<br>属性：<code>lang=&quot;en&quot;</code>。属性的名称为：<code>lang</code>，对应的值为：<code>en</code>。  </li>
+</ul>
+<h2 id="DOM-简介"><a href="#DOM-简介" class="headerlink" title="DOM 简介"></a><code>DOM</code> 简介</h2><p><code>XML DOM (XML Document Object Model)</code> 定义了访问和操作 <code>XML</code> 文档的标准方法，是 <code>W3C</code>（万维网联盟） 的推荐标准。<br><code>DOM</code> 把 <code>XML</code> 文档作为树结构来查看。能够通过 <code>DOM</code> 树来访问所有元素。可以修改或删除它们的内容，并创建新的元素。元素，它们的文本，以及它们的属性，都被认为是节点。</p>
+<h3 id="名称解释-节点"><a href="#名称解释-节点" class="headerlink" title="名称解释 - 节点"></a>名称解释 - 节点</h3><p><code>XML</code> 文档中的每个成分都是一个节点（<code>Node</code>），<code>DOM</code> 是这样规定的：  </p>
+<ul>
+<li>整个文档是一个文档节点</li>
+<li>每个 <code>XML</code> 标签是一个元素节点</li>
+<li>包含在 <code>XML</code> 元素中的文本是文本节点</li>
+<li>每一个 <code>XML</code> 属性是一个属性节点</li>
+<li>注释属于注释节点</li>
+</ul>
+<p>在上面的 <code>XML</code> 中，根节点是 <code>&lt;bookstore&gt;</code>，文档中的所有其他节点都被包含在 <code>&lt;bookstore&gt;</code> 中。根节点有四个 <code>&lt;book&gt;</code> 节点，第一个 <code>&lt;book&gt;</code> 节点有四个节点：<code>&lt;title&gt;, &lt;author&gt;, &lt;year&gt;, &lt;price&gt;</code>，其中每个节点都包含一个文本节点：<code>&quot;Harry Potter&quot;, &quot;J K. Rowling&quot;, &quot;2005&quot;, &quot;29.99&quot;</code>。  </p>
+<blockquote>
+<p>注意：在 <code>DOM</code> 处理中一个普遍的错误是，认为元素节点包含文本。实际上元素是一个节点，文本是另外一个节点；只不过，元素节点的文本是存储在文本节点中的。  </p>
+</blockquote>
+<p>在这个例子中：<code>&lt;year&gt;2005&lt;/year&gt;</code>，元素节点 <code>&lt;year&gt;</code>，拥有一个值为 <code>&quot;2005&quot;</code> 的文本节点。所以 <code>&quot;2005&quot;</code> 不是 <code>&lt;year&gt;</code> 元素节点的值！</p>
+<h3 id="节点树"><a href="#节点树" class="headerlink" title="节点树"></a>节点树</h3><p><code>XML DOM</code> 把 <code>XML</code> 文档视为一种树结构，这种树结构被称为节点树 (<code>node-tree</code>)。可通过这棵树访问所有节点，可以修改或删除它们的内容，也可以创建新的元素。<br>节点树中的节点彼此之间都有等级关系，父、子和同级节点用于描述这种关系。父节点拥有子节点，位于相同层级上的子节点称为同级节点（兄弟或姐妹）。  </p>
+<ul>
+<li>在节点树中，顶端的节点成为根节点</li>
+<li>根节点之外的每个节点都有一个父节点</li>
+<li>节点可以有任何数量的子节点</li>
+<li>叶子是没有子节点的节点</li>
+<li>同级节点是拥有相同父节点的节点</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0036-node-tree.gif" alt="0036-node-tree.gif"></p>
+<p>因为 <code>XML</code> 数据是按照树的形式进行构造的，所以可以在不了解树的确切结构且不了解其中包含的数据类型的情况下，对其进行遍历。  </p>
+<h3 id="节点信息"><a href="#节点信息" class="headerlink" title="节点信息"></a>节点信息</h3><h4 id="nodeName-属性"><a href="#nodeName-属性" class="headerlink" title="nodeName 属性"></a><code>nodeName</code> 属性</h4><p><code>nodeName</code> 属性规定节点的名称：  </p>
+<ul>
+<li><code>nodeName</code> 是只读的  </li>
+<li>元素节点的 <code>nodeName</code> 与标签名相同  </li>
+<li>属性节点的 <code>nodeName</code> 是属性的名称  </li>
+<li>文本节点的 <code>nodeName</code> 永远是 <code>#text</code>  </li>
+<li>文档节点的 <code>nodeName</code> 永远是 <code>#document</code>  </li>
+</ul>
+<h4 id="nodeValue-属性"><a href="#nodeValue-属性" class="headerlink" title="nodeValue 属性"></a><code>nodeValue</code> 属性</h4><p><code>nodeValue</code> 属性规定节点的值：  </p>
+<ul>
+<li>元素节点的 <code>nodeValue</code> 是 <code>undefined</code>  </li>
+<li>文本节点的 <code>nodeValue</code> 是文本自身  </li>
+<li>属性节点的 <code>nodeValue</code> 是属性的值  </li>
+</ul>
+<p>常见 <code>nodeName</code> 和 <code>nodeValue</code> 的对应关系：</p>
+<table>
+<thead>
+<tr>
+<th align="left">节点类型</th>
+<th align="left"><code>nodeName</code> 的返回值</th>
+<th align="left"><code>nodeValue</code> 的返回值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Document</td>
+<td align="left">#document</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">Element</td>
+<td align="left">element name</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">Attr</td>
+<td align="left">属性名称</td>
+<td align="left">属性值</td>
+</tr>
+<tr>
+<td align="left">Comment</td>
+<td align="left">#comment</td>
+<td align="left">注释文本</td>
+</tr>
+<tr>
+<td align="left">Text</td>
+<td align="left">#text</td>
+<td align="left">节点内容</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>表中可以看出，基本只有属性节点的 <code>nodeValue</code> 有意义。</p>
+</blockquote>
+<h4 id="nodeType-属性"><a href="#nodeType-属性" class="headerlink" title="nodeType 属性"></a><code>nodeType</code> 属性</h4><p><code>nodeType</code> 属性规定节点的类型：</p>
+<ul>
+<li><code>nodeType</code> 是只读的  </li>
+</ul>
+<p>常见节点类型： </p>
+<table>
+<thead>
+<tr>
+<th align="left">元素类型</th>
+<th align="left">节点类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">元素</td>
+<td align="left">1</td>
+</tr>
+<tr>
+<td align="left">属性</td>
+<td align="left">2</td>
+</tr>
+<tr>
+<td align="left">文本</td>
+<td align="left">3</td>
+</tr>
+<tr>
+<td align="left">注释</td>
+<td align="left">8</td>
+</tr>
+<tr>
+<td align="left">文档</td>
+<td align="left">9</td>
+</tr>
+</tbody></table>
+<h3 id="常见-API"><a href="#常见-API" class="headerlink" title="常见 API"></a>常见 <code>API</code></h3><ul>
+<li><code>node.getNodeType()</code>：获取节点的类型  </li>
+<li><code>node.getNodeName()</code>：获取节点的名称  </li>
+<li><code>node.getTextContent()</code>：获取节点的文本  </li>
+<li><code>node.getNodeValue()</code>：常用于属性节点获取属性值  </li>
+<li><code>node.getNextSibling()</code>：获取同级下一个节点  </li>
+<li><code>node.getPreviousSibling()</code>：获取同级上一个节点  </li>
+<li><code>node.getParentNode()</code>：获取父节点   </li>
+</ul>
+<h2 id="DOM-对-XML-文件增删改查"><a href="#DOM-对-XML-文件增删改查" class="headerlink" title="DOM 对 XML 文件增删改查"></a><code>DOM</code> 对 <code>XML</code> 文件增删改查</h2><h3 id="源文件"><a href="#源文件" class="headerlink" title="源文件"></a>源文件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">resources</span> <span class="attr">this</span>=<span class="string">"root"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">app:state_enabled</span>=<span class="string">"false"</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">app:color</span>=<span class="string">"?unknown_attr_ref: 1010038"</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">app:alpha</span>=<span class="string">"?unknown_attr_ref: 1010033"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">app:color</span>=<span class="string">"?attr/colorAccent"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>2<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"abc_config_activityDefaultDur"</span>&gt;</span>220<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Base.TextAppearance.AppCompat.Inverse"</span>&gt;</span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span> <span class="attr">my</span>=<span class="string">"hello"</span>&gt;</span>my style<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span>&gt;</span>?unknown_attr_ref: 1010039<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span>&gt;</span>?unknown_attr_ref: 101003f<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="读"><a href="#读" class="headerlink" title="读"></a>读</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">String filePath = <span class="string">"***\***.xml"</span>;</span><br><span class="line"><span class="comment">// 1. 获取工厂</span></span><br><span class="line">DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();</span><br><span class="line"><span class="comment">// 2. 产生解析器</span></span><br><span class="line">DocumentBuilder builder = factory.newDocumentBuilder();</span><br><span class="line"><span class="comment">// 3. 解析 xml 文档，得到代表文档的 document 对象</span></span><br><span class="line">Document document = builder.parse(<span class="keyword">new</span> File(filePath));</span><br></pre></td></tr></table></figure>
+
+<h3 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 查找节点</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> root: 当前元素</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> tagName: 元素名称</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> attributeName: 元素属性名称</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> attributeValue: 元素属性值</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> 匹配的节点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">findNodeByAttribute</span><span class="params">(Node root, String tagName, </span></span></span><br><span class="line"><span class="function"><span class="params">    String attributeName, String attributeValue)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (root <span class="keyword">instanceof</span> Element) &#123;</span><br><span class="line">        NodeList nodeList = ((Element) root).getElementsByTagName(tagName);</span><br><span class="line">        <span class="keyword">if</span> (nodeList != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nodeList.getLength(); i++)&#123;</span><br><span class="line">                Element child = (Element) nodeList.item(i);</span><br><span class="line">                String value = child.getAttribute(attributeName);</span><br><span class="line">                <span class="keyword">if</span> (value != <span class="keyword">null</span> &amp;&amp; value.equals(attributeValue))&#123;</span><br><span class="line">                    <span class="keyword">return</span> child;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加"><a href="#添加" class="headerlink" title="添加"></a>添加</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 找到 &lt;item app:color="?attr/colorAccent"/&gt;，在它后面添加新元素</span></span><br><span class="line">Node addedNode = findNodeByAttribute(root, <span class="string">"item"</span>, </span><br><span class="line">                <span class="string">"app:color"</span>, <span class="string">"?attr/colorAccent"</span>);</span><br><span class="line"><span class="keyword">if</span> (addedNode != <span class="keyword">null</span>) &#123;</span><br><span class="line">    Element newElement = document.createElement(<span class="string">"code-add"</span>);</span><br><span class="line">    newElement.setAttribute(<span class="string">"attribute1"</span>, <span class="string">"value1"</span>);</span><br><span class="line">    newElement.setAttribute(<span class="string">"attribute2"</span>, <span class="string">"value2"</span>);</span><br><span class="line">    newElement.setTextContent(<span class="string">"text-content"</span>);</span><br><span class="line">    <span class="comment">//addedNode.appendChild(newElement);</span></span><br><span class="line">    root.insertBefore(newElement, addedNode.getNextSibling());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：写入时需要设置缩进字符，否则新加节点不会缩进。  </p>
+</blockquote>
+<p><code>ts.setOutputProperty(&quot;{http://xml.apache.org/xslt}indent-amount&quot;, &quot;4&quot;);</code>  </p>
+<h3 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将名称为 integer, 属性为 name="abc_config_activityDefaultDur" </span></span><br><span class="line"><span class="comment">// 的元素，对应文本修改为 110</span></span><br><span class="line">Node updateNode = findNodeByAttribute(root, <span class="string">"integer"</span>, </span><br><span class="line">            <span class="string">"name"</span>, <span class="string">"abc_config_activityDefaultDur"</span>);</span><br><span class="line"><span class="keyword">if</span> (updateNode != <span class="keyword">null</span>)&#123;</span><br><span class="line">    updateNode.setTextContent(<span class="string">"110"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将 &lt;integer name="design_snackbar_text_max_lines"&gt; 第一个匹配的元素删掉</span></span><br><span class="line">Node deleteNode = findNodeByAttribute(root, <span class="string">"integer"</span>, </span><br><span class="line">            <span class="string">"name"</span>, <span class="string">"design_snackbar_text_max_lines"</span>);</span><br><span class="line"><span class="keyword">if</span> (deleteNode != <span class="keyword">null</span>)&#123;</span><br><span class="line">    root.removeChild(deleteNode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写"><a href="#写" class="headerlink" title="写"></a>写</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">String filePath = <span class="string">"***\***.xml"</span>;</span><br><span class="line"><span class="comment">// 将内存中修改后的 doucement 写回 xml 文档</span></span><br><span class="line"><span class="comment">//1. 获取工厂</span></span><br><span class="line">TransformerFactory tf = TransformerFactory.newInstance();</span><br><span class="line"><span class="comment">//2. 获取转换器</span></span><br><span class="line">Transformer ts = tf.newTransformer();</span><br><span class="line"><span class="comment">//3. 处理缩进，并设置缩进为 4 个空格</span></span><br><span class="line">ts.setOutputProperty(OutputKeys.INDENT, <span class="string">"yes"</span>);</span><br><span class="line">ts.setOutputProperty(<span class="string">"&#123;http://xml.apache.org/xslt&#125;indent-amount"</span>, <span class="string">"4"</span>);</span><br><span class="line"><span class="comment">//4. 去掉standalone</span></span><br><span class="line">ts.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, <span class="string">"yes"</span>);</span><br><span class="line">document.setXmlStandalone(<span class="keyword">true</span>);</span><br><span class="line"><span class="comment">//5. 将 document 写回 xml 文档</span></span><br><span class="line">ts.transform(<span class="keyword">new</span> DOMSource(document), <span class="keyword">new</span> StreamResult(filePath));</span><br></pre></td></tr></table></figure>
+
+<h3 id="增删改查后的-XML-文件"><a href="#增删改查后的-XML-文件" class="headerlink" title="增删改查后的 XML 文件"></a>增删改查后的 <code>XML</code> 文件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">resources</span> <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span> <span class="attr">this</span>=<span class="string">"root"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">app:alpha</span>=<span class="string">"?unknown_attr_ref: 1010033"</span> <span class="attr">app:color</span>=<span class="string">"?unknown_attr_ref: 1010038"</span> <span class="attr">app:state_enabled</span>=<span class="string">"false"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">app:color</span>=<span class="string">"?attr/colorAccent"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">code-add</span> <span class="attr">attribute1</span>=<span class="string">"value1"</span> <span class="attr">attribute2</span>=<span class="string">"value2"</span>&gt;</span>text-content<span class="tag">&lt;/<span class="name">code-add</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"abc_config_activityDefaultDur"</span>&gt;</span>110<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"Base.TextAppearance.AppCompat.Inverse"</span>&gt;</span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span> <span class="attr">my</span>=<span class="string">"hello"</span>&gt;</span>my style<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span>&gt;</span>?unknown_attr_ref: 1010039<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">item</span>&gt;</span>?unknown_attr_ref: 101003f<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="遍历-XML-所有节点"><a href="#遍历-XML-所有节点" class="headerlink" title="遍历 XML 所有节点"></a>遍历 <code>XML</code> 所有节点</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取根节点，遍历所有节点</span></span><br><span class="line">Node root = document.getFirstChild();</span><br><span class="line">showNodeInfo(root, <span class="keyword">false</span>);</span><br><span class="line">traverseNodeTree(root);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">traverseNodeTree</span><span class="params">(<span class="keyword">final</span> Node node)</span></span>&#123;</span><br><span class="line">    NodeList childLists = node.getChildNodes();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; childLists.getLength(); i++)&#123;</span><br><span class="line">        Node child = childLists.item(i);</span><br><span class="line">        <span class="comment">// only show element node info.</span></span><br><span class="line">        <span class="keyword">if</span> (child.getNodeType() == Node.ELEMENT_NODE)&#123;</span><br><span class="line">            <span class="keyword">int</span> length = child.getChildNodes().getLength();</span><br><span class="line">            <span class="keyword">if</span> (length &gt; <span class="number">1</span>)&#123;</span><br><span class="line">                <span class="comment">// length &gt; 1, there is more than one text content.</span></span><br><span class="line">                <span class="comment">// It's mean there are some child element nodes.</span></span><br><span class="line">                showNodeInfo(child, <span class="keyword">false</span>);</span><br><span class="line">                traverseNodeTree(child);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// length == 0, there is no text content.</span></span><br><span class="line">                <span class="comment">// length == 1, there is one text content</span></span><br><span class="line">                showNodeInfo(child, <span class="keyword">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 显示节点对应的元素，属性，文本</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> node：节点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showNodeInfo</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">boolean</span> showTextContent)</span></span>&#123;</span><br><span class="line">    String name = node.getNodeName();</span><br><span class="line">    StringBuilder attributes = <span class="keyword">new</span> StringBuilder(<span class="string">""</span>);</span><br><span class="line">    NamedNodeMap namedNodeMap = node.getAttributes();</span><br><span class="line">    <span class="keyword">if</span> (namedNodeMap != <span class="keyword">null</span> &amp;&amp; namedNodeMap.getLength() &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; namedNodeMap.getLength(); i++) &#123;</span><br><span class="line">            Node attributeNode = namedNodeMap.item(i);</span><br><span class="line">            attributes.append(attributeNode.toString());</span><br><span class="line">            attributes.append(<span class="string">" "</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// show attribute name and value, eg:   </span></span><br><span class="line">            <span class="comment">// app:color="?unknown_attr_ref: 1010038"</span></span><br><span class="line">            <span class="comment">// attribute name is -&gt; app:color</span></span><br><span class="line">            <span class="comment">// attribute value is -&gt; ?unknown_attr_ref: 1010038</span></span><br><span class="line">            <span class="comment">// System.out.println("attribute.name = " + attributeNode.getNodeName()</span></span><br><span class="line">            <span class="comment">//        + ", attribute.value = " + attributeNode.getNodeValue());</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    String textContent = node.getTextContent();</span><br><span class="line"></span><br><span class="line">    StringBuilder info = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    info.append(<span class="string">"name-&gt; "</span> + name);</span><br><span class="line">    <span class="keyword">if</span> (!attributes.toString().isEmpty())&#123;</span><br><span class="line">        info.append(<span class="string">"| attributes-&gt; "</span> + attributes);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (showTextContent &amp;&amp; textContent != <span class="keyword">null</span> &amp;&amp; !textContent.isEmpty())&#123;</span><br><span class="line">        info.append(<span class="string">"| textContent-&gt; "</span> + textContent);</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(info);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 显示 XML 文件的声明：版本，编码，standalone 三个信息</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> document: 文档节点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showDocumentInfo</span><span class="params">(<span class="keyword">final</span> Document document)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"version = "</span> + document.getXmlVersion());</span><br><span class="line">    System.out.println(<span class="string">"encoding = "</span> + document.getXmlEncoding());</span><br><span class="line">    System.out.println(<span class="string">"standalone = "</span> + document.getXmlStandalone());</span><br><span class="line">    <span class="comment">//System.out.println("node.name = " + document.getNodeName()</span></span><br><span class="line">    <span class="comment">//        + ", node.value = " + document.getNodeValue() + ", node.type = " + document.getNodeType());</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>流程简析：  </p>
+<ul>
+<li>获取根节点 <code>document.getFirstChild();</code>，并打印根节点名称和属性  </li>
+<li>递归遍历所有节点 <code>traverseNodeTree</code>   </li>
+<li>只关心是元素的节点，所以先做节点类型判断 <code>node.getNodeType() == Node.ELEMENT_NODE</code>  </li>
+<li>获取元素节点的名称 <code>node.getNodeName()</code>，元素节点的文本 <code>node.getNodeValue()</code>  </li>
+<li>获取元素节点的所有属性 <code>node.getAttributes()</code>  </li>
+<li>属性节点获取名称 <code>node.getNodeName()</code>，获取属性值 <code>node.getNodeValue()</code>  </li>
+</ul>
+<h2 id="standalone-和-indent-的问题"><a href="#standalone-和-indent-的问题" class="headerlink" title="standalone 和 indent 的问题"></a><code>standalone</code> 和 <code>indent</code> 的问题</h2><p>在写 <code>xml</code> 文件时遇到了如下问题，源文件：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>2<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"abc_config_activityDefaultDur"</span>&gt;</span>220<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="出现-standalone-以及第一行不缩进"><a href="#出现-standalone-以及第一行不缩进" class="headerlink" title="出现 standalone 以及第一行不缩进"></a>出现 <code>standalone</code> 以及第一行不缩进</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;</span><span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>2<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"abc_config_activityDefaultDur"</span>&gt;</span>220<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="解决缩进，但是还是存在-standalone"><a href="#解决缩进，但是还是存在-standalone" class="headerlink" title="解决缩进，但是还是存在 standalone"></a>解决缩进，但是还是存在 <code>standalone</code></h3><p>缩进解决方案：<code>ts.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);</code>，生成结果为：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"design_snackbar_text_max_lines"</span>&gt;</span>2<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span> <span class="attr">name</span>=<span class="string">"abc_config_activityDefaultDur"</span>&gt;</span>220<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>果然有效！再来去掉 <code>standalone</code>  </p>
+<h3 id="去掉-standalone-后缩进失效"><a href="#去掉-standalone-后缩进失效" class="headerlink" title="去掉 standalone 后缩进失效"></a>去掉 <code>standalone</code> 后缩进失效</h3><p>去掉 <code>standalone</code> 解决方案，生成 <code>DOMSource</code> 前加入 <code>document.setXmlStandalone(true);</code>，生成结果为：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"&gt;&lt;resources&gt;</span></span><br><span class="line"><span class="meta">    &lt;integer name="design_snackbar_text_max_lines"&gt;2&lt;/integer&gt;</span></span><br><span class="line"><span class="meta">    </span></span><br><span class="line"><span class="meta">    &lt;integer name="abc_config_activityDefaultDur"&gt;220&lt;/integer&gt;</span></span><br><span class="line"><span class="meta">&lt;/resources&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>第一行缩进失效？？？且看下面的终极方案。  </p>
+<h3 id="同时去掉-standalone-和解决缩进"><a href="#同时去掉-standalone-和解决缩进" class="headerlink" title="同时去掉 standalone 和解决缩进"></a>同时去掉 <code>standalone</code> 和解决缩进</h3><p>终极方案（<a href="https://stackoverflow.com/questions/31007987/xml-indent-and-no-standalone" target="_blank" rel="noopener">XML Indent and no standalone</a>）：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ts.setOutputProperty(OutputKeys.INDENT, <span class="string">"yes"</span>);</span><br><span class="line">ts.setOutputProperty(<span class="string">"&#123;http://xml.apache.org/xslt&#125;indent-amount"</span>, <span class="string">"4"</span>);</span><br><span class="line">ts.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, <span class="string">"yes"</span>);</span><br><span class="line">document.setXmlStandalone(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>生成结果为：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"&gt;</span></span><br><span class="line"><span class="meta">&lt;resources&gt;</span></span><br><span class="line"><span class="meta">    &lt;integer name="design_snackbar_text_max_lines"&gt;2&lt;/integer&gt;</span></span><br><span class="line"><span class="meta">    </span></span><br><span class="line"><span class="meta">    &lt;integer name="abc_config_activityDefaultDur"&gt;220&lt;/integer&gt;</span></span><br><span class="line"><span class="meta">&lt;/resources&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="http://www.w3school.com.cn/xml/" target="_blank" rel="noopener">XML 教程</a>  </li>
+<li><a href="http://www.w3school.com.cn/xmldom/index.asp" target="_blank" rel="noopener">W3school XML DOM 教程</a>  </li>
+<li><a href="https://stackoverflow.com/questions/31007987/xml-indent-and-no-standalone" target="_blank" rel="noopener">XML Indent and no standalone</a>  </li>
+<li><a href="http://www.imooc.com/qadetail/154320" target="_blank" rel="noopener">解决xml缩进和添加节点的问题</a>  </li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/30/0036-java-xml-dom-md/" title="Java 使用 DOM 操作 XML 文件">http://redspider110.github.io/2017/11/30/0036-java-xml-dom-md/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/DOM/" rel="tag"># DOM</a>
+          
+            <a href="/tags/XML/" rel="tag"># XML</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/29/0035-aidl/" rel="next" title="AIDL 详解">
+                <i class="fa fa-chevron-left"></i> AIDL 详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/07/0037-java-io-stream/" rel="prev" title="Java I/O 流">
+                Java I/O 流 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#XML-简介"><span class="nav-number">1.</span> <span class="nav-text">XML 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#树结构"><span class="nav-number">1.1.</span> <span class="nav-text">树结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#名称解释"><span class="nav-number">1.2.</span> <span class="nav-text">名称解释</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOM-简介"><span class="nav-number">2.</span> <span class="nav-text">DOM 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#名称解释-节点"><span class="nav-number">2.1.</span> <span class="nav-text">名称解释 - 节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节点树"><span class="nav-number">2.2.</span> <span class="nav-text">节点树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节点信息"><span class="nav-number">2.3.</span> <span class="nav-text">节点信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#nodeName-属性"><span class="nav-number">2.3.1.</span> <span class="nav-text">nodeName 属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nodeValue-属性"><span class="nav-number">2.3.2.</span> <span class="nav-text">nodeValue 属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nodeType-属性"><span class="nav-number">2.3.3.</span> <span class="nav-text">nodeType 属性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见-API"><span class="nav-number">2.4.</span> <span class="nav-text">常见 API</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOM-对-XML-文件增删改查"><span class="nav-number">3.</span> <span class="nav-text">DOM 对 XML 文件增删改查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#源文件"><span class="nav-number">3.1.</span> <span class="nav-text">源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读"><span class="nav-number">3.2.</span> <span class="nav-text">读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查找"><span class="nav-number">3.3.</span> <span class="nav-text">查找</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加"><span class="nav-number">3.4.</span> <span class="nav-text">添加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改"><span class="nav-number">3.5.</span> <span class="nav-text">修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除"><span class="nav-number">3.6.</span> <span class="nav-text">删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写"><span class="nav-number">3.7.</span> <span class="nav-text">写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增删改查后的-XML-文件"><span class="nav-number">3.8.</span> <span class="nav-text">增删改查后的 XML 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遍历-XML-所有节点"><span class="nav-number">3.9.</span> <span class="nav-text">遍历 XML 所有节点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#standalone-和-indent-的问题"><span class="nav-number">4.</span> <span class="nav-text">standalone 和 indent 的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#出现-standalone-以及第一行不缩进"><span class="nav-number">4.1.</span> <span class="nav-text">出现 standalone 以及第一行不缩进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决缩进，但是还是存在-standalone"><span class="nav-number">4.2.</span> <span class="nav-text">解决缩进，但是还是存在 standalone</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#去掉-standalone-后缩进失效"><span class="nav-number">4.3.</span> <span class="nav-text">去掉 standalone 后缩进失效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同时去掉-standalone-和解决缩进"><span class="nav-number">4.4.</span> <span class="nav-text">同时去掉 standalone 和解决缩进</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

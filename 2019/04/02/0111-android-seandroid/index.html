@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="seAndroid 安全机制简介。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="seAndroid 安全机制">
+<meta property="og:url" content="http://redspider110.github.io/2019/04/02/0111-android-seandroid/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="seAndroid 安全机制简介。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0111-android-seandroid-selinux-policy.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.389Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="seAndroid 安全机制">
+<meta name="twitter:description" content="seAndroid 安全机制简介。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0111-android-seandroid-selinux-policy.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/04/02/0111-android-seandroid/">
+
+
+
+
+
+  <title>seAndroid 安全机制 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/04/02/0111-android-seandroid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">seAndroid 安全机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-02T09:00:00+08:00">
+                2019-04-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>seAndroid</code> 安全机制简介。  </p>
+<a id="more"></a>
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="主体-客体"><a href="#主体-客体" class="headerlink" title="主体/客体"></a>主体/客体</h3><p>在一个操作系统中，每一个实体组件都必须是主体或者客体，或者既是主体又是客体。  </p>
+<ul>
+<li>主体<br>主体是一个主动的实体，包括用户、用户组、进程等；通常指用户或由用户发起运行的进程或用户正在使用的设备。主体主动发起对资源的访问，它是系统中信息流的启动者。  </li>
+<li>客体<br>客体是一个被动的实体，包括文件、目录、端口、设备、进程等资源；通常是指信息的载体或从其他主体或客体接收信息的实体。主体有时也会成为访问或受控的对象，如一个主体可以向另一个主体授权，一个进程可能控制几个子进程等等，这时受控的主体或子进程也通常被认为是一种客体。  </li>
+</ul>
+<h3 id="访问控制模式"><a href="#访问控制模式" class="headerlink" title="访问控制模式"></a>访问控制模式</h3><ul>
+<li><code>DAC: Discretionary Access Control</code> 自主访问控制<br><code>DAC</code> 主要的内容是：权限 <code>rwx</code> 、所有权 <code>ugo</code> ；在这个模型中，主体是用户的身份，客体是资源或者说是文件（ <code>Linux</code> 中一切皆文件）。由客体的属主对自己的客体进行管理，由主体自己决定是否将自己的客体访问权限或部分访问权限授予其他主体，这种控制方式是自主的。也就是说，在自主访问控制下，用户可以按自己的意愿，有选择地与其他用户共享他的文件。<br><code>DAC</code> 是一种相对比较宽松但是却很有效的保护资源不被非法访问和使用的手段，权限是访问的关键；但 <code>Linux</code> 中，<code>root</code> 用户不受任何管制，系统上任何资源都可以无限制地访问。  </li>
+<li><code>MAC: Mandatory Access Control</code> 强制访问控制<br><code>MAC</code> 是利用策略将访问控制规则“强加”给访问主体的，即系统强制主体服从访问控制策略。<code>MAC</code> 主要作用的对象是所有主体及其所操作的客体（如：进程、文件等）。<code>MAC</code> 为这些主体及其所操作的客体提供安全标记，这些标记是实施强制访问控制的依据。<br>系统通过比较主体和客体的安全标记来判断一个主体是否能够访问其要操作的客体。用户发起的进程无法改变其自身及其它客体的安全标记，利用这样的机制，系统可以比较有效地防止特洛伊木马攻击以及 <code>root</code> 身份冒用或盗用等安全威胁。<br><code>MAC</code> 又细分为了两种方式：类别安全 <code>MCS</code> 模式；多级安全 <code>MLS</code> 模式。  </li>
+</ul>
+<p><code>MAC</code> 一般与 <code>DAC</code> 共同使用，两种访问控制机制的过滤结果将累积，以此来达到更佳的访问控制效果。也就是说，一个主体只有通过了 <code>DAC</code> 限制检查与 <code>MAC</code> 限制检查的双重过滤装置之后，才能真正访问某个客体。  </p>
+<h3 id="SELinux-的工作模式"><a href="#SELinux-的工作模式" class="headerlink" title="SELinux 的工作模式"></a><code>SELinux</code> 的工作模式</h3><p><code>SELinux: Secure Enhanced Linux</code> 是美国国家安全局 <code>NSA: The National Security Agency</code> 和 <code>SCC:Secure Computing Corporation</code> 在 <code>Linux</code> 社区的帮助下开发了 <code>MAC</code> 强制访问控制的安全模块，<code>Linux</code> 从 2.6 版本后将它集成到了内核中。<br>主体在访问客体时，<code>SELinux</code> 策略决策过程如下图，<code>Kernel</code> 中的策略执行服务器将检查 <code>AVC: Access Vector Cache</code> ，访问矢量缓存中存储的是访问控制策略：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0111-android-seandroid-selinux-policy.png" alt="0111-android-seandroid-selinux-policy.png"></p>
+<p><code>SELinux</code> 有三种工作模式：  </p>
+<ul>
+<li><code>enforcing</code><br>强制模式，违反 <code>SELinux</code> 规则的行为将被阻止（权限拒绝）并记录到日志中。  </li>
+<li><code>permissive</code><br>宽容模式，违反 <code>SELinux</code> 规则的行为（权限不会被拒绝）只会记录到日志中，一般为调试用。  </li>
+<li><code>disabled</code><br>关闭 <code>SELinux</code> 。  </li>
+</ul>
+<p><code>SEAndroid</code> 是在 <code>Android</code> 系统中基于 <code>SELinux</code> 推出的强制访问控制模型，是 <code>SELinux</code> 的一个子集；可以通过 <code>adb</code> 命令来查看/设置模式：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adb shell getenforce        // 查看当前模式</span><br><span class="line">adb shell setenforce 1      // 设置为 enforcing 模式</span><br><span class="line">adb shell setenforce 0      // 设置为 permissive  模式</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>CTS</code> 兼容性测试时，<code>Android</code> 有以下要求<a href="https://source.android.google.cn/compatibility/android-cdd#9_7_kernel_security_features" target="_blank" rel="noopener">官方要求</a>：  </p>
+<ul>
+<li>必须实现 <code>SELinux</code>  </li>
+<li>必须将 <code>SELinux</code> 设置为全局强制模式 <code>enforcing</code>  </li>
+<li>必须将所有域配置为强制模式。不允许使用宽容模式域，包括特定于设备/供应商的域  </li>
+</ul>
+<h2 id="访问控制策略-policy"><a href="#访问控制策略-policy" class="headerlink" title="访问控制策略 policy"></a>访问控制策略 <code>policy</code></h2><p>访问控制策略 <code>policy</code> 都是在 <code>.te: Type Enforcement</code> 文件中定义的，用来控制主体是否能访问客体，以及能放问客体哪些东西；下面先介绍几个用来描述主客体的几个概念。更多规则和关键字等基本概念，参考<a href="http://freecomputerbooks.com/books/The_SELinux_Notebook-4th_Edition.pdf" target="_blank" rel="noopener">The SELinux Notebook, 4th Edition（SELinux 手册第 4 版）</a> 。  </p>
+<h3 id="classes"><a href="#classes" class="headerlink" title="classes"></a><code>classes</code></h3><p>定义客体的安全类别，可以在 <code>system/sepolicy/private/security_classes</code> 查看：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># Classes marked as userspace are classes</span><br><span class="line"># for userspace object managers</span><br><span class="line"></span><br><span class="line">class security</span><br><span class="line">class process</span><br><span class="line">class system</span><br><span class="line">class capability</span><br><span class="line"></span><br><span class="line"># file-related classes</span><br><span class="line">class filesystem</span><br><span class="line">class file          // 文件</span><br><span class="line">class dir           // 目录</span><br><span class="line">class fd            // 文件描述符</span><br><span class="line">class lnk_file</span><br><span class="line">class chr_file</span><br><span class="line">class blk_file</span><br><span class="line">class sock_file</span><br><span class="line">class fifo_file</span><br><span class="line"></span><br><span class="line"># network-related classes</span><br><span class="line">class socket</span><br><span class="line">class tcp_socket</span><br><span class="line">class udp_socket</span><br><span class="line">...</span><br><span class="line">class binder   # Android 平台特有的 binder</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="permissiones"><a href="#permissiones" class="headerlink" title="permissiones"></a><code>permissiones</code></h3><p>定义<strong>每个客体类别</strong>支持哪些操作权限，可以在 <code>system/sepolicy/private/access_vectors</code> 中查看：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"># Define common prefixes for access vectors</span><br><span class="line"># common common_name &#123; permission_name ... &#125;</span><br><span class="line"></span><br><span class="line"># Define a common prefix for file access vectors.</span><br><span class="line">common file                 // 定义 file 通用的操作权限</span><br><span class="line">&#123;</span><br><span class="line">        ioctl</span><br><span class="line">        read</span><br><span class="line">        write</span><br><span class="line">        create</span><br><span class="line">        getattr</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Define a common prefix for socket access vectors.</span><br><span class="line"></span><br><span class="line">common socket               // 定义 socket 通用的操作权限</span><br><span class="line">&#123;</span><br><span class="line"># inherited from file</span><br><span class="line">        ioctl</span><br><span class="line">        read</span><br><span class="line">        write</span><br><span class="line">        ...</span><br><span class="line"># socket-specific</span><br><span class="line">        bind</span><br><span class="line">        connect</span><br><span class="line">        listen</span><br><span class="line">        accept</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">class file                  // 客体类别 file 支持的操作权限</span><br><span class="line">inherits file</span><br><span class="line">&#123;</span><br><span class="line">        execute_no_trans</span><br><span class="line">        entrypoint</span><br><span class="line">        execmod</span><br><span class="line">        open</span><br><span class="line">        audit_access</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class dir</span><br><span class="line">inherits file</span><br><span class="line">&#123;</span><br><span class="line">        add_name</span><br><span class="line">        remove_name</span><br><span class="line">        ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class socket</span><br><span class="line">inherits socket</span><br><span class="line"></span><br><span class="line">class tcp_socket            // 客体类别 tcp_socket 支持的操作权限</span><br><span class="line">inherits socket</span><br><span class="line">&#123;</span><br><span class="line">        node_bind</span><br><span class="line">        name_connect</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="attribute-属性"><a href="#attribute-属性" class="headerlink" title="attribute 属性"></a><code>attribute</code> 属性</h3><p><code>attribute</code> 实际是<strong>组</strong>的概念，表示一组 <code>group</code> ；有了组的概念后，可以每次对一个组设置策略。<br><code>attribute</code> 可以是主体，也可以是客体；在 <code>system/sepolicy/public/attributes</code> 文件查看：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># All types used for processes.</span><br><span class="line">attribute domain;</span><br><span class="line"></span><br><span class="line"># All types used for filesystems.</span><br><span class="line"># On change, update CHECK_FC_ASSERT_ATTRS</span><br><span class="line"># definition in tools/checkfc.c.</span><br><span class="line">attribute fs_type;</span><br><span class="line"></span><br><span class="line"># All types used for context= mounts.</span><br><span class="line">attribute contextmount_type;</span><br><span class="line"></span><br><span class="line"># All types used for files that can exist on a labeled fs.</span><br><span class="line"># Do not use for pseudo file types.</span><br><span class="line"># On change, update CHECK_FC_ASSERT_ATTRS</span><br><span class="line"># definition in tools/checkfc.c.</span><br><span class="line">attribute file_type;</span><br><span class="line"></span><br><span class="line"># All types used for domain entry points.</span><br><span class="line">attribute exec_type;</span><br></pre></td></tr></table></figure>
+
+<p>从注释中也可以看出，是 <code>All types</code> 所有的类型，接下来看 <code>type</code> 。  </p>
+<h3 id="type"><a href="#type" class="headerlink" title="type"></a><code>type</code></h3><p>表示类型，可以理解为主体或客体的名称，表示这一类主体或这一类客体；所有的 <code>type</code> 都是在 <code>.te</code> 文件中定义的，同时会设置对应的策略。  </p>
+<ul>
+<li><code>type</code> 直接定义<br>命名格式：<code>type type_id [alias alias_id,] [attribute_id]</code> ；<code>[]</code> 是可选项，<code>alias</code> 表示假名，<code>attribute_id</code> 可以是多个，表示属于哪一组。<br>示例：<code>type shell, domain;</code> ；定义了一个名为 <code>shell</code> 的 <code>type</code> ，它和名为 <code>domain</code> 的属性 <code>attribute</code> 关联；换句话说 <code>shell</code> 属于 <code>domain</code> 组。<code>type</code> 和 <code>attribute</code> 位于同一个命名空间，所以<strong>不能用 <code>type</code> 命令和 <code>attribute</code> 命令定义相同名字的东西。</strong>  </li>
+<li><code>typeattribute</code> 添加对应属性<br><code>typeattribute</code> 是针对已经被定义了的 <code>type</code> ，添加属性（即属于哪一组），格式：<code>typeattribute type_id attribute_id</code> 。示例 <code>typeattribute mediaserver halclientdomain;</code> ，表示 <code>mediaserver</code> 拥有 <code>halclientdomain</code> 属性，即属于这一组。  </li>
+</ul>
+<h3 id="policy"><a href="#policy" class="headerlink" title="policy"></a><code>policy</code></h3><p>策略规则 <code>policy</code> 也是在 <code>.te</code> 文件中声明的，其语法格式为：<br><code>RULE_VARIANT SOURCE_TYPES TARGET_TYPES:CLASSES PERMISSIONS</code> ，其中：   </p>
+<ul>
+<li><code>RULE_VARIANT</code><br>常见的访问规则如下，这里<strong>仅仅 <code>allow</code> 是授予权限允许操作</strong>，其他都是辅助型的（都不会授予权限）。  <ul>
+<li><code>allow</code> 授予权限，允许操作（默认情况下只记录权限检查失败的信息）  </li>
+<li><code>neverallow</code> 不允许操作（通常用来做检查，检查是否有违反规则）  </li>
+<li><code>auditallow</code> 记录所有的（成功和失败）权限检查事件  </li>
+<li><code>dontaudit</code> 不记录权限检查失败的信息  </li>
+</ul>
+</li>
+<li><code>SOURCE_TYPES</code><br>主体类型，由 <code>type</code> 定义。  </li>
+<li><code>TARGET_TYPES</code><br>客体类型，由 <code>type</code> 定义。  </li>
+<li><code>CLASSES</code><br>客体的安全类别，即 <code>system/sepolicy/private/security_classes</code> 文件中，关键字 <code>class</code> 定义的类别。  </li>
+<li><code>PERMISSIONS</code><br>客体安全类别的操作权限，即 <code>system/sepolicy/private/access_vectors</code> 文件中，该安全类别对应的操作权限。  </li>
+</ul>
+<p><code>policy</code> 描述的含义实际就是：<strong>主体对客体的某种类别拥有的权限</strong>；示例：  </p>
+<ul>
+<li><code>allow appdomain app_data_file:file rw_file_perms;</code><br>主体 <code>appdomain</code> 对客体 <code>app_data_file</code> 的 <code>file</code> 类别，拥有读取和写入权限。其中 <code>rw_file_perms</code> 是宏定义的一组权限。  </li>
+<li><code>allow domain null_device:chr_file { open read};</code><br>主体 <code>domain</code> 对客体 <code>null_device</code> 的 <code>chr_file</code> 类别，拥有打开和读的权限。  </li>
+</ul>
+<h3 id="self-关键字"><a href="#self-关键字" class="headerlink" title="self 关键字"></a><code>self</code> 关键字</h3><p><code>self</code> 表示客体类型使用的主体类型自身，即客体类型等于主体类型；注意：不能使用 <code>self</code> 代表主体类型。示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 这两条策略是相等的 </span><br><span class="line">allow user_t user_t : process signal; </span><br><span class="line">allow user_t self : process signal;</span><br><span class="line"></span><br><span class="line"># 这两条策略 </span><br><span class="line">allow user_t user_t : process signal;</span><br><span class="line">allow staff_t staff_t : process signal; </span><br><span class="line"></span><br><span class="line"># 等于下面这一条策略 </span><br><span class="line">allow &#123;user_t staff_t&#125; self : process signal;</span><br></pre></td></tr></table></figure>
+
+<h3 id="特殊操作符"><a href="#特殊操作符" class="headerlink" title="特殊操作符"></a>特殊操作符</h3><ul>
+<li><code>-</code> 非操作符<br>表示从 <code>attribute</code> 一组类型中，移除特定类型；如： <code>allow vndservicemanager { domain -coredomain -init }:binder transfer;</code> ，表示 <code>vndservicemanager</code> 除了 <code>coredomain, init</code> 以外，所有 <code>domain</code> 的 <code>binder</code> 类别，都拥有 <code>transfer</code> 操作权限。  </li>
+<li><code>~</code> 求补操作符<br>表示除了列出的操作权限外，其他的都包含；如 <code>allow init unlabeled:filesystem ~relabelto;</code> 。  </li>
+<li><code>*</code> 通配符<br>表示任意的；<br><code>neverallow * logpersist:process dyntransition</code><br><code>neverallow mediacodec domain:{ tcp_socket udp_socket rawip_socket } *;</code> </li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>以下是一个完整的 <code>DHCP</code> 策略示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">type dhcp, domain;</span><br><span class="line">permissive dhcp;        // 声明为宽容域</span><br><span class="line">type dhcp_exec, exec_type, file_type;</span><br><span class="line">type dhcp_data_file, file_type, data_file_type;</span><br><span class="line"></span><br><span class="line">init_daemon_domain(dhcp)</span><br><span class="line">net_domain(dhcp)</span><br><span class="line"></span><br><span class="line">allow dhcp self:capability &#123; setgid setuid net_admin net_raw </span><br><span class="line">net_bind_service&#125;;</span><br><span class="line">allow dhcp self:packet_socket create_socket_perms;</span><br><span class="line">allow dhcp self:netlink_route_socket &#123; create_socket_perms nlmsg_write &#125;;</span><br><span class="line">allow dhcp shell_exec:file rx_file_perms;</span><br><span class="line">allow dhcp system_file:file rx_file_perms;</span><br><span class="line"># For /proc/sys/net/ipv4/conf/*/promote_secondaries</span><br><span class="line">allow dhcp proc_net:file write;</span><br><span class="line">allow dhcp system_prop:property_service set ;</span><br><span class="line">unix_socket_connect(dhcp, property, init)</span><br><span class="line"></span><br><span class="line">type_transition dhcp system_data_file:&#123; dir file &#125; dhcp_data_file;</span><br><span class="line">allow dhcp dhcp_data_file:dir create_dir_perms;</span><br><span class="line">allow dhcp dhcp_data_file:file create_file_perms;</span><br><span class="line"></span><br><span class="line">allow dhcp netd:fd use;</span><br><span class="line">allow dhcp netd:fifo_file rw_file_perms;</span><br><span class="line">allow dhcp netd:&#123;dgram_socket_class_set unix_stream_socket&#125; &#123;read write&#125;;</span><br><span class="line">allow dhcp netd:&#123; netlink_kobject_uevent_socket netlink_route_socket</span><br><span class="line">netlink_nflog_socket &#125; &#123; read write &#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>type dhcp, domain;</code><br>定义一个 <code>dhcp</code> 域，它属于 <code>domain</code> 组。  </li>
+<li><code>permissive dhcp;</code><br>声明新建的 <code>dhcp</code> 域为宽容域（调试完毕后，必须要移除）。  </li>
+<li><code>type dhcp_exec, exec_type, file_type;</code><br>定义 <code>dhcp_exec</code> ，同时属于 <code>exec_type, file_type</code> 组。  </li>
+<li><code>init_daemon_domain(dhcp)</code><br>声明 <code>dhcp</code> 是从 <code>init</code> 衍生而来的，并且可以与其通信。<code>init_daemon_domain</code> 等域操作，详细可以参考 <code>system/sepolicy/public/te_macros</code> 中的定义。  </li>
+<li><code>allow dhcp self:packet_socket create_socket_perms;</code><br>允许 <code>dhcp</code> 创建 <code>socket</code> ，权限类 <code>create_socket_perms</code> 等参考 <code>system/sepolicy/public/global_macros</code> 中的定义。  </li>
+</ul>
+<h2 id="目录速查表"><a href="#目录速查表" class="headerlink" title="目录速查表"></a>目录速查表</h2><h3 id="selinux-代码目录"><a href="#selinux-代码目录" class="headerlink" title="selinux 代码目录"></a><code>selinux</code> 代码目录</h3><p>位于 <code>Android</code> 源码目录的 <code>external/selinux</code> 目录下，<code>external/selinux/prebuilts/bin</code> 有些工具类文件，方便快速分析权限问题。  </p>
+<h3 id="policy-文件目录"><a href="#policy-文件目录" class="headerlink" title="policy 文件目录"></a><code>policy</code> 文件目录</h3><p>在 <code>Android 8.0</code> 及更高版本中，<code>policy</code> 文件位于 <code>AOSP</code> 中的以下位置：  </p>
+<ul>
+<li><code>system/sepolicy/public</code><br>其中包括所导出的用于供应商特定策略的策略；公共策略会保留在不同版本上，可以在自定义策略的 <code>/public</code> 中添加任何内容。正因如此，可存放在 <code>/public</code> 中的策略类型的限制性更强。将此目录视为相应平台的已导出策略 <code>API</code>：处理 <code>/system</code> 与 <code>/vendor</code> 之间的接口的所有内容都位于这里。  </li>
+<li><code>system/sepolicy/private</code><br>包括系统映像正常运行所必需（但供应商映像策略应该不知道）的策略。  </li>
+<li><code>system/sepolicy/vendor</code><br>包括位于 <code>/vendor</code> 但存在于核心平台树（非设备特定目录）中的组件的相关策略。这是编译系统区分设备和全局组件的软件工件；从概念上讲，这是下述设备专用策略的一部分。  </li>
+<li><code>device/manufacturer/sepolicy/device-name</code><br>包含设备专用策略，以及对策略进行的设备自定义（在 <code>Android 8.0</code> 及更高版本中，该策略对应于供应商映像组件的相关策略）。  </li>
+</ul>
+<p>通常情况下，不能直接修改 <code>system/sepolicy</code> 文件，而是添加或修改自己的设备专用策略文件（位于 <code>/device/manufacturer/device-name/sepolicy</code> 目录中）。  </p>
+<h3 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h3><p>系统的策略文件中，定义很多宏，方便共享和快速定义策略文件，路径如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">system/sepolicy/public/ioctl_macros         // ioctl</span><br><span class="line">system/sepolicy/public/global_macros        // 权限</span><br><span class="line">system/sepolicy/public/te_macros            // 域操作</span><br><span class="line">system/sepolicy/public/neverallow_macros</span><br><span class="line">system/sepolicy/reqd_mask/mls_macros</span><br><span class="line">system/sepolicy/private/mls_macros</span><br></pre></td></tr></table></figure>
+
+<h2 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>标签，也被称为安全上下文 <code>security context</code> ，组成元素为：<code>user:role:type:mls_level</code> ，每个元素的意义：  </p>
+<ul>
+<li><code>user</code><br>指登录系统的用户类型，比如 <code>root, user_u, system_u</code> ；但是在 <code>SEAndroid</code> 中 <code>user</code> 只有一个，都是 <code>u</code> 。  </li>
+<li><code>role</code><br>定义文件、进程和用户的用途。在 <code>SEAndroid</code> 中的 <code>role</code> 只有两个：<code>object_r</code> 表示文件；<code>r</code> 表示进程。  </li>
+<li><code>type</code><br>指定主体和客体的类型。  </li>
+<li><code>mls_level</code><br>指安全级别，格式为 <code>sensitivity[:category list][- sensitivity[:category list]]</code>，冒号后面的内容是 <code>category</code> ，“-”号左右分别标识了安全级别的最低和最高；例如 <code>s0 - s15:c0.c1023</code> ，其中 <code>s0</code> 之后的内容可以不需要。<br>在 <code>SEAndroid</code> 中只有一个级别即 <code>s0</code>，<code>category</code> 共有 1024 个，因此最低安全级别就是 <code>s0</code>，最高安全级别就是 <code>s0:c0.c1023</code> ，通常我们就只会看到 <code>s0</code> 。  </li>
+</ul>
+<p>在 <code>SEAndroid</code> 中，标签的角色仅仅只有两个：进程和文件。进程标签的 <code>type</code> 又称为<strong>域</strong>；所以 <code>policy</code> 也可以理解为 - 进程访问文件权限的规则：<code>allow domains types:classes permissions;</code> 。<br>在 <code>AVC</code> 消息中，主体上下文（标签）为 <code>scontext</code> ；客体上下文（标签） <code>tcontext</code> ，客体类别 <code>tclass</code> 。  </p>
+<blockquote>
+<p>在 <code>Linux</code> 中一切都是文件，所以我们在打标签时，不可能存在 <code>r</code> 角色；所有的进程在系统中都是一个可执行文件，所以对于进程的标签通常是：先在 <code>te</code> 文件中通过 <code>type</code> 定义一个类型；然后在 <code>file_contexts</code> 中为进程对应的可执行文件打上该 <code>type</code> 标签。  </p>
+</blockquote>
+<h3 id="查看标签"><a href="#查看标签" class="headerlink" title="查看标签"></a>查看标签</h3><p>我们通过 <code>ls -Z</code> 和 <code>ps -AZ</code> 分别查看文件和进程（两个角色）的标签，示例如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 查看文件角色的标签</span><br><span class="line">ELUGA_Ray_710:/ # ls -Z</span><br><span class="line">u:object_r:cgroup:s0           acct</span><br><span class="line">u:object_r:rootfs:s0           bt_firmware</span><br><span class="line">u:object_r:rootfs:s0           bugreports</span><br><span class="line">u:object_r:cache_file:s0       cache</span><br><span class="line">u:object_r:rootfs:s0           charger</span><br><span class="line">u:object_r:configfs:s0         config</span><br><span class="line">u:object_r:rootfs:s0           d</span><br><span class="line">u:object_r:system_data_file:s0 data</span><br><span class="line">u:object_r:rootfs:s0           default.prop</span><br><span class="line"></span><br><span class="line">// 查看进程角色的标签  </span><br><span class="line">ELUGA_Ray_710:/ # ps -Z</span><br><span class="line">LABEL         USER   PID  PPID     VSZ    RSS       ADDR S NAME</span><br><span class="line"></span><br><span class="line">u:r:shell:s0  root  6897   592    9228   1928 772c07a568 S sh</span><br><span class="line">u:r:shell:s0  root  7930  6897   10804   2032 792b23ef10 R ps</span><br></pre></td></tr></table></figure>
+
+<p><code>type</code> 是整个 <code>SEAndroid</code> 中最重要的参量，所有的 <code>policy</code> 都围绕这一参量展开，所以为系统中每个文件标记上合适的 <code>type</code> 就显得极为重要了。通过 <code>*_contexts</code> 上下文描述文件，来给具体的文件或进程打标签。  </p>
+<h3 id="file-contexts"><a href="#file-contexts" class="headerlink" title="file_contexts"></a><code>file_contexts</code></h3><p>用于为文件（分为：进程对应的可执行文件（主体）和常规文件（客体））分配标签，并且可供多种用户空间组件使用。在创建新策略时，请创建或更新该文件，以便为文件分配新标签。要应用新的 <code>file_contexts</code>，请重新构建文件系统映像，或对要重新添加标签的文件运行 <code>restorecon</code>。在升级时，对 <code>file_contexts</code> 所做的更改会在升级过程中自动应用于系统和用户数据分区。此外还可以通过以下方式使这些更改在升级过程中自动应用于其他分区：在以允许读写的方式装载相应分区后，将 <code>restorecon_recursive</code> 调用添加到 <code>init.board.rc</code> 文件中。 <code>file_contexts</code> 所在目录为：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">system/sepolicy/private/file_contexts</span><br><span class="line">system/sepolicy/vendor/file_contexts</span><br><span class="line">device/manufacturer/device-name/sepolicy/file_contexts</span><br><span class="line">device/manufacturer/sepolicy/device-name/file_contexts</span><br><span class="line">device/manufacturer/sepolicy/private/file_contexts</span><br></pre></td></tr></table></figure>
+
+<p>查询 <code>private/file_contexts</code> 文件中的示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// system/sepolicy/private/file_contexts</span><br><span class="line"># Root</span><br><span class="line">/                   u:object_r:rootfs:s0</span><br><span class="line"></span><br><span class="line"># Data files</span><br><span class="line">/adb_keys           u:object_r:adb_keys_file:s0</span><br><span class="line">/build\.prop        u:object_r:rootfs:s0</span><br><span class="line">...</span><br><span class="line">/verity_key         u:object_r:rootfs:s0</span><br><span class="line"></span><br><span class="line"># Executables</span><br><span class="line">/charger            u:object_r:rootfs:s0</span><br><span class="line">/init               u:object_r:init_exec:s0</span><br><span class="line">/sbin(/.*)?         u:object_r:rootfs:s0</span><br><span class="line"></span><br><span class="line"># For kernel modules</span><br><span class="line">/lib(/.*)?          u:object_r:rootfs:s0</span><br><span class="line"></span><br><span class="line"># Empty directories</span><br><span class="line">/lost\+found        u:object_r:rootfs:s0</span><br><span class="line">/mnt                u:object_r:tmpfs:s0</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Symlinks</span><br><span class="line">/bugreports         u:object_r:rootfs:s0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><code>file_contexts</code> 中的 <code>type</code> 类型，基本都是在如下 <code>.te</code> 文件中定义的：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// file.te</span><br><span class="line">system/sepolicy/private/file.te</span><br><span class="line">system/sepolicy/vendor/file.te</span><br><span class="line">system/sepolicy/public/file.te</span><br><span class="line">device/manufacturer/sepolicy/device-name/file.te</span><br><span class="line">device/manufacturer/sepolicy/private/file.te</span><br><span class="line">device/manufacturer/sepolicy/public/file.te</span><br><span class="line"></span><br><span class="line">// device.te</span><br><span class="line">system/sepolicy/public/device.te</span><br><span class="line">device/manufacturer/sepolicy/private/device.te</span><br><span class="line">device/manufacturer/sepolicy/public/device.te</span><br><span class="line">device/manufacturer/sepolicy/device-name/device.te</span><br></pre></td></tr></table></figure>
+
+<p>查询 <code>system/sepolicy/public/file.te</code> 文件中的示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># Filesystem types</span><br><span class="line">type labeledfs, fs_type;</span><br><span class="line">type pipefs, fs_type;</span><br><span class="line">type sockfs, fs_type;</span><br><span class="line">type rootfs, fs_type;</span><br><span class="line">type proc, fs_type;</span><br><span class="line"># Security-sensitive proc nodes that should not be writable to most.</span><br><span class="line">type proc_security, fs_type;</span><br><span class="line">type proc_drop_caches, fs_type;</span><br><span class="line">type proc_overcommit_memory, fs_type;</span><br><span class="line"># proc, sysfs, or other nodes that permit </span><br><span class="line"># configuration of kernel usermodehelpers.</span><br><span class="line">type usermodehelper, fs_type;</span><br><span class="line">type sysfs_usermodehelper, fs_type, sysfs_type;</span><br><span class="line">type qtaguid_proc, fs_type, mlstrustedobject;</span><br><span class="line">type proc_bluetooth_writable, fs_type;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="service-contexts"><a href="#service-contexts" class="headerlink" title="service_contexts"></a><code>service_contexts</code></h3><p>用于为 <code>Android Binder</code> 服务分配标签，以便控制哪些进程可以为相应服务添加（注册）和查找（查询） <code>Binder</code> 引用，在启动期间 <code>servicemanager</code> 进程会读取此配置。<code>service_contexts</code> 所在目录：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">system/sepolicy/private/service_contexts</span><br><span class="line">device/manufacturer/sepolicy/device-name/service_contexts</span><br><span class="line">device/manufacturer/sepolicy/private/service_contexts</span><br><span class="line">device/manufacturer/sepolicy/common/service_contexts</span><br></pre></td></tr></table></figure>
+
+<p>查看 <code>system/sepolicy/private/service_contexts</code> 中的示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">launcherapps               u:object_r:launcherapps_service:s0</span><br><span class="line">location                   u:object_r:location_service:s0</span><br><span class="line">lock_settings              u:object_r:lock_settings_service:s0</span><br><span class="line">...</span><br><span class="line">media.camera               u:object_r:cameraserver_service:s0</span><br><span class="line">media.camera.proxy         u:object_r:cameraproxy_service:s0</span><br><span class="line">media.log                  u:object_r:audioserver_service:s0</span><br><span class="line">...</span><br><span class="line">netd                       u:object_r:netd_service:s0</span><br><span class="line">netpolicy                  u:object_r:netpolicy_service:s0</span><br><span class="line">netstats                   u:object_r:netstats_service:s0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><code>service_contexts</code> 中的 <code>type</code> 类型，基本都是在 <code>service.te</code> 文件中定义的：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">system/sepolicy/public/service.te</span><br><span class="line">device/manufacturer/sepolicy/device-name/service.te</span><br><span class="line">device/manufacturer/sepolicy/private/service.te</span><br><span class="line">device/manufacturer/sepolicy/common/service.te</span><br></pre></td></tr></table></figure>
+
+<p>查看 <code>system/sepolicy/public/service.te</code> 中的示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">type audioserver_service,       service_manager_type;</span><br><span class="line">...</span><br><span class="line">type cameraserver_service,      service_manager_type;</span><br><span class="line">type default_android_service,   service_manager_type;</span><br><span class="line">type drmserver_service,         service_manager_type;</span><br><span class="line">type dumpstate_service,         service_manager_type;</span><br><span class="line">type fingerprintd_service,      service_manager_type;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他上下文标签"><a href="#其他上下文标签" class="headerlink" title="其他上下文标签"></a>其他上下文标签</h3><ul>
+<li><code>genfs_contexts</code><br>用于为不支持扩展属性的文件系统（例如 <code>proc, vfat</code> ）分配标签。此配置会作为内核策略的一部分进行加载，但更改可能对内核 <code>inode</code> 无效。要全面应用更改，需要重新启动设备，或卸载并重新装载文件系统。此外通过使用 <code>context=mount</code> 选项，可以为装载的特定系统文件（例如 <code>vfat</code> ）分配特定标签。  </li>
+<li><code>property_contexts</code><br>用于为 <code>Android</code> 系统属性分配标签，以便控制哪些进程可以设置这些属性。在启动期间 <code>init</code> 进程会读取此配置。  </li>
+<li><code>seapp_contexts</code><br>用于为应用进程和 <code>/data/data</code> 目录分配标签。在每次应用启动时，<code>zygote</code> 进程都会读取此配置；在启动期间 <code>installd</code> 会读取此配置。  </li>
+<li><code>mac_permissions.xml</code><br>用于根据应用签名和应用软件包名称（后者可选）为应用分配 <code>seinfo</code> 标记。随后分配的 <code>seinfo</code> 标记可在 <code>seapp_contexts</code> 文件中用作密钥，以便为带有该 <code>seinfo</code> 标记的所有应用分配特定标签。在启动期间 <code>system_server</code> 会读取此配置。  </li>
+</ul>
+<h2 id="添加-修改策略-policy"><a href="#添加-修改策略-policy" class="headerlink" title="添加/修改策略 policy"></a>添加/修改策略 <code>policy</code></h2><h3 id="原则"><a href="#原则" class="headerlink" title="原则"></a>原则</h3><ul>
+<li>采用最小权限原则，仅针对添加的内容调整 <code>SELinux</code> 策略  </li>
+<li>将各个软件组件拆分成多个负责执行单项任务的模块，创建将这些任务与无关功能隔离开来的 <code>SELinux</code> 策略  </li>
+<li>将这些策略放在 <code>/device/manufacturer/sepolicy/device-name</code> 目录中的 <code>*.te</code> 文件，然后使用 <code>BOARD_SEPOLICY</code> 变量将它们纳入到版本中  </li>
+<li>先将新域设为宽容域：在该域的 .te 文件中使用宽容声明 <code>permissive ***</code> ；分析结果并优化域定义，当版本中不再出现拒绝事件时，移除宽容声明  </li>
+</ul>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><p>策略修改和添加，尽量都放在 <code>/device/manufacturer/sepolicy/device-name</code> 目录中实现，方便后续追溯。同时需要在 <code>/device/manufacturer/device-name/BoardConfig.mk</code> 中指定 <code>sepolicy</code> 子目录和每个新的策略文件。详细请参阅 <code>system/sepolicy/README</code> 文件。  </p>
+<figure class="highlight mk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BOARD_SEPOLICY_DIRS += \</span><br><span class="line">        &lt;root&gt;/device/manufacturer/device-name/sepolicy</span><br><span class="line"></span><br><span class="line">BOARD_SEPOLICY_UNION += \</span><br><span class="line">        genfs_contexts \</span><br><span class="line">        file_contexts \</span><br><span class="line">        sepolicy.te</span><br></pre></td></tr></table></figure>
+
+<p>重新进行编译后，新策略设置会自动内置到最终的内核策略文件中。  </p>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><p>以下为 <code>Android</code> 官网上提供的示例：<br>为新服务添加标签并解决拒绝事件，通过 <code>init</code> 启动的服务需要在各自的 <code>SELinux</code> 域中运行。以下示例会将服务 <code>foo</code> 放入它自己的 <code>SELinux</code> 域中并为其授予权限。  </p>
+<p>该服务是在设备的 <code>init.device.rc</code> 文件中启动的，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 服务进程对应的可执行文件</span><br><span class="line">service foo /system/bin/foo</span><br><span class="line">    class core</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建一个新域 <code>foo</code><br>创建包含以下内容的文件 <code>device/manufacturer/sepolicy/device-name/foo.te</code> ：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 为进程定义一个类型</span><br><span class="line"># foo service</span><br><span class="line">type foo, domain;</span><br><span class="line">type foo_exec, exec_type, file_type;</span><br><span class="line"></span><br><span class="line">init_daemon_domain(foo)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>这是 <code>foo SELinux</code> 域的初始模板，可以根据该可执行文件执行的具体操作为该模板添加规则。  </p>
+<ul>
+<li>为 <code>/system/bin/foo</code> 添加标签<br>将以下内容添加到 <code>device/manufacturer/sepolicy/device-name/file_contexts</code> ：  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 为进程对应可执行文件打标签，类型对应的是给进程分配的类型</span><br><span class="line"># file_contexts</span><br><span class="line">/system/bin/foo   u:object_r:foo_exec:s0</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>这可确保为该可执行文件添加适当的标签，以便 <code>SELinux</code> 在适当的域中运行相应服务。</p>
+<ul>
+<li>编译并刷写启动映像和系统映像  </li>
+<li>优化相应域的 <code>SELinux</code> 规则<br>根据拒绝事件确定所需的权限。<code>audit2allow</code> 工具提供了一些实用的指南，但该工具仅适用于提供编写政策时所需的信息。切勿只是复制输出内容。  </li>
+</ul>
+<h2 id="audit-日志分析"><a href="#audit-日志分析" class="headerlink" title="audit 日志分析"></a><code>audit</code> 日志分析</h2><p><code>SELinux</code> 有大量的工具记录日志信息，或审核、访问尝试被策略允许或拒绝的信息。审核消息通常叫做 <code>AVC</code> 消息，它提供了详细了关于访问尝试的信息，包括是允许还是拒绝，源和目标的安全上下文，以及其它一些访问尝试涉及到资源信息。<br><code>avc dennied</code> 的示例 <code>log</code> :  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// a.txt</span><br><span class="line">avc: denied &#123; open &#125; for pid=1003 comm=”mediaserver” path=&quot;/dev/kgsl-3d0” dev=&quot;tmpfs&quot; scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1</span><br><span class="line">avc: denied &#123; read write &#125; for pid=1003 name=&quot;kgsl-3d0&quot; dev=&quot;tmpfs&quot; scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1</span><br></pre></td></tr></table></figure>
+
+<p>可以通过 <code>external/selinux/prebuilts/bin/audit2allow</code> 提供的工具来分析： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xmt@server139:~/external/selinux/prebuilts/bin$ audit2allow -i a.txt</span><br><span class="line"></span><br><span class="line">#============= mediaserver ==============</span><br><span class="line">allow mediaserver device:chr_file &#123; read write &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>工具自动生成，通常给的权限范围会过大，需要手动细化，满足最小权限原则。  </p>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><ul>
+<li>域转换  </li>
+<li>角色转换  </li>
+<li>实例分析  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://source.android.google.cn/security/selinux/" target="_blank" rel="noopener">Android selinux 官网</a>  </li>
+<li><a href="https://source.android.com/security/selinux/images/SELinux_Treble.pdf" target="_blank" rel="noopener">Android 官方文档 SELinux_Treble</a>  </li>
+<li><a href="http://freecomputerbooks.com/books/The_SELinux_Notebook-4th_Edition.pdf" target="_blank" rel="noopener">The SELinux Notebook, 4th Edition（SELinux 手册第 4 版）</a>  </li>
+<li><a href="https://blog.csdn.net/myarrow/article/details/10105961" target="_blank" rel="noopener">SELinux策略语言–类型强制(编写TE规则)</a>  </li>
+<li><a href="https://blog.csdn.net/gulinxieying/article/details/78677139" target="_blank" rel="noopener">SELinux 小结</a>  </li>
+<li><a href="https://blog.csdn.net/innost/article/details/19299937" target="_blank" rel="noopener">阿拉神农-深入理解SELinux SEAndroid</a>  </li>
+<li><a href="https://blog.csdn.net/tung214/article/details/72734086" target="_blank" rel="noopener">avc dennied权限问题解决方法</a>  </li>
+<li><a href="https://blog.csdn.net/modianwutong/article/details/43114883" target="_blank" rel="noopener">SEAndroid策略分析</a>  </li>
+<li><a href="https://blog.csdn.net/huangyabin001/article/details/79290382" target="_blank" rel="noopener">SELinux_Treble 官网文档的翻译</a>  </li>
+<li><a href="https://blog.csdn.net/keheinash/article/details/70169705" target="_blank" rel="noopener">SELinux策略实例–type_transition</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/04/02/0111-android-seandroid/" title="seAndroid 安全机制">http://redspider110.github.io/2019/04/02/0111-android-seandroid/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/27/0110-android-hidl/" rel="next" title="Android HIDL">
+                <i class="fa fa-chevron-left"></i> Android HIDL
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/10/0112-android-jni/" rel="prev" title="Android JNI">
+                Android JNI <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主体-客体"><span class="nav-number">1.1.</span> <span class="nav-text">主体/客体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问控制模式"><span class="nav-number">1.2.</span> <span class="nav-text">访问控制模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SELinux-的工作模式"><span class="nav-number">1.3.</span> <span class="nav-text">SELinux 的工作模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问控制策略-policy"><span class="nav-number">2.</span> <span class="nav-text">访问控制策略 policy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#classes"><span class="nav-number">2.1.</span> <span class="nav-text">classes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#permissiones"><span class="nav-number">2.2.</span> <span class="nav-text">permissiones</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#attribute-属性"><span class="nav-number">2.3.</span> <span class="nav-text">attribute 属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#type"><span class="nav-number">2.4.</span> <span class="nav-text">type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#policy"><span class="nav-number">2.5.</span> <span class="nav-text">policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#self-关键字"><span class="nav-number">2.6.</span> <span class="nav-text">self 关键字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊操作符"><span class="nav-number">2.7.</span> <span class="nav-text">特殊操作符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">2.8.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目录速查表"><span class="nav-number">3.</span> <span class="nav-text">目录速查表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#selinux-代码目录"><span class="nav-number">3.1.</span> <span class="nav-text">selinux 代码目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#policy-文件目录"><span class="nav-number">3.2.</span> <span class="nav-text">policy 文件目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#宏定义"><span class="nav-number">3.3.</span> <span class="nav-text">宏定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标签"><span class="nav-number">4.</span> <span class="nav-text">标签</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">4.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看标签"><span class="nav-number">4.2.</span> <span class="nav-text">查看标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#file-contexts"><span class="nav-number">4.3.</span> <span class="nav-text">file_contexts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#service-contexts"><span class="nav-number">4.4.</span> <span class="nav-text">service_contexts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他上下文标签"><span class="nav-number">4.5.</span> <span class="nav-text">其他上下文标签</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加-修改策略-policy"><span class="nav-number">5.</span> <span class="nav-text">添加/修改策略 policy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原则"><span class="nav-number">5.1.</span> <span class="nav-text">原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译"><span class="nav-number">5.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">5.3.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#audit-日志分析"><span class="nav-number">6.</span> <span class="nav-text">audit 日志分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续"><span class="nav-number">7.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

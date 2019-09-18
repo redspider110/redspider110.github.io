@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,IPC,Ashmem,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Ashmem: Anonymous Shared Memory 是 Android 提供的一种共享内存的机制，它基于 mmap 系统调用，不同进程可以将同一段物理内存映射到各自的虚拟地址控制实现共享，因此进程间不需要再拷贝数据。">
+<meta name="keywords" content="Android,IPC,Ashmem">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Ashmem 机制">
+<meta property="og:url" content="http://redspider110.github.io/2018/01/17/0043-android-ashmem/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Ashmem: Anonymous Shared Memory 是 Android 提供的一种共享内存的机制，它基于 mmap 系统调用，不同进程可以将同一段物理内存映射到各自的虚拟地址控制实现共享，因此进程间不需要再拷贝数据。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-MemoryFile-open-sequence-diag.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-ashmem-fd.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-Ashmem-class-uml.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-MemoryHeapBase-sequence-diag.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.352Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Ashmem 机制">
+<meta name="twitter:description" content="Ashmem: Anonymous Shared Memory 是 Android 提供的一种共享内存的机制，它基于 mmap 系统调用，不同进程可以将同一段物理内存映射到各自的虚拟地址控制实现共享，因此进程间不需要再拷贝数据。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-MemoryFile-open-sequence-diag.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/01/17/0043-android-ashmem/">
+
+
+
+
+
+  <title>Android Ashmem 机制 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/01/17/0043-android-ashmem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android Ashmem 机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-17T11:00:00+08:00">
+                2018-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Ashmem: Anonymous Shared Memory</code> 是 <code>Android</code> 提供的一种共享内存的机制，它基于 <code>mmap</code> 系统调用，不同进程可以将同一段物理内存映射到各自的虚拟地址控制实现共享，因此进程间不需要再拷贝数据。  </p>
+<a id="more"></a>
+
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p><code>Android</code> 系统提供了独特的匿名共享内存子系统 <code>Ashmem</code>，它以驱动程序的形式实现在内核空间中，有两个典型特点：  </p>
+<ul>
+<li>能够辅助内存管理系统来有效地管理不再使用的内存块  </li>
+<li>通过 <code>Binder</code> 进程间通信机制来实现进程间的内存共享  </li>
+</ul>
+<p><code>Linux</code> 共享内存通信效率非常高，进程间不需要传递数据，便可以直接访问，缺点也很明显，<code>Linux</code> 共享内存没有提供同步的机制，在使用时要借助其他的手段来处理进程间同步。所以在 <code>Android</code> 系统中实现的匿名共享内存 <code>Ashmem</code> 驱动中添加了互斥锁，另外通过传递文件描述符来实现共享内存的传递。  </p>
+<h2 id="源码速查表"><a href="#源码速查表" class="headerlink" title="源码速查表"></a>源码速查表</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Framework:</span><br><span class="line">  frameworks/base/core/java/android/os/MemoryFile.java</span><br><span class="line">  frameworks/base/core/jni/android_os_MemoryFile.cpp</span><br><span class="line"></span><br><span class="line">Native:</span><br><span class="line">  frameworks/native/include/binder/IMemory.h</span><br><span class="line">  frameworks/native/libs/binder/IMemory.cpp</span><br><span class="line">  frameworks/native/include/binder/MemoryHeapBase.h</span><br><span class="line">  frameworks/native/libs/binder/MemoryHeapBase.cpp</span><br><span class="line">  frameworks/native/include/binder/MemoryBase.h</span><br><span class="line">  frameworks/native/libs/binder/MemoryBase.cpp</span><br><span class="line">  frameworks/native/include/binder/MemoryDealer.h  </span><br><span class="line">  frameworks/native/libs/binder/MemoryDealer.cpp</span><br><span class="line"></span><br><span class="line">System:</span><br><span class="line">  system/core/libcutils/ashmem-host.c       用户空间 API 仿真</span><br><span class="line">  system/core/libcutils/ashmem-dev.c        真实实现</span><br><span class="line">  system/core/include/utils/ashmem.h</span><br><span class="line">  system/core/include/cutils/ashmem.h</span><br><span class="line"></span><br><span class="line">Driver:  </span><br><span class="line">  kernel/msm-3.18/drivers/staging/android/ashmem.c</span><br><span class="line">  kernel/msm-3.18/drivers/staging/android/ashmem.h</span><br><span class="line">  kernel/msm-3.18/include/uapi/linux/ashmem.h</span><br><span class="line">  kernel/msm-3.18/include/linux/ashmem.h</span><br></pre></td></tr></table></figure>
+
+<h2 id="System-层"><a href="#System-层" class="headerlink" title="System 层"></a><code>System</code> 层</h2><h3 id="函数列表"><a href="#函数列表" class="headerlink" title="函数列表"></a>函数列表</h3><p><code>Ashmem</code> 匿名共享内存，全都是通过 <code>System</code> 层和 <code>Driver</code> 层交互的。函数列表：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ashmem.h</span></span><br><span class="line"><span class="comment">// 根据名称和大小，创建 ashmem 区域，返回文件描述符</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ashmem_create_region</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">size_t</span> size)</span></span>;</span><br><span class="line"><span class="comment">// 设置 ashmem 访问保护位</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ashmem_set_prot_region</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> prot)</span></span>;</span><br><span class="line"><span class="comment">// ashmem 锁定</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ashmem_pin_region</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">size_t</span> offset, <span class="keyword">size_t</span> len)</span></span>;</span><br><span class="line"><span class="comment">// ashmem 解锁</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ashmem_unpin_region</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">size_t</span> offset, <span class="keyword">size_t</span> len)</span></span>;</span><br><span class="line"><span class="comment">// ashmem 区域的大小</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ashmem_get_size_region</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用到的宏"><a href="#使用到的宏" class="headerlink" title="使用到的宏"></a>使用到的宏</h3><p>函数列表中值使用到了这些 <code>ioctl</code> 命令宏：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __ASHMEMIOC		0x77</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_SET_NAME		_IOW(__ASHMEMIOC, 1, char[ASHMEM_NAME_LEN])</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_SET_SIZE		_IOW(__ASHMEMIOC, 3, size_t)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_GET_SIZE		_IO(__ASHMEMIOC, 4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_SET_PROT_MASK	_IOW(__ASHMEMIOC, 5, unsigned long)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_PIN		_IO(__ASHMEMIOC, 7)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_UNPIN		_IO(__ASHMEMIOC, 8)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="驱动"><a href="#驱动" class="headerlink" title="驱动"></a>驱动</h2><h3 id="文件路径"><a href="#文件路径" class="headerlink" title="文件路径"></a>文件路径</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./drivers/staging/android/ashmem.c</span><br><span class="line">./drivers/staging/android/ashmem.h</span><br><span class="line">./include/uapi/linux/ashmem.h</span><br><span class="line">./include/linux/ashmem.h</span><br></pre></td></tr></table></figure>
+
+<h3 id="Ashmem-结构体"><a href="#Ashmem-结构体" class="headerlink" title="Ashmem 结构体"></a><code>Ashmem</code> 结构体</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The lifecycle of this structure is from our parent file's open() until</span></span><br><span class="line"><span class="comment"> * its release(). It is also protected by 'ashmem_mutex'</span></span><br><span class="line"><span class="comment"> * Warning: Mappings do NOT pin this structure; It dies on close()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ashmem_area</span> &#123;</span></span><br><span class="line">        <span class="keyword">char</span> name[ASHMEM_FULL_NAME_LEN]; <span class="comment">/* optional name in /proc/pid/maps */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">unpinned_list</span>;</span>  <span class="comment">/* list of all ashmem areas */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span>               <span class="comment">/* the shmem-based backing file */</span></span><br><span class="line">        <span class="keyword">size_t</span> size;                     <span class="comment">/* size of the mapping, in bytes */</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> vm_start;          <span class="comment">/* Start address of vm_area</span></span><br><span class="line"><span class="comment">                                          * which maps this ashmem */</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> prot_mask;         <span class="comment">/* allowed prot bits, as vm_flags */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名共享设备名</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASHMEM_DEVICE   <span class="meta-string">"/dev/ashmem"</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>name</code><br>表示这块共享内存的名字，这个名字会显示 <code>/proc/&lt;pid&gt;/maps</code> 文件中，<code>&lt;pid&gt;</code> 表示打开这个共享内存文件的进程 <code>ID</code>。  </li>
+<li><code>unpinned_list</code><br>是一个列表头，它把这块共享内存中所有被解锁的内存块连接在一起，和内存块的锁定和解锁操作有关。  </li>
+<li><code>file</code><br>表示这个共享内存在临时文件系统 <code>tmpfs</code> 中对应的文件，在内核决定要把这块共享内存对应的物理页面回收时，就会把它的内容交换到这个临时文件中去。  </li>
+<li><code>size</code><br>表示这块共享内存的大小。  </li>
+<li><code>prot_mask</code><br>表示这块共享内存的访问保护位。  </li>
+</ul>
+<h3 id="关键函数"><a href="#关键函数" class="headerlink" title="关键函数"></a>关键函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打开 Ashmem 设备</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ashmem_open</span><span class="params">(struct inode *inode, struct file *file)</span> </span>&#123;...&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 响应 ioctl 相关命令</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">ashmem_ioctl</span><span class="params">(struct file *file, <span class="keyword">unsigned</span> <span class="keyword">int</span> cmd, </span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">unsigned</span> <span class="keyword">long</span> arg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">switch</span> (cmd) &#123;</span><br><span class="line">    <span class="keyword">case</span> ASHMEM_SET_NAME:</span><br><span class="line">            ret = set_name(asma, (<span class="keyword">void</span> __user *) arg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> ASHMEM_GET_NAME:</span><br><span class="line">            ret = get_name(asma, (<span class="keyword">void</span> __user *) arg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> ASHMEM_SET_SIZE:</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mmap 系统调用，内存映射，起始地址保存到 vm_start 中</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ashmem_mmap</span><span class="params">(struct file *file, struct vm_area_struct *vma)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>匿名共享内存文件进行内存映射操作，对匿名内存文件内容的读写操作就像访问内存变量一样，驱动不用参与到读写操作中。</p>
+<h3 id="pin-unpin-锁定和解锁内存区"><a href="#pin-unpin-锁定和解锁内存区" class="headerlink" title="pin/unpin 锁定和解锁内存区"></a><code>pin/unpin</code> 锁定和解锁内存区</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ashmem_pin</span> &#123;</span></span><br><span class="line">        __u32 offset; <span class="comment">/* offset into region, in bytes, page-aligned */</span></span><br><span class="line">        __u32 len;    <span class="comment">/* length forward from offset, in bytes, page-aligned */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * struct ashmem_range - A range of unpinned/evictable pages</span></span><br><span class="line"><span class="comment"> * @lru:                 The entry in the LRU list</span></span><br><span class="line"><span class="comment"> * @unpinned:            The entry in its area's unpinned list</span></span><br><span class="line"><span class="comment"> * @asma:                The associated anonymous shared memory area.</span></span><br><span class="line"><span class="comment"> * @pgstart:             The starting page (inclusive)</span></span><br><span class="line"><span class="comment"> * @pgend:               The ending page (inclusive)</span></span><br><span class="line"><span class="comment"> * @purged:              The purge status (ASHMEM_NOT or ASHMEM_WAS_PURGED)</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The lifecycle of this structure is from unpin to pin.</span></span><br><span class="line"><span class="comment"> * It is protected by 'ashmem_mutex'</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ashmem_range</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">lru</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">unpinned</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">ashmem_area</span> *<span class="title">asma</span>;</span></span><br><span class="line">        <span class="keyword">size_t</span> pgstart;</span><br><span class="line">        <span class="keyword">size_t</span> pgend;</span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> purged;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ashmem_pin_unpin</span><span class="params">(struct ashmem_area *asma, <span class="keyword">unsigned</span> <span class="keyword">long</span> cmd,</span></span></span><br><span class="line"><span class="function"><span class="params">                            <span class="keyword">void</span> __user *p)</span></span>;</span><br><span class="line"><span class="comment">// pin the given ashmem region, returning whether it was</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ashmem_pin</span><span class="params">(struct ashmem_area *asma, <span class="keyword">size_t</span> pgstart, <span class="keyword">size_t</span> pgend)</span></span>;</span><br><span class="line"><span class="comment">// unpin the given range of pages. Returns zero on success.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ashmem_unpin</span><span class="params">(struct ashmem_area *asma,<span class="keyword">size_t</span> pgstart,<span class="keyword">size_t</span> pgend)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>匿名共享内存的锁定和解锁操作，表示哪些内存块是正在使用的，需要锁定（<code>pin</code>）；哪些内存是不需要使用了，解除锁定（<code>unpin</code>）。创建匿名共享内存时，默认所有的内存都是 <code>pinned</code> 状态的，用户先告诉 <code>Ashmem</code> 驱动程序要解锁某一块内存，内核可以将它对应的物理页面回收；因为 <code>unpin</code> 操作并不会改变已经 <code>mmap</code> 的地址空间，所以之后用户可以再告诉驱动程序要重新锁定某一块之前被解锁过的内块，从而修改这块内存的状态。也就是说，执行锁定前，目标对象必须是一块当前处于解锁状态的内存块。<br>匿名共享内存 <code>Ashmem</code> 机制是建立在 <code>Linux</code> 内核实现的共享内存的基础上的。同时它又向 <code>Linux</code> 内存管理系统的内存回收算法注册接口，系统内存不足时，会回收 <code>Ashmem</code> 区域中状态是 <code>unpin</code> 的对象内存块，如果不希望对象被回收，可以通过 <code>pin</code> 来保护它。  </p>
+<h2 id="Java-层接口及应用"><a href="#Java-层接口及应用" class="headerlink" title="Java 层接口及应用"></a><code>Java</code> 层接口及应用</h2><h3 id="MemoryFile"><a href="#MemoryFile" class="headerlink" title="MemoryFile"></a>MemoryFile</h3><p>所有 <code>Java</code> 代码都是通过 <code>MemoryFile</code> 来使用匿名共享内存 <code>Ashmem</code> 的，它是唯一的入口。<br>不过在 <code>Andoid O</code> 开始匿名共享内存推荐使用 <code>SharedMemory</code>。<a href="https://developer.android.com/reference/android/os/MemoryFile.html" target="_blank" rel="noopener">Api</a>： <code>Applications should generally prefer to use SharedMemory which offers more flexible access &amp; control over the shared memory region than MemoryFile does.</code>  </p>
+<p>重要字段：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> FileDescriptor mFD;        <span class="comment">// ashmem file descriptor</span></span><br><span class="line"><span class="comment">// mAddress存了驱动中 ashmem_open 返回虚拟地址空间的起始地址 </span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> mAddress;   <span class="comment">// address of ashmem memory</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> mLength;    <span class="comment">// total length of our ashmem region</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="调用流程"><a href="#调用流程" class="headerlink" title="调用流程"></a>调用流程</h3><p><code>App --&gt; (Framework) MemoryFile.java --&gt; (Native) android_os_MemoryFile.cpp --&gt; (System) ashmem-dev.c --&gt; (Driver)ashmem.c</code></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-MemoryFile-open-sequence-diag.png" alt="0043-MemoryFile-open-sequence-diag.png"></p>
+<p>序列图中可以看到，<code>Java</code> 接口文件直接通过 <code>JNI</code> 调用了系统 <code>System</code> 的函数，通过它来和驱动做数据交互。  </p>
+<h3 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h3><p>思路：通过 <code>Binder</code> 机制，传递匿名共享机制文件描述符，通过该描述符实现进程间的数据共享。<br>在 <code>Linux</code> 系统中，文件描述符其实就是一个整数。每一个进程在内核空间都有一个打开文件的数组，这个文件描述符的整数值就是用来索引这个数组的，而且这个文件描述符只是在本进程内有效，也就是说，在不同的进程中，相同的文件描述符的值，代表的可能是不同的打开文件。因此在进程间传输文件描述符时，并不是简要把一个文件描述符从一个进程传给另外一个进程，中间通过 <code>Binder</code> 机制做过转换，映射了相同的地址空间，使得它和源进程的文件描述符所对应的打开文件是一致的，这样才能保证共享。文件描述符进程间转换图：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-ashmem-fd.jpg" alt="0043-ashmem-fd.jpg"></p>
+<ul>
+<li><p><code>AIDL</code> 文件<br>通过 <code>Binder</code> 机制，传递匿名共享机制文件描述符。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">interface IAshmemFd &#123;</span><br><span class="line">    ParcelFileDescriptor getParcelFileDescriptor();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>Server</code> 服务端<br>利用 <code>Ashmem</code> 机制，创建 <code>MemoryFile</code> 文件后，写入数据。注意：<strong>这里需要使用反射机制调用 <code>getFileDescriptor</code> 因为它是 <code>@hide</code> 的</strong>，也就是说，<code>Android</code> 系统并不推荐这种使用方式。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ParcelFileDescriptor <span class="title">getParcelFileDescriptor</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"getParcelFileDescriptor: "</span>);</span><br><span class="line">    ParcelFileDescriptor pfd = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// method 1: Ashmem: MemoryFile.</span></span><br><span class="line">        MemoryFile file =<span class="keyword">new</span> MemoryFile(ASHMEM_FILENAME,ASHMEM_LENGTH);</span><br><span class="line">        file.getOutputStream().write(testData);</span><br><span class="line">        Method method = MemoryFile.class</span><br><span class="line">                        .getDeclaredMethod(<span class="string">"getFileDescriptor"</span>);</span><br><span class="line">        FileDescriptor des = (FileDescriptor) method.invoke(file);</span><br><span class="line">        pfd = ParcelFileDescriptor.dup(des);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">        Log.e(TAG, <span class="string">"getParcelFileDescriptor: "</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> pfd;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> IBinder mBinder = <span class="keyword">new</span> IAshmemFd.Stub() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ParcelFileDescriptor <span class="title">getParcelFileDescriptor</span><span class="params">()</span> </span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> AshmemService.<span class="keyword">this</span>.getParcelFileDescriptor();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>Client</code> 客户端<br>客户端通过 <code>Binder</code> 拿到 <code>ParcelFileDescriptor</code> 文件描述符后，读取 <code>MemoryFile</code> 文件的内容并打印。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ParcelFileDescriptor pfd = mIAshmemFd.getParcelFileDescriptor();</span><br><span class="line">FileInputStream fileInputStream = </span><br><span class="line">    <span class="keyword">new</span> FileInputStream(pfd.getFileDescriptor());</span><br><span class="line"><span class="keyword">byte</span>[] content = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">10</span>];</span><br><span class="line">fileInputStream.read(content);</span><br><span class="line">StringBuilder builder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">byte</span> b : content)&#123;</span><br><span class="line">    builder.append(b);</span><br><span class="line">&#125;</span><br><span class="line">String value = builder.toString();</span><br><span class="line">Log.d(TAG, <span class="string">"getData: value = "</span> + value);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><code>Android O</code> 之后推荐使用 <code>SharedMemory</code>，之前的版本也几乎没有看到 <code>MemoryFile</code> 的应用。网上搜到的案例是 <code>AIDL</code> 传递文件描述符 <code>ParcelFileDescriptor</code>，而仅仅传递它其实并不需要使用 <code>Ashmem</code>，因为 <code>ParcelFileDescriptor</code> 中推荐直接使用 <code>createPipe</code> 创建管道。<br><code>Server</code> 服务端使用管道实现的示例：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// method 2: Pipe</span><br><span class="line">ParcelFileDescriptor[] pfds = ParcelFileDescriptor.createPipe();</span><br><span class="line">// 第二个为写管道</span><br><span class="line">OutputStream outputStream = </span><br><span class="line">        new ParcelFileDescriptor.AutoCloseOutputStream(pfds[1]);</span><br><span class="line">outputStream.write(testData);</span><br><span class="line">// 第一个为读管道</span><br><span class="line">pfd = pfds[0];</span><br><span class="line">// 将读管道文件描述符传递给客户端</span><br></pre></td></tr></table></figure>
+
+<h2 id="Native-层接口及应用"><a href="#Native-层接口及应用" class="headerlink" title="Native 层接口及应用"></a><code>Native</code> 层接口及应用</h2><h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IMemory.h: IMemoryHeap, BnMemoryHeap, IMemory, BnMemory</span><br><span class="line">IMemory.cpp: BpMemoryHeap, BpMemory</span><br><span class="line">MemoryBase.h: MemoryBase</span><br><span class="line">MemoryHeapBase.h: MemoryHeapBase</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-Ashmem-class-uml.png" alt="0043-Ashmem-class-uml.png"></p>
+<p>可以看出，<code>Native</code> 层的 <code>Ashmem</code> 本身就是基于 <code>Binder</code> 机制的。  </p>
+<ul>
+<li><code>MemoryHeapBase</code><br>用于在进程间共享一个完整的匿名共享内存块。  </li>
+<li><code>MemoryBase</code><br>用于在进程间共享一个匿名共享内存块中其中的一部分。 <code>MemoryBase</code> 接口是建立在 <code>MemoryHeapBase</code> 接口的基础上面的，它们都可以作为一个 <code>Binder</code> 对象来在进程间传输。  </li>
+</ul>
+<h3 id="IMemoryHeap-定义的重要方法"><a href="#IMemoryHeap-定义的重要方法" class="headerlink" title="IMemoryHeap 定义的重要方法"></a><code>IMemoryHeap</code> 定义的重要方法</h3><figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获得匿名共享内存块的文件描述符</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span>         <span class="title">getHeapID</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line"><span class="comment">// 获得匿名共享内存块的基地址</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span>*       <span class="title">getBase</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line"><span class="comment">// 获得匿名共享内存块的大小</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> size_t      <span class="title">getSize</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="MemoryHeapBase-服务端"><a href="#MemoryHeapBase-服务端" class="headerlink" title="MemoryHeapBase 服务端"></a><code>MemoryHeapBase</code> 服务端</h3><p><code>MemoryHeapBase</code> 继承了 <code>BnMemoryHeap</code>，是 <code>IMemoryHeap</code> 的本地实现类，实现了具体的函数功能，用于服务端。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">MemoryHeapBase::MemoryHeapBase(<span class="keyword">size_t</span> size, <span class="keyword">uint32_t</span> flags, <span class="keyword">char</span> <span class="keyword">const</span> * name)</span><br><span class="line">    : mFD(<span class="number">-1</span>), mSize(<span class="number">0</span>), mBase(MAP_FAILED), mFlags(flags),</span><br><span class="line">      mDevice(<span class="number">0</span>), mNeedUnmap(<span class="literal">false</span>), mOffset(<span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">size_t</span> pagesize = getpagesize();</span><br><span class="line">    size = ((size + pagesize<span class="number">-1</span>) &amp; ~(pagesize<span class="number">-1</span>));</span><br><span class="line">    <span class="comment">// 1. 创建匿名共享内存区域</span></span><br><span class="line">    <span class="keyword">int</span> fd = ashmem_create_region(name == <span class="literal">NULL</span> ? <span class="string">"MemoryHeapBase"</span> : name, size);</span><br><span class="line">    ALOGE_IF(fd&lt;<span class="number">0</span>, <span class="string">"error creating ashmem region: %s"</span>, strerror(errno));</span><br><span class="line">    <span class="keyword">if</span> (fd &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 映射地址空间</span></span><br><span class="line">        <span class="keyword">if</span> (mapfd(fd, size) == NO_ERROR) &#123;</span><br><span class="line">            <span class="keyword">if</span> (flags &amp; READ_ONLY) &#123;</span><br><span class="line">                <span class="comment">// 设置保护区</span></span><br><span class="line">                ashmem_set_prot_region(fd, PROT_READ);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射 mFD, mBase, mSize</span></span><br><span class="line"><span class="keyword">status_t</span> MemoryHeapBase::mapfd(<span class="keyword">int</span> fd, <span class="keyword">size_t</span> size, <span class="keyword">uint32_t</span> offset)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (size == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// try to figure out the size automatically</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">sb</span>;</span></span><br><span class="line">        <span class="keyword">if</span> (fstat(fd, &amp;sb) == <span class="number">0</span>)</span><br><span class="line">            size = sb.st_size;</span><br><span class="line">        <span class="comment">// if it didn't work, let mmap() fail.</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((mFlags &amp; DONT_MAP_LOCALLY) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">void</span>* base = (<span class="keyword">uint8_t</span>*)mmap(<span class="number">0</span>, size,</span><br><span class="line">                PROT_READ|PROT_WRITE, MAP_SHARED, fd, offset);</span><br><span class="line">        ...</span><br><span class="line">        mBase = base;</span><br><span class="line">        mNeedUnmap = <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span>  &#123;</span><br><span class="line">        mBase = <span class="number">0</span>; <span class="comment">// not MAP_FAILED</span></span><br><span class="line">        mNeedUnmap = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    mFD = fd;</span><br><span class="line">    mSize = size;</span><br><span class="line">    mOffset = offset;</span><br><span class="line">    <span class="keyword">return</span> NO_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> MemoryHeapBase::getHeapID() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> mFD;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">void</span>* MemoryHeapBase::getBase() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> mBase;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">size_t</span> MemoryHeapBase::getSize() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> mSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>mFD</code>：匿名共享内存文件描述符  </li>
+<li><code>mBase</code>：匿名共享内存起始地址  </li>
+<li><code>mSize</code>：匿名共享内存的大小  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0043-MemoryHeapBase-sequence-diag.png" alt="0043-MemoryHeapBase-sequence-diag.png"></p>
+<h3 id="HeapCache-缓存"><a href="#HeapCache-缓存" class="headerlink" title="HeapCache 缓存"></a><code>HeapCache</code> 缓存</h3><p><code>HeapCache</code> 继承了 <code>IBinder::DeathRecipient</code>，维护生命周期。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeapCache</span> :</span> <span class="keyword">public</span> IBinder::DeathRecipient</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">binderDied</span><span class="params">(<span class="keyword">const</span> wp&lt;IBinder&gt;&amp; who)</span></span>;</span><br><span class="line">    sp&lt;IMemoryHeap&gt; find_heap(<span class="keyword">const</span> sp&lt;IBinder&gt;&amp; binder);</span><br><span class="line">    sp&lt;IMemoryHeap&gt; get_heap(<span class="keyword">const</span> sp&lt;IBinder&gt;&amp; binder);</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">free_heap</span><span class="params">(<span class="keyword">const</span> sp&lt;IBinder&gt;&amp; binder)</span></span>;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// For IMemory.cpp</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">heap_info_t</span> &#123;</span></span><br><span class="line">        sp&lt;IMemoryHeap&gt; heap;</span><br><span class="line">        <span class="keyword">int32_t</span>         count;</span><br><span class="line">    &#125;;</span><br><span class="line">    ...</span><br><span class="line">    KeyedVector&lt; wp&lt;IBinder&gt;, <span class="keyword">heap_info_t</span> &gt; mHeapCache;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> sp&lt;HeapCache&gt; gHeapCache = <span class="keyword">new</span> HeapCache();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>heap_info_t</code> 结构体<br><code>heap</code> 保存了 <code>BpMemoryHeap</code> 对象；<code>count</code> 引用计数，表示被引用了多少次，只有在等于 1 时，才能被释放。  </li>
+<li><code>mHeapCache</code> 缓存<br><code>KeyedVector</code> 容器类型，存储了以 <code>IBinder</code> 和 <code>heap_info_t</code> 的键值对。  </li>
+<li><code>find_heap</code> 查找<br>在 <code>mHeapCache</code> 中查找，如果找不到则添加到 <code>mHeapCache</code> 中。  </li>
+<li><code>get_heap</code> 获取<br>在 <code>mHeapCache</code> 中查找，如果找不到则直接将 <code>IBinder</code> 转换，<strong>并没有加入</strong> <code>mHeapCache</code> 中。  </li>
+<li><code>gHeapCache</code> 全局实例<br><code>gHeapCache</code> 全局实例，维护了本进程中所有的 <code>BpMemoryHeap</code> 引用对象。  </li>
+</ul>
+<h3 id="BpMemoryHeap-客户端"><a href="#BpMemoryHeap-客户端" class="headerlink" title="BpMemoryHeap 客户端"></a><code>BpMemoryHeap</code> 客户端</h3><p><code>BpMemoryHeap</code> 是 <code>IMemoryHeap</code> 的代理类，用于客户端。<code>Binder</code> 机制中客户端通过代理类访问服务端的具体实现。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">getHeapID</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span>* <span class="title">getBase</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> size_t <span class="title">getSize</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="comment">// 匿名共享内存文件描述符  </span></span><br><span class="line"><span class="keyword">mutable</span> <span class="keyword">volatile</span> <span class="keyword">int32_t</span> mHeapId;</span><br><span class="line"><span class="keyword">mutable</span> <span class="keyword">void</span>*       mBase;</span><br><span class="line"><span class="keyword">mutable</span> <span class="keyword">size_t</span>      mSize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> BpMemoryHeap::getHeapID() <span class="keyword">const</span> &#123;</span><br><span class="line">    assertMapped();</span><br><span class="line">    <span class="keyword">return</span> mHeapId;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span>* BpMemoryHeap::getBase() <span class="keyword">const</span> &#123;</span><br><span class="line">    assertMapped();</span><br><span class="line">    <span class="keyword">return</span> mBase;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">size_t</span> BpMemoryHeap::getSize() <span class="keyword">const</span> &#123;</span><br><span class="line">    assertMapped();</span><br><span class="line">    <span class="keyword">return</span> mSize;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在获取匿名共享内存前，都会先确保映射成功</span></span><br><span class="line"><span class="keyword">void</span> BpMemoryHeap::assertMapped() <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (mHeapId == <span class="number">-1</span>) &#123;</span><br><span class="line">        sp&lt;IBinder&gt; binder(IInterface::asBinder(<span class="keyword">const_cast</span>&lt;BpMemoryHeap*&gt;(<span class="keyword">this</span>)));</span><br><span class="line">        sp&lt;BpMemoryHeap&gt; heap(<span class="keyword">static_cast</span>&lt;BpMemoryHeap*&gt;(find_heap(binder).get()));</span><br><span class="line">        heap-&gt;assertReallyMapped();</span><br><span class="line">        <span class="keyword">if</span> (heap-&gt;mBase != MAP_FAILED) &#123;</span><br><span class="line">            Mutex::Autolock _l(mLock);</span><br><span class="line">            <span class="keyword">if</span> (mHeapId == <span class="number">-1</span>) &#123;</span><br><span class="line">                mBase   = heap-&gt;mBase;</span><br><span class="line">                mSize   = heap-&gt;mSize;</span><br><span class="line">                mOffset = heap-&gt;mOffset;</span><br><span class="line">                android_atomic_write( dup( heap-&gt;mHeapId ), &amp;mHeapId );</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// something went wrong</span></span><br><span class="line">            free_heap(binder);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> BpMemoryHeap::assertReallyMapped() <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (mHeapId == <span class="number">-1</span>) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// Binder 调用，从 MemoryHeapBase 中拿到匿名共享内存相关信息</span></span><br><span class="line">        Parcel data, reply;</span><br><span class="line">        data.writeInterfaceToken(IMemoryHeap::getInterfaceDescriptor());</span><br><span class="line">        <span class="keyword">status_t</span> err = remote()-&gt;transact(HEAP_ID, data, &amp;reply);</span><br><span class="line">        <span class="keyword">int</span> parcel_fd = reply.readFileDescriptor();</span><br><span class="line">        <span class="keyword">ssize_t</span> size = reply.readInt32();</span><br><span class="line">        <span class="keyword">uint32_t</span> flags = reply.readInt32();</span><br><span class="line">        <span class="keyword">uint32_t</span> offset = reply.readInt32();</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">if</span> (mHeapId == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> fd = dup( parcel_fd );</span><br><span class="line">            ...</span><br><span class="line">            mRealHeap = <span class="literal">true</span>;</span><br><span class="line">            <span class="comment">// 将服务端的匿名共享内存映射到当前进程，并设置基地址  </span></span><br><span class="line">            mBase = mmap(<span class="number">0</span>, size, access, MAP_SHARED, fd, offset);</span><br><span class="line">            <span class="keyword">if</span> (mBase == MAP_FAILED) &#123;</span><br><span class="line">                ALOGE(<span class="string">"cannot map BpMemoryHeap (binder=%p), size=%zd, fd=%d (%s)"</span>,</span><br><span class="line">                        IInterface::asBinder(<span class="keyword">this</span>).get(), size, fd, strerror(errno));</span><br><span class="line">                close(fd);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 赋值匿名共享内存大小，文件描述符</span></span><br><span class="line">                mSize = size;</span><br><span class="line">                mFlags = flags;</span><br><span class="line">                mOffset = offset;</span><br><span class="line">                android_atomic_write(fd, &amp;mHeapId);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在获取当前匿名共享内存信息时，都会先执行 <code>assertMapped/assertReallyMapped</code> 断言函数，确保获取到服务端的匿名共享内存信息后并映射到了当前进程。  </p>
+<h3 id="IMemory-的定义"><a href="#IMemory-的定义" class="headerlink" title="IMemory 的定义"></a><code>IMemory</code> 的定义</h3><p><code>IMemory</code> 是用来管理进程间匿名共享内存块 <code>IMemoryHeap</code> 中的一部分，所以这个类中保存了 <code>IMemoryHeap</code> 代理实例，以及被管理的匿名共享内存这部分的基地址，大小，在整个 <code>Ashmem</code> 中的偏移量。  </p>
+<ul>
+<li><p>头文件定义</p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IMemory</span> :</span> <span class="keyword">public</span> IInterface</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 获取匿名共享内存客户端代理实例 BpMemoryHeap</span></span><br><span class="line">    <span class="keyword">virtual</span> sp&lt;IMemoryHeap&gt; getMemory(<span class="keyword">ssize_t</span>* offset=<span class="number">0</span>, <span class="keyword">size_t</span>* size=<span class="number">0</span>) <span class="keyword">const</span> = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span>* <span class="title">fastPointer</span><span class="params">(<span class="keyword">const</span> sp&lt;IBinder&gt;&amp; heap, <span class="keyword">ssize_t</span> offset)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="comment">// 获取匿名共享内存的基地址</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span>* <span class="title">pointer</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="comment">// 获取匿名共享内存的大小</span></span><br><span class="line">    <span class="keyword">size_t</span> size() <span class="keyword">const</span>;</span><br><span class="line">    <span class="comment">// 维护的这部分共享内存，在整个匿名共享内存中的偏移量</span></span><br><span class="line">    <span class="keyword">ssize_t</span> offset() <span class="keyword">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>具体实现  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从缓存中快速获取被管理的 Ashmem 基地址：MemoryHeap的基地址 + 偏移量</span></span><br><span class="line"><span class="keyword">void</span>* IMemory::fastPointer(<span class="keyword">const</span> sp&lt;IBinder&gt;&amp; binder, <span class="keyword">ssize_t</span> offset) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    sp&lt;IMemoryHeap&gt; realHeap = BpMemoryHeap::get_heap(binder);</span><br><span class="line">    <span class="keyword">void</span>* <span class="keyword">const</span> base = realHeap-&gt;base();</span><br><span class="line">    <span class="keyword">if</span> (base == MAP_FAILED)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">char</span>*&gt;(base) + offset;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 从具体实现类中获取被管理的 Ashmem 基地址：MemoryHeap的基地址 + 偏移量</span></span><br><span class="line"><span class="keyword">void</span>* IMemory::pointer() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">ssize_t</span> offset;</span><br><span class="line">    sp&lt;IMemoryHeap&gt; heap = getMemory(&amp;offset);</span><br><span class="line">    <span class="keyword">void</span>* <span class="keyword">const</span> base = heap!=<span class="number">0</span> ? heap-&gt;base() : MAP_FAILED;</span><br><span class="line">    <span class="keyword">if</span> (base == MAP_FAILED)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;<span class="keyword">char</span>*&gt;(base) + offset;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 被管理 Ashmem 的大小</span></span><br><span class="line"><span class="keyword">size_t</span> IMemory::size() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">size_t</span> size;</span><br><span class="line">    getMemory(<span class="literal">NULL</span>, &amp;size);</span><br><span class="line">    <span class="keyword">return</span> size;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 被管理 Ashmem 的偏移量</span></span><br><span class="line"><span class="keyword">ssize_t</span> IMemory::offset() <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">ssize_t</span> offset;</span><br><span class="line">    getMemory(&amp;offset);</span><br><span class="line">    <span class="keyword">return</span> offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="MemoryBase-服务端"><a href="#MemoryBase-服务端" class="headerlink" title="MemoryBase 服务端"></a><code>MemoryBase</code> 服务端</h3><p><code>MemoryBase</code> 继承 <code>BpMemory</code>，是 <code>IMemory</code> 的本地实现类，用于服务端。  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">MemoryBase::MemoryBase(<span class="keyword">const</span> sp&lt;IMemoryHeap&gt;&amp; heap,</span><br><span class="line">        <span class="keyword">ssize_t</span> offset, <span class="keyword">size_t</span> size)</span><br><span class="line">    : mSize(size), mOffset(offset), mHeap(heap)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 更新偏移量，大小，并返回 mHeap</span></span><br><span class="line">sp&lt;IMemoryHeap&gt; MemoryBase::getMemory(<span class="keyword">ssize_t</span>* offset, <span class="keyword">size_t</span>* size) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (offset) *offset = mOffset;</span><br><span class="line">    <span class="keyword">if</span> (size)   *size = mSize;</span><br><span class="line">    <span class="keyword">return</span> mHeap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>MemoryBase</code> 类非常简单，构造函数中传入了匿名共享内存的具体实现 <code>MemoryHeapBase</code> 对象，以及被管理部分的偏移量和大小。<code>getMemory</code> 简单的返回了整个匿名共享内存对象及对应的偏移量和大小，所以可以理解 <code>MemoryBase</code> 是 <code>MemoryHeapBase</code> 的简单封装。  </p>
+<h3 id="BpMemory-客户端"><a href="#BpMemory-客户端" class="headerlink" title="BpMemory 客户端"></a><code>BpMemory</code> 客户端</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">sp&lt;IMemoryHeap&gt; BpMemory::getMemory(<span class="keyword">ssize_t</span>* offset, <span class="keyword">size_t</span>* size) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (mHeap == <span class="number">0</span>) &#123;</span><br><span class="line">        Parcel data, reply;</span><br><span class="line">        data.writeInterfaceToken(IMemory::getInterfaceDescriptor());</span><br><span class="line">        <span class="keyword">if</span> (remote()-&gt;transact(GET_MEMORY, data, &amp;reply) == NO_ERROR) &#123;</span><br><span class="line">            sp&lt;IBinder&gt; heap = reply.readStrongBinder();</span><br><span class="line">            <span class="keyword">ssize_t</span> o = reply.readInt32();</span><br><span class="line">            <span class="keyword">size_t</span> s = reply.readInt32();</span><br><span class="line">            <span class="keyword">if</span> (heap != <span class="number">0</span>) &#123;</span><br><span class="line">                mHeap = interface_cast&lt;IMemoryHeap&gt;(heap);</span><br><span class="line">                <span class="keyword">if</span> (mHeap != <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">size_t</span> heapSize = mHeap-&gt;getSize();</span><br><span class="line">                    <span class="keyword">if</span> (s &lt;= heapSize</span><br><span class="line">                            &amp;&amp; o &gt;= <span class="number">0</span></span><br><span class="line">                            &amp;&amp; (<span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt;(o) &lt;= heapSize - s)) &#123;</span><br><span class="line">                        mOffset = o;</span><br><span class="line">                        mSize = s;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// Hm.</span></span><br><span class="line">                        android_errorWriteWithInfoLog(<span class="number">0x534e4554</span>,</span><br><span class="line">                            <span class="string">"26877992"</span>, <span class="number">-1</span>, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">                        mOffset = <span class="number">0</span>;</span><br><span class="line">                        mSize = <span class="number">0</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (offset) *offset = mOffset;</span><br><span class="line">    <span class="keyword">if</span> (size) *size = mSize;</span><br><span class="line">    <span class="keyword">return</span> (mSize &gt; <span class="number">0</span>) ? mHeap : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>Binder</code> 机制，从服务端读取偏移量，大小，并返回 <code>BpMemory</code> 代理实例（<code>mHeap</code>）。</p>
+<h2 id="Ashmem-总结"><a href="#Ashmem-总结" class="headerlink" title="Ashmem 总结"></a><code>Ashmem</code> 总结</h2><ul>
+<li>文件描述符<br>在形式上是一个非负整数，实际上它是一个索引值，指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。  </li>
+<li>进程间共享原理<br><code>Ashmem</code> 进程间共享原理：两个在不同进程中的文件描述符对应同一个指向设备文件 <code>/dev/ashmem</code> 的文件结构体。<br><code>Binder</code> 机制在数据交互时大小不能超过 1M，可以通过传递匿名共享内存（<code>Ashmem</code>）的文件描述符或者 <code>IBinder</code> 对象（<code>IMemoryHeap/IMemory</code>），来实现大数据的共享。  </li>
+<li>优缺点<br>匿名共享内存不会占用 <code>Heap</code>，不会导致 <code>OOM</code>，但是如果肆意使用，会导致系统资源不足性能下降。  </li>
+<li>应用场景<br>在 <code>camera.preview</code> 预览，<code>SurfaceFlinger</code> 绘制等，可以看到匿名共享内存的应用。  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/6651971" target="_blank" rel="noopener">老罗Android系统匿名共享内存Ashmem</a>  </li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/6939890" target="_blank" rel="noopener">老罗Android系统匿名共享内存C++接口</a>  </li>
+<li><a href="https://www.jianshu.com/p/d9bc9c668ba6" target="_blank" rel="noopener">Android匿名共享内存</a>  </li>
+<li><a href="https://www.cnblogs.com/Doing-what-I-love/p/5530263.html" target="_blank" rel="noopener">Ashmem驱动</a>  </li>
+<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2016/0111/3859.html" target="_blank" rel="noopener">如何偷Android的内存</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/01/17/0043-android-ashmem/" title="Android Ashmem 机制">http://redspider110.github.io/2018/01/17/0043-android-ashmem/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/IPC/" rel="tag"># IPC</a>
+          
+            <a href="/tags/Ashmem/" rel="tag"># Ashmem</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/15/0042-java-hashmap/" rel="next" title="Java HashMap 简介">
+                <i class="fa fa-chevron-left"></i> Java HashMap 简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/22/0044-design-patterns-builder/" rel="prev" title="设计模式--创建型：建造者模式">
+                设计模式--创建型：建造者模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#特点"><span class="nav-number">1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码速查表"><span class="nav-number">2.</span> <span class="nav-text">源码速查表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#System-层"><span class="nav-number">3.</span> <span class="nav-text">System 层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数列表"><span class="nav-number">3.1.</span> <span class="nav-text">函数列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用到的宏"><span class="nav-number">3.2.</span> <span class="nav-text">使用到的宏</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动"><span class="nav-number">4.</span> <span class="nav-text">驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件路径"><span class="nav-number">4.1.</span> <span class="nav-text">文件路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ashmem-结构体"><span class="nav-number">4.2.</span> <span class="nav-text">Ashmem 结构体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键函数"><span class="nav-number">4.3.</span> <span class="nav-text">关键函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pin-unpin-锁定和解锁内存区"><span class="nav-number">4.4.</span> <span class="nav-text">pin/unpin 锁定和解锁内存区</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-层接口及应用"><span class="nav-number">5.</span> <span class="nav-text">Java 层接口及应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MemoryFile"><span class="nav-number">5.1.</span> <span class="nav-text">MemoryFile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调用流程"><span class="nav-number">5.2.</span> <span class="nav-text">调用流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何使用"><span class="nav-number">5.3.</span> <span class="nav-text">如何使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native-层接口及应用"><span class="nav-number">6.</span> <span class="nav-text">Native 层接口及应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">6.1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IMemoryHeap-定义的重要方法"><span class="nav-number">6.2.</span> <span class="nav-text">IMemoryHeap 定义的重要方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MemoryHeapBase-服务端"><span class="nav-number">6.3.</span> <span class="nav-text">MemoryHeapBase 服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HeapCache-缓存"><span class="nav-number">6.4.</span> <span class="nav-text">HeapCache 缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BpMemoryHeap-客户端"><span class="nav-number">6.5.</span> <span class="nav-text">BpMemoryHeap 客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IMemory-的定义"><span class="nav-number">6.6.</span> <span class="nav-text">IMemory 的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MemoryBase-服务端"><span class="nav-number">6.7.</span> <span class="nav-text">MemoryBase 服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BpMemory-客户端"><span class="nav-number">6.8.</span> <span class="nav-text">BpMemory 客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ashmem-总结"><span class="nav-number">7.</span> <span class="nav-text">Ashmem 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

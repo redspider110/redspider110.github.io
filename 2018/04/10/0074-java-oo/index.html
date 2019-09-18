@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java 面向对象的三大特征：封装、继承、多态；而封装和继承基本都是为多态而准备的。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 面向对象的特征">
+<meta property="og:url" content="http://redspider110.github.io/2018/04/10/0074-java-oo/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Java 面向对象的三大特征：封装、继承、多态；而封装和继承基本都是为多态而准备的。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.369Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 面向对象的特征">
+<meta name="twitter:description" content="Java 面向对象的三大特征：封装、继承、多态；而封装和继承基本都是为多态而准备的。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/04/10/0074-java-oo/">
+
+
+
+
+
+  <title>Java 面向对象的特征 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/04/10/0074-java-oo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 面向对象的特征</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-10T13:00:00+08:00">
+                2018-04-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Java</code> 面向对象的三大特征：封装、继承、多态；而封装和继承基本都是为多态而准备的。  </p>
+<a id="more"></a>
+
+<h2 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h2><p>封装 <code>Encapsulation [ɛnˈkæpsəˌletʃən]</code> ：在面向对象语言中，封装特性是由类来体现的，我们将现实生活中的一类实体定义成类，其中包括属性和方法。将对象的实现细节隐藏起来，通过一些公用方法来暴露该对象的功能。  </p>
+<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>继承 <code>Inheritance[ɪnˈhɛrɪtəns]</code> ：当子类继承父类后，子类作为一种特殊的父类，将直接获得父类的属性和方法。<code>Java</code> 的接口有多继承，而类没有多重继承，但是可以通过实现不同的接口或者多层次继承来体现多重继承。继承通过关键字 <code>extends</code> 来实现，实现继承的类称为子类，被继承的类称为父类，或者超类、基类。  </p>
+<h3 id="super-和-this"><a href="#super-和-this" class="headerlink" title="super 和 this"></a><code>super</code> 和 <code>this</code></h3><ul>
+<li><code>super</code><br>代表父类对象，可以理解为是指向自己父类对象的一个引用，而这个父类指的是离自己最近的一个父类。  </li>
+<li><code>this</code><br>代表对象本身，可以理解为指向对象本身的一个引用。  </li>
+</ul>
+<h3 id="父类子类的初始化顺序"><a href="#父类子类的初始化顺序" class="headerlink" title="父类子类的初始化顺序"></a>父类子类的初始化顺序</h3><p>父类和子类的初始化顺序如下：  </p>
+<ul>
+<li>父类类加载过程：静态成员变量，静态代码块  </li>
+<li>子类类加载过程：静态成员变量，静态代码块  </li>
+<li>父类类实例化过程：普通成员变量，构造代码块，最后父类的构造方法  </li>
+<li>子类类实例化过程：普通成员变量，构造代码块，最后子类的构造方法  </li>
+</ul>
+<blockquote>
+<p><code>static</code> 的成员变量和方法是属于类的，所以只会在类加载时初始化或执行一次，类实例化时不会重复初始化。  </p>
+</blockquote>
+<p>代码执行顺序具体参考这篇博文：<a href="https://redspider110.github.io/2018/04/10/0073-java-code-exec-sequence/">Java 代码执行顺序</a>  </p>
+<h3 id="属性和方法的继承"><a href="#属性和方法的继承" class="headerlink" title="属性和方法的继承"></a>属性和方法的继承</h3><p>子类继承父类后，可以继承父类的属性和方法。包含静态属性和方法，但是子类访问父类的属性和方法时受访问控制符限制。  </p>
+<h2 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h2><p>多态 <code>Polymorphism[ˌpɒlɪ&#39;mɔ:fɪzəm]</code> ：子类对象直接赋给父类变量，但运行时依然表现出子类的行为特征，这意味着同一个类型的对象在执行同一个方法时，表现出多种行为的特征。  </p>
+<blockquote>
+<p>多态针对的是对象，而不是类。  </p>
+</blockquote>
+<h3 id="向上转型和向下转型"><a href="#向上转型和向下转型" class="headerlink" title="向上转型和向下转型"></a>向上转型和向下转型</h3><ul>
+<li>规则<br>父类引用指向子类对象，但是子类引用不能指向父类对象。  </li>
+<li>向上转型<br>父类引用指向子类对象，也就是子类对象直接赋给父类引用，不用强制转换。子类对象会遗失父类中不同的方法，重写相同的方法。  </li>
+<li>向下转型<br>子类对象的父类引用赋给子类引用，要强制转换。父类对象强制转换赋给子类引用，是不安全的向下转型，编译正常但运行过程中报错。  </li>
+</ul>
+<h3 id="多态存在的三个必要条件"><a href="#多态存在的三个必要条件" class="headerlink" title="多态存在的三个必要条件"></a>多态存在的三个必要条件</h3><ul>
+<li>继承  </li>
+<li>重写  </li>
+<li>父类引用指向子类对象  </li>
+</ul>
+<h2 id="方法调用：分派"><a href="#方法调用：分派" class="headerlink" title="方法调用：分派"></a>方法调用：分派</h2><p>参考《深入理解 <code>Java</code> 虚拟机：<code>JVM</code> 高级特性与最佳实践 第 2 版》 第 8.3.2 章：分派，这一章中介绍了分派的概念，以及静态分派和动态分派的含义，给出的结论是 <code>Java</code> 是一门静态多分派和动态单分派的语言。<br>方法调用并不等同于方法执行，方法调用阶段唯一的任务就是确定被调用方法的版本（具体调用哪个方法）。<code>Class</code> 文件的编译过程中不包含链接步骤，所有的方法调用在 <code>Class</code> 文件里面存储的都只是符号引用，而不是方法在实际运行时内存布局中的入口地址。方法调用在类加载期间，甚至运行期间才能确定目标方法的入口地址（直接引用)。  </p>
+<h3 id="变量静态类型和实际类型"><a href="#变量静态类型和实际类型" class="headerlink" title="变量静态类型和实际类型"></a>变量静态类型和实际类型</h3><p>先看一段代码：<code>Human man = new Man()</code> 。  </p>
+<ul>
+<li>静态类型 <code>Static Type</code><br>其中 <code>Human</code> 称为变量的<strong>静态类型</strong>，或者叫外观类型 <code>Apparent Type</code>。静态类型仅仅在使用时有可能会出现改变，但在编译期能够明确最终的静态类型。也就是说，静态类型决定了变量拥有哪些成员属性和方法。  </li>
+<li>实际类型 <code>Actual Type</code><br>其中 <code>Man</code> 称为变量的<strong>实际类型</strong>。实际类型只能再运行期才能确定，编译器无法判定对象的实际类型是什么。也就是说，实际类型决定了变量只有在运行时才能确定具体执行哪个方法。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实际类型变化，运行时才能确定  </span></span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">man = <span class="keyword">new</span> Woman();</span><br><span class="line"><span class="comment">// 静态类型变化，使用时就确定了</span></span><br><span class="line">sr.sayHello((Man) man);</span><br><span class="line">sr.sayHello((Woman) man);</span><br></pre></td></tr></table></figure>
+
+<p>根据内存模型，<code>man</code> 是存储在虚拟栈中，属于局部变量表中的引用变量；而 <code>new Man()</code> 表示在堆中分配一块存储区，引用变量的值为指向这块堆的指针。  </p>
+<h3 id="重载与重写"><a href="#重载与重写" class="headerlink" title="重载与重写"></a>重载与重写</h3><p>方法的重载和重写是 <code>Java</code> 的多态性的不同表现。重写是父类和子类之间多态性的体现，重载是单个类中多态性的体现。  </p>
+<ul>
+<li>重载 <code>overloading</code><br>单个类中定义了多个同名的方法，它们有不同的参数类型或参数个数或参数次序，则该方法被重载。不能通过返回类型，访问权限，抛出异常等进行重载。<br>编译器在编译阶段通过参数的<strong>静态类型</strong>来作为<strong>重载</strong>的判断依据。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">(Human guy)</span></span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">syaHello</span><span class="params">(Man guy)</span></span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 根据静态类型的特点，调用的是 sayHello(Human)</span></span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">sayHello(man);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重写 <code>Override</code><br>子类中定义的方法和父类中有相同的名称和参数，则该方法被重写。<br>只有在运行时根据<strong>实际类型</strong>，虚拟机才能确定调用哪个重写的方法。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Man</span> <span class="keyword">extends</span> <span class="title">Human</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Woman</span> <span class="keyword">extends</span> <span class="title">Human</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line">Human man = <span class="keyword">new</span> Man();</span><br><span class="line">Human woman = <span class="keyword">new</span> Woman();</span><br><span class="line"><span class="comment">// 根据实际类型的特点，调用子类的方法</span></span><br><span class="line">man.sayHello();</span><br><span class="line">woman.sayHello();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>静态方法是类的方法，不存在重写这个说法（无法被 <code>Override</code> 注释），静态方法在编译期间根据静态类型进行了绑定。强烈建议直接使用类来调用静态变量和静态方法，而不是使用对象来调用，养成好习惯。（虽然 <code>Java</code> 语法通过对象来访问，但是这种方式会使得静态属性并不突出）  </p>
+</blockquote>
+<h3 id="静态分派"><a href="#静态分派" class="headerlink" title="静态分派"></a>静态分派</h3><p>依赖静态类型来定位方法具体执行哪个版本（重载时），这个分派动作称为<strong>静态分派</strong>，典型应用为重载。在静态分派过程中，如果没有指定显示的静态类型，会发生类型的自动转换来匹配最可能的类型， 如：<code>sayHello(&#39;a&#39;)</code>，如果没有明确重载 <code>sayHello(char c)</code> 方法，会按照 ：<code>char -&gt; int -&gt; long -&gt; float -&gt; double -&gt;Character -&gt;Serializable --&gt; Object</code> 的顺序转型。其中：  </p>
+<ul>
+<li><code>char</code> 转为 <code>int</code><br>表示 <code>a</code> 除了代表字符串，还可以代表数字 97 。 </li>
+<li><code>char</code> 转为它的封装类型 <code>Character</code><br>是一次自动装箱过程。  </li>
+<li><code>char</code> 转为 <code>Serializable</code><br>是因为 <code>Character</code> 实现了<strong>序列化</strong>和<strong>可比较</strong>。但是如果同时重载了 <code>sayHello(Serializable s)</code> 和 <code>sayHello(Comparable c)</code> 会提示类型模糊，编译报错。  </li>
+</ul>
+<h3 id="动态分派"><a href="#动态分派" class="headerlink" title="动态分派"></a>动态分派</h3><p>在运行期根据实际类型确定方法执行哪个版本（重写），这个分派过程称为<strong>动态分派</strong>，典型应用为重写。  </p>
+<h3 id="单分派和多分派"><a href="#单分派和多分派" class="headerlink" title="单分派和多分派"></a>单分派和多分派</h3><p>方法的接收者和方法的参数统称为方法的<strong>宗量</strong>。根据分派基于宗量多少，可以将分派分为单分派和多分派。经典示例：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestDispatcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Apple</span> </span>&#123;&#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Orange</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">(Apple apple)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"Father eat apple."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">(Orange orange)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"Father eat orange."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">(Apple apple)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"Son eat apple."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">(Orange orange)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"Son eat orange."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Father father = <span class="keyword">new</span> Father();</span><br><span class="line">        Father son = <span class="keyword">new</span> Son();</span><br><span class="line">        father.eat(<span class="keyword">new</span> Apple());</span><br><span class="line">        son.eat(<span class="keyword">new</span> Orange());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Result</span></span><br><span class="line">Father eat apple.</span><br><span class="line">Son eat orange.</span><br></pre></td></tr></table></figure>
+
+<p>这个经典示例中将重载和重写都体现出来了。  </p>
+<ul>
+<li><p>编译时<br>编译时多态：即静态分派。编译时会确定下来，去执行 <code>Father.eat(Apple)</code> 和 <code>Father.eat(Orange)</code> ，也就是说即确定了方法的接收者 <code>Father</code> 又确定了参数 <code>Apple/Orange</code>。方法的接收者和参数两个宗量都参与了判断，所以静态分派是多分派类型。这种只基于两种宗量来判断的即为<strong>双分派</strong>。  </p>
+</li>
+<li><p>运行时<br>运行时多态：即动态分派。运行时，因为参数已经确定，所以只需要确定接受者是 <code>Father</code> 还是它的子类 <code>Son</code>？只需要方法接收者这一个宗量参与判断，所以动态分派是单分派类型。  </p>
+</li>
+</ul>
+<p>至此，也验证了结论：<code>Java</code> 是一门静态多分派和动态单分派的语言。  </p>
+<h2 id="向上转型注意事项"><a href="#向上转型注意事项" class="headerlink" title="向上转型注意事项"></a>向上转型注意事项</h2><h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><p>向上转型：<code>Human human = new Man()</code>，根据父类子类初始化顺序可以得出：子类实例化时会先将父类实例化，也就是说子类能直接访问父类成员变量和方法（受访问控制符限制）。  </p>
+<ul>
+<li>成员变量<br>成员变量 <code>human</code> 的静态类型为 <code>Human</code>，所以 <code>human</code> 当前<strong>只能访问 <code>Human</code> 的成员变量和方法</strong>。  </li>
+<li>成员方法分派<br>成员变量 <code>human</code> 的实际类型为 <code>Man</code>，所以 <code>human</code> 在执行成员方法时会考虑到动态分派：是否被子类重写？<strong>如果重写了则执行子类 <code>Man</code> 重写后的方法</strong>。  </li>
+<li>静态方法<br>无法重写，在编译期根据静态类型进行绑定，强烈建议静态方法使用类来调用而不是对象。  </li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. Parent</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Human</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String mHumanPrivateStr = <span class="string">"HumanPrivateStr"</span>;</span><br><span class="line">    String mHumanDefaultStr = <span class="string">"HumanDefaultStr"</span>;</span><br><span class="line">    <span class="keyword">protected</span> String mHumanProtectedStr = <span class="string">"HumanProtectStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> String mHumanPublicStr = <span class="string">"HumanPublicStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> String mSameNameStr = <span class="string">"HumanSameNameStr"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String staticHumanPrivateStr = <span class="string">"StaticHumanPrivateStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String staticHumanPublicStr = <span class="string">"StaticHumanPublicStr"</span>;</span><br><span class="line"></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">"Human normal code block."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"Human static code block."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Human</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human Constructor."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">privateMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: privateMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publicMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: publicMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publicNormalMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: publicNormalMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticPrivateMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: staticPrivateMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticPublicMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: staticPublicMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticPublicNormalMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Human: staticPublicNormalMethod"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Sub</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Man</span> <span class="keyword">extends</span> <span class="title">Human</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String mManPrivateStr = <span class="string">"ManPrivateStr"</span>;</span><br><span class="line">    String mManDefaultStr = <span class="string">"ManDefaultStr"</span>;</span><br><span class="line">    <span class="keyword">protected</span> String mManProtectedStr = <span class="string">"ManProtectStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> String mManPublicStr = <span class="string">"ManPublicStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> String mSameNameStr = <span class="string">"ManSameNameStr"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String staticManPrivateStr = <span class="string">"StaticManPrivateStr"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String staticManPublicStr = <span class="string">"StaticManPublicStr"</span>;</span><br><span class="line"></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">"Man normal code block."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"Man static code block."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Man</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Man Constructor."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publicMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Man: publicMethod"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticPrivateMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Man: staticPrivateMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticPublicMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Man: staticPublicMethod."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSuperAndThis</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Man::testSuperAndThis, super.mSameNameStr = "</span></span><br><span class="line">            + <span class="keyword">super</span>.mSameNameStr);</span><br><span class="line">        <span class="keyword">super</span>.publicMethod();</span><br><span class="line">        System.out.println(<span class="string">"Man::testSuperAndThis, this.mSameNameStr = "</span></span><br><span class="line">            + <span class="keyword">this</span>.mSameNameStr);</span><br><span class="line">        <span class="keyword">this</span>.publicMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestOO</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Human human = <span class="keyword">new</span> Man();</span><br><span class="line">        System.out.println(<span class="string">"mSameNameStr = "</span> + human.mSameNameStr);</span><br><span class="line">        System.out.println(<span class="string">"staticHumanPublicStr = "</span> </span><br><span class="line">            + human.staticHumanPublicStr);</span><br><span class="line">        <span class="comment">// 不建议使用对象访问静态变量，当前只是用来演示</span></span><br><span class="line">        <span class="comment">// System.out.println("staticHumanPublicStr = " </span></span><br><span class="line">            + Human.staticHumanPublicStr);</span><br><span class="line">        human.publicMethod();</span><br><span class="line">        human.staticPublicMethod();</span><br><span class="line">        <span class="comment">// 不建议使用对象访问静态方法，当前只是用来演示不会重写</span></span><br><span class="line">        <span class="comment">// Human.staticPublicMethod();</span></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"******The subclass can access the member </span></span><br><span class="line"><span class="string">            and method of the parent.######"</span>);</span><br><span class="line">        Man man = <span class="keyword">new</span> Man();</span><br><span class="line">        System.out.println(<span class="string">"mHumanPublicStr = "</span> + man.mHumanPublicStr);</span><br><span class="line">        man.publicNormalMethod();</span><br><span class="line">        System.out.println(<span class="string">"staticHumanPublicStr = "</span> </span><br><span class="line">            + man.staticHumanPublicStr);</span><br><span class="line">        <span class="comment">// 不建议使用对象访问静态变量，当前只是用来演示可以访问父类静态变量</span></span><br><span class="line">        <span class="comment">// System.out.println("staticHumanPublicStr = " </span></span><br><span class="line">        <span class="comment">//    + Human.staticHumanPublicStr);</span></span><br><span class="line">        man.staticPublicNormalMethod();</span><br><span class="line">        <span class="comment">// 不建议使用对象访问静态方法，当前只是用来演示可以访问父类静态方法</span></span><br><span class="line">        <span class="comment">// Human.staticPublicNormalMethod();</span></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"*******Test super and this ###########"</span>);</span><br><span class="line">        man.testSuperAndThis();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. Result</span></span><br><span class="line">Human <span class="keyword">static</span> code block.</span><br><span class="line">Man <span class="keyword">static</span> code block.</span><br><span class="line">Human normal code block.</span><br><span class="line">Human Constructor.</span><br><span class="line">Man normal code block.</span><br><span class="line">Man Constructor.</span><br><span class="line">mSameNameStr = HumanSameNameStr</span><br><span class="line">staticHumanPublicStr = StaticHumanPublicStr</span><br><span class="line">Man: publicMethod</span><br><span class="line">Human: staticPublicMethod.</span><br><span class="line">******The subclass can access the member and method of the parent.######</span><br><span class="line">Human normal code block.</span><br><span class="line">Human Constructor.</span><br><span class="line">Man normal code block.</span><br><span class="line">Man Constructor.</span><br><span class="line">mHumanPublicStr = HumanPublicStr</span><br><span class="line">Human: publicNormalMethod.</span><br><span class="line">staticHumanPublicStr = StaticHumanPublicStr</span><br><span class="line">Human: staticPublicNormalMethod</span><br><span class="line">*******Test super and this ###########</span><br><span class="line">Man::testSuperAndThis, <span class="keyword">super</span>.mSameNameStr = HumanSameNameStr</span><br><span class="line">Human: publicMethod.</span><br><span class="line">Man::testSuperAndThis, <span class="keyword">this</span>.mSameNameStr = ManSameNameStr</span><br><span class="line">Man: publicMethod</span><br></pre></td></tr></table></figure>
+
+<p>示例演示了父类子类的初始化顺序，<code>super, this</code> 的使用，向上转型成员变量的访问，静态变量及静态方法的访问，普通方法的重写。  </p>
+<h2 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h2><p><code>Java</code> 中包含抽象类，抽象方法。抽象类表明这个类只能被继承，抽象方法表明这个方法必须由子类实现。</p>
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><ul>
+<li>抽象类和抽象方法必须使用 <code>abstract</code> 修饰  </li>
+<li>有抽象方法的类必须被定义为抽象类；但是反过来抽象类可以没有抽象方法  </li>
+<li>抽象类（即使不包含抽象方法）不能被实例化，即无法通过 <code>new</code> 来构造抽象类的实例  </li>
+<li>抽象类可以包含属性、方法（普通或者抽象方法）、构造器、初始化块、内部类、枚举类 6 种成分。抽象类的构造器不能用于创建实例，主要用于供子类调用  </li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>抽象方法和空方法是两个不同的概念，抽象方法没有方法体（即花括弧 <code>{}</code>）；而空方法是指方法体内为空  </li>
+<li><code>abstract</code> 不能修饰属性和构造器，即 <code>Java</code> 中没有抽象属性的说法，也没有抽象构造器  </li>
+<li><code>static</code> 修饰的方法是属于类的，所以如果该方法同时被定义为 <code>abstract</code> 的会导致编译错误。即 <code>abstract</code> 不能和 <code>static</code> 同时修饰方法  </li>
+<li><code>private</code> 访问控制符修饰的方法，子类无法访问，所以该方法如果被定义为 <code>abstract</code> 会导致子类无法实现。即 <code>abstract</code> 不能和 <code>private</code> 同时修饰方法  </li>
+</ul>
+<h3 id="作用和意义"><a href="#作用和意义" class="headerlink" title="作用和意义"></a>作用和意义</h3><p>抽象方法是定义一种或者一类事物必须有的一种技能，但是这种技能对于各个继承者的表现形式不一样，就把它定义为抽象方法。抽象类将事物的共性的东西提取出来，抽象成一个高层的类。如果一个类中没有包含足够的信息来描绘一个具体的对象，我们将这样的类定义为抽象类。抽象类往往用来表示对问题领域的抽象概念，看上去行为不同，但是本质上相同的具体概念的抽象。正是因为抽象的概念在问题领域没有对应的具体概念，所以用以表征抽象概念的抽象类是不能够实例化的。比如三角形、圆形、长方形等都属于形状。  </p>
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><p>接口 <code>Interface</code> 是一组抽象方法的集合。接口用于从多个相似类中抽象出规范。  </p>
+<h3 id="规则-1"><a href="#规则-1" class="headerlink" title="规则"></a>规则</h3><ul>
+<li>接口可以多重继承接口，但是不能继承类  </li>
+<li>接口因为定义的是规范，所以不能包含构造器和初始化块  </li>
+<li>接口可以包含属性、方法、内部类（包含内部接口、枚举类），它们默认且也只能是 <code>public</code> 访问权限  </li>
+<li>接口的属性变量都是常量（默认会自动添加 <code>public static final</code>），方法都是抽象方法（默认会自动添加 <code>public abstract</code>；<code>Java 8</code> 接口增强中已经支持非抽象的默认方法，使用 <code>defualt</code> 修饰）  </li>
+</ul>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>接口中都是抽象方法，所以不能使用 <code>static</code> 修饰（<code>Java 8</code> 接口增强中已经支持静态方法）  </li>
+<li>接口不能显示继承任何类  </li>
+<li>接口的实现类使用 <code>implements</code> 关键字  </li>
+<li>实现接口方法时，必须使用 <code>public</code> 修饰  </li>
+</ul>
+<h3 id="作用和意义-1"><a href="#作用和意义-1" class="headerlink" title="作用和意义"></a>作用和意义</h3><p>接口体现的是一种规范和实现分离的设计理念，可以很好的降低程序各模块之间的耦合，通常可以用于面向接口编程。  </p>
+<h3 id="Java-8-接口增强"><a href="#Java-8-接口增强" class="headerlink" title="Java 8 接口增强"></a><code>Java 8</code> 接口增强</h3><p><code>Java 8</code> 接口增强：支持默认方法和静态方法，其中默认方法需要增加 <code>default</code> 关键字修饰。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MyInterface</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">defaultMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"default method invoked! "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"static method invoked! "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="抽象类和接口的异同"><a href="#抽象类和接口的异同" class="headerlink" title="抽象类和接口的异同"></a>抽象类和接口的异同</h3><p>相同点：抽象类和接口都不能被实例化，只能由子类继承或者其他类实现。<br>不同点：  </p>
+<ul>
+<li>抽象类可以包含静态方法和普通方法，接口不可以（但是 <code>Java 8</code> 接口增强后是可以的）  </li>
+<li>接口不包含构造器和初始化代码块  </li>
+<li>接口支持多重继承，抽象类只能单继承  </li>
+</ul>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="继承时出现同名成员变量和方法"><a href="#继承时出现同名成员变量和方法" class="headerlink" title="继承时出现同名成员变量和方法"></a>继承时出现同名成员变量和方法</h3><ul>
+<li>子类父类成员变量同名<br>父类的成员变量会被屏蔽，子类访问该同名成员变量显示的是子类的，可以通过 <code>super</code> 来访问父类的同名成员变量。  </li>
+<li>子类父类成员方法同名<br>子类会重写父类的同名方法，通过 <code>super</code> 访问父类同名成员方法。  </li>
+</ul>
+<p>如果出现同名成员变量和方法，父类的成员变量和方法会被子类屏蔽（重写），在子类中可以通过 <code>super</code> 来访问。  </p>
+<h3 id="静态属性和静态方法是否可以被继承？是否可以被重写？"><a href="#静态属性和静态方法是否可以被继承？是否可以被重写？" class="headerlink" title="静态属性和静态方法是否可以被继承？是否可以被重写？"></a>静态属性和静态方法是否可以被继承？是否可以被重写？</h3><ul>
+<li>子类继承父类后，参考子类初始化顺序可知，继承了父类所有属性和方法。但是子类访问父类属性和方法时，会受访问控制符限制  </li>
+<li>重写是指方法重写，多态针对的是对象而不是类。静态方法属于类，并不属于对象，所以不存在重写这一说。对象在调用静态方法时，会根据静态类型直接绑定  </li>
+</ul>
+<p>在实际编码中，强烈建议直接使用类来调用静态属性和静态方法，养成好习惯。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>深入理解 <code>Java</code> 虚拟机: <code>JVM</code> 高级特性与最佳实践 第 2 版  </li>
+<li><a href="https://www.cnblogs.com/youxin/archive/2013/05/25/3099016.html" target="_blank" rel="noopener">分派</a>  </li>
+<li><a href="https://blog.csdn.net/dawn_after_dark/article/details/74357049" target="_blank" rel="noopener">Java中为什么静态方法不能被重写？</a>  </li>
+<li><a href="https://www.cnblogs.com/java06/archive/2013/05/04/3122133.html" target="_blank" rel="noopener">图解Java继承内存分配</a>  </li>
+<li><a href="https://www.zhihu.com/question/30082151" target="_blank" rel="noopener">JAVA的多态直观的解释</a>  </li>
+<li><a href="http://www.importnew.com/20079.html" target="_blank" rel="noopener">Java的三大特性——多态</a>  </li>
+<li><a href="https://blog.csdn.net/lv_a1b2c3/article/details/52857381" target="_blank" rel="noopener">Java中为何要定义抽象类</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/04/10/0074-java-oo/" title="Java 面向对象的特征">http://redspider110.github.io/2018/04/10/0074-java-oo/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/10/0073-java-code-exec-sequence/" rel="next" title="Java 代码执行顺序">
+                <i class="fa fa-chevron-left"></i> Java 代码执行顺序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/13/0075-java-generic-class/" rel="prev" title="Java 泛型">
+                Java 泛型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#封装"><span class="nav-number">1.</span> <span class="nav-text">封装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#继承"><span class="nav-number">2.</span> <span class="nav-text">继承</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#super-和-this"><span class="nav-number">2.1.</span> <span class="nav-text">super 和 this</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#父类子类的初始化顺序"><span class="nav-number">2.2.</span> <span class="nav-text">父类子类的初始化顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性和方法的继承"><span class="nav-number">2.3.</span> <span class="nav-text">属性和方法的继承</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态"><span class="nav-number">3.</span> <span class="nav-text">多态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#向上转型和向下转型"><span class="nav-number">3.1.</span> <span class="nav-text">向上转型和向下转型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多态存在的三个必要条件"><span class="nav-number">3.2.</span> <span class="nav-text">多态存在的三个必要条件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法调用：分派"><span class="nav-number">4.</span> <span class="nav-text">方法调用：分派</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#变量静态类型和实际类型"><span class="nav-number">4.1.</span> <span class="nav-text">变量静态类型和实际类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重载与重写"><span class="nav-number">4.2.</span> <span class="nav-text">重载与重写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态分派"><span class="nav-number">4.3.</span> <span class="nav-text">静态分派</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态分派"><span class="nav-number">4.4.</span> <span class="nav-text">动态分派</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单分派和多分派"><span class="nav-number">4.5.</span> <span class="nav-text">单分派和多分派</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#向上转型注意事项"><span class="nav-number">5.</span> <span class="nav-text">向上转型注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">5.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">5.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抽象类"><span class="nav-number">6.</span> <span class="nav-text">抽象类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#规则"><span class="nav-number">6.1.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">6.2.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用和意义"><span class="nav-number">6.3.</span> <span class="nav-text">作用和意义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接口"><span class="nav-number">7.</span> <span class="nav-text">接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#规则-1"><span class="nav-number">7.1.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项-1"><span class="nav-number">7.2.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用和意义-1"><span class="nav-number">7.3.</span> <span class="nav-text">作用和意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-8-接口增强"><span class="nav-number">7.4.</span> <span class="nav-text">Java 8 接口增强</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象类和接口的异同"><span class="nav-number">7.5.</span> <span class="nav-text">抽象类和接口的异同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">8.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#继承时出现同名成员变量和方法"><span class="nav-number">8.1.</span> <span class="nav-text">继承时出现同名成员变量和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态属性和静态方法是否可以被继承？是否可以被重写？"><span class="nav-number">8.2.</span> <span class="nav-text">静态属性和静态方法是否可以被继承？是否可以被重写？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

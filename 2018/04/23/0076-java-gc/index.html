@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Android,JVM,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java 中的内存分配及垃圾回收策略。本文是《深入理解 Java 虚拟机: JVM 高级特性与最佳实践 第 2 版 - 第三章 垃圾收集器与内存分配策略》的读书笔记。">
+<meta name="keywords" content="Java,Android,JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM 内存分配及垃圾回收">
+<meta property="og:url" content="http://redspider110.github.io/2018/04/23/0076-java-gc/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Java 中的内存分配及垃圾回收策略。本文是《深入理解 Java 虚拟机: JVM 高级特性与最佳实践 第 2 版 - 第三章 垃圾收集器与内存分配策略》的读书笔记。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-gc-java-memory-model.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-memory-point.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-gc.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-yong-old-eden-survivor.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-mark-sweep.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-copying.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-mark-compact.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-collectors.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-log-gc.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-log-full-gc.jpg">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.370Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM 内存分配及垃圾回收">
+<meta name="twitter:description" content="Java 中的内存分配及垃圾回收策略。本文是《深入理解 Java 虚拟机: JVM 高级特性与最佳实践 第 2 版 - 第三章 垃圾收集器与内存分配策略》的读书笔记。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-gc-java-memory-model.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/04/23/0076-java-gc/">
+
+
+
+
+
+  <title>JVM 内存分配及垃圾回收 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/04/23/0076-java-gc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JVM 内存分配及垃圾回收</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-23T09:00:00+08:00">
+                2018-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Java</code> 中的内存分配及垃圾回收策略。本文是《深入理解 <code>Java</code> 虚拟机: <code>JVM</code> 高级特性与最佳实践 第 2 版 - 第三章 垃圾收集器与内存分配策略》的读书笔记。  </p>
+<a id="more"></a>
+
+<p><code>GC [Garbage Collection]</code>：垃圾回收器 。<code>Java</code> 使用 <code>GC</code> 进行内存回收理，不用手动释放内存而提升开发效率。<code>GC</code> 主要完成三件事：  </p>
+<ul>
+<li>确定哪些内存需要回收  </li>
+<li>什么时候回收  </li>
+<li>怎么回收  </li>
+</ul>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><h3 id="虚拟机运行时数据区"><a href="#虚拟机运行时数据区" class="headerlink" title="虚拟机运行时数据区"></a>虚拟机运行时数据区</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-gc-java-memory-model.png" alt="0076-java-gc-java-memory-model.png"></p>
+<p>如图所示，<code>JVM</code> 内存模型将内存分为：  </p>
+<ul>
+<li>程序计数器<br>占用一块很小的内存空间，当前线程执行的字节码的行号指示器，用来选取下一条需要执行的字节码。  </li>
+<li>虚拟机栈<br>每个方法执行时会创建一个栈帧，存储局部变量表，操作数栈等等。局部变量表只保存基本数据类型、对象的引用、返回地址字节码。当方法退出时，虚拟机栈就会自动清空，释放内存。  </li>
+<li>本地方法栈<br>虚拟机栈是为 <code>Java</code> 服务的，而本地方法栈针对的是 <code>Native</code> 方法的。本地方法栈也是在方法退出时就会释放内存。  </li>
+<li>堆<br>所有的对象实例和数组都是在堆中分配的内存，是垃圾回收的主要区域，有时候也称为 <code>GC</code> 堆。类的成员变量是在对象实例化时分配在堆中的。  </li>
+<li>方法区<br>用于保存类信息，常量，静态变量等，也叫 <code>Non-Heap</code> （非堆）。<br>运行时常量池：方法区的一部分，保存类信息，常量池。  </li>
+</ul>
+<p>通常将内存分为栈和堆，指的就是虚拟机栈和堆，而内存泄露、内存溢出、垃圾回收等都主要针对的是堆内存。程序计数器、虚拟机栈、本地方法栈都是随线程生而生，灭而灭；栈在方法退出时自动清空，而方法区的回收性价比非常低，条件苛刻；所以内存回收主要集中在堆中。  </p>
+<h3 id="对象访问定位"><a href="#对象访问定位" class="headerlink" title="对象访问定位"></a>对象访问定位</h3><p>建立对象后，<code>Java</code> 程序需要通过栈上的 <code>reference</code> 数据来操作堆上的对象。<code>Java</code> 采用的是直接指针访问对象，这要求堆对象布局中需要考虑如何放置访问类型数据的相关信息，而 <code>reference</code> 存储的直接就是对象地址。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-memory-point.jpg" alt="0076-java-memory-point.jpg"></p>
+<h3 id="内存溢出"><a href="#内存溢出" class="headerlink" title="内存溢出"></a>内存溢出</h3><ul>
+<li><code>OutOfMemoryError</code><br>无法申请到足够的存储空间，都会抛出 <code>OOM</code>。  </li>
+<li><code>StackOverflowError</code><br>虚拟机栈和本地方法栈，如果请求的栈深度大于虚拟机允许的最大深度，将会抛出 <code>StackOverflowError</code>。  </li>
+</ul>
+<p>它们都不属于 <code>Exception</code> 的子类，所以 <code>catch</code> 时，只能使用 <code>Throwable</code>。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. OutOfMemoryError</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestOutOfMemory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _1M = <span class="number">1024</span> * <span class="number">1024</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;<span class="keyword">byte</span>[]&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">while</span> (flag)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                list.add(<span class="keyword">new</span> <span class="keyword">byte</span>[_1M]);</span><br><span class="line">                count++;</span><br><span class="line">            &#125;<span class="keyword">catch</span> (Throwable e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                flag = <span class="keyword">false</span>;</span><br><span class="line">                System.out.println(<span class="string">"count = "</span> + count);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Result</span></span><br><span class="line">count = <span class="number">1697</span></span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line">    at com.***.jvm.TestOutOfMemory.main(TestOutOfMemory.java:<span class="number">15</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. StackOverflowError</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStackOverFlow</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> index;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">        index++;</span><br><span class="line">        call();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TestStackOverFlow stackOverFlow = <span class="keyword">new</span> TestStackOverFlow();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            stackOverFlow.call();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Throwable e)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Stack deep: "</span> + index);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Result</span></span><br><span class="line">Stack deep: <span class="number">11413</span></span><br><span class="line">java.lang.StackOverflowError</span><br><span class="line">    at com.***.jvm.TestStackOverFlow.call(TestStackOverFlow.java:<span class="number">7</span>)</span><br><span class="line">    at com.***.jvm.TestStackOverFlow.call(TestStackOverFlow.java:<span class="number">8</span>)</span><br><span class="line">    at com.***.jvm.TestStackOverFlow.call(TestStackOverFlow.java:<span class="number">8</span>)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="垃圾对象的判断"><a href="#垃圾对象的判断" class="headerlink" title="垃圾对象的判断"></a>垃圾对象的判断</h2><p><code>GC</code> 之前要判断回收哪些内存？<code>Java</code> 中采用的是可达性分析算法来判断的。  </p>
+<h3 id="引用计数算法"><a href="#引用计数算法" class="headerlink" title="引用计数算法"></a>引用计数算法</h3><p>引用计数算法：给对象添加一个引用计算器，每当有一个地方引用它时，计数器自动加 1；当引用失效时，计数器自动减 1。当计算器为 0 时，表示该对象没有被引用了。<br>引用计数算法使用非常广泛，但是 <code>Java</code> 中并没有选用它来管理内存，最主要的原因是它很难解决对象之间相互循环引用的问题。</p>
+<h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>可达性分析算法：通过一系列的称为 <code>GC Roots</code> 的对象作为起始点，从这些节点向下搜索，搜索所走过的路径称为引用链 <code>Reference Chain</code>，当一个对象到 <code>CC Roots</code> 没有任何引用链相连（即图论中的，<code>GC Roots</code> 到达这个对象是不可达的），则证明此对象是不可用的。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-java-gc.jpg" alt="0076-java-gc.jpg"></p>
+<p>如果对象 <code>C</code> 是可达的，则认为该对象是被引用的，<code>GC</code> 不会回收。如果对象 <code>F</code> 或者块 <code>E</code>（多个对象引用组成的对象块）是不可达的，那么该对象或者块则判定是不可达的垃圾对象，<code>GC</code> 会回收。  </p>
+<p>可作为 <code>GC Roots</code> 的对象包含如下几种：  </p>
+<ul>
+<li>虚拟机栈（栈帧中的局部变量表）中引用的对象  </li>
+<li>方法区中类静态属性引用的对象  </li>
+<li>方法区中常量引用的对象  </li>
+<li>本地方法栈中 <code>JNI</code> （即 <code>Native</code> 方法）引用的对象  </li>
+</ul>
+<p>换句话说，如果对象被上面这几种对象引用，则无法被回收。通常在内存泄露和优化时，从这几种对象着手分析。  </p>
+<h3 id="对象引用的四种分类"><a href="#对象引用的四种分类" class="headerlink" title="对象引用的四种分类"></a>对象引用的四种分类</h3><ul>
+<li>强引用 <code>Strong Reference</code><br>最常见的应用： <code>Object obj = new Object()</code>，这类引用就是强引用，也就是我们一般声明对象是时虚拟机生成的引用。垃圾回收时需要严格判断当前对象是否被强引用，只要强引用还存在，则不会被垃圾回收。  </li>
+<li>软引用 <code>Soft Reference</code><br>使用 <code>SoftReference</code> 类来实现软引用，用来描述有用但并非必需的对象。对于软引用关联着的对象在垃圾回收时，虚拟机会根据当前系统的剩余内存来决定是否对软引用进行回收。如果剩余内存比较紧张，则虚拟机会回收软引用所引用的空间；如果剩余内存相对富裕，则不会进行回收。在系统要发生内存溢出异常之前，会将这些对象进行回收范围之中进行第二次回收，如果这次回收还没有足够的内存，才会抛出内存溢出异常。换句话说，虚拟机在发生 <code>OutOfMemory</code> 时，肯定是没有软引用存在的。  </li>
+<li>弱引用 <code>Weak Reference</code><br>使用 <code>WeakReference</code> 类来实现弱引用，用来描述非必需对象，但是强度比软引用更弱一些。被弱引用关联的对象只能生存到下一次垃圾收集发生之前，当垃圾回收发生时，无论当前内存是否足够，被弱引用关联的对象都会被回收，因此其生命周期只存在于一个垃圾回收周期内。  </li>
+<li>总结<br>软引用：当虚拟机内存不足时（内存溢出，<code>OOM</code> 之前），会回收它指向的对象。<br>弱引用：随时可能会被垃圾回收器回收，不一定要等到虚拟机内存不足时才强制回收，每次 <code>GC</code> 都会回收。<br>软引用多用作来实现缓存机制（<code>cache</code>），而弱引用一般用来防止内存泄漏，要保证内存被虚拟机回收。  </li>
+</ul>
+<blockquote>
+<p>在垃圾回收前，弱引用可以确保对象被回收，可以规避内存泄露。  </p>
+</blockquote>
+<h3 id="finalize-方法"><a href="#finalize-方法" class="headerlink" title="finalize 方法"></a><code>finalize</code> 方法</h3><p>可达性分析中不可达对象，也并不是必须被回收。<code>GC</code> 在回收对象之前会调用 <code>finalize</code>方法，我们可以在该方法中再次引用对象达到复活。但是 <code>finalize</code> 方法最多只会被系统调用一次，或者不调用。<code>JVM</code> 作者建议忘掉这个方法的存在，这个方法运行的不确定性太大，无法保证 <code>GC</code> 时一定会调用该方法。  </p>
+<h2 id="堆内存及-GC-分类"><a href="#堆内存及-GC-分类" class="headerlink" title="堆内存及 GC 分类"></a>堆内存及 <code>GC</code> 分类</h2><h3 id="堆内存分类"><a href="#堆内存分类" class="headerlink" title="堆内存分类"></a>堆内存分类</h3><p><code>Java</code> 中为了方便优化 <code>GC</code> 性能，将堆划分成两个不同的区域：  </p>
+<ul>
+<li>新生代 <code>Young</code><br>新生代内部被划分为三个区域：<code>Eden[&#39;i:dn], From Survivor[sərˈvaɪvə(r)], To Survivor</code>，即 <code>Eden</code> 区和两个 <code>Survivor</code> 区。  </li>
+<li>老年代 <code>Old</code>  </li>
+</ul>
+<p><code>JVM</code> 默认配置中，通常新生代占用 1/3, 老年代占用 2/3；在新生代中 <code>Eden:From:To</code> 的比率为 8:1:1。详细划分图如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-yong-old-eden-survivor.png" alt="0076-yong-old-eden-survivor.png"></p>
+<p>新生代和老年代的比率，以及 <code>Eden</code> 和两个 <code>Survivor</code> 的比率，都可以可以通过 <code>JVM</code> 参数（<code>–XX:NewRatio, –XX:SurvivorRatio</code>）来设置。参数含义详见“ <code>JVM</code> 常见参数”中的描述。  </p>
+<h3 id="GC-分类"><a href="#GC-分类" class="headerlink" title="GC 分类"></a><code>GC</code> 分类</h3><ul>
+<li><code>Minor GC</code><br>通常指发生在新生代的垃圾回收动作，因为 <code>Java</code> 对象大多数具有朝生夕灭的特性，所以 <code>Minor GC</code> 非常频繁，一般回收速度也非常快。  </li>
+<li><code>Full GC</code><br><code>Full GC</code> 前通常默认至少会执行一次 <code>Minor GC</code>（并非绝对），<code>Full GC</code> 速度一般会比 <code>Minor GC</code> 慢 10 倍以上。<code>Full GC</code> 是对整个 <code>Java</code> 堆回收，包含：新生代，老年代，永久代（或者元空间）。<code>Major GC</code> 通常是跟 <code>Full GC</code> 是等价的，但有时特指回收老年代。  </li>
+</ul>
+<blockquote>
+<p><code>GC</code> 停顿，<code>GC</code> 进行时停顿所有的 <code>Java</code> 执行线程，即 <code>STW: Stop The World</code> 。所以 <code>GC</code> 过于频繁或者时间过长，将会显著影响到程序的运行。  </p>
+</blockquote>
+<p>参考：<a href="https://www.zhihu.com/question/41922036" target="_blank" rel="noopener">各GC的区别</a> ，<a href="http://www.importnew.com/15820.html" target="_blank" rel="noopener">Minor GC、Major GC和Full GC之间的区别</a>  </p>
+<h2 id="常见垃圾收集算法"><a href="#常见垃圾收集算法" class="headerlink" title="常见垃圾收集算法"></a>常见垃圾收集算法</h2><p>垃圾收集算法的实现各虚拟机平台实现各不相同，但是算法思想基本一致。  </p>
+<h3 id="标记清除算法-Mark-Sweep"><a href="#标记清除算法-Mark-Sweep" class="headerlink" title="标记清除算法 Mark-Sweep"></a>标记清除算法 <code>Mark-Sweep</code></h3><p>标记清除算法：也是最基础的收集算法，分为“标记”和“清除”两个阶段，首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。<br>其他收集算法基本都是基于这种思路并对不足进行改进的，该算法的不足之处有两个：  </p>
+<ul>
+<li>效率问题<br>标记和清除两个阶段效率都不高。  </li>
+<li>空间问题<br>标记清除后会产生大量不连续的内存碎片，空间碎片太多会导致后续分配大对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-mark-sweep.png" alt="0076-gc-mark-sweep.png"></p>
+<h3 id="复制算法-Copying"><a href="#复制算法-Copying" class="headerlink" title="复制算法 Copying"></a>复制算法 <code>Copying</code></h3><p>复制算法：将内存按容量划分为大小相等的两块，每次只使用其中一块。当这块内存用完后，将还存活的对象复制到另一块上面，然后将使用完的这块内存空间一次全部清理掉。<br>这样每次都是对整个半区进行内存回收，只要移动堆顶指针，按顺序分配内存即可，实现简单高效。解决了 <code>Mark-Sweep</code> 的效率问题，同时也不用考虑内存碎片。但是 <code>Copying</code> 算法是将内存缩小为原来的一半，代价太高。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-copying.png" alt="0076-gc-copying.png"></p>
+<h3 id="标记整理算法-Mark-Compact"><a href="#标记整理算法-Mark-Compact" class="headerlink" title="标记整理算法 Mark-Compact"></a>标记整理算法 <code>Mark-Compact</code></h3><p>标记整理算法：标记过程仍然与“标记-清除”算法一样，但后续并不会直接对可回收对象进行清理，而是让所有存活对象都向一端移动，然后直接清理掉端边界以外的内存。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-mark-compact.png" alt="0076-gc-mark-compact.png"></p>
+<h2 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h2><ul>
+<li><code>Serial</code> 收集器<br><code>Serial</code> 收集器是最基本的，发展最悠久的收集器。它是一个单线程收集器，使用复制算法。  </li>
+<li><code>ParNew</code> 收集器<br>它是 <code>Serial</code> 的多线程版本。  </li>
+<li><code>Parallel Scavenge</code> 收集器<br>使用复制算法，并行多线程收集器。它有一个更重要的功能：<code>GC</code> 自适应调节策略，由虚拟机来决定内存调优。该收集器相对于其他收集器更关注吞吐量（运行代码时间 / (运行代码时间 + 垃圾收集时间)），也就是它可能为了吞吐量主动触发 <code>Full GC</code>，或者不触发 <code>GC</code>，以确保吞吐量最优。   </li>
+<li><code>Serial Old</code> 收集器<br>它是 <code>Serial</code> 收集器的老年代版本，单线程，标记整理算法。  </li>
+<li><code>Parallel Old</code> 收集器<br>它是 <code>Parallel Scavenge</code> 收集器的老年代版本，多线程，标记整理算法。  </li>
+<li><code>CMS</code> 收集器<br><code>CMS: Concurrent Mark Sweep</code>，是一种以获取最短回收停顿时间为目标的收集器。基于标记-清除算法，并发收集，低停顿。  </li>
+<li><code>G1</code> 收集器<br><code>G1: Garbage First</code>，它将堆内存区域划分为多个大小相等的独立区域，虽然保留了新生代和老年代的概念，但是新生代和老年代将不再是物理隔离，他们都是独立区域集合。这和其他收集器直接划分为新生代老年代有非常大的区别。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-collectors.jpg" alt="0076-gc-collectors.jpg"></p>
+<p>其中 <code>?</code> 部分就是 <code>G1</code> 收集器。<code>ParNew</code> 和 <code>Parallel Scavenge</code> 最大的区别是，<code>Parallel Scavenge</code> 不能与 <code>CMS</code> 配合工作。参考：<a href="https://blogs.oracle.com/jonthecollector/our-collectors" target="_blank" rel="noopener">收集器分类</a>  </p>
+<h2 id="堆内存回收策略"><a href="#堆内存回收策略" class="headerlink" title="堆内存回收策略"></a>堆内存回收策略</h2><h3 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h3><p>商业虚拟机的垃圾回收通常采用“分代收集 <code>Generational Collection</code> ”算法，它并没有引入新的算法，而是针对新生代和老年代的特点采用适当的算法。  </p>
+<ul>
+<li>新生代<br>通常会有大量对象创建及死亡，只有少量对象存活，采用复制算法。  </li>
+<li>老年代<br>对象存活率高，而且也没有额外的空间担保，使用“标记-清理”或者“标记-整理”算法。  </li>
+</ul>
+<h3 id="对象分配"><a href="#对象分配" class="headerlink" title="对象分配"></a>对象分配</h3><ul>
+<li>优先 <code>Eden</code> 区<br><code>Java</code> 对象大多数具有朝生夕灭的特性，所以新创建的对象通常优先分配在新生代堆中，默认为 <code>Eden</code> 和 <code>From</code> 区，也就是说新生代的可用内存空间默认为整个新生代容量的 90%，剩下 10% 为复制算法备用空间。当没有足够空间进行分配时，虚拟机发起一次 <code>Minor GC</code>。但是对象回收时，无法确保只有不多于 10% 的对象存活，如果 <code>To Survivor</code> 空间不够，需要老年代进行分配担保，也就是说超出空间的对象直接会进入老年代。如果新生代 <code>GC</code> 的平均晋升大小比目前老年代剩余空间大，则会触发一次 <code>Full GC</code>。  </li>
+<li>大对象直接分配在老年代<br>所谓大对象是指需要大量连续内存空间的对象，最典型的大对象就是很长的字符串和数组。<code>JVM</code> 可以通过设置 <code>-XX:PretenureSizeThreshold</code> 来决定对象大小门限值，如果超过指定值的对象直接分配到老年代，避免垃圾回收时在新生代中发生大量的内存复制。不过这个参数只对 <code>Serial</code> 和 <code>ParNew</code> 收集器生效。  </li>
+<li>长期存活对象进入老年代<br>虚拟机给每个对象定义一个对象年龄 <code>Age</code> 计数器。如果对象在 <code>Eden</code> 出生并经历过一次 <code>Minor GC</code> 后仍然存活，并且有足够的空间移动到 <code>To Survivor</code> 区，此时将对象年龄设为 1 。后续对象在 <code>To Survivor</code> 区，每熬过一次 <code>Minor GC</code> ，年龄都会加 1，当年龄到达一定程度（默认为 15），它将会被晋升到老年代中。可以通过设置 <code>-XX:MaxTenuringThreshold</code> 来设置这个晋升阀值。  </li>
+<li>动态对象年龄判断<br>当 <code>To Survivor</code> 空间相同年龄所有对象大小的总和大于 <code>To Survivor</code> 空间的一半，年龄大于或等于该年龄的对象可以直接进入老年代，无须等到 <code>-XX:MaxTenuringThreshold</code> 要求的年龄。  </li>
+</ul>
+<p>实际上：对象优先分配到 <code>Eden</code> 堆，但是是否进入老年代或者晋升老年代，这些和垃圾收集器强相关，和下面的 <code>GC</code> 触发机制一样，并没有严格定义。  </p>
+<h3 id="GC-触发机制"><a href="#GC-触发机制" class="headerlink" title="GC 触发机制"></a><code>GC</code> 触发机制</h3><p>根据上面对象分配规则，不同场景触发 <code>GC</code> 类型不一样。大体的触发条件：<code>Eden</code> 区满了就会触发新生代 <code>GC</code>；新生代晋升时如果老年代剩余空间不足会触发 <code>Full GC</code>。具体参考：<a href="https://www.zhihu.com/question/41922036" target="_blank" rel="noopener">各GC的区别及触发条件</a><br>总的来讲：<code>GC</code> 触发条件取决于 <code>JVM</code> 垃圾收集器的算法实现，并没有严格的定义。如果不对收集器算法做深入研究，不用过于关注。<code>Java 8</code> 中调试时，<code>GC Log</code> 会显示基本的触发原因。<br>对象分配和 <code>GC</code> 触发和垃圾收集器的关系，可以参考最下面的 <code>GC</code> 日志中的实例。  </p>
+<h2 id="方法区回收策略"><a href="#方法区回收策略" class="headerlink" title="方法区回收策略"></a>方法区回收策略</h2><h3 id="方法区回收条件"><a href="#方法区回收条件" class="headerlink" title="方法区回收条件"></a>方法区回收条件</h3><p>方法区也存在垃圾回收，只是回收效率和性价比非常低。方法区会回收两部分内容：废弃常量和无用的类。类被回收时才会卸载，但是方法区回收类时条件比较严格，只有同时满足以下三个条件，才会回收： </p>
+<ul>
+<li>该类所有的实例都已经被回收（<code>GC</code>），也就是虚拟机中不存在该 <code>Class</code> 的任何实例  </li>
+<li>加载该类的 <code>ClassLoader</code> 已经被回收（<code>GC</code>）  </li>
+<li>该类的 <code>java.lang.Class</code> 对象没有在任何地方被引用，无法在任何地方通过反射访问改类的方法<br>静态变量在类没有被销毁，也没有置 <code>null</code> 的情况下，是不会被回收的（<code>GC</code>）。  </li>
+</ul>
+<p>回收废弃常量和回收堆中对象非常类似，判断一个废弃常量比较简单：假如这个常量没有被任何地方引用，当方法区出现内存回收并且有必要的情况下，该常量就会被清理出常量池。  </p>
+<h3 id="方法区存储空间各版本的区别"><a href="#方法区存储空间各版本的区别" class="headerlink" title="方法区存储空间各版本的区别"></a>方法区存储空间各版本的区别</h3><p>方法区的存储空间在不同的虚拟机中有不同的实现， <code>HotSpot</code> 中被称为永久代（<code>PermGen Space</code>），而 <code>JRockit(Oracle)</code> 等其他虚拟机并没有永久代。<code>GC</code> 不会在主程序运行期对永久代进行清理。所以这也导致了永久代的区域会随着加载的 <code>Class</code> 的增多而胀满，最终抛出 <code>OOM: java.lang.OutOfMemoryError: PermGen space</code> 异常。<br>而在 <code>Java 8</code> 开始已经不存在永久代，而使用的是元空间 <code>Metaspace</code>。元空间的本质和永久代类似，都是对 <code>JVM</code> 规范中方法区的实现。不过元空间与永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存。因此默认情况下，元空间的大小仅受本地内存限制。类的元数据放入 <code>native memory</code>, 字符串池和类的静态变量放入堆中。这样可以加载多少类的元数据就不再由 <code>MaxPermSize</code> 控制, 而由系统的实际可用空间来控制。  </p>
+<h2 id="JVM-常见参数"><a href="#JVM-常见参数" class="headerlink" title="JVM 常见参数"></a><code>JVM</code> 常见参数</h2><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-Xms</td>
+<td>初始堆大小。如：<code>-Xms256m</code></td>
+</tr>
+<tr>
+<td>-Xmx</td>
+<td>最大堆大小。如：<code>-Xmx512m</code></td>
+</tr>
+<tr>
+<td>-Xmn</td>
+<td>新生代大小。通常为最大堆的 1/3 或 1/4。新生代 = <code>Eden</code> + 2 个 <code>Survivor</code> 空间。实际可用空间为 = <code>Eden + From</code>，即 90% 的空间</td>
+</tr>
+<tr>
+<td>-XX:NewRatio</td>
+<td>新生代与老年代的比例，如 <code>–XX:NewRatio=2</code>，则新生代占整个堆空间的 1/3，老年代占 2/3</td>
+</tr>
+<tr>
+<td>-XX:SurvivorRatio</td>
+<td>新生代中 <code>Eden</code> 与 <code>Survivor</code> 的比值。默认值为 8。即 <code>Eden</code> 占新生代空间的 8/10，另外两个 <code>Survivor</code> 各占 1/10</td>
+</tr>
+<tr>
+<td>-XX:PretenureSizeThreshold</td>
+<td>老年代门限值，大小大于这个值的对象直接分配进老年代，这个参数只对 <code>Serial</code> 和 <code>ParNew</code> 收集器生效</td>
+</tr>
+<tr>
+<td>-XX:MaxTenuringThreshold</td>
+<td>对象从新生代晋升到老年代的年龄阀值，默认为 15</td>
+</tr>
+<tr>
+<td>-XX:+PrintGC</td>
+<td>开启 <code>GC</code> 打印简单信息，别名 <code>-verbose:gc</code></td>
+</tr>
+<tr>
+<td>-XX:+PrintGCDetails</td>
+<td>打印 <code>GC</code> 详细信息，通常默认会包含 <code>-XX:+PrintGC</code> 的信息</td>
+</tr>
+<tr>
+<td>-XX:+PrintHeapAtGC</td>
+<td>打印 <code>GC</code> 前后的堆信息</td>
+</tr>
+<tr>
+<td>-Xss</td>
+<td><code>JDK1.5+</code> 每个线程堆栈大小为 1M 。如果超出抛出 <code>StackOverflowError</code></td>
+</tr>
+<tr>
+<td>-XX:PermSize</td>
+<td>永久代（方法区）的初始大小，<code>Java 8</code> 中已经使用元空间，降级</td>
+</tr>
+<tr>
+<td>-XX:MaxPermSize</td>
+<td>永久代（方法区）的最大值，<code>Java 8</code> 中已经使用元空间，降级</td>
+</tr>
+<tr>
+<td>-XX:+HeapDumpOnOutOfMemoryError</td>
+<td>让虚拟机在发生内存溢出时 <code>Dump</code> 出当前的内存堆转储快照，以便分析用</td>
+</tr>
+<tr>
+<td>-XX:+UseSerialGC</td>
+<td>使用 <code>Serial + Serial Old</code> 收集器组合回收内存</td>
+</tr>
+<tr>
+<td>-XX:+UseParNewGC</td>
+<td>使用 <code>ParNew + Serial Old</code> 收集器组合回收内存</td>
+</tr>
+<tr>
+<td>-XX:+UseConcMarkSweepGC</td>
+<td>使用 <code>ParNew + CMS + Serial Old</code> 收集器组合回收内存，<code>Serial Old</code> 作为 <code>CMS</code> 失败时的备用收集器</td>
+</tr>
+<tr>
+<td>-XX:+UseParallelGC</td>
+<td>使用 <code>Parallel Scavenge</code> 收集新生代</td>
+</tr>
+<tr>
+<td>-XX:+UseParallelOldGC</td>
+<td>使用 <code>Parallel Old</code> 收集老年代，默认同时开启 <code>-XX:+UseParallelGC</code></td>
+</tr>
+</tbody></table>
+<h2 id="GC-日志"><a href="#GC-日志" class="headerlink" title="GC 日志"></a><code>GC</code> 日志</h2><p>阅读和分析 <code>GC</code> 日志是处理 <code>Java</code> 虚拟机内存问题的基本技能，每种收集器的日志都是由其自身决定，也就是说格式可能不一样，但是虚拟机为了方便用户阅读，各个收集器的日志有很大的共性。<br>参考：<a href="http://www.cnblogs.com/smyhvae/p/4736162.html" target="_blank" rel="noopener">Java虚拟机详解03—-常用JVM配置参数</a> ，这篇博客的虚拟机系列写的都不错。  </p>
+<h3 id="各字段含义"><a href="#各字段含义" class="headerlink" title="各字段含义"></a>各字段含义</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-log-gc.jpg" alt="0076-gc-log-gc.jpg"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0076-gc-log-full-gc.jpg" alt="0076-gc-log-full-gc.jpg"></p>
+<p>一段示例 <code>Log</code>：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[GC [PSYoungGen: 6635K-&gt;800K(9216K)] 6635K-&gt;6944K(19456K), 0.0075650 secs] [Times: user=0.15 sys=0.00, real=0.00 secs]</span><br><span class="line">[Full GC [PSYoungGen: 800K-&gt;0K(9216K)] [ParOldGen: 6144K-&gt;6371K(10240K)] 6944K-&gt;6371K(19456K) [PSPermGen: 2733K-&gt;2732K(21504K)], 0.0107750 secs] [Times: user=0.12 sys=0.01, real=0.02 secs]</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 2214K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 27% used [0x00000000ff600000,0x00000000ff829848,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 6371K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 62% used [0x00000000fec00000,0x00000000ff238d38,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2739K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48aced8,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>GC</code> 类型<br>疑问：根据垃圾收集器中的介绍，所有 <code>GC</code> 都会出现停顿，而“深入理解虚拟机”一文中特意强调了 <code>[GC</code> 和 <code>[Full GC</code> 并不是用来区分新生代和老年代的，而是用来区分是否停顿（<code>Stop The World</code>）的？但是搜了下大部分网络博客或问答上基本都认为 <code>[GC</code> 特指新生代，而 <code>[Full GC</code> 是指全堆。参考：<a href="https://www.zhihu.com/question/41922036" target="_blank" rel="noopener">各GC的区别</a>  </li>
+<li>垃圾收集器类型以及堆位置<br><code>[PSYoungGen]</code> 表示使用 <code>Parallel Scavenge</code> 收集器回收新生代堆；<code>[ParOldGen]</code> 表示使用 <code>Parallel Old</code> 收集器回收老年代；<code>[PSPermGen]</code> 表示使用 <code>Parallel Scavenge</code> 收集器回收永久代。可以通过设置 <code>JVM</code> 参数来指定对应的垃圾收集器，<code>PS</code> 是当前环境下默认的收集器。  </li>
+</ul>
+<h3 id="Java-版本及环境"><a href="#Java-版本及环境" class="headerlink" title="Java 版本及环境"></a><code>Java</code> 版本及环境</h3><p>如下示例都是在 <code>Ubuntu Java 1.7</code> 中执行的。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -version</span><br><span class="line">java version "1.7.0_91"</span><br><span class="line">OpenJDK Runtime Environment (IcedTea 2.6.3) (7u91-2.6.3-0ubuntu0.12.04.1)</span><br><span class="line">OpenJDK 64-Bit Server VM (build 24.91-b01, mixed mode)</span><br></pre></td></tr></table></figure>
+
+<h3 id="一个怪异现象示例"><a href="#一个怪异现象示例" class="headerlink" title="一个怪异现象示例"></a>一个怪异现象示例</h3><p>源码中，堆内存申请大小如下：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestGCLog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _1MB = <span class="number">1024</span> * <span class="number">1024</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testAllocation</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">byte</span>[] allocation1, allocation2, allocation3,allocation4,allocation5;</span><br><span class="line">        allocation1 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</span><br><span class="line">        allocation2 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</span><br><span class="line">        allocation3 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</span><br><span class="line">        allocation4 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1572864</span>]; <span class="comment">//1.5M</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; allocation1.length; i++ )&#123;</span><br><span class="line">            allocation1[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; allocation2.length; i++ )&#123;</span><br><span class="line">            allocation2[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; allocation3.length; i++ )&#123;</span><br><span class="line">            allocation3[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; allocation4.length; i++ )&#123;</span><br><span class="line">            allocation4[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        allocation5 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">20542</span>];</span><br><span class="line">        System.out.println(allocation1.length);</span><br><span class="line">        System.out.println(allocation2[<span class="number">1</span>]);</span><br><span class="line">        System.out.println(allocation3[<span class="number">2</span>]);</span><br><span class="line">        System.out.println(allocation4[<span class="number">8</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        testAllocation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ javac TestGCLog.java</span><br><span class="line">xmt@server005:~/$ java -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC TestGCLog</span><br><span class="line">&#123;Heap before GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 9216K, used 8191K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 99% used [0x00000000ff600000,0x00000000ffdfffb8,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line"> ParOldGen       total 10240K, used 0K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2733K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab7a0,0x00000000f5b00000)</span><br><span class="line">[GC [PSYoungGen: 8191K-&gt;1024K(9216K)] 8191K-&gt;1080K(19456K), 0.0014510 secs] [Times: user=0.04 sys=0.00, real=0.00 secs]</span><br><span class="line">Heap after GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 9216K, used 1024K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 100% used [0x00000000ffe00000,0x00000000fff00000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 56K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec0e000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2733K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab7a0,0x00000000f5b00000)</span><br><span class="line">&#125;</span><br><span class="line">2097152</span><br><span class="line">1</span><br><span class="line">1</span><br><span class="line">1</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 1271K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 3% used [0x00000000ff600000,0x00000000ff63de78,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 100% used [0x00000000ffe00000,0x00000000fff00000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 56K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec0e000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2741K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ad4b8,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<p>运行时 <code>JVM</code> 的配置为：初始堆和最大堆都是 <code>20M</code>；新生代配置为 <code>10M</code>，比率为 8，也就是说 <code>Eden</code> 为 <code>8M(8192K)</code>，<code>From/To</code> 各 <code>1M(1024K)</code>，新生代可用总大小为 <code>9M(9216K)</code>；这些信息从 <code>Heap</code> 的 <code>Log</code> 中也可以得到验证。<br>从代码中可以看出 <code>allocation5</code> 再分配空间时出现 <code>GC</code>，但是从 <code>[GC [</code> 前后的堆中看到的 <code>Log</code> 出现了一个怪异现象：  </p>
+<ul>
+<li><code>GC</code> 前堆<br><code>PSYoungGen      total 9216K, used 8191K; eden space 8192K, 99% used; from/to space 1024K, 0% used</code>：表明新生代中 <code>Eden</code> 区基本已经全部用完，而 <code>From</code> 空置。再分配 <code>allocation5</code> 的空间会导致新生代触发一次 <code>GC</code>。  </li>
+<li><code>GC</code> 后堆<br><code>PSYoungGen      total 9216K, used 1024K; eden space 8192K, 0% used; from space 1024K, 100% used; to   space 1024K, 0% used</code>：表明 <code>GC</code> 清空了 <code>Eden</code> 区，<code>allocation5</code> 的堆内存需求都分配到了 <code>From</code> 区。  </li>
+</ul>
+<blockquote>
+<p>诡异问题：既然新生代 <code>GC</code> 后基本被清空，<code>allocation1/2/3/4</code> 四个对象此时也并没有被回收，而 <code>ParOldGen       total 10240K, used 56K; object space 10240K, 0% used</code> 表明老年代的堆也没有被使用。<code>allocation1/2/3/4</code> 这部分堆既没有回收，又没有晋升到老年代，那它到底去哪了呢？  </p>
+</blockquote>
+<p>我们将源码中的 <code>allocation5 = new byte[25542];</code> 内存需求改大到 25542，重新编译并执行，结果如下：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC TestGCLog</span><br><span class="line">&#123;Heap before GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 9216K, used 8171K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 99% used [0x00000000ff600000,0x00000000ffdfaf68,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line"> ParOldGen       total 10240K, used 0K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2734K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab930,0x00000000f5b00000)</span><br><span class="line">[GC [PSYoungGen: 8171K-&gt;960K(9216K)] 8171K-&gt;8640K(19456K), 0.0059180 secs] [Times: user=0.17 sys=0.01, real=0.01 secs]</span><br><span class="line">Heap after GC invocations=1 (full 0):</span><br><span class="line"> PSYoungGen      total 9216K, used 960K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 93% used [0x00000000ffe00000,0x00000000ffef0000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 7680K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 75% used [0x00000000fec00000,0x00000000ff380040,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2734K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab930,0x00000000f5b00000)</span><br><span class="line">&#125;</span><br><span class="line">&#123;Heap before GC invocations=2 (full 1):</span><br><span class="line"> PSYoungGen      total 9216K, used 960K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 93% used [0x00000000ffe00000,0x00000000ffef0000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 7680K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 75% used [0x00000000fec00000,0x00000000ff380040,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2734K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab930,0x00000000f5b00000)</span><br><span class="line">[Full GC [PSYoungGen: 960K-&gt;0K(9216K)] [ParOldGen: 7680K-&gt;7907K(10240K)] 8640K-&gt;7907K(19456K) [PSPermGen: 2734K-&gt;2733K(21504K)], 0.0077670 secs] [Times: user=0.07 sys=0.01, real=0.01 secs]</span><br><span class="line">Heap after GC invocations=2 (full 1):</span><br><span class="line"> PSYoungGen      total 9216K, used 0K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 0% used [0x00000000ff600000,0x00000000ff600000,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 7907K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 77% used [0x00000000fec00000,0x00000000ff3b8d48,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2733K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ab5a0,0x00000000f5b00000)</span><br><span class="line">&#125;</span><br><span class="line">2097152</span><br><span class="line">1</span><br><span class="line">1</span><br><span class="line">1</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 275K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 3% used [0x00000000ff600000,0x00000000ff644f68,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line"> ParOldGen       total 10240K, used 7907K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 77% used [0x00000000fec00000,0x00000000ff3b8d48,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2779K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48b6da0,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<p>虽然 <code>allocation5</code> 的内存需求只增加了几K，但是触发了 2 次 <code>GC</code>。第一次 <code>GC</code> 前后堆中可以明确看到新生代堆中变量晋升到了老年代 <code>ParOldGen       total 10240K, used 7680K; object space 10240K, 75% used</code>，新生代也基本清空。<br>但是接着又来了一次 <code>Full GC</code>？<code>Java 7</code> 中并没有给出原因，但是使用 <code>Java 8</code> 重新编译执行一次，可以明确看到：<code>[Full GC (Ergonomics)</code>，是因为 <code>JVM</code> 认为需要优化下主动触发的 <code>Full GC</code>，直接将新生代完全清空，全部晋升到老年代。<br>我们也可以在执行时，将 <code>JVM</code> 参数的初始堆和最大堆大小加大避免触发 <code>Full GC</code>。本地验证设置为 <code>-Xms26M -Xmx26M</code> 时，第一次 <code>GC</code> 后 <code>ParOldGen       total 16384K, used 7680K; object space 16384K, 46% used</code>，老年代只使用了 46%，<code>JVM</code> 不用优化并触发 <code>Full GC</code>。这也侧面证明 <code>Full GC</code> 的触发多取决于垃圾回收器算法的实现，不同回收器触发机制并不一致。  </p>
+<h3 id="大对象直接分配在老年代"><a href="#大对象直接分配在老年代" class="headerlink" title="大对象直接分配在老年代"></a>大对象直接分配在老年代</h3><p>先看源码：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestLargeObject</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _1MB = <span class="number">1024</span> * <span class="number">1024</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        <span class="keyword">byte</span>[] allocation1, allocation2, allocation3;</span><br><span class="line">        allocation1 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1</span> * _1MB];</span><br><span class="line">        allocation2 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</span><br><span class="line">        allocation3 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span> * _1MB];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据计算 <code>Eden</code> 区完全可以容下三个大对象，执行结果也匹配：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC TestLargeObject</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 7823K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 95% used [0x00000000ff600000,0x00000000ffda3f18,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line"> ParOldGen       total 10240K, used 0K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2740K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ad158,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>-XX:PretenureSizeThreshold</code> 参数设置为 <code>3M</code>，当大对象大小超过这个值后直接进入老年代。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:PretenureSizeThreshold=3145728 TestLargeObject</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 7823K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 95% used [0x00000000ff600000,0x00000000ffda3f18,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line"> ParOldGen       total 10240K, used 0K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 0% used [0x00000000fec00000,0x00000000fec00000,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2740K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ad158,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<p>结果显示 <code>-XX:PretenureSizeThreshold</code> 参数并没有生效，<code>allocation3</code> 还是进入了 <code>Eden</code> 区。原因是当前环境下默认的新生代 <code>Parallel Scavenge</code> 收集器并不识别这个参数，而指定新生代收集器为 <code>-XX:+UseSerialGC</code> 则会生效。参考：<a href="https://blog.csdn.net/luoliang1024/article/details/78985278" target="_blank" rel="noopener">PretenureSizeThreshol参数不识别</a>  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:PretenureSizeThreshold=3145728 -XX:+UseSerialGC TestLargeObject</span><br><span class="line">Heap</span><br><span class="line"> def new generation   total 9216K, used 3727K [0x00000000f4600000, 0x00000000f5000000, 0x00000000f5000000)</span><br><span class="line">  eden space 8192K,  45% used [0x00000000f4600000, 0x00000000f49a3f08, 0x00000000f4e00000)</span><br><span class="line">  from space 1024K,   0% used [0x00000000f4e00000, 0x00000000f4e00000, 0x00000000f4f00000)</span><br><span class="line">  to   space 1024K,   0% used [0x00000000f4f00000, 0x00000000f4f00000, 0x00000000f5000000)</span><br><span class="line"> tenured generation   total 10240K, used 4096K [0x00000000f5000000, 0x00000000f5a00000, 0x00000000f5a00000)</span><br><span class="line">   the space 10240K,  40% used [0x00000000f5000000, 0x00000000f5400010, 0x00000000f5400200, 0x00000000f5a00000)</span><br><span class="line"> compacting perm gen  total 21248K, used 2740K [0x00000000f5a00000, 0x00000000f6ec0000, 0x0000000100000000)</span><br><span class="line">   the space 21248K,  12% used [0x00000000f5a00000, 0x00000000f5cad158, 0x00000000f5cad200, 0x00000000f6ec0000)</span><br><span class="line">No shared spaces configured.</span><br></pre></td></tr></table></figure>
+
+<p>指定 <code>-XX:+UseSerialGC</code> 后，<code>allocation3</code> 直接进入老年代 <code>tenured generation   total 10240K, used 4096K; the space 10240K,  40% used</code> 。  </p>
+<p>但是当 <code>allocation3 = new byte[5 * _1MB];</code> 分配 <code>5M</code> 空间时，默认的 <code>Parallel Scavenge</code> 收集器会直接将该对象分配到老年代，避免触发 <code>GC</code>。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java -Xms20M -Xmx20M -Xmn10M -XX:SurvivorRatio=8 -XX:+PrintGCDetails -XX:+PrintHeapAtGC TestLargeObject</span><br><span class="line">Heap</span><br><span class="line"> PSYoungGen      total 9216K, used 3727K [0x00000000ff600000, 0x0000000100000000, 0x0000000100000000)</span><br><span class="line">  eden space 8192K, 45% used [0x00000000ff600000,0x00000000ff9a3f08,0x00000000ffe00000)</span><br><span class="line">  from space 1024K, 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)</span><br><span class="line">  to   space 1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)</span><br><span class="line"> ParOldGen       total 10240K, used 5120K [0x00000000fec00000, 0x00000000ff600000, 0x00000000ff600000)</span><br><span class="line">  object space 10240K, 50% used [0x00000000fec00000,0x00000000ff100010,0x00000000ff600000)</span><br><span class="line"> PSPermGen       total 21504K, used 2740K [0x00000000f4600000, 0x00000000f5b00000, 0x00000000fec00000)</span><br><span class="line">  object space 21504K, 12% used [0x00000000f4600000,0x00000000f48ad158,0x00000000f5b00000)</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他垃圾收集器日志"><a href="#其他垃圾收集器日志" class="headerlink" title="其他垃圾收集器日志"></a>其他垃圾收集器日志</h3><p>如果想使用或者验证其他垃圾收集器，可以在执行时添加 <code>JVM</code> 参数：<code>-XX:+UseSerialGC, -XX:+UseParNewGC, -XX:+UseConcMarkSweepGC, -XX:+UseParallelGC, -XX:+UseParallelOldGC</code>，各参数含义参考“ <code>JVM</code> 常见参数”。  </p>
+<h2 id="Android-GC-日志"><a href="#Android-GC-日志" class="headerlink" title="Android GC 日志"></a><code>Android GC</code> 日志</h2><p><code>Android GC</code> 日志非常简单，信息并不是很多。参考：<a href="https://developer.android.google.cn/studio/profile/investigate-ram#LogMessages" target="_blank" rel="noopener">解读Android日志消息</a>  </p>
+<h3 id="Dalvik-ART-简介"><a href="#Dalvik-ART-简介" class="headerlink" title="Dalvik/ART 简介"></a><code>Dalvik/ART</code> 简介</h3><p><code>Android</code> 的虚拟机是 <code>Google</code> 自己实现的：<code>Dalvik/ART</code>。<code>Android L</code> 开始使用 <code>ART</code> 并废除 <code>Dalvik</code> 。先简单介绍下两者的区别，参考<a href="https://blog.csdn.net/seu_calvin/article/details/52354964" target="_blank" rel="noopener">JVM、Dalvik以及ART的区别</a>  ：  </p>
+<ul>
+<li><code>Dalvik</code><br><code>.dex</code> 格式是专为 <code>Dalvik</code> 设计的一种压缩格式，适合内存和处理器速度有限的系统，<code>Dalvik</code> 指令集是基于寄存器的架构。  </li>
+<li><code>ART</code><br><code>ART: Android runtime</code>，<code>ART</code> 的机制与 <code>Dalvik</code> 不同。在 <code>Dalvik</code> 下应用每次运行的时候，字节码都需要通过即时编译器（<code>just in time ，JIT</code>）转换为机器码，这会拖慢应用的运行效率。而 <code>ART</code> 在应用第一次安装时就预编译字节码到机器语言，移除解释代码这一过程，应用程序执行更有效率启动更快，但是 <code>ART</code> 占用空间比 <code>Dalvik</code> 大 10%~20%，属于空间换时间。  </li>
+</ul>
+<h3 id="Dalvik-日志格式"><a href="#Dalvik-日志格式" class="headerlink" title="Dalvik 日志格式"></a><code>Dalvik</code> 日志格式</h3><p>格式：<code>D/dalvikvm: &lt;GC_Reason&gt; &lt;Amount_freed&gt;, &lt;Heap_stats&gt;, &lt;External_memory_stats&gt;, &lt;Pause_time&gt;</code><br>示例：<code>D/dalvikvm( 9050): GC_CONCURRENT freed 2049K, 65% free 3571K/9991K, external 4703K/5261K, paused 2ms+2ms</code>  </p>
+<p>垃圾回收的原因：  </p>
+<ul>
+<li><code>GC_CONCURRENT</code><br>在堆开始占用内存时可以释放内存的并发垃圾回收。  </li>
+<li><code>GC_FOR_MALLOC</code><br>堆已满而系统不得不停止应用并回收内存时，应用尝试分配内存而引起的垃圾回收。  </li>
+<li><code>GC_HPROF_DUMP_HEAP</code><br>当请求创建 <code>HPROF</code> 文件来分析堆时出现的垃圾回收。  </li>
+<li><code>GC_EXPLICIT</code><br>显式垃圾回收，例如当调用 <code>gc()</code> 时（应避免调用，而应信任垃圾回收会根据需要运行）。  </li>
+<li><code>GC_EXTERNAL_ALLOC</code><br>这仅适用于 <code>API &lt;= 10</code> 。外部分配内存的垃圾回收（例如存储在原生内存或 <code>NIO</code> 字节缓冲区中的像素数据）。  </li>
+</ul>
+<h3 id="ART-日志格式"><a href="#ART-日志格式" class="headerlink" title="ART 日志格式"></a><code>ART</code> 日志格式</h3><p>格式：<code>I/art: &lt;GC_Reason&gt; &lt;GC_Name&gt; &lt;Objects_freed&gt;(&lt;Size_freed&gt;) AllocSpace Objects, &lt;Large_objects_freed&gt;(&lt;Large_object_size_freed&gt;) &lt;Heap_stats&gt; LOS objects, &lt;Pause_time(s)&gt;</code><br>示例：<code>I/art : Explicit concurrent mark sweep GC freed 104710(7MB) AllocSpace objects, 21(416KB) LOS objects, 33% free, 25MB/38MB, paused 1.230ms total 67.216ms</code>  </p>
+<p><code>GC_Reason</code>：垃圾回收原因  </p>
+<ul>
+<li><code>Concurrent</code><br>不会暂停应用线程的并发垃圾回收。此垃圾回收在后台线程中运行，而且不会阻止分配。  </li>
+<li><code>Alloc</code><br>应用在堆已满时尝试分配内存引起的垃圾回收。在这种情况下，分配线程中发生了垃圾回收。  </li>
+<li><code>Explicit</code><br>由应用明确请求的垃圾回收，例如通过调用 <code>gc()</code>。与 <code>Dalvik</code> 相同，在 <code>ART</code> 中，最佳做法是信任垃圾回收并避免请求显式垃圾回收。不建议使用显式垃圾回收，因为它们会阻止分配线程并不必要地浪费 <code>CPU</code> 周期。如果显式垃圾回收导致其他线程被抢占，那么它们也可能会导致卡顿（应用中出现间断、抖动或暂停）。  </li>
+<li><code>NativeAlloc</code><br>原生分配（如位图或 <code>RenderScript</code> 分配对象）导致出现原生内存压力，进而引起的回收。  </li>
+<li><code>CollectorTransition</code><br>由堆转换引起的回收；此回收由运行时切换垃圾回收引起。回收器转换包括将所有对象从空闲列表空间复制到碰撞指针空间（反之亦然）。当前，回收器转换仅在以下情况下出现：在 <code>RAM</code> 较小的设备上，应用将进程状态从可察觉的暂停状态变更为可察觉的非暂停状态（反之亦然）。   </li>
+<li><code>HomogeneousSpaceCompact</code><br>齐性空间压缩是空闲列表空间到空闲列表空间压缩，通常在应用进入到可察觉的暂停进程状态时发生。这样做的主要原因是减少 <code>RAM</code> 使用量并对堆进行碎片整理。   </li>
+<li><code>DisableMovingGc</code><br>这不是真正的垃圾回收原因，但请注意发生并发堆压缩时，由于使用了 <code>GetPrimitiveArrayCritical</code>，回收遭到阻止。一般情况下，强烈建议不要使用 <code>GetPrimitiveArrayCritical</code>，因为它在移动回收器方面具有限制。   </li>
+<li><code>HeapTrim</code><br>这不是垃圾回收原因，但请注意，堆修剪完成之前回收会一直受到阻止。 </li>
+</ul>
+<p><code>GC_Name</code>：<code>ART</code> 具有可以运行的多种不同的垃圾回收：  </p>
+<ul>
+<li><code>Concurrent mark sweep (CMS)</code><br>整个堆回收器，会释放和回收映像空间以外的所有其他空间。  </li>
+<li><code>Concurrent partial mark sweep</code><br>几乎整个堆回收器，会回收除了映像空间和 <code>zygote</code> 空间以外的所有其他空间。  </li>
+<li><code>Concurrent sticky mark sweep</code><br>生成回收器，只能释放自上次垃圾回收以来分配的对象。此垃圾回收比完整或部分标记清除运行得更频繁，因为它更快速且暂停时间更短。  </li>
+<li><code>Marksweep + semispace</code><br>非并发、复制垃圾回收，用于堆转换以及齐性空间压缩（对堆进行碎片整理）。  </li>
+</ul>
+<p><code>Objects_freed</code> 释放的对象：此次垃圾回收从非大型对象空间回收的对象数量。<br><code>Size_freed</code> 释放的大小：此次垃圾回收从非大型对象空间回收的字节数量。<br><code>Large_objects_freed</code> 释放的大型对象：此次垃圾回收从大型对象空间回收的对象数量。<br><code>Large_object_size_freed</code> 释放的大型对象大小：此次垃圾回收从大型对象空间回收的字节数量。<br><code>Heap_stats</code> 堆统计数据：空闲百分比与（活动对象数量）/（堆总大小）。<br><code>Pause_time</code> 暂停时间：通常情况下，暂停时间与垃圾回收运行时修改的对象引用数量成正比。当前，<code>ART CMS</code> 垃圾回收仅在垃圾回收即将完成时暂停一次。移动的垃圾回收暂停时间较长，会在大部分垃圾回收期间持续出现。  </p>
+<p>如果在 <code>logcat</code> 中看到大量的垃圾回收，请注意堆统计数据的增大（上面示例中的 <code>25MB/38MB</code> 值）。如果此值继续增大，且始终没有变小的趋势，则可能会出现内存泄漏。或者如果看到原因为 <code>Alloc</code> 的垃圾回收，那么意味着操作已经快要达到堆容量，并且将很快出现 <code>OOM</code> 异常。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>深入理解 <code>Java</code> 虚拟机: <code>JVM</code> 高级特性与最佳实践 第 2 版 - 第三章 垃圾收集器与内存分配策略  </li>
+<li><a href="https://www.cnblogs.com/yydcdut/p/3959711.html" target="_blank" rel="noopener">Java GC、新生代、老年代</a>  </li>
+<li><a href="https://blogs.oracle.com/jonthecollector/our-collectors" target="_blank" rel="noopener">收集器分类</a>  </li>
+<li><a href="https://www.zhihu.com/question/41922036" target="_blank" rel="noopener">各GC的区别及触发条件</a>  </li>
+<li><a href="http://www.cnblogs.com/smyhvae/p/4748392.html" target="_blank" rel="noopener">JVM内存结构</a>  </li>
+<li><a href="https://developer.android.google.cn/studio/profile/investigate-ram#LogMessages" target="_blank" rel="noopener">解读Android日志消息</a>  </li>
+<li><a href="http://www.cnblogs.com/smyhvae/p/4736162.html" target="_blank" rel="noopener">Java虚拟机详解03—-常用JVM配置参数</a>  </li>
+<li><a href="http://www.importnew.com/15820.html" target="_blank" rel="noopener">Minor GC、Major GC和Full GC之间的区别</a>  </li>
+<li><a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="noopener">JVM常见参数</a>  </li>
+<li><a href="https://www.cnblogs.com/ygj0930/p/6522828.html" target="_blank" rel="noopener">JVM的新生代、老年代、元空间</a>  </li>
+<li><a href="https://www.cnblogs.com/dennyzhangdd/p/6770188.html" target="_blank" rel="noopener">JDK8-废弃永久代（PermGen）迎来元空间（Metaspace）</a>  </li>
+<li><a href="https://www.cnblogs.com/qlqwjy/p/7929414.html" target="_blank" rel="noopener">GC日志分析</a>  </li>
+<li><a href="http://ifeve.com/useful-jvm-flags-part-8-gc-logging/" target="_blank" rel="noopener">JVM实用参数</a>  </li>
+<li><a href="https://blog.csdn.net/luoliang1024/article/details/78985278" target="_blank" rel="noopener">PretenureSizeThreshol参数不识别</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/04/23/0076-java-gc/" title="JVM 内存分配及垃圾回收">http://redspider110.github.io/2018/04/23/0076-java-gc/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/13/0075-java-generic-class/" rel="next" title="Java 泛型">
+                <i class="fa fa-chevron-left"></i> Java 泛型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/27/0077-java-annotation/" rel="prev" title="Java 注解 Annotation">
+                Java 注解 Annotation <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配"><span class="nav-number">1.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟机运行时数据区"><span class="nav-number">1.1.</span> <span class="nav-text">虚拟机运行时数据区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象访问定位"><span class="nav-number">1.2.</span> <span class="nav-text">对象访问定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存溢出"><span class="nav-number">1.3.</span> <span class="nav-text">内存溢出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#垃圾对象的判断"><span class="nav-number">2.</span> <span class="nav-text">垃圾对象的判断</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引用计数算法"><span class="nav-number">2.1.</span> <span class="nav-text">引用计数算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可达性分析算法"><span class="nav-number">2.2.</span> <span class="nav-text">可达性分析算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象引用的四种分类"><span class="nav-number">2.3.</span> <span class="nav-text">对象引用的四种分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#finalize-方法"><span class="nav-number">2.4.</span> <span class="nav-text">finalize 方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆内存及-GC-分类"><span class="nav-number">3.</span> <span class="nav-text">堆内存及 GC 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#堆内存分类"><span class="nav-number">3.1.</span> <span class="nav-text">堆内存分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC-分类"><span class="nav-number">3.2.</span> <span class="nav-text">GC 分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见垃圾收集算法"><span class="nav-number">4.</span> <span class="nav-text">常见垃圾收集算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#标记清除算法-Mark-Sweep"><span class="nav-number">4.1.</span> <span class="nav-text">标记清除算法 Mark-Sweep</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#复制算法-Copying"><span class="nav-number">4.2.</span> <span class="nav-text">复制算法 Copying</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标记整理算法-Mark-Compact"><span class="nav-number">4.3.</span> <span class="nav-text">标记整理算法 Mark-Compact</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#垃圾收集器"><span class="nav-number">5.</span> <span class="nav-text">垃圾收集器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆内存回收策略"><span class="nav-number">6.</span> <span class="nav-text">堆内存回收策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分代收集算法"><span class="nav-number">6.1.</span> <span class="nav-text">分代收集算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象分配"><span class="nav-number">6.2.</span> <span class="nav-text">对象分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC-触发机制"><span class="nav-number">6.3.</span> <span class="nav-text">GC 触发机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法区回收策略"><span class="nav-number">7.</span> <span class="nav-text">方法区回收策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区回收条件"><span class="nav-number">7.1.</span> <span class="nav-text">方法区回收条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区存储空间各版本的区别"><span class="nav-number">7.2.</span> <span class="nav-text">方法区存储空间各版本的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-常见参数"><span class="nav-number">8.</span> <span class="nav-text">JVM 常见参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC-日志"><span class="nav-number">9.</span> <span class="nav-text">GC 日志</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#各字段含义"><span class="nav-number">9.1.</span> <span class="nav-text">各字段含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-版本及环境"><span class="nav-number">9.2.</span> <span class="nav-text">Java 版本及环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一个怪异现象示例"><span class="nav-number">9.3.</span> <span class="nav-text">一个怪异现象示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大对象直接分配在老年代"><span class="nav-number">9.4.</span> <span class="nav-text">大对象直接分配在老年代</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他垃圾收集器日志"><span class="nav-number">9.5.</span> <span class="nav-text">其他垃圾收集器日志</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-GC-日志"><span class="nav-number">10.</span> <span class="nav-text">Android GC 日志</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dalvik-ART-简介"><span class="nav-number">10.1.</span> <span class="nav-text">Dalvik/ART 简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dalvik-日志格式"><span class="nav-number">10.2.</span> <span class="nav-text">Dalvik 日志格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ART-日志格式"><span class="nav-number">10.3.</span> <span class="nav-text">ART 日志格式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">11.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

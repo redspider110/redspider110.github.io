@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java 内存模型（Java Memory Model, JMM），本文主要参考 JSR -133 内存模型 基本概念共享变量 堆内存：包含类实例、静态字段和数组元素    方法区：类字段（全局变量）堆内存中的变量和方法区的全局变量，在线程之间共享，这些统称为共享变量。其他如虚拟机栈帧（局部变量表，方法返回值）等都是线程私有的    抽象示意图内存模型决定一个线程对共享变量的写入何时对另一个线程可">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 内存模型">
+<meta property="og:url" content="http://redspider110.github.io/2017/10/25/0004-java-memory-model/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Java 内存模型（Java Memory Model, JMM），本文主要参考 JSR -133 内存模型 基本概念共享变量 堆内存：包含类实例、静态字段和数组元素    方法区：类字段（全局变量）堆内存中的变量和方法区的全局变量，在线程之间共享，这些统称为共享变量。其他如虚拟机栈帧（局部变量表，方法返回值）等都是线程私有的    抽象示意图内存模型决定一个线程对共享变量的写入何时对另一个线程可">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-Java-memory-model.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-java-memory-model-command-sort.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-java-memory-model-ram-order.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.333Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 内存模型">
+<meta name="twitter:description" content="Java 内存模型（Java Memory Model, JMM），本文主要参考 JSR -133 内存模型 基本概念共享变量 堆内存：包含类实例、静态字段和数组元素    方法区：类字段（全局变量）堆内存中的变量和方法区的全局变量，在线程之间共享，这些统称为共享变量。其他如虚拟机栈帧（局部变量表，方法返回值）等都是线程私有的    抽象示意图内存模型决定一个线程对共享变量的写入何时对另一个线程可">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-Java-memory-model.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/10/25/0004-java-memory-model/">
+
+
+
+
+
+  <title>Java 内存模型 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/10/25/0004-java-memory-model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 内存模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-25T18:07:00+08:00">
+                2017-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Java</code> 内存模型（<code>Java Memory Model, JMM</code>），本文主要参考 <code>JSR -133</code> 内存模型</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="共享变量"><a href="#共享变量" class="headerlink" title="共享变量"></a>共享变量</h3><ul>
+<li>堆内存：包含类实例、静态字段和数组元素   </li>
+<li>方法区：类字段（全局变量）<br>堆内存中的变量和方法区的全局变量，在线程之间共享，这些统称为<strong>共享变量</strong>。其他如虚拟机栈帧（局部变量表，方法返回值）等都是线程私有的  </li>
+</ul>
+<h3 id="抽象示意图"><a href="#抽象示意图" class="headerlink" title="抽象示意图"></a>抽象示意图</h3><p>内存模型决定一个线程对共享变量的写入何时对另一个线程可见，从抽象的角度来看：线程之间的共享变量存储在主内存中，每个线程都有一个私有的工作内存，工作内存中存储了该线程以读/写共享变量的副本。这里仅仅将 <code>JMM</code> 作为一个抽象概念，并不和物理实际内存、高速缓存、寄存器等做一一对应。内存模型抽象示意图：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-Java-memory-model.jpg" alt="0004-Java-memory-model.jpg"></p>
+<a id="more"></a>
+
+<h3 id="内存间交互操作"><a href="#内存间交互操作" class="headerlink" title="内存间交互操作"></a>内存间交互操作</h3><p>定义了 8 中操作，每种都是原子的、不可再分的（对于 <code>double</code> 和 <code>long</code> 来说理论上有例外，但是商用虚拟机上不会存在这个现象）  </p>
+<ul>
+<li><code>lock</code> 锁定：作用于主内存的变量，标注该变量为一条线程独占状态  </li>
+<li><code>unlock</code> 解锁：作用于主内存的变量，标注该变量被解锁，其他线程能使用  </li>
+<li><code>read</code> 读取：作用于主内存的变量，它把变量从主内存传输到线程的工作内存中，供 <code>load</code> 使用  </li>
+<li><code>load</code> 载入：作用于工作内存的变量，它把 <code>read</code> 操作的变量放入工作内存的变量副本中  </li>
+<li><code>use</code> 使用：作用于工作内存的变量，每当虚拟机需要使用该变量时，传递给执行引擎  </li>
+<li><code>assign</code> 赋值：作用于工作内存的变量，每当虚拟机需要给变量赋值时，从执行引擎中读取并赋值给工作内存变量副本  </li>
+<li><code>store</code> 存储：作用于工作内存的变量，它把工作内存的变量副本传递给主内存中，供 <code>write</code> 使用  </li>
+<li><code>write</code> 写入：作用于主内存的变量，它把 <code>store</code> 操作从工作内存中得到的变量放入主内存的变量中  </li>
+</ul>
+<h3 id="long-和-double-的非原子协定"><a href="#long-和-double-的非原子协定" class="headerlink" title="long 和 double 的非原子协定"></a><code>long</code> 和 <code>double</code> 的非原子协定</h3><p><code>long</code> 和 <code>double</code> 的非原子协定（<code>Nonatomic Treatment of double and long Variables</code>）：对于 64 位的 <code>long</code> 和 <code>double</code> 类型，允许虚拟机将没有被 <code>volatile</code> 修饰的数据，在读写操作时划分为两次 32 的操作来进行，即不保证它们的 <code>load, store, read, write</code> 是原子性的。<br>这会导致多线程中同时对他们读写，可能会出现某个线程读取到的既不是原值，也不是被其他线程修改过的值，而是读到了各一半的混合值，但是这种情况在商用虚拟机中并不会出现，因此代码中一般并不会对这两种类型专门申明为 <code>volatile</code> </p>
+<h2 id="原子性、可见性、有序性"><a href="#原子性、可见性、有序性" class="headerlink" title="原子性、可见性、有序性"></a>原子性、可见性、有序性</h2><h3 id="原子性（Atomicity）"><a href="#原子性（Atomicity）" class="headerlink" title="原子性（Atomicity）"></a>原子性（<code>Atomicity</code>）</h3><p>在 <code>Java</code> 内存模型中所有的基本数据类型读写访问具备原子性（<code>long/double</code> 虽然有非原子协议，但是商用虚拟机不会出现）。如果需要需要保证代码块的原子性，需要使用 <code>synchronized</code> 关键字  </p>
+<h3 id="可见性（Visibility）"><a href="#可见性（Visibility）" class="headerlink" title="可见性（Visibility）"></a>可见性（<code>Visibility</code>）</h3><p>指一个线程修改了共享变量的值，其他线程能够立即得到这个修改后的值。<code>Java</code> 内存模型是通过在变量修改后将新值同步回主内存，在变量读取前从主内存刷新变量值来实现可见性的。关键字 <code>volatile, synchronized, final</code> 都能实现可见性  </p>
+<ul>
+<li>volatile<br><code>volatile</code> 修饰的变量通过反汇编发现会多执行一个 <code>lock</code> 前缀的操作，这个操作相当于内存屏障（<code>Memory Barrier or Memory Fence</code>），作用是使得本 <code>CPU</code> 的 <code>Cache</code> 写入内存，同时会引起其他 <code>CPU Cache</code> 变得无效；相当于 <code>Java</code> 内存模式中的 <code>store/write</code> 操作，所以可以确保 <code>volatile</code> 变量的修过对其他 <code>CPU</code> 立即可见  </li>
+<li>synchronized<br>同步块对一个变量的执行 <code>unlock</code> 操作前，必须先把此变量同步写回主内存中  </li>
+<li>final<br>变量在构造器中一旦初始化完成，那在其他线程中就能看到这个字段的值  </li>
+</ul>
+<h3 id="有序性（Ordering）"><a href="#有序性（Ordering）" class="headerlink" title="有序性（Ordering）"></a>有序性（<code>Ordering</code>）</h3><p>如果在本线程中观察，所有的操作都是有序的（<code>As-If-Serial</code> 语义） ；如果在一个线程中观察另外一个线程，所有的操作都是无序的（重排序，包括指令重排序和内存同步延迟）   </p>
+<p>关键字 <code>volatile</code> 和 <code>synchronized</code> 两个关键字来保证线程之间的操作的有序性：  </p>
+<ul>
+<li>volatile<br>关键字禁止了指令重排序  </li>
+<li>synchronized<br>一个变量在同一个时刻只允许一条线程对其进行 <code>lock</code> 操作，决定了持有同一个锁的两个同步块只能串行地进入  </li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><code>synchronized</code> 关键字能满足三种特性；<code>volatile</code> 能部分满足，在有条件情况下可以满足并发安全  </p>
+<h2 id="重排序"><a href="#重排序" class="headerlink" title="重排序"></a>重排序</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>在执行程序时为了提高性能，编译器和处理器常常会改变<strong>指令执行顺序</strong>或者<strong>内存操作顺序</strong>，也就是<strong>重排序</strong>。重排序分三种类型：  </p>
+<ul>
+<li>编译器优化的重排序<br>编译器在不改变单线程程序语义的前提下，可以重新安排语句的执行顺序  </li>
+<li>指令级并行的重排序<br>现代处理器采用了指令级并行技术来将多条指令重叠执行。如果不存在数据依赖性，处理器可以改变语句对应机器指令的执行顺序  </li>
+<li>内存系统的同步延迟<br>由于处理器使用缓存和读/写缓冲区，这使得加载和存储操作看上去可能是在乱序执行  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-java-memory-model-command-sort.jpg" alt="0004-java-memory-model-command-sort.jpg"></p>
+<p>其中：1 属于编译器重排序，2 和 3 属于处理器重排序  </p>
+<h3 id="影响"><a href="#影响" class="headerlink" title="影响"></a>影响</h3><ul>
+<li><strong>重排序都可能会导致多线程程序出现内存可见性问题</strong>   </li>
+</ul>
+<p><code>JMM</code> 属于语言级的内存模型，它确保在不同的编译器和不同的处理器平台之上，通过禁止特定类型的编译器重排序和处理器重排序，为程序员提供一致的内存可见性保证  </p>
+<h3 id="原则"><a href="#原则" class="headerlink" title="原则"></a>原则</h3><p>不管怎么重排序，单线程程序执行的结果不能改变。也就是内存模型中描述的：线程内表现为串行的语义（<code>Within-Thread As-If-Serial Semantics</code>）。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><ul>
+<li>指令执行重排序  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> b = <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如上两条指令无论是在编译器优化重排序，还是处理器优化并发执行，并不会影响重排序后的执行结果   </p>
+<ul>
+<li>内存操作重排序<br>根据 <code>JMM</code> 定义，各线程会使用写缓冲区来临时保存向内存写入的数据。写缓冲区可以保证指令流水线持续运行，它可以避免由于处理器停顿下来等待向内存写入数据而产生的延迟。同时通过以批处理的方式刷新写缓冲区，以及合并写缓冲区中对同一内存地址的多次写，可以减少对内存总线的占用。虽然写缓冲区有这么多好处，但每个处理器上的写缓冲区，仅仅对它所在的处理器可见。这个特性会对内存操作的执行顺序产生重要的影响：处理器对内存的读/写操作的执行顺序，不一定与内存实际发生的读/写操作顺序一致  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Processor A         Processor B</span><br><span class="line">a = 1; //A1         b = 2; //B1</span><br><span class="line">x = b; //A2         y = a; //B2</span><br><span class="line">初始状态：a = b = 0</span><br><span class="line">处理器允许执行后得到结果：x = y = 0</span><br></pre></td></tr></table></figure>
+
+<p>处理器 <code>A</code> 和处理器 <code>B</code> 可以同时把共享变量写入自己的写缓冲区（<code>A1，B1</code>），然后从内存中读取另一个共享变量（<code>A2，B2</code>），最后才把自己写缓存区中保存的脏数据刷新到内存中（<code>A3，B3</code>）。当以这种时序执行时，程序就可以得到 <code>x = y = 0</code> 的结果  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0004-java-memory-model-ram-order.png" alt="0004-java-memory-model-ram-order.png"></p>
+<h3 id="数据依赖性"><a href="#数据依赖性" class="headerlink" title="数据依赖性"></a>数据依赖性</h3><p>指当前操作依赖前一次操作的结果。编译器和处理器在重排序时，会遵守<strong>数据依赖性</strong>，编译器和处理器不会改变存在数据依赖关系的两个操作的执行顺序。注意：数据依赖性仅针对<strong>单个处理器</strong>中执行的指令序列和<strong>单个线程</strong>中执行的操作，不同处理器之间和不同线程之间的数据依赖性不被编译器和处理器考虑  </p>
+<h2 id="先行发生原则-happens-before"><a href="#先行发生原则-happens-before" class="headerlink" title="先行发生原则 happens-before"></a>先行发生原则 <code>happens-before</code></h2><h3 id="作用及意义"><a href="#作用及意义" class="headerlink" title="作用及意义"></a>作用及意义</h3><p>如果一个操作执行的结果需要对另一个操作可见，那么这两个操作之间必须存在 <code>happens-before</code> 关系。这些先行发生原则，可以确保两个操作在不需任何同步协助下并发是安全的。  </p>
+<h3 id="实质"><a href="#实质" class="headerlink" title="实质"></a>实质</h3><p>先行发生原则的实质就是禁止重排序  </p>
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><ul>
+<li>程序次序规则（<code>Program Order Rule</code>）<br>在同一个线程中，按照程序代码顺序和控制流顺序操作  </li>
+<li>管程锁定规则（<code>Monitor Lock Rule</code>）<br>针对同一个锁， <code>unlock</code> 操作在时间上先发生于后面对该锁的 <code>lock</code> 操作  </li>
+<li><code>volatile</code> 变量规则（<code>Volatile Variable Rule</code>）<br>对 <code>volatile</code> 变量的写操作在时间上先行发生于后面对改变的读操作  </li>
+<li>传递性（<code>Transitivity</code>）<br>如果操作 <code>A</code> 先行发生于操作 <code>B</code> ，操作 <code>B</code> 先行发生于操作 <code>C</code>，则操作 <code>A</code> 先行发生于操作 <code>C</code>  </li>
+<li>对象终结规则（<code>Finalizer Rule</code>）<br>对象的初始化先行发生于它的 <code>finalize</code>  </li>
+<li>线程启动规则（<code>Thread Start Rule</code>）<br><code>Thread</code> 对象的 <code>start()</code> 方法先发生于此线程的每个动作  </li>
+<li>线程终止规则（<code>Thread Termination Rule</code>）<br>线程中的所有操作都先行发生于对此线程的终止检测。可以通过 <code>Thread.join()/Thread.isAlive()</code> 来检测到线程已经终止   </li>
+<li>线程中断规则（<code>Thread Interruption Rule</code>）<br>对线程 <code>interrupt()</code> 方法的调用先行发生于被中断线程的代码检测到中断事件发生，可以通过 <code>Thread.interrupted()</code> 方法检测是否中断发生  </li>
+</ul>
+<h3 id="时间上的先后顺序与先行发生的差异"><a href="#时间上的先后顺序与先行发生的差异" class="headerlink" title="时间上的先后顺序与先行发生的差异"></a>时间上的先后顺序与先行发生的差异</h3><p><code>happens-before</code> 关系，并不是说时间上前一个操作必须要先在后一个操作之前执行！而是仅仅要求前一个操作（执行的结果）对后一个操作可见，且前一个操作按顺序排在第二个操作之前（<code>the first is visible to and ordered before the second</code>）。</p>
+<ul>
+<li>示例  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> value = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(<span class="keyword">int</span> value)</span></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.value = value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个简单的 <code>getter/setter</code> 方法，假设线程 <code>A</code> 在时间上先调用了 <code>setValue(1)</code> ，线程 <code>B</code> 调用了同一个对象的 <code>getValue</code> ，那么线程 <code>B</code> 的返回值是什么？ 根据 <code>happens-before</code> 的各项规则，可以看到 8 项规则都不符合，也就是这个操作是并不是线程安全的。 </p>
+<blockquote>
+<p>想一个具体的例子来演示错误，并且给出修改方案及测试结果?  </p>
+</blockquote>
+<ul>
+<li>结论<br>时间先后顺序与先行发生原则之间基本没有太大的关系，所以衡量安全并发不要受到时间顺序干扰，必须以先行发生原则为准  </li>
+</ul>
+<h2 id="volatile-关键字"><a href="#volatile-关键字" class="headerlink" title="volatile 关键字"></a><code>volatile</code> 关键字</h2><p>关键字 <code>volatile</code> 可以理解为 <code>Java</code> 虚拟机提供的最轻量级同步机制。有两种特性：   </p>
+<ul>
+<li>保证此变量对所有线程的可见性  </li>
+<li>禁止指令重排序优化  </li>
+</ul>
+<h3 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h3><p>保证此变量对所有线程的可见性，但是在 <code>Java</code> 中变量复合运算并非原子操作，所以 <code>volatile</code> 变量在并发中是不安全的。保证并发安全需要符合如下两条规则：  </p>
+<ul>
+<li>运算结果并不依赖变量的当前值，或者确保只有单一线程修改变量的值  </li>
+<li>变量不需要与其他状态变量共同参与不变约束  </li>
+</ul>
+<h3 id="禁止指令重排序优化"><a href="#禁止指令重排序优化" class="headerlink" title="禁止指令重排序优化"></a>禁止指令重排序优化</h3><h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p><code>volatile</code> 变量读操作的性能消耗与普通变量几乎没有区别，写操作可能会慢一些，但是总体开销要比锁低。</p>
+<h2 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h2><ol>
+<li><a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4" target="_blank" rel="noopener">The Java Language Specification, Java SE 7 Edition-jmm</a>  </li>
+<li><a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf" target="_blank" rel="noopener">JSR-133: Java Memory Model and Thread Specification</a>  </li>
+<li><a href="http://www.infoq.com/cn/articles/java-memory-model-1" target="_blank" rel="noopener">深入理解 Java 内存模型</a>  </li>
+<li>深入理解 <code>Java</code> 虚拟机  </li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/10/25/0004-java-memory-model/" title="Java 内存模型">http://redspider110.github.io/2017/10/25/0004-java-memory-model/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/23/0003-java-command/" rel="next" title="Java 命令行操作">
+                <i class="fa fa-chevron-left"></i> Java 命令行操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/02/0005-java-concurrent/" rel="prev" title="Java 多线程并发">
+                Java 多线程并发 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#共享变量"><span class="nav-number">1.1.</span> <span class="nav-text">共享变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽象示意图"><span class="nav-number">1.2.</span> <span class="nav-text">抽象示意图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存间交互操作"><span class="nav-number">1.3.</span> <span class="nav-text">内存间交互操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#long-和-double-的非原子协定"><span class="nav-number">1.4.</span> <span class="nav-text">long 和 double 的非原子协定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原子性、可见性、有序性"><span class="nav-number">2.</span> <span class="nav-text">原子性、可见性、有序性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原子性（Atomicity）"><span class="nav-number">2.1.</span> <span class="nav-text">原子性（Atomicity）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可见性（Visibility）"><span class="nav-number">2.2.</span> <span class="nav-text">可见性（Visibility）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有序性（Ordering）"><span class="nav-number">2.3.</span> <span class="nav-text">有序性（Ordering）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重排序"><span class="nav-number">3.</span> <span class="nav-text">重排序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念"><span class="nav-number">3.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#影响"><span class="nav-number">3.2.</span> <span class="nav-text">影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原则"><span class="nav-number">3.3.</span> <span class="nav-text">原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">3.4.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据依赖性"><span class="nav-number">3.5.</span> <span class="nav-text">数据依赖性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#先行发生原则-happens-before"><span class="nav-number">4.</span> <span class="nav-text">先行发生原则 happens-before</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#作用及意义"><span class="nav-number">4.1.</span> <span class="nav-text">作用及意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实质"><span class="nav-number">4.2.</span> <span class="nav-text">实质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#规则"><span class="nav-number">4.3.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间上的先后顺序与先行发生的差异"><span class="nav-number">4.4.</span> <span class="nav-text">时间上的先后顺序与先行发生的差异</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile-关键字"><span class="nav-number">5.</span> <span class="nav-text">volatile 关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可见性"><span class="nav-number">5.1.</span> <span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#禁止指令重排序优化"><span class="nav-number">5.2.</span> <span class="nav-text">禁止指令重排序优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">5.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档："><span class="nav-number">6.</span> <span class="nav-text">参考文档：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

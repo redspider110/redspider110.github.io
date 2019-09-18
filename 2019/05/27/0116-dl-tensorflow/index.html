@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="DeepLearning,TensorFlow,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="TensorFlow 安装，运行，实现常见神经网络模型。">
+<meta name="keywords" content="DeepLearning,TensorFlow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow 相关">
+<meta property="og:url" content="http://redspider110.github.io/2019/05/27/0116-dl-tensorflow/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="TensorFlow 安装，运行，实现常见神经网络模型。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0116-dl-tensorflow-tensorflow-neural-network-softmax.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TensorFlow 相关">
+<meta name="twitter:description" content="TensorFlow 安装，运行，实现常见神经网络模型。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0116-dl-tensorflow-tensorflow-neural-network-softmax.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/05/27/0116-dl-tensorflow/">
+
+
+
+
+
+  <title>TensorFlow 相关 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/05/27/0116-dl-tensorflow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">TensorFlow 相关</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-27T09:00:00+08:00">
+                2019-05-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DeepLearning/" itemprop="url" rel="index">
+                    <span itemprop="name">DeepLearning</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>TensorFlow</code> 安装，运行，实现常见神经网络模型。  </p>
+<a id="more"></a>
+
+<p><code>TensorFlow</code> 是 <code>Google</code> 开源库，用于机器学习和深度神经网络方面的研究，但这个系统的通用性使其也可广泛用于其他计算领域。  </p>
+<ul>
+<li><a href="https://tensorflow.google.cn" target="_blank" rel="noopener">TensorFlow 官网</a>  </li>
+<li><a href="https://github.com/tensorflow" target="_blank" rel="noopener">github TensorFlow</a>  </li>
+<li><a href="https://colab.research.google.com/notebooks/welcome.ipynb" target="_blank" rel="noopener">官方在线模拟器</a>  </li>
+</ul>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>参考官网提供的环境搭建方法： <a href="https://tensorflow.google.cn/install" target="_blank" rel="noopener">TensorFlow install</a> 。  </p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>可以在 <code>Ubuntu</code> 系统的 <code>python</code> 环境中运行 <code>TensorFlow</code> ，主要有两种安装方式：  </p>
+<ul>
+<li><code>pip</code><br><code>pip install tensorflow</code> 安装最新稳定的 <code>CPU-only</code> 包。  </li>
+<li><code>docker</code><br>基于 <code>docker</code> 运行 <code>TensorFlow</code> 容器， <code>docker</code> 提供了虚拟技术，能和本地环境隔离，推荐使用这种方式；安装好 <code>docker</code> 环境后，下载镜像 <code>docker pull tensorflow/tensorflow</code> 。  </li>
+</ul>
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><p>基于 <code>docker</code> 运行 <code>TensorFlow</code> 容器，有多种 <code>tag</code> 可选，参考<a href="https://hub.docker.com/r/tensorflow/tensorflow" target="_blank" rel="noopener"> <code>docker tensorflow</code> 官网</a> ；这里使用 <code>python 3</code> 和  <code>Jupyter Notebook</code> 来运行环境：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">xmt@server138:~/share$ docker run -it --rm -v /home/xmt/share/notebooks:/tf/notebooks -p 8888:8888 tensorflow/tensorflow:latest-py3-jupyter</span><br><span class="line">Unable to find image &apos;tensorflow/tensorflow:latest-py3-jupyter&apos; locally</span><br><span class="line">latest-py3-jupyter: Pulling from tensorflow/tensorflow</span><br><span class="line">7e6591854262: Already exists</span><br><span class="line">089d60cb4e0a: Already exists</span><br><span class="line">9c461696bc09: Already exists</span><br><span class="line">45085432511a: Already exists</span><br><span class="line">29303e8416d5: Pull complete</span><br><span class="line">12bb05a3cac8: Pull complete</span><br><span class="line">fe293195091d: Pull complete</span><br><span class="line">22d8b84cd8f1: Pull complete</span><br><span class="line">b816d6e919ba: Pull complete</span><br><span class="line">0a5fb8dc4fa0: Pull complete</span><br><span class="line">a7dc31fab397: Pull complete</span><br><span class="line">d406455f6d9f: Pull complete</span><br><span class="line">cb88aeed8681: Pull complete</span><br><span class="line">2c6b687d0099: Pull complete</span><br><span class="line">49f54073aeda: Pull complete</span><br><span class="line">acd118762b5b: Pull complete</span><br><span class="line">b9384d74861e: Pull complete</span><br><span class="line">65bee665f5e0: Pull complete</span><br><span class="line">818ff729acb5: Pull complete</span><br><span class="line">26046fcf0a8f: Pull complete</span><br><span class="line">6e2e469b2c13: Pull complete</span><br><span class="line">Digest: sha256:875bc50785ee24c69b8dbc3700bb090d5c126458d4a1d761aada539124adbcbc</span><br><span class="line">Status: Downloaded newer image for tensorflow/tensorflow:latest-py3-jupyter</span><br><span class="line"></span><br><span class="line">________                               _______________</span><br><span class="line">___  __/__________________________________  ____/__  /________      __</span><br><span class="line">__  /  _  _ \_  __ \_  ___/  __ \_  ___/_  /_   __  /_  __ \_ | /| / /</span><br><span class="line">_  /   /  __/  / / /(__  )/ /_/ /  /   _  __/   _  / / /_/ /_ |/ |/ /</span><br><span class="line">/_/    \___//_/ /_//____/ \____//_/    /_/      /_/  \____/____/|__/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: You are running this container as root, which can cause new files in</span><br><span class="line">mounted volumes to be created as the root user on your host machine.</span><br><span class="line"></span><br><span class="line">To avoid this, run the container by specifying your user&apos;s userid:</span><br><span class="line"></span><br><span class="line">$ docker run -u $(id -u):$(id -g) args...</span><br><span class="line"></span><br><span class="line">[I 07:37:05.926 NotebookApp] Writing notebook server cookie secret to /root/.local/share/jupyter/runtime/notebook_cookie_secret</span><br><span class="line">jupyter_http_over_ws extension initialized. Listening on /http_over_websocket</span><br><span class="line">[I 07:37:07.164 NotebookApp] Serving notebooks from local directory: /tf</span><br><span class="line">[I 07:37:07.164 NotebookApp] The Jupyter Notebook is running at:</span><br><span class="line">[I 07:37:07.164 NotebookApp] http://(5cb2948c32fc or 127.0.0.1):8888/?token=a1127a74507b98306346cf77a70c6b814ac08a21ccdceea2</span><br><span class="line">[I 07:37:07.164 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).</span><br><span class="line">[C 07:37:07.168 NotebookApp]</span><br><span class="line"></span><br><span class="line">    To access the notebook, open this file in a browser:</span><br><span class="line">        file:///root/.local/share/jupyter/runtime/nbserver-11-open.html</span><br><span class="line">    Or copy and paste one of these URLs:</span><br><span class="line">        http://(5cb2948c32fc or 127.0.0.1):8888/?token=a1127a74507b98306346cf77a70c6b814ac08a21ccdceea2</span><br><span class="line"></span><br><span class="line">[I 07:39:18.476 NotebookApp] 302 GET / (10.20.153.40) 1.46ms</span><br><span class="line">[I 07:39:18.483 NotebookApp] 302 GET /tree? (10.20.153.40) 1.64ms</span><br><span class="line">[W 07:39:27.698 NotebookApp] Not allowing login redirect to &apos;/tree?&apos;</span><br><span class="line">[I 07:39:27.699 NotebookApp] 302 POST /login?next=%2Ftree%3F (10.20.153.40) 4.62ms</span><br><span class="line">[I 07:39:27.706 NotebookApp] 302 GET / (10.20.153.40) 1.16ms</span><br><span class="line">[I 07:40:34.947 NotebookApp] Writing notebook-signing key to /root/.local/share/jupyter/notebook_secret</span><br><span class="line">[W 07:40:34.952 NotebookApp] Notebook tensorflow-tutorials/basic_classification.ipynb is not trusted</span><br><span class="line">[I 07:40:36.081 NotebookApp] Kernel started: b4f634bf-1da6-48e8-81cd-f11f45df4072</span><br><span class="line">[I 07:40:37.784 NotebookApp] Adapting to protocol v5.1 for kernel b4f634bf-1da6-48e8-81cd-f11f45df4072</span><br></pre></td></tr></table></figure>
+
+<p>执行完后，可以在浏览器中输入 <code>http://ip:8888</code> 来访问 <code>Jupyter Notebook</code> ， <code>token</code> 为上面输出的那串数字！  </p>
+<h2 id="Jupyter-Notebook-教程"><a href="#Jupyter-Notebook-教程" class="headerlink" title="Jupyter Notebook 教程"></a><code>Jupyter Notebook</code> 教程</h2><p><code>Jupyter Notebook</code> 是网页化的 <code>Python</code> 编辑器，快速方便交互。  </p>
+<h3 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h3><p><code>Jupyter</code> 和 <code>vim</code> 一样分为命令模式和编辑模式，使用 <code>ESC</code> 进入命令模式；如下是部分快捷键：  </p>
+<ul>
+<li>命令模式  <ul>
+<li><code>L</code> 显示当前单元格行号  </li>
+<li><code>shift + L</code> 显示所有单元格行号  </li>
+</ul>
+</li>
+<li>编辑模式  <ul>
+<li><code>tab</code> 自动补全  </li>
+<li><code>shift + tab</code> 查看当前函数说明  </li>
+<li><code>shift + enter</code> 运行当前单元，并选中下一单元  </li>
+<li><code>ctrl + enter</code> 只运行当前单元  </li>
+</ul>
+</li>
+</ul>
+<p>使用 <code>Alt</code> 键可以多列选择。  </p>
+<h3 id="特殊功能"><a href="#特殊功能" class="headerlink" title="特殊功能"></a>特殊功能</h3><p>在 <code>Jupyter notebook</code> 中支持命令安装，图形显示等等。  </p>
+<ul>
+<li>安装 <code>python</code> 包<br><code>Jupyter</code> 的每个 <code>cell</code> 可以执行 <code>unix command</code> ，具体方法是在 <code>command</code> 前加一个 <code>!</code> 号。比如使用 <code>pip install</code> 安装 <code>matplotlib</code> 包时，键入 <code>!pip install matplotlib</code> 。<br>其他示例：查看 <code>python</code> 版本 <code>!python --version</code> ；运行 <code>python</code> 文件 <code>!python myfile.py</code> 。  </li>
+<li><code>%</code> 运算符  <ul>
+<li>使用 <code>matplotlib</code> 显示图形时，输入命令 <code>%matplotlib inline</code>  </li>
+<li>将本地的 <code>.py</code> 文件加载到当前单元 <code>%load test.py</code>  </li>
+<li>运行本地 <code>.py</code> 文件 <code>%run file.py</code>  </li>
+</ul>
+</li>
+</ul>
+<h3 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h3><p>安装扩展： <code>pip install jupyter_contrib_nbextensions; jupyter contrib nbextension install</code>  </p>
+<ul>
+<li><code>AutoPEP8</code><br>代码格式化工具： <code>pip install autopep8</code> ，安装完毕后，在扩展中勾选 <code>autopep8</code> 。  </li>
+</ul>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="Tensor-张量"><a href="#Tensor-张量" class="headerlink" title="Tensor 张量"></a><code>Tensor</code> 张量</h3><p><code>Tensor</code> 张量，表示一个数据结构，有三个最基本的属性：名称 <code>name</code> ，形状 <code>shape</code> ，数据类型 <code>dtype</code> 。张量用来存放数据（通常是多维数组，维度即为形状），比如：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">c = tf.constant([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]])</span><br><span class="line">print(c)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    print(sess.run(c))</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Tensor(&quot;Const_10:0&quot;, shape=(2, 3), dtype=int32)</span><br><span class="line">[[1 2 3]</span><br><span class="line"> [4 5 6]]</span><br></pre></td></tr></table></figure>
+
+<p>示例中张量 <code>c</code> 名称为 <code>Const_10</code> ，形状为可以存放 <code>2*3</code> 的数据，数据类型为 <code>int32</code> 。  </p>
+<p>我们用<strong>阶</strong>表示张量的维度：  </p>
+<ul>
+<li>0 阶张量<br>即为标量，表示一个单独数： <code>S=123</code> 。  </li>
+<li>1 阶张量<br>表示一个一维数组： `S=[1, 2, 3] 。  </li>
+<li>2 阶张量<br>表示一个二维数组，它可以有 <code>i</code> 行 <code>j</code> 列个元素，每个元素可以通过下标来索引到： <code>S=[[1, 2, 3], [4, 5, 6]]</code> 。  </li>
+</ul>
+<p>判断张量是几阶的，可以通过等号后面中括号的个数来看出来，比如 <code>m=[[[...]</code> 表示为 3 阶的。  </p>
+<h3 id="会话"><a href="#会话" class="headerlink" title="会话"></a>会话</h3><p>会话 <code>Session</code> ，执行计算过程； <code>Tensor</code> 只描述了数据，所有 <code>Tensor</code> 的操作也只描述了计算过程，而运算都是通过会话来实现的。计算过程使用下面结构：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(***)</span><br></pre></td></tr></table></figure>
+
+<p><code>run</code> 来执行运算过程。  </p>
+<h2 id="神经网络"><a href="#神经网络" class="headerlink" title="神经网络"></a>神经网络</h2><ul>
+<li><a href="https://github.com/tensorflow/examples/blob/master/community/en/nn_from_scratch.ipynb" target="_blank" rel="noopener">官方经典示例： mnist 手写识别</a>  </li>
+</ul>
+<h3 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h3><ul>
+<li>神经网络参数<br>指神经元线上的权重，参数初始值通常使用随机数，这些参数也是最终我们需要求出的值。通过张量来描述: <code>w = tf.Variable(tf.truncated_normal(shape, stddev=0.1))</code> 。  </li>
+<li>前向传播<br>搭建模型的计算过程，让模型具有推理能力，可以针对一组输入给出响应的输出。比如某个神经元的前向传播描述为：输入乘以权重后，加上偏置，再通过激活函数；表示为 <code>y1 = tf.nn.relu(tf.matmul(x, w1) + b1)</code> 。  </li>
+<li>反向传播<br>训练模型参数，使神经网络模型在训练数据上的损失函数最小，比如在所有参数上用梯度下降。损失函数 <code>loss</code> 即计算得到的预测值和已知结果的差距。如果预测值 <code>y</code> 与已知答案 <code>y_</code> ，常见损失函数有：  <ul>
+<li>均方差 <code>mse</code> ： <code>mse=tf.reduce_mean(tf.square(y-y_))</code>  </li>
+<li>交叉熵 <code>ce</code> ： <code>ce=tf.reduce_mean(y_*tf.log(tf.clip_by_value(y, 1e-12, 1.0)))</code>  </li>
+</ul>
+</li>
+</ul>
+<h3 id="常见分类器"><a href="#常见分类器" class="headerlink" title="常见分类器"></a>常见分类器</h3><ul>
+<li><code>Sigmoid</code> 分类器，也就是 <code>Sigmoid</code> 激活函数，用于二分类  </li>
+<li><code>Softmax</code> 分类器，用于多分类； <code>n</code> 分类应用中：<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0116-dl-tensorflow-tensorflow-neural-network-softmax.png" alt="0116-dl-tensorflow-tensorflow-neural-network-softmax.png"><br><code>softmax</code> 函数在 <code>n</code> 分类应用中，模型会有 <code>n</code> 个输出 <code>y1, y2,..., yn</code> ，其中 <code>yi</code> 表示第 <code>i</code> 种情况出现的概率；这 <code>n</code> 个输出经过 <code>softmax</code> 函数后，可以得到符合概率分布的分类结果。一般让模型的输出经过 <code>softmax</code> 函数，以获得输出分类的概率分布，再与标准答案对比，求出交叉熵，得到损失函数：  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ce = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, </span><br><span class="line">    labels=tf.argmax(y_, 1))</span><br><span class="line">cem = tf.reduce_mean(ce)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="学习率"><a href="#学习率" class="headerlink" title="学习率"></a>学习率</h3><p>学习率 <code>learning rate</code> ：决定每次参数更新的幅度。当学习率选择过大时会出现震荡不收敛；选择过小时会出现收敛速度慢的情况。在训练过程中，参数的更新向着损失函数梯度下降的方向。<br>指数衰减学习率：学习率随着训练轮数变化而动态更新，计算公式如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Learning_rate=LEARNING_RATE_BASE*LEARNING_RATE_DECAY</span><br><span class="line">    *(global_step/LEARNING_RATE_BATCH_SIZE)</span><br><span class="line">decayed_learning_rate = learning_rate * </span><br><span class="line">    decay_rate ^ (global_step / decay_steps)</span><br></pre></td></tr></table></figure>
+
+<p>对应函数为：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">global_step = tf.Variable(0, trainable=False)</span><br><span class="line">decayed_learning_rate = tf.train.exponential_decay(</span><br><span class="line">    learning_rate,  // 学习率的初始值</span><br><span class="line">    global_step,    // 当前训练轮数</span><br><span class="line">    decay_steps,    // 多少轮更新一次学习率</span><br><span class="line">    decay_rate,     // 学习率的衰减率</span><br><span class="line">    staircase=True/False) // Ture 表示除号取整，阶梯型衰减；False 表示平滑下降</span><br></pre></td></tr></table></figure>
+
+<p>示例代码，初始值为 0.1 ，每 100000 轮更新一次学习率，衰减率为 0.96 ：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">global_step = tf.Variable(<span class="number">0</span>, trainable=<span class="literal">False</span>)</span><br><span class="line">starter_learning_rate = <span class="number">0.1</span></span><br><span class="line">learning_rate = tf.train.exponential_decay(starter_learning_rate, </span><br><span class="line">    global_step, <span class="number">100000</span>, <span class="number">0.96</span>, staircase=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="滑动平均"><a href="#滑动平均" class="headerlink" title="滑动平均"></a>滑动平均</h3><p>滑动平均：记录了一段时间内模型中所有参数 <code>w</code> 和 <code>b</code> 各自的平均值，利用滑动平均值可以增强模型的泛化能力。<br>滑动平均影子计算公式： <code>shadow_variable = decay * shadow_variable + (1 - decay) * variable</code><br>衰减率 <code>decay=min(decay, (1 + num_updates) / (10 + num_updates))</code> ，初始值通常为接近 1 的数，比如： 0.99 ， 0.999 等等。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># Create an ExponentialMovingAverage object</span><br><span class="line">ema = tf.train.ExponentialMovingAverage(</span><br><span class="line">    decay,              // 衰减率，初值通常为 0.99, 0.999 等</span><br><span class="line">    num_updates=None)   // 多少轮更新一次衰减率</span><br><span class="line">    </span><br><span class="line"># 求参数列表的滑动平均值</span><br><span class="line">ema_op = ema.apply(tf.trainable_varialbes())</span><br><span class="line"></span><br><span class="line"># 查看参数的滑动平均值</span><br><span class="line">sess.run([w1, ema.average(w1)])</span><br></pre></td></tr></table></figure>
+
+<h3 id="正则化"><a href="#正则化" class="headerlink" title="正则化"></a>正则化</h3><p>在损失函数中给每个参数 <code>W</code> 加上权重，引入模型复杂度指标，从而抑制模型噪声，减小过拟合。<br>正则化有 <code>L1, L2</code> 的区分，计算公式如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">loss_l1 = tf.contrib.layers.l1_regularizer(REGULARIZER)(w)</span><br><span class="line">loss_l2 = tf.contrib.layers.l2_regularizer(REGULARIZER)(w)</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>w</code> 为希望被正则化的参数， <code>REGULARIZER</code> 为标量乘法器的值（即正则化后再乘以这个比例），通常初始为 0.001 。正则化参数后，优化损失函数：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tf.add_to_collection(<span class="string">'losses'</span>, </span><br><span class="line">    tf.contrib.layers.l2_regularizer(regularizer)(w))</span><br><span class="line">loss_mse = tf.reduce_mean(tf.square(y-y_))</span><br><span class="line">loss_total = loss_mse + tf.add_n(tf.get_collection(<span class="string">'losses'</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="神经网络搭建八股"><a href="#神经网络搭建八股" class="headerlink" title="神经网络搭建八股"></a>神经网络搭建八股</h3><p>神经网络搭建，参考：  </p>
+<ul>
+<li><a href="https://www.icourse163.org/course/PKU-1002536002" target="_blank" rel="noopener">北大mooc tensorflow 笔记</a>  </li>
+<li><a href="https://share.weiyun.com/5SPAVbH" target="_blank" rel="noopener">助教整理 pdf</a>  </li>
+<li>网友整理的代码实现：  <ul>
+<li><a href="https://github.com/Adnios/Tensorflow" target="_blank" rel="noopener">Adnios</a>  </li>
+<li><a href="https://github.com/kaixindelele/tensorflow_notebook" target="_blank" rel="noopener">kaixindelele</a>  </li>
+<li><a href="https://github.com/Tianxiaomo/tensorflow_notebook" target="_blank" rel="noopener">tianxiaomo</a>  </li>
+</ul>
+</li>
+</ul>
+<p>搭建大体遵循如下流程：  </p>
+<ul>
+<li>准备数据集，提取特征，作为输入喂给神经网络  </li>
+<li>搭建 <code>NN</code> 结构，从输入到输出；即搭建计算图<br><code>NN</code> 前向传播算法，计算输出结果  </li>
+<li>大量特征数据喂给 <code>NN</code> ，迭代优化 <code>NN</code> 参数<br><code>NN</code> 反向传播算法，优化参数训练模型  </li>
+<li>使用训练好的模型预测和分类  </li>
+</ul>
+<p>基于神经网络的机器学习主要分为两个过程：训练过程和使用过程。训练过程指前三步是反复循环迭代的过程，参数优化完成后保存固化；使用过程指使用训练过程固化的参数，实现特定应用。<br>实际应用中，通常使用现有成熟的网络结构，喂入新的数据，训练相应模型，判断是否能对喂入的新数据作出正确响应，再适当更改网络结构，反复迭代，直到找到最优结构和参数。  </p>
+<p>整理成 <code>python</code> 的常用格式为：  </p>
+<ul>
+<li><p>导入模块，生成模拟数据集  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span></span><br><span class="line">常量定义</span><br><span class="line">生成数据集</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>前向传播：定义输入、参数和输出  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x=      y_=     // 已知的输入和输出集</span><br><span class="line">w1=     w2=     // 要求解的参数，通常先赋值随机参数</span><br><span class="line">a=      y=      // 根据输入 x 和参数 w ，计算得到隐藏层及输出结果</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>反向传播：定义损失函数，反向传播方法  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">loss=           // 根据已知输出 y_ 和计算得到的输出 y ，计算损失值</span><br><span class="line">train_step=     // 反向传播训练方法</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成会话，训练指定轮数  </p>
+</li>
+</ul>
+<h2 id="神经网络断点续训"><a href="#神经网络断点续训" class="headerlink" title="神经网络断点续训"></a>神经网络断点续训</h2><p>神经网络保存以及重新加载，这样有利于断点保护，当训练时间很长时，可以在某个时刻暂停保存，后续需要继续训练时，可以从此处开始。  </p>
+<h3 id="保存"><a href="#保存" class="headerlink" title="保存"></a>保存</h3><p><code>MODEL_SAVE_PATH</code> 是神经网络参数保存的路径， <code>MODEL_NAME</code> 保存文件名的前缀；通常是在训练过程中，比如每 1000 轮保存一次参数。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">saver = tf.train.Saver()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(STEPS):</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">1000</span> == <span class="number">0</span>:</span><br><span class="line">            saver.save(sess, os.path.join(MODEL_SAVE_PATH, MODEL_NAME), </span><br><span class="line">                global_step=global_step)</span><br></pre></td></tr></table></figure>
+
+<p>保存的文件通常是三个：  </p>
+<ul>
+<li><code>.meta</code> 文件，保存当前图的结构  </li>
+<li><code>.index</code> 文件，保存当前参数名  </li>
+<li><code>.data</code> 文件，保存当前参数  </li>
+</ul>
+<h3 id="恢复"><a href="#恢复" class="headerlink" title="恢复"></a>恢复</h3><p><code>MODEL_SAVE_PATH</code> 是神经网络参数保存的路径（不需要指定文件名）。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">saver = tf.train.Saver()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    ckpt = tf.train.get_checkpoint_state(MODEL_SAVE_PATH)</span><br><span class="line">    <span class="keyword">if</span> ckpt <span class="keyword">and</span> ckpt.model_checkpoint_path:</span><br><span class="line">        saver.restore(sess, ckpt.model_checkpoint_path)</span><br></pre></td></tr></table></figure>
+
+<h3 id="恢复参数的滑动平均值"><a href="#恢复参数的滑动平均值" class="headerlink" title="恢复参数的滑动平均值"></a>恢复参数的滑动平均值</h3><p>如果保存模型时，模型中采用了滑动平均，则参数的滑动平均值需要单独恢复加载：<br>在实例化 <code>Saver</code> 时，滑动平均参数直接传递到构造函数中：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ema = tf.train.ExponentialMovingAverage(MOVING_AVERAGE_DECAY)</span><br><span class="line">ema_restore = ema.variables_to_restore()</span><br><span class="line">saver = tf.train.Saver(ema_restore)</span><br></pre></td></tr></table></figure>
+
+<h2 id="CNN-卷积神经网络"><a href="#CNN-卷积神经网络" class="headerlink" title="CNN 卷积神经网络"></a><code>CNN</code> 卷积神经网络</h2><h3 id="卷积"><a href="#卷积" class="headerlink" title="卷积"></a>卷积</h3><p><code>conv2d</code> 卷积是将给定的 4 维的输入和卷积核张量，转换为输出 2 维张量，函数原型如下：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/gen_nn_ops.py</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">conv2d</span><span class="params">(input, filter, strides, padding, </span></span></span><br><span class="line"><span class="function"><span class="params">    use_cudnn_on_gpu=True, data_format=<span class="string">"NHWC"</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">    dilations=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], name=None)</span>:</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>input</code><br>输入张量，形状为 <code>input=[batch, in_height, in_width, in_channels]</code> ，即每次处理 <code>batch</code> 张图片，每张图片有 <code>in_channels</code> 个通道数。  </li>
+<li><code>filter</code><br>也称为卷积核 <code>kernel</code> ，形状为 <code>filter=[filter_height, filter_width, in_channels, out_channels]</code> ，通道数和输入保持一致； <code>out_channels</code> 输出通道数，也表示卷积核的个数，即从输入提取多少个特征；也就是一张图片，可以提取出 <code>out_channels</code> 张特征图。  </li>
+<li><code>strides</code><br>滑动步长，表示卷积核横向和纵向上每次移动的步长。  </li>
+<li><code>padding</code><br>在输入图像外圈填充一圈像素，也就是扩大输入图像的大小；有两个可能值：  <ul>
+<li><code>valid</code><br>表示不需要填充像素。</li>
+<li><code>same</code><br>表示输出和输入的大小相同，<code>padding</code> 补全的大小为 <code>p=(f-1)/2</code> ，使用全零填充。  </li>
+</ul>
+</li>
+</ul>
+<p>卷积后输出张量的形状为 <code>output=[batch, out_height, out_width, out_channels]</code> ，其中 <code>out_height, out_width</code> 计算方式如下：<br>如果输入数据大小为 <code>n*n</code> ，卷积核为 <code>f*f</code> ，滑动步长为 <code>s</code> ， <code>padding</code> 填充为 <code>p</code> ，则输出大小为 <code>(n+2p-f)/s + 1</code> 。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">import tensorflow as tf</span><br><span class="line"></span><br><span class="line">input = tf.Variable(tf.random_normal([1,5,5,3]))</span><br><span class="line">filter = tf.Variable(tf.random_normal([3,3,3,1]))   # 核个数为 1</span><br><span class="line">stride_1 = [1, 1, 1, 1]</span><br><span class="line">stride_2 = [1, 2, 2, 1]</span><br><span class="line"></span><br><span class="line">same_2d_1 = tf.nn.conv2d(input=input, filter=filter, </span><br><span class="line">    strides=stride_1, padding=&apos;SAME&apos;)</span><br><span class="line">valid_2d_1 = tf.nn.conv2d(input=input, filter=filter, </span><br><span class="line">    strides=stride_1, padding=&apos;VALID&apos;)</span><br><span class="line">same_2d_2 = tf.nn.conv2d(input, filter, stride_2, &apos;SAME&apos;)</span><br><span class="line"></span><br><span class="line">print(input)</span><br><span class="line">print(filter)</span><br><span class="line">print(same_2d_1)</span><br><span class="line">print(valid_2d_1)</span><br><span class="line">print(same_2d_2)</span><br></pre></td></tr></table></figure>
+
+<p>输出结果形状如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;tf.Variable &apos;Variable_16:0&apos; shape=(1, 5, 5, 3) dtype=float32_ref&gt;</span><br><span class="line">&lt;tf.Variable &apos;Variable_17:0&apos; shape=(3, 3, 3, 1) dtype=float32_ref&gt;</span><br><span class="line">Tensor(&quot;Conv2D_17:0&quot;, shape=(1, 5, 5, 1), dtype=float32)</span><br><span class="line">Tensor(&quot;Conv2D_18:0&quot;, shape=(1, 3, 3, 1), dtype=float32)</span><br><span class="line">Tensor(&quot;Conv2D_19:0&quot;, shape=(1, 3, 3, 1), dtype=float32)</span><br></pre></td></tr></table></figure>
+
+<h3 id="池化"><a href="#池化" class="headerlink" title="池化"></a>池化</h3><p>最大池化和平均池化函数原型：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def max_pool(input, ksize, strides, padding, </span><br><span class="line">    data_format=&quot;NHWC&quot;, name=None):</span><br><span class="line">def avg_pool(value, ksize, strides, padding, </span><br><span class="line">    data_format=&quot;NHWC&quot;, name=None):</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>input/value</code><br>输入张量，形状为 <code>[batch, height, width, channels]</code>  </li>
+<li><code>ksize</code><br>池化核的大小，形状为 <code>[batch, height, width, channels]</code> ，通常我们不会在 <code>batch, channels</code> 上做池化，所以一般设置为 <code>[1, height, width, 1]</code> ，仅仅给出池化核的大小。  </li>
+</ul>
+<p><code>strides, padding</code> 和卷积中的意义一样。  </p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">input = tf.Variable(tf.random_normal([<span class="number">1</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">2</span>]))</span><br><span class="line">pooling = tf.nn.max_pool(input, ksize=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>], </span><br><span class="line">    strides=[<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], padding=<span class="string">'VALID'</span>)</span><br><span class="line"></span><br><span class="line">print(input)</span><br><span class="line">print(pooling)</span><br></pre></td></tr></table></figure>
+
+<p>输出结果形状如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;tf.Variable &apos;Variable_36:0&apos; shape=(1, 4, 4, 2) dtype=float32_ref&gt;</span><br><span class="line">Tensor(&quot;MaxPool_7:0&quot;, shape=(1, 3, 3, 2), dtype=float32)</span><br></pre></td></tr></table></figure>
+
+<h2 id="TensorBoard"><a href="#TensorBoard" class="headerlink" title="TensorBoard"></a><code>TensorBoard</code></h2><p><code>TensorFlow</code> 虚拟可视化技术，能记录和查看整个网络的相关信息，通过网页来查看相关信息；支持如下几个操作：  </p>
+<ul>
+<li><code>tf.summary.scalar</code> 标量，也就是常量参数  </li>
+<li><code>tf.summary.image</code> 图片显示，常见图片分类中会显示训练图片  </li>
+<li><code>tf.summary.audio</code> 声音相关  </li>
+<li><code>tf.summary.text</code> 文本相关  </li>
+<li><code>tf.summary.histogram</code> 柱状图  </li>
+</ul>
+<p>除了这些操作外， <code>TensorBoard</code> 还会默认显示整个神经网络的结构图 <code>Graph</code> 以及 <code>Distributions</code> （它是 <code>histogram</code> 的另外一种展示方式）。  </p>
+<ul>
+<li><a href="https://tensorflow.google.cn/tensorboard" target="_blank" rel="noopener">官网网站</a>  </li>
+<li><a href="https://tensorflow.google.cn/guide/summaries_and_tensorboard" target="_blank" rel="noopener">TensorBoard：可视化学习</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorboard/tree/master/docs" target="_blank" rel="noopener">github 文档</a>  </li>
+</ul>
+<h3 id="计算图"><a href="#计算图" class="headerlink" title="计算图"></a>计算图</h3><p>计算图 <code>Graph</code> ，描述了神经网络的计算过程，是承载一个或多个计算节点的一张图，只搭建网络不运算。它是对神经网络的一个描述，描述了神经网络的组建方式，输入，参数，层数，输出等等。  </p>
+<h3 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h3><ul>
+<li><p>所有的 <code>name_scope</code> 都会生成 <code>Graph</code> 中一个节点，双击这个节点可以展开节点看到更详细信息  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Input placeholders</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">'input'</span>):</span><br><span class="line">    x = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">784</span>], name=<span class="string">'x-input'</span>)</span><br><span class="line">    y_ = tf.placeholder(tf.int64, [<span class="literal">None</span>], name=<span class="string">'y-input'</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>标量和柱状图  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">variable_summaries</span><span class="params">(var)</span>:</span></span><br><span class="line">    <span class="string">"""Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">'summaries'</span>):</span><br><span class="line">        mean = tf.reduce_mean(var)</span><br><span class="line">        tf.summary.scalar(<span class="string">'mean'</span>, mean)</span><br><span class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">'stddev'</span>):</span><br><span class="line">            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))</span><br><span class="line">        tf.summary.scalar(<span class="string">'stddev'</span>, stddev)</span><br><span class="line">        tf.summary.scalar(<span class="string">'max'</span>, tf.reduce_max(var))</span><br><span class="line">        tf.summary.scalar(<span class="string">'min'</span>, tf.reduce_min(var))</span><br><span class="line">        tf.summary.histogram(<span class="string">'histogram'</span>, var)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>tf.summary.merge_all</code> 合并操作，生成所有汇总数据：一个序列化的 <code>Summary protobuf</code> 对象  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">merged = tf.summary.merge_all()</span><br><span class="line">// 所有操作只能在 run 中生成数据，所以 merge 的结果为 run 返回值</span><br><span class="line">summary, acc = sess.run(</span><br><span class="line">    [merged, accuracy], feed_dict=feed_dict(<span class="literal">False</span>))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>tf.summary.FileWriter</code> 将汇总的 <code>protobuf</code> 以文件的方式保存下来  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 指定 log 保存路径</span><br><span class="line">train_writer = tf.summary.FileWriter(log_dir, sess.graph) </span><br><span class="line">train_writer.add_summary(summary, i)</span><br><span class="line">train_writer.close()</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>注意：每个 <code>log</code> 目录下只能保存一个 <code>events.out.tfevents.**</code> 事件日志，如果有多个日志只能显示最后一个。多个日志可以新建不同的目录单独保存，在 <code>tensorboard</code> 运行时，指定日志目录为其父目录就能查看所有的日志了。  </p>
+<h3 id="运行-tensorboard"><a href="#运行-tensorboard" class="headerlink" title="运行 tensorboard"></a>运行 <code>tensorboard</code></h3><p>在 <code>tf.summary.FileWriter</code> 中会指定 <code>log</code> 保存路径，运行 <code>tensorboard</code> 时需要指定到这个路径： <code>tensorboard --logdir=logs</code> ，运行成功后，默认以 <code>6006</code> 端口来访问它，比如： <code>http://ip:6006</code> 。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@136b043c9daa:/tf/# tensorboard --logdir mnist_with_summaries/</span><br><span class="line">TensorBoard 1.13.1 at http://136b043c9daa:6006 (Press CTRL+C to quit)</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果在服务器上通过 <code>docker</code> 运行 <code>TensorFlow</code> 环境，需要在 <code>docker</code> 启动镜像时，指定 <code>6006</code> 转发端口： <code>-p 0.0.0.0:6006:6006</code> ，否则在客户端提示无法访问，参考 <a href="https://stackoverflow.com/questions/41523005/how-to-use-tensorboard-in-a-docker-container-on-windows" target="_blank" rel="noopener">stackoverflow: How to use TensorBoard in a Docker container (on Windows)</a>。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name py3-jupyter -it -d --rm -v /home/share:/tf/py3-jupyter \</span><br><span class="line">    -p 0.0.0.0:6006:6006 \</span><br><span class="line">    -p 8888:8888 \</span><br><span class="line">    mytensorflow:py3-jupyter</span><br></pre></td></tr></table></figure>
+
+<p>其中： <code>6006</code> 为 <code>tensorboard</code> 转发端口； <code>8888</code> 为 <code>jupyter notebook</code> 转发端口。  </p>
+<h3 id="已有模型-pb-的可视化"><a href="#已有模型-pb-的可视化" class="headerlink" title="已有模型 pb 的可视化"></a>已有模型 <code>pb</code> 的可视化</h3><p>对于已经存在的 <code>pb</code> 文件，可以通过 <a href="https://lutzroeder.github.io/netron/" target="_blank" rel="noopener">netron</a> 在线查看，也可以使用代码保存 <code>log</code> 后通过 <code>tensorboard</code> 来查看图结构：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line">model = <span class="string">'/tf/py3-jupyter/04-Face/Mtcnn/model_check_point/mtcnn.pb'</span></span><br><span class="line">log_dir = <span class="string">'/tf/py3-jupyter/01-Tensor-Flow-base/tensorboard/mtcnn'</span></span><br><span class="line">graph = tf.get_default_graph()</span><br><span class="line">graph_def = graph.as_graph_def()</span><br><span class="line">graph_def.ParseFromString(tf.gfile.FastGFile(model, <span class="string">'rb'</span>).read())</span><br><span class="line">tf.import_graph_def(graph_def, name=<span class="string">'mtcnn_graph'</span>)</span><br><span class="line">summaryWriter = tf.summary.FileWriter(log_dir, graph)</span><br></pre></td></tr></table></figure>
+
+<p>运行 <code>tensorboard</code> ，在 <code>graph</code> 页面双击生成的 <code>mtcnn_graph</code> 展开查看详细图结构信息。  </p>
+<h2 id="TensorFlow-分布式"><a href="#TensorFlow-分布式" class="headerlink" title="TensorFlow 分布式"></a><code>TensorFlow</code> 分布式</h2><h2 id="TensorFlow-Lite"><a href="#TensorFlow-Lite" class="headerlink" title="TensorFlow Lite"></a><code>TensorFlow Lite</code></h2><p><code>TensorFlow Lite</code> 是 <code>TensorFlow</code> 的简化版本，用于手机或者 <code>IOT</code> 设备等，它的模型文件是 <code>tflite</code> 后缀；而 <code>TensorFlow Mobile</code> 被弃用，全面使用 <code>Lite</code> 。官方资料：  </p>
+<ul>
+<li><a href="https://tensorflow.google.cn/lite/guide" target="_blank" rel="noopener">官网信息</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite" target="_blank" rel="noopener">github 仓库</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/g3doc/guide" target="_blank" rel="noopener">github 文档</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/quantize" target="_blank" rel="noopener">github 量化训练及准确率</a>  </li>
+<li><a href="https://github.com/tensorflow/examples/tree/master/lite/examples" target="_blank" rel="noopener">github tensor lite示例</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/android" target="_blank" rel="noopener">github Android 参考示例</a>  </li>
+</ul>
+<p>一个第三方在线查看 <code>TensorFlow</code> 模型 <code>pb, tflite</code> 文件的结构的网站：<a href="https://lutzroeder.github.io/netron/" target="_blank" rel="noopener">netron</a> ；也可以通过 <code>tensorboard</code> 查看图结构。转换为 <code>tflite</code> 可能经常出现不支持的操作，对照着图结构可以清楚的看出该操作具体的位置，想办法规避或替换不支持的操作。  </p>
+<h3 id="模型转换"><a href="#模型转换" class="headerlink" title="模型转换"></a>模型转换</h3><p>通常使用 <code>TensorFlow</code> 训练出模型后，再将模型转换为 <code>tflite</code> 文件，参考<a href="https://tensorflow.google.cn/lite/convert" target="_blank" rel="noopener">官方模型转换指导</a> ，推荐使用 <code>python api</code> 的方式来实现，但是 <code>TensorFlow python</code> 接口个版本间差异较大，使用时参考官方最新提供的接口文档：<a href="https://tensorflow.google.cn/lite/convert/python_api" target="_blank" rel="noopener">python api</a> 。  </p>
+<ul>
+<li><p>卷积神经网络 <code>CNN</code><br>卷积神经网络的输入可以是任意形状 <code>None</code> ，但是转换为 <code>tflite</code> 必须要指定具体形状，可以在转换时先随便指定一个固定值，在实际调用时动态改变输入的形状 <code>set_tensor</code> ，参考<a href="https://stackoverflow.com/questions/55701663/input-images-with-dynamic-dimensions-in-tensorflow-lite" target="_blank" rel="noopener">stackoverflow: Input images with dynamic dimensions in Tensorflow-lite</a> 。  </p>
+</li>
+<li><p>量化模型<br>浮点型转换为整型，相对于浮点型整个模型可以压缩到 1/4 ，但准确率只有几个点的下降；量化模型在手持设备上，速度有 2 倍以上的提升。  </p>
+</li>
+<li><p><code>pb</code> 文件转换为 <code>tflite</code>  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line">graph_def_file = <span class="string">"/path//mobilenet_v1_1.0_224/frozen_graph.pb"</span></span><br><span class="line">input_arrays = [<span class="string">"input"</span>]</span><br><span class="line">output_arrays = [<span class="string">"MobilenetV1/Predictions/Softmax"</span>]</span><br><span class="line"></span><br><span class="line">converter = tf.lite.TFLiteConverter.from_frozen_graph(</span><br><span class="line">  graph_def_file, input_arrays, output_arrays)</span><br><span class="line">tflite_model = converter.convert()      // 转换</span><br><span class="line">open(<span class="string">"converted_model.tflite"</span>, <span class="string">"wb"</span>).write(tflite_model)  // 保存文件</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>转换为量化模型  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line">graph_def_file = <span class="string">"/tf/py3-jupyter/04-Face/Mtcnn/model_check_point/mtcnn.pb"</span></span><br><span class="line">tflite_quant_file = <span class="string">"/tf/py3-jupyter/04-Face/Mtcnn/model_check_point/mtcnn_quant.tflite"</span></span><br><span class="line"></span><br><span class="line">output_arrays = [<span class="string">'pnet/prob1'</span>,  <span class="comment"># PNet face classification</span></span><br><span class="line">                 <span class="string">'pnet/conv4-2/BiasAdd'</span>,  <span class="comment"># PNet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'rnet/prob1'</span>,  <span class="comment"># RNet face classification</span></span><br><span class="line">                 <span class="string">'rnet/conv5-2/conv5-2'</span>,  <span class="comment"># RNet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'onet/prob1'</span>,  <span class="comment"># ONet face classification</span></span><br><span class="line">                 <span class="string">'onet/conv6-2/conv6-2'</span>,  <span class="comment"># ONet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'onet/conv6-3/conv6-3'</span>  <span class="comment"># ONet Facial Landmark</span></span><br><span class="line">                 ]</span><br><span class="line">input_arrays = [<span class="string">'pnet/input'</span>,</span><br><span class="line">                <span class="string">'rnet/input'</span>,</span><br><span class="line">                <span class="string">'onet/input'</span>]</span><br><span class="line">// 卷积神经网络，必须给定具体形状</span><br><span class="line">input_shapes = &#123;<span class="string">'pnet/input'</span>: [<span class="number">1</span>, <span class="number">224</span>, <span class="number">224</span>, <span class="number">3</span>],</span><br><span class="line">                <span class="string">'rnet/input'</span>: [<span class="number">1</span>, <span class="number">24</span>, <span class="number">24</span>, <span class="number">3</span>],</span><br><span class="line">                <span class="string">'onet/input'</span>: [<span class="number">1</span>, <span class="number">48</span>, <span class="number">48</span>, <span class="number">3</span>]&#125;</span><br><span class="line"></span><br><span class="line">converter = tf.lite.TFLiteConverter.from_frozen_graph(</span><br><span class="line">    graph_def_file, input_arrays, output_arrays, input_shapes)</span><br><span class="line">converter.inference_type = tf.lite.constants.QUANTIZED_UINT8</span><br><span class="line">converter.quantized_input_stats = &#123;input_arrays[<span class="number">0</span>]: (<span class="number">127.5</span>, <span class="number">128.</span>), input_arrays[<span class="number">1</span>]: (</span><br><span class="line">    <span class="number">127.5</span>, <span class="number">128.</span>), input_arrays[<span class="number">2</span>]: (<span class="number">127.5</span>, <span class="number">128.</span>)&#125;  <span class="comment"># mean, std_dev</span></span><br><span class="line">converter.default_ranges_stats = (<span class="number">-1.0</span>, <span class="number">1.0</span>)</span><br><span class="line">tflite_quant_model = converter.convert()</span><br><span class="line">open(tflite_quant_file, <span class="string">"wb"</span>).write(tflite_quant_model)</span><br><span class="line">print(<span class="string">"end..."</span>)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>转换为量化模型时，需要指定 <code>inference_type</code> 为 <code>QUANTIZED_UINT8</code> ，以及设置均值、标准差、最大值、最小值等等。转换为量化模型的接口随着 <code>TensorFlow</code> 版本升级，可能不一样，请参考最新接口。<br>有时候模型可以正确转换为 <code>tflite</code> 浮点型，但是量化时却失败，因为量化支持的操作比较少，根据错误信息，修改原始模型（使用支持量化的操作），再重新生成量化模型文件。  </p>
+<h3 id="移植到-Android-手机-Java-方案"><a href="#移植到-Android-手机-Java-方案" class="headerlink" title="移植到 Android 手机 Java 方案"></a>移植到 <code>Android</code> 手机 <code>Java</code> 方案</h3><p><code>Android Studio</code> 新建项目后，在 <code>Gradle</code> 文件中增加如下配置：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    ...</span><br><span class="line">    aaptOptions &#123;</span><br><span class="line">        noCompress &quot;tflite&quot;         // 不要压缩 tflite 文件，否则调用异常</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    // 导入 tensorflow lite aar 文件  </span><br><span class="line">    implementation &apos;org.tensorflow:tensorflow-lite:0.0.0-nightly&apos;</span><br><span class="line">    implementation &apos;org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly&apos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>aar</code> 文件的源码可以在<a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/java/src" target="_blank" rel="noopener">aar 源码中查看</a> 。  </p>
+<p><code>Java</code> 代码中加载 <code>tflite</code> 模型，并获取输入输出张量相关信息：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">loadTfLiteModel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        MappedByteBuffer tfliteModel;</span><br><span class="line">        Interpreter tflite;</span><br><span class="line">        AssetFileDescriptor fileDescriptor = </span><br><span class="line">            assetManager.openFd(<span class="string">"mtcnn.tflite"</span>);</span><br><span class="line">        FileInputStream inputStream = <span class="keyword">new</span> FileInputStream(</span><br><span class="line">            fileDescriptor.getFileDescriptor());</span><br><span class="line">        FileChannel fileChannel = inputStream.getChannel();</span><br><span class="line">        <span class="keyword">long</span> startOffset = fileDescriptor.getStartOffset();</span><br><span class="line">        <span class="keyword">long</span> declaredLength = fileDescriptor.getDeclaredLength();</span><br><span class="line">        <span class="comment">// 加载模型</span></span><br><span class="line">        tfliteModel = fileChannel.map(FileChannel.MapMode.READ_ONLY,</span><br><span class="line">            startOffset, declaredLength);</span><br><span class="line">        <span class="comment">// 新建解释器对象</span></span><br><span class="line">        tflite = <span class="keyword">new</span> Interpreter(tfliteModel, <span class="keyword">null</span>);</span><br><span class="line">        Log.d(TAG, <span class="string">"loadTfLiteModel: success."</span>);</span><br><span class="line">        <span class="comment">// 获取输入张量索引及信息</span></span><br><span class="line">        pInputIndex = tflite.getInputIndex(P_NET_INPUT_NAME);</span><br><span class="line">        Tensor pInput = tflite.getInputTensor(pInputIndex);</span><br><span class="line">        <span class="comment">// 获取输出张量索引及信息</span></span><br><span class="line">        pOutputProbIndex = tflite.getOutputIndex(P_NET_OUTPUT_PROB_NAME);</span><br><span class="line">        Tensor pOutProb = tflite.getOutputTensor(pOutputProbIndex);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"loadTfLiteModel: "</span> + ioe);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>加载的模型使用类型为 <code>MappedByteBuffer</code> ，并初始化生成解释器 <code>Interpreter</code> ，通过它调用神经网络模型，得到输出结果：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 输入为 ByteBuffer 类型</span><br><span class="line">ByteBuffer imgData = ByteBuffer.allocateDirect(</span><br><span class="line">        1 * h * w * 3 * getNumBytesPerChannel());</span><br><span class="line">imgData.order(ByteOrder.nativeOrder());</span><br><span class="line">// 逐个读入输入数据，可能会对数据做归一化</span><br><span class="line">loadImageData(bitmap, imgData);</span><br><span class="line"></span><br><span class="line">// 输出为数组，维度为神经网络输出张量的形状 shape</span><br><span class="line">float[][][][] pNetOutProb = new float[1][outW][outH][2];</span><br><span class="line">float[][][][] pNetOutBias = new float[1][outW][outH][4];</span><br><span class="line">Map&lt;Integer, Object&gt; outputs = new HashMap();</span><br><span class="line">outputs.put(0, pNetOutProb);</span><br><span class="line">outputs.put(1, pNetOutBias);</span><br><span class="line"></span><br><span class="line">int index = tflite.getInputIndex(&quot;pnet/input&quot;);</span><br><span class="line">int[] resizeShape = &#123;1, w, h, 3&#125;;</span><br><span class="line">// 动态改变输入的形状</span><br><span class="line">tflite.resizeInput(pInputIndex, resizeShape);</span><br><span class="line">// 调用神经网络  </span><br><span class="line">tflite.runForMultipleInputsOutputs(new Object[]&#123;imgData&#125;, outputs);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>输入为 <code>ByteBuffer</code> 类型，并将输入数据逐个存入  </li>
+<li>输出为数组，维度为神经网络模型输出张量的阶  </li>
+<li>使用 <code>tflite.run***()</code> 调用神经网络模型，得到输出结果  </li>
+<li>如果为卷积神经网络 <code>CNN</code> ，即输入可以是任意形状，但是 <code>tflite</code> 只支持固定形状，需要动态调整  </li>
+</ul>
+<h3 id="官方经典示例"><a href="#官方经典示例" class="headerlink" title="官方经典示例"></a>官方经典示例</h3><ul>
+<li><a href="https://github.com/tensorflow/examples/blob/master/community/en/flowers_tf_lite.ipynb" target="_blank" rel="noopener">tflite 花识别示例</a>  </li>
+<li><a href="https://tensorflow.google.cn/lite/models/pose_estimation/overview" target="_blank" rel="noopener">人体姿势，眼，鼻，手，腿等关键点定位</a>  </li>
+<li><a href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/android" target="_blank" rel="noopener">TF-mobile 参考示例</a>  </li>
+</ul>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><a href="https://www.jianshu.com/p/dbdaac102504" target="_blank" rel="noopener">tflite 移植到 arm c++ 实现</a>  </li>
+</ul>
+<h2 id="常见操作"><a href="#常见操作" class="headerlink" title="常见操作"></a>常见操作</h2><h3 id="遍历-pb-文件所有的节点信息"><a href="#遍历-pb-文件所有的节点信息" class="headerlink" title="遍历 pb 文件所有的节点信息"></a>遍历 <code>pb</code> 文件所有的节点信息</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line">graph_def_file = <span class="string">"/tf/py3-jupyter/pb/mtcnn_1.12.pb"</span></span><br><span class="line">gf = tf.GraphDef()</span><br><span class="line">gf.ParseFromString(open(graph_def_file,<span class="string">'rb'</span>).read())</span><br><span class="line"><span class="keyword">for</span> i,n <span class="keyword">in</span> enumerate(gf.node):</span><br><span class="line">    print(str(i) +<span class="string">', '</span>+n.name+<span class="string">' ===&gt; '</span>+n.op)</span><br></pre></td></tr></table></figure>
+
+<h3 id="遍历-tflite-文件所有节点信息"><a href="#遍历-tflite-文件所有节点信息" class="headerlink" title="遍历 tflite 文件所有节点信息"></a>遍历 <code>tflite</code> 文件所有节点信息</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 遍历 tflite 文件所有 tensor </span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">#tflite_file = "/tf/pb/tflite/mobilenet_v1_1.0_224_quant.tflite"</span></span><br><span class="line">tflite_file = <span class="string">"/tf/pb/tflite/mobilenet_v1_1.0_224.tflite"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">"__main__"</span>:</span><br><span class="line">    interpreter = tf.lite.Interpreter(model_path=tflite_file)</span><br><span class="line">    interpreter.allocate_tensors()</span><br><span class="line">    </span><br><span class="line">    tensors = interpreter.get_tensor_details() // 获取模型所有的节点</span><br><span class="line">    print(len(tensors))                        // 长度</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(tensors)):</span><br><span class="line">        print(tensors[i])                      // 遍历每个节点</span><br><span class="line"></span><br><span class="line">    print(interpreter.get_input_details())     // 获取所有输入节点</span><br><span class="line">    print(interpreter.get_output_details())    // 获取所有输出节点</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">"end..."</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="pb-转-tflite"><a href="#pb-转-tflite" class="headerlink" title="pb 转 tflite"></a><code>pb</code> 转 <code>tflite</code></h3><p>转换时， <code>output</code> 必须和保存 <code>pb</code> 时一致，否则会出各种<strong>莫名其妙的问题，这些问题并不会提示你是因为 <code>output</code> 不一致</strong>。  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">freeze</span><span class="params">(sess,)</span>:</span></span><br><span class="line">    output_name=[<span class="string">'pnet/prob1'</span>,                     <span class="comment">#PNet face classification</span></span><br><span class="line">                 <span class="string">'pnet/conv4-2/BiasAdd'</span>,           <span class="comment">#PNet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'rnet/prob1'</span>,              <span class="comment">#RNet face classification</span></span><br><span class="line">                 <span class="string">'rnet/conv5-2/conv5-2'</span>,    <span class="comment">#RNet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'onet/prob1'</span>,           <span class="comment">#ONet face classification</span></span><br><span class="line">                 <span class="string">'onet/conv6-2/conv6-2'</span>, <span class="comment">#ONet BoundingBox Regression</span></span><br><span class="line">                 <span class="string">'onet/conv6-3/conv6-3'</span>  <span class="comment">#ONet Facial Landmark</span></span><br><span class="line">                 ]</span><br><span class="line">    graphDef = convert_variables_to_constants(sess, sess.graph_def, output_node_names=output_name)</span><br><span class="line">    <span class="keyword">with</span> tf.gfile.GFile(<span class="string">"mtcnn_freezed_model.pb"</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">       f.write(graphDef.SerializeToString())</span><br><span class="line"></span><br><span class="line">    input_name = [<span class="string">"pnet/input"</span>]</span><br><span class="line">    input_shapes = &#123;<span class="string">"pnet/input"</span>:[<span class="number">1</span>,<span class="number">224</span>,<span class="number">224</span>,<span class="number">3</span>]&#125;</span><br><span class="line">    tf_file = <span class="string">"mtcnn.tflite"</span></span><br><span class="line"></span><br><span class="line">    converter = tf.lite.TFLiteConverter.from_frozen_graph(<span class="string">"mtcnn_freezed_model.pb"</span>, input_name, output_name, input_shapes=input_shapes)</span><br><span class="line">    tflite_model = converter.convert()</span><br><span class="line">    open(tf_file, <span class="string">"wb"</span>).write(tflite_model)</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="断点恢复"><a href="#断点恢复" class="headerlink" title="断点恢复"></a>断点恢复</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">NotFoundError: Key Variable/ExponentialMovingAverage_8 not found in checkpoint</span><br><span class="line">	 [[node save_8/RestoreV2 (defined at &lt;ipython-input-31-954ff7be1933&gt;:138) ]]</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">&lt;ipython-input-31-954ff7be1933&gt; in train(self, mnist)</span><br><span class="line">    145             ckpt = tf.train.get_checkpoint_state(MODEL_SAVE_PATH)</span><br><span class="line">    146             if ckpt and ckpt.model_checkpoint_path:</span><br><span class="line">--&gt; 147                 saver.restore(sess, ckpt.model_checkpoint_path)</span><br><span class="line">    148 </span><br><span class="line">    149             for i in range(self.STEPS):</span><br><span class="line"></span><br><span class="line">/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py in restore(self, sess, save_path)</span><br><span class="line">   1290         # a helpful message (b/110263146)</span><br><span class="line">   1291         raise _wrap_restore_error_with_msg(</span><br><span class="line">-&gt; 1292             err, &quot;a Variable name or other graph key that is missing&quot;)</span><br><span class="line">   1293 </span><br><span class="line">   1294       # This is an object-based checkpoint. We&apos;ll print a warning and then do</span><br><span class="line"></span><br><span class="line">NotFoundError: Restoring from checkpoint failed. This is most likely due to a Variable name or other graph key that is missing from the checkpoint. Please ensure that you have not altered the graph expected based on the checkpoint. Original error:</span><br></pre></td></tr></table></figure>
+
+<p>出现问题是因为运行完储存指令就调用，然而计算机已经有了训练好的神经网络，再调用神经网络会出问题。所以储存完后，需要在 <code>jupyter notebook</code> 上重启核，再运行程序即可。<br>或者使用 <code>with tf.Graph().as_default() as tg:</code> 恢复神经网络，再 <code>restore</code> 参数。  </p>
+<h3 id="读取-tflite-的张量-tensor"><a href="#读取-tflite-的张量-tensor" class="headerlink" title="读取 tflite 的张量 tensor"></a>读取 <code>tflite</code> 的张量 <code>tensor</code></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">interpreter = tf.lite.Interpreter(model_path=tflite_file)</span><br><span class="line">interpreter.allocate_tensors()</span><br></pre></td></tr></table></figure>
+
+<p>运行时报错：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RuntimeError: tensorflow/lite/kernels/conv.cc:224 input-&gt;dims-&gt;size != 4 (0 != 4)Node number 29 (CONV_2D) failed to prepare.</span><br></pre></td></tr></table></figure>
+
+<p>解决思路，我们将第 29 个节点打印出来，看看它的 <code>shape</code>  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">interpreter = tf.lite.Interpreter(model_path=tflite_file)</span><br><span class="line"><span class="comment">#interpreter.allocate_tensors()</span></span><br><span class="line">tensors = interpreter.get_tensor_details()</span><br><span class="line">print(tensors[<span class="number">29</span>])</span><br></pre></td></tr></table></figure>
+
+<p>打印结果为：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&apos;quantization&apos;: (0.0, 0), &apos;name&apos;: &apos;onet/input&apos;, &apos;shape&apos;: array([], dtype=int32), &apos;index&apos;: 29, &apos;dtype&apos;: &lt;class &apos;numpy.float32&apos;&gt;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到第 29 个节点的 <code>&#39;shape&#39;: array([], dtype=int32)</code> ，是空的，正常情况下 <code>array</code> 应该是一个 4 维数据，比如 <code>[1, 224, 224, 3]</code> ，因此我们从原始的 <code>pb</code> 文件中查看对应 <code>onet/input</code> 的形状：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gf = tf.GraphDef()</span><br><span class="line">gf.ParseFromString(open(graph_def_file,<span class="string">'rb'</span>).read())</span><br><span class="line"><span class="keyword">for</span> i,n <span class="keyword">in</span> enumerate(gf.node):    </span><br><span class="line">    <span class="keyword">if</span> n.name == <span class="string">'onet/input'</span>:</span><br><span class="line">        print(n)</span><br></pre></td></tr></table></figure>
+
+<p>打印结果为：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">name: &quot;onet/input&quot;</span><br><span class="line">op: &quot;Placeholder&quot;</span><br><span class="line">attr &#123;</span><br><span class="line">  key: &quot;dtype&quot;</span><br><span class="line">  value &#123;</span><br><span class="line">    type: DT_FLOAT</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">attr &#123;</span><br><span class="line">  key: &quot;shape&quot;</span><br><span class="line">  value &#123;</span><br><span class="line">    shape &#123;</span><br><span class="line">      dim &#123;</span><br><span class="line">        size: -1</span><br><span class="line">      &#125;</span><br><span class="line">      dim &#123;</span><br><span class="line">        size: 48</span><br><span class="line">      &#125;</span><br><span class="line">      dim &#123;</span><br><span class="line">        size: 48</span><br><span class="line">      &#125;</span><br><span class="line">      dim &#123;</span><br><span class="line">        size: 3</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>pb</code> 文件中 <code>onet/input</code> 形状为 <code>[-1, 48, 48, 3]</code> ，也就是说，我们将 <code>pb</code> 转换为 <code>tflite</code> 时，没有包含这个信息。所以重新转换：  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">input_name = [<span class="string">'pnet/input'</span>,</span><br><span class="line">              <span class="string">'rnet/input'</span>,</span><br><span class="line">              <span class="string">'onet/input'</span>]                 // 指定 onet/input ，发生错误前并没有添加这项</span><br><span class="line">input_shapes = &#123;<span class="string">'pnet/input'</span>:[<span class="number">1</span>,<span class="number">224</span>,<span class="number">224</span>,<span class="number">3</span>],</span><br><span class="line">                <span class="string">'rnet/input'</span>:[<span class="number">1</span>,<span class="number">24</span>,<span class="number">24</span>,<span class="number">3</span>],</span><br><span class="line">                <span class="string">'onet/input'</span>:[<span class="number">1</span>,<span class="number">48</span>,<span class="number">48</span>,<span class="number">3</span>]&#125;   // 指定它的形状为 [<span class="number">1</span>, <span class="number">48</span>, <span class="number">48</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">converter = tf.lite.TFLiteConverter.from_frozen_graph(pb_file, input_name, output_name, input_shapes=input_shapes)</span><br><span class="line">tflite_model = converter.convert()</span><br><span class="line">open(tflite_file, <span class="string">"wb"</span>).write(tflite_model)</span><br></pre></td></tr></table></figure>
+
+<h3 id="numpy-处理后的数据类型默认-float64-，而-tensorflow-中默认使用-float32-需要转换"><a href="#numpy-处理后的数据类型默认-float64-，而-tensorflow-中默认使用-float32-需要转换" class="headerlink" title="numpy 处理后的数据类型默认 float64 ，而 tensorflow 中默认使用 float32 需要转换"></a><code>numpy</code> 处理后的数据类型默认 <code>float64</code> ，而 <code>tensorflow</code> 中默认使用 <code>float32</code> 需要转换</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 发生错误：  </span><br><span class="line">ValueError: Cannot set tensor: Got tensor of type 0 but expected type 1 for input 111 </span><br><span class="line"></span><br><span class="line">// 而第 111 个节点信息为 </span><br><span class="line">&#123;&apos;quantization&apos;: (0.0, 0), &apos;name&apos;: &apos;pnet/input&apos;, &apos;index&apos;: 111, &apos;dtype&apos;: &lt;class &apos;numpy.float32&apos;&gt;, &apos;shape&apos;: array([  1, 224, 224,   3], dtype=int32)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看该节点类型为 <code>numpy.float32</code> 的，而 <code>numpy</code> 默认操作数组时类型是 <code>float64</code> ，需要转换：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">print(img.shape, img.dtype)</span><br><span class="line">img = img.astype(&apos;float32&apos;)     // 转换为 float32 </span><br><span class="line">print(img.shape, img.dtype)</span><br></pre></td></tr></table></figure>
+
+<h3 id="pb-的-shape-为-None-时，即可以是任意形状，但是转换为-tflite-时，必须指定为具体数字"><a href="#pb-的-shape-为-None-时，即可以是任意形状，但是转换为-tflite-时，必须指定为具体数字" class="headerlink" title="pb 的 shape 为 None 时，即可以是任意形状，但是转换为 tflite 时，必须指定为具体数字"></a><code>pb</code> 的 <code>shape</code> 为 <code>None</code> 时，即可以是任意形状，但是转换为 <code>tflite</code> 时，必须指定为具体数字</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 设置输入数据时</span><br><span class="line">interpreter.set_tensor(input_details[0][&apos;index&apos;], img)</span><br><span class="line"></span><br><span class="line">// 发生错误：</span><br><span class="line">ValueError: Cannot set tensor: Dimension mismatch</span><br></pre></td></tr></table></figure>
+
+<p>解决方案，参考<a href="https://stackoverflow.com/questions/55701663/input-images-with-dynamic-dimensions-in-tensorflow-lite" target="_blank" rel="noopener">stackoverflow: Input images with dynamic dimensions in Tensorflow-lite</a>  </p>
+<p>第一步，转换时先设置固定值：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tflite_convert \</span><br><span class="line">  --graph_def_file=&apos;model.pb&apos; \</span><br><span class="line">  --output_file=&apos;model.tflite&apos; \</span><br><span class="line">  --input_shapes=1,128,80,1 \     # &lt;-- here, you set an</span><br><span class="line">                                  #     arbitrary valid shape</span><br><span class="line">  --input_arrays=&apos;input&apos; \         </span><br><span class="line">  --output_arrays=&apos;Softmax&apos;</span><br></pre></td></tr></table></figure>
+
+<p>第二步，调用时先调整大小再调用：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">from tensorflow.contrib.lite.python import interpreter</span><br><span class="line"></span><br><span class="line"># Load the *.tflite model and get input details</span><br><span class="line">model = Interpreter(model_path=&apos;model.tflite&apos;)</span><br><span class="line">input_details = model.get_input_details()</span><br><span class="line"></span><br><span class="line"># Your network currently has an input shape (1, 128, 80 , 1),</span><br><span class="line"># but suppose you need the input size to be (2, 128, 200, 1).</span><br><span class="line">model.resize_tensor_input(</span><br><span class="line">    input_details[0][&apos;index&apos;], (2, 128, 200, 1))</span><br><span class="line">model.allocate_tensors()</span><br><span class="line"></span><br><span class="line"># 先调整完大小后再设置数据</span><br><span class="line">model.set_tensor(input_details[0][&apos;index&apos;], img)</span><br></pre></td></tr></table></figure>
+
+<h3 id="量化不支持的操作"><a href="#量化不支持的操作" class="headerlink" title="量化不支持的操作"></a>量化不支持的操作</h3><p><code>Unimplemented: this graph contains an operator of type Neg for which the quantized form is not yet implemented.</code>  </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@layer</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">prelu</span><span class="params">(self, inp, name)</span>:</span></span><br><span class="line">    <span class="keyword">with</span> tf.variable_scope(name):</span><br><span class="line">        i = int(inp.get_shape()[<span class="number">-1</span>])</span><br><span class="line">        alpha = self.make_var(<span class="string">'alpha'</span>, shape=(i,))</span><br><span class="line">        <span class="comment">#output = tf.nn.relu(inp) + tf.multiply(alpha, -tf.nn.relu(-inp))</span></span><br><span class="line">        output = tf.math.maximum(<span class="number">0.0</span>, inp) + </span><br><span class="line">            tf.math.multiply(alpha, tf.math.minimum(<span class="number">0.0</span>, inp))</span><br><span class="line">    <span class="keyword">return</span> output</span><br></pre></td></tr></table></figure>
+
+<p><code>TensorFlow</code> 默认不支持 <code>prelu</code> 激活函数，需要自己实现；上面两种方式都能实现 <code>prelu</code> ，但是量化时不支持负号操作，所以改写成取最大值最小值来实现。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://tensorflow.google.cn" target="_blank" rel="noopener">TensorFlow 官网</a>  </li>
+<li><a href="https://github.com/tensorflow" target="_blank" rel="noopener">github TensorFlow</a>  </li>
+<li><a href="https://github.com/tensorflow/models" target="_blank" rel="noopener">官方示例</a>  </li>
+<li><a href="https://www.w3cschool.cn/tensorflow_python/" target="_blank" rel="noopener">w3cschool TensorFlow 教程-API描述</a></li>
+<li><a href="https://blog.51cto.com/853056088/2162189" target="_blank" rel="noopener">最详尽使用指南：超快上手Jupyter Notebook</a></li>
+<li><a href="https://segmentfault.com/a/1190000014831082" target="_blank" rel="noopener">Jupyter Notebook快速入门教程</a>  </li>
+<li><a href="https://www.cnblogs.com/yifdu25/p/8402791.html" target="_blank" rel="noopener">Tensorflow基础知识</a></li>
+<li><a href="https://www.icourse163.org/course/PKU-1002536002" target="_blank" rel="noopener">北大 mooc tensorflow 笔记</a>  </li>
+<li><a href="https://share.weiyun.com/5SPAVbH" target="_blank" rel="noopener">北大 mooc 助教整理 pdf</a>  </li>
+<li><a href="https://www.cnblogs.com/yinheyi/p/6131262.html" target="_blank" rel="noopener">Logistic 分类器与 softmax分类器</a>  </li>
+<li><a href="https://baike.baidu.com/item/Softmax%E5%87%BD%E6%95%B0/22772270?fr=aladdin" target="_blank" rel="noopener">Softmax函数</a>  </li>
+<li><a href="https://lutzroeder.github.io/netron/" target="_blank" rel="noopener">在线查看 TensorFlow 模型 pb, tflite 文件的结构 </a>  </li>
+<li><a href="https://blog.csdn.net/u011279649/article/details/83186550" target="_blank" rel="noopener">TF-lite 模型结构解析</a>  </li>
+<li><a href="https://blog.csdn.net/guvcolie/article/details/81286349" target="_blank" rel="noopener">Tensorflow 模型量化:Quantizing deep convolutional networks for efficient inference: A whitepaper 译文</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/05/27/0116-dl-tensorflow/" title="TensorFlow 相关">http://redspider110.github.io/2019/05/27/0116-dl-tensorflow/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/DeepLearning/" rel="tag"># DeepLearning</a>
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/22/0115-dl-cnn/" rel="next" title="CNN - 卷积神经网络">
+                <i class="fa fa-chevron-left"></i> CNN - 卷积神经网络
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/03/0117-dl-mtcnn/" rel="prev" title="MTCNN 人脸检测">
+                MTCNN 人脸检测 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境搭建"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行"><span class="nav-number">1.2.</span> <span class="nav-text">运行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jupyter-Notebook-教程"><span class="nav-number">2.</span> <span class="nav-text">Jupyter Notebook 教程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#快捷键"><span class="nav-number">2.1.</span> <span class="nav-text">快捷键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊功能"><span class="nav-number">2.2.</span> <span class="nav-text">特殊功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展"><span class="nav-number">2.3.</span> <span class="nav-text">扩展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">3.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tensor-张量"><span class="nav-number">3.1.</span> <span class="nav-text">Tensor 张量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#会话"><span class="nav-number">3.2.</span> <span class="nav-text">会话</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#神经网络"><span class="nav-number">4.</span> <span class="nav-text">神经网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常用函数"><span class="nav-number">4.1.</span> <span class="nav-text">常用函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见分类器"><span class="nav-number">4.2.</span> <span class="nav-text">常见分类器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#学习率"><span class="nav-number">4.3.</span> <span class="nav-text">学习率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#滑动平均"><span class="nav-number">4.4.</span> <span class="nav-text">滑动平均</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正则化"><span class="nav-number">4.5.</span> <span class="nav-text">正则化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#神经网络搭建八股"><span class="nav-number">4.6.</span> <span class="nav-text">神经网络搭建八股</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#神经网络断点续训"><span class="nav-number">5.</span> <span class="nav-text">神经网络断点续训</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保存"><span class="nav-number">5.1.</span> <span class="nav-text">保存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#恢复"><span class="nav-number">5.2.</span> <span class="nav-text">恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#恢复参数的滑动平均值"><span class="nav-number">5.3.</span> <span class="nav-text">恢复参数的滑动平均值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CNN-卷积神经网络"><span class="nav-number">6.</span> <span class="nav-text">CNN 卷积神经网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卷积"><span class="nav-number">6.1.</span> <span class="nav-text">卷积</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#池化"><span class="nav-number">6.2.</span> <span class="nav-text">池化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TensorBoard"><span class="nav-number">7.</span> <span class="nav-text">TensorBoard</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#计算图"><span class="nav-number">7.1.</span> <span class="nav-text">计算图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本用法"><span class="nav-number">7.2.</span> <span class="nav-text">基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行-tensorboard"><span class="nav-number">7.3.</span> <span class="nav-text">运行 tensorboard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已有模型-pb-的可视化"><span class="nav-number">7.4.</span> <span class="nav-text">已有模型 pb 的可视化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TensorFlow-分布式"><span class="nav-number">8.</span> <span class="nav-text">TensorFlow 分布式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TensorFlow-Lite"><span class="nav-number">9.</span> <span class="nav-text">TensorFlow Lite</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型转换"><span class="nav-number">9.1.</span> <span class="nav-text">模型转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移植到-Android-手机-Java-方案"><span class="nav-number">9.2.</span> <span class="nav-text">移植到 Android 手机 Java 方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#官方经典示例"><span class="nav-number">9.3.</span> <span class="nav-text">官方经典示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">9.4.</span> <span class="nav-text">其他</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见操作"><span class="nav-number">10.</span> <span class="nav-text">常见操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#遍历-pb-文件所有的节点信息"><span class="nav-number">10.1.</span> <span class="nav-text">遍历 pb 文件所有的节点信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遍历-tflite-文件所有节点信息"><span class="nav-number">10.2.</span> <span class="nav-text">遍历 tflite 文件所有节点信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pb-转-tflite"><span class="nav-number">10.3.</span> <span class="nav-text">pb 转 tflite</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">11.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断点恢复"><span class="nav-number">11.1.</span> <span class="nav-text">断点恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读取-tflite-的张量-tensor"><span class="nav-number">11.2.</span> <span class="nav-text">读取 tflite 的张量 tensor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#numpy-处理后的数据类型默认-float64-，而-tensorflow-中默认使用-float32-需要转换"><span class="nav-number">11.3.</span> <span class="nav-text">numpy 处理后的数据类型默认 float64 ，而 tensorflow 中默认使用 float32 需要转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pb-的-shape-为-None-时，即可以是任意形状，但是转换为-tflite-时，必须指定为具体数字"><span class="nav-number">11.4.</span> <span class="nav-text">pb 的 shape 为 None 时，即可以是任意形状，但是转换为 tflite 时，必须指定为具体数字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#量化不支持的操作"><span class="nav-number">11.5.</span> <span class="nav-text">量化不支持的操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">12.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

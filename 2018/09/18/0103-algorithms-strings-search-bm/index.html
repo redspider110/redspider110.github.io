@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Algorithms,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍子字符串匹配算法：从右至左暴力匹配算法，BM 算法。">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法 - 子字符串匹配 BM 算法">
+<meta property="og:url" content="http://redspider110.github.io/2018/09/18/0103-algorithms-strings-search-bm/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍子字符串匹配算法：从右至左暴力匹配算法，BM 算法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-case-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-case-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-case-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-case-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-examples.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-array.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-array-shift.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-suffix-array.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-3.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.381Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法 - 子字符串匹配 BM 算法">
+<meta name="twitter:description" content="介绍子字符串匹配算法：从右至左暴力匹配算法，BM 算法。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/09/18/0103-algorithms-strings-search-bm/">
+
+
+
+
+
+  <title>算法 - 子字符串匹配 BM 算法 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/09/18/0103-algorithms-strings-search-bm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">算法 - 子字符串匹配 BM 算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-18T09:00:00+08:00">
+                2018-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms/" itemprop="url" rel="index">
+                    <span itemprop="name">Algorithms</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>介绍子字符串匹配算法：从右至左暴力匹配算法，<code>BM</code> 算法。  </p>
+<a id="more"></a>
+
+<h2 id="从右至左暴力匹配算法"><a href="#从右至左暴力匹配算法" class="headerlink" title="从右至左暴力匹配算法"></a>从右至左暴力匹配算法</h2><h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h3><p>使用下标 <code>j</code> 记录文本位置；使用下标 <code>i</code> 记录模式位置。从模式最右边的字符开始比较，从右向左直到整个模式匹配，则返回文本位置。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">bruteForce</span><span class="params">(String pattern, String text)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> m = pattern.length();</span><br><span class="line">    <span class="keyword">int</span> n = text.length();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> j = <span class="number">0</span>;              <span class="comment">// 记录文本当前比较位置</span></span><br><span class="line">    <span class="keyword">int</span> i = m - <span class="number">1</span>;          <span class="comment">// 记录模式当前比较位置</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (j &lt;= n - m &amp;&amp; i &gt;= <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">// 模式从右向左和文本匹配</span></span><br><span class="line">        <span class="comment">// 如果匹配，模式向左缩进一位继续比较</span></span><br><span class="line">        <span class="keyword">if</span> (pattern.charAt(i) == text.charAt(i + j)) &#123;</span><br><span class="line">            i--;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果不匹配，文本向右移动一位</span></span><br><span class="line">            <span class="comment">// i 恢复为在模式最右边</span></span><br><span class="line">            j++;</span><br><span class="line">            i = m - <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (i &lt; <span class="number">0</span>) <span class="keyword">return</span> j;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><p>暴力匹配算法在长度为 <code>N</code> 的文本中查找长度为 <code>M</code> 的模式，时间复杂度为 <code>O(NM)</code> 。  </p>
+<h2 id="BM-算法基础概念"><a href="#BM-算法基础概念" class="headerlink" title="BM 算法基础概念"></a><code>BM</code> 算法基础概念</h2><p><code>BM: Boyer-Moore</code> 算法：大部分文本编辑器的查找功能 <code>CTRL+F</code> ，都是使用的该算法。<code>KMP</code> 算法中，模式和文本同时向右移动，文本逐个字符向后移动（不回退），模式从左向右逐个字符去匹配，当出现不匹配时，模式可以利用已知信息向前跳跃式继续匹配。而 <code>BM</code> 算法中，文本跳跃式向后移动，模式<strong>从右向左</strong>逐个字符匹配（这会变相导致文本出现回退），当出现字符不匹配时，利用模式的已知信息，文本可以直接大范围跳跃式向后移动，这也是算法更高效的原因。<br><code>BM</code> 算法中计算的是文本的移动距离，它会依据坏字符和好字符规则来决定；而 <code>KMP</code> 算法计算的是模式的移动距离。  </p>
+<h3 id="坏字符规则"><a href="#坏字符规则" class="headerlink" title="坏字符规则"></a>坏字符规则</h3><p>坏字符 <code>bad character</code>：模式与文本匹配过程中，文本出现的第一个不匹配字符。也就是坏字符是文本中的字符。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character.png" alt="0103-strings-search-bm-bad-character.png"></p>
+<p>示例中：<code>S</code> 即为坏字符，不匹配的字符。  </p>
+<h3 id="坏字符规则移动位数"><a href="#坏字符规则移动位数" class="headerlink" title="坏字符规则移动位数"></a>坏字符规则移动位数</h3><blockquote>
+<p>移动位数：坏字符位置 - 模式中上一次出现的位置  </p>
+</blockquote>
+<p>位置是从 0 开始编号的；如果坏字符不在模式中，则上次出现位置为 -1 。  </p>
+<ul>
+<li>坏字符不在模式中<br>文本向右移动位数：坏字符及前面字符串的长度；即坏字符所在位置加上 1 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-case-1.png" alt="0103-strings-search-bm-bad-character-case-1.png"></li>
+<li>坏字符在模式中<br>文本向右移动位数：坏字符位置 - 模式中上一次出现的位置<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-case-2.png" alt="0103-strings-search-bm-bad-character-case-2.png"></li>
+<li>示例<br>模式从尾部开始和文本比较：文本中 <code>P</code> 与模式最后一个字符 <code>E</code> 不匹配，坏字符 <code>P</code> 的位置为 6 ，而它在模式中上一次出现的位置为 4 ，所以坏字符规则移动位数为：6-4=2 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-2.png" alt="0103-strings-search-bm-bad-character-2.png"></li>
+</ul>
+<h3 id="好后缀规则"><a href="#好后缀规则" class="headerlink" title="好后缀规则"></a>好后缀规则</h3><p>好后缀 <code>good suffix</code>：模式与文本匹配过程中，模式已经与文本相匹配了的字符串。也就是模式中所有尾部匹配的字符串。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix.png" alt="0103-strings-search-bm-good-suffix.png"></p>
+<p>示例中：模式尾部匹配的字符串为 <code>MPLE, PLE, LE, E</code>，它们都是好后缀，而 <code>MPLE</code> 为最长好后缀。  </p>
+<h3 id="好后缀规则移动位数"><a href="#好后缀规则移动位数" class="headerlink" title="好后缀规则移动位数"></a>好后缀规则移动位数</h3><p>好后缀匹配有三种情况：  </p>
+<ul>
+<li><code>case1</code> 模式串中有子串和最长好后缀完全匹配，则将最靠右的那个子串（最长好后缀在模式中上一次出现位置的子串）移动到好后缀的位置继续进行匹配<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-case-1.png" alt="0103-strings-search-bm-good-suffix-case-1.png"></li>
+<li><code>case2</code> 如果不存在和最长好后缀完全匹配的子串，则在好后缀中找到 <code>pattern[m-1-s…m-1]=pattern[0…s]</code> 尽量长并匹配的子串，也就是从模式第一个字符开始匹配的子串<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-case-2.png" alt="0103-strings-search-bm-good-suffix-case-2.png"></li>
+<li><code>case3</code> 如果完全不存在和好后缀匹配的子串，则右移模式长度的距离  </li>
+</ul>
+<blockquote>
+<p>移动位数：好后缀位置 - 模式中上一次出现的位置  </p>
+</blockquote>
+<ul>
+<li>好后缀的位置<br>以最后一个字符位置为准。也就是说，好后缀位置其实始终为 <code>m-1</code> ，<code>m</code> 为模式长度。  </li>
+<li>模式中上一次出现的位置<br>根据上面三种匹配规则：当存在和最长好后缀完全匹配的子串时，上一次出现位置为子串位置；当好后缀只有部分子串匹配时，需要找到从头部开始匹配的尽量长的好后缀子串，上一次出现位置为该子串的位置；如果不存在和好后缀匹配的子串，上一次出现位置为 -1 。<br>因为模式是从右向左匹配的，所以这里说的子串位置，指的是子串最右边字符的位置。  </li>
+<li>示例<br>上面好后缀规则示例中 <code>MPLE, PLE, LE, E</code> 都是好后缀，以最后一个字符 <code>E</code> 为准，好后缀位置为 6 。因为好后缀只有部分子串匹配，从头部开始匹配尽量长的好后缀子串为 <code>E</code>，它在模式中上一次出现的位置为 0 ，所以好后缀规则移动位数为 6-0=6 。  </li>
+</ul>
+<h3 id="文本移动位数"><a href="#文本移动位数" class="headerlink" title="文本移动位数"></a>文本移动位数</h3><p><code>BM</code> 算法的基本思想，文本的最终移动位置为两个规则移动位数的最大值。  </p>
+<blockquote>
+<p>文本移动位数 = <code>Max{坏字符规则移动位数，好后缀规则移动位数}</code> 。  </p>
+</blockquote>
+<h3 id="图解"><a href="#图解" class="headerlink" title="图解"></a>图解</h3><p>示例文本：<code>HERE IS A SIMPLE EXAMPLE</code>；模式 <code>EXAMPLE</code> 。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-examples.png" alt="0103-strings-search-bm-examples.png"></p>
+<h2 id="BM-算法解析"><a href="#BM-算法解析" class="headerlink" title="BM 算法解析"></a><code>BM</code> 算法解析</h2><h3 id="坏字符距离数组-bmBc"><a href="#坏字符距离数组-bmBc" class="headerlink" title="坏字符距离数组 bmBc[]"></a>坏字符距离数组 <code>bmBc[]</code></h3><p>数组相关信息：  </p>
+<ul>
+<li>数组长度<br>通常以 8 位字符也就是 256 位长度来表示所有字符，也就是 <code>ASCII</code> 能表示的字符；如果是模式中存在中文，需要使用 16 为字符也就是 65536 位长度来表示。大部分算法中都取的是 256 （可能因为算法主要针对的是英文吧？）。  </li>
+<li>下标<br>以<strong>字符作为下标</strong>，而不是位置。这就是为什么要用 256 来表示数组长度了，数组可以包含所有的 <code>ASCII</code> 字符。  </li>
+<li>含义<br><code>bmBc[&#39;v&#39;]</code> 表示字符 <code>v</code> 在模式中最后一次出现的位置，距离模式尾部的长度。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-array.png" alt="0103-strings-search-bm-bad-character-array.png"></li>
+</ul>
+<p>在坏字符规则中，对应两种情况，我们分别计算对应的坏字符数组：  </p>
+<ul>
+<li>坏字符没有出现在模式中<br>这种情况很简单，坏字符在模式中上一次出现的位置为 -1，所以距离模式尾部为模式的长度：<code>bmBc[&#39;v&#39;] = pattern.length()</code> 。  </li>
+<li>坏字符出现在模式中<br>如果坏字符上一次出现的位置为 <code>i</code> ，那么坏字符距离模式尾部的距离为：<code>bmBc[&#39;v&#39;] = pattern.length()-i-1</code> 。  </li>
+</ul>
+<h3 id="坏字符规则移动位数-1"><a href="#坏字符规则移动位数-1" class="headerlink" title="坏字符规则移动位数"></a>坏字符规则移动位数</h3><p>坏字符数组 <code>bmBc[]</code> 表示：坏字符最后一次出现位置距离模式尾部的长度。我们根据这个长度来计算坏字符规则中，模式的移动位数：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-bad-character-array-shift.png" alt="0103-strings-search-bm-bad-character-array-shift.png"></p>
+<p>模式在第 <code>i</code> 个位置的字符 <code>u</code>，和文本在第 <code>i+j</code> 个位置的字符 <code>v</code> 不匹配，坏字符为 <code>v</code>。坏字符在模式中上一次出现，距离模式尾部的距离为 <code>bmBc[&#39;v&#39;]</code>，所以坏字符在模式中上一次出现的位置为 <code>m-1-bmBc[&#39;v&#39;]</code>。<br>套用公式：模式实际移动位数 = 坏字符位置 - 模式中上一次出现的位置。模式实际移动位数为 <code>i - (m-1-bmBc[&#39;v&#39;])</code>，即 <code>bmBc[&#39;v&#39;]-m+1+i</code> 。  </p>
+<h3 id="好后缀长度数组-suffix"><a href="#好后缀长度数组-suffix" class="headerlink" title="好后缀长度数组 suffix[]"></a>好后缀长度数组 <code>suffix[]</code></h3><p>好后缀长度数组 <code>suffix[]</code> 长度等于模式的长度，它的下标就是位置。模式以最后一个字符为准，对应的所有后缀中，<code>suffix[i]</code> 表示以 <code>i</code> 位置结束的子串，其所有后缀中和模式所有后缀的<strong>最长共有元素长度</strong>。<br>根据以上定义，假设模式为 <code>bcababab</code> ，它对应的所有后缀为 <code>bcababab, cababab, ababab, babab, abab, bab, ab, b</code> ，从右向左计算模式的每个子串的所有后缀和模式所有后缀的最长共有元素长度：  </p>
+<table>
+<thead>
+<tr>
+<th>模式的子串</th>
+<th>子串的所有后缀</th>
+<th>最长共有元素</th>
+<th>长度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bcababab</td>
+<td>bcababab, cababab, ababab, babab, abab, bab, ab, b</td>
+<td>bcababab</td>
+<td>8</td>
+</tr>
+<tr>
+<td>bcababa</td>
+<td>bcababa, cababa, ababa, baba, aba, ba, a</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>bcabab</td>
+<td>bcabab, cabab, abab, bab, ab, b</td>
+<td>abab</td>
+<td>4</td>
+</tr>
+<tr>
+<td>bcaba</td>
+<td>bcaba, caba, aba, ba, a</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>bcab</td>
+<td>bcab, cab, ab, b</td>
+<td>ab</td>
+<td>2</td>
+</tr>
+<tr>
+<td>bca</td>
+<td>bca, ca, a</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>bc</td>
+<td>bc, c</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>b</td>
+<td>b</td>
+<td>b</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>有了以上定义和示例说明，通过算法来计算 <code>suffix[]</code> 数组，假设：  </p>
+<ul>
+<li><code>i</code> 是当前位置，计算 <code>suffix[i]</code> 的值  </li>
+<li><code>f</code> 是上一轮匹配成功的起始位置    </li>
+<li><code>g</code> 是上一轮匹配的失配位置  </li>
+</ul>
+<p>这里的匹配指的是 <code>i</code> 位置的子串与模式后缀的匹配。从右向左扫描模式，也就是从后向前计算 <code>suffix[]</code> 数组：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-suffix-array.png" alt="0103-strings-search-bm-suffix-array.png"></p>
+<p>当 <code>g &lt; i &lt; f</code> 时，必定会有 <code>pattern[i]=pattern[m-1-f+i]</code> ；如果 <code>suffix[m-1-f+i] &lt; i-g</code> ，则必定会有 <code>suffix[i] = suffix[m-1-f+i]</code> ，充分利用已经计算过的 <code>suffix</code> 值。<br>如果是其他情况（即不能利用已知的 <code>suffix</code> 值），也就是说并不是每个位置都能进行成功匹配（实际上能够进行成功匹配的位置并不多）。当在起始位置就不匹配时，可以假定 <code>f=g=i</code> ，直接逐个字符比较计算 <code>suffix</code> 值。  </p>
+<h3 id="好后缀移位数组-bmGs"><a href="#好后缀移位数组-bmGs" class="headerlink" title="好后缀移位数组 bmGs[]"></a>好后缀移位数组 <code>bmGs[]</code></h3><p>好后缀移位数组 <code>bmGs[]</code> 长度：等于模式的长度，它的下标就是位置，它的计算需要借助好后缀长度数组 <code>suffix[]</code> 。  </p>
+<ul>
+<li><code>case1</code> 模式中有子串和最长好后缀完全匹配<br>位置 <code>j</code> 出现不匹配，移动位数为 <code>bmGs[j]=m-1-i</code>，即 <code>bmGs[m-1-suffix[i]]=m-1-i</code> 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-1.png" alt="0103-strings-search-bm-good-suffix-array-case-1.png"></li>
+<li><code>case2</code> 模式中没有最长好后缀的子串，则在好后缀中找到 <code>pattern[m-1-s…m-1]=pattern[0…s]</code> 尽量长并匹配的子串<br>位置 <code>j</code> 出现不匹配，当 <code>0&lt;=j&lt;m-1-i</code> 时，存在 <code>suffix[i]=i+1</code> ，且移动位数为 <code>bmGs[j]=m-1-i</code> 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-2.png" alt="0103-strings-search-bm-good-suffix-array-case-2.png"></li>
+<li><code>case3</code> 完全不存在和好后缀匹配的子串<br>只要出现不匹配，移动位数为整个模式长度，即 <code>bmGs[i]=m</code> 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0103-strings-search-bm-good-suffix-array-case-3.png" alt="0103-strings-search-bm-good-suffix-array-case-3.png"></li>
+</ul>
+<h3 id="算法实现-1"><a href="#算法实现-1" class="headerlink" title="算法实现"></a>算法实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BoyerMoore</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> R;     <span class="comment">// the radix</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BoyerMoore</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.R = <span class="number">256</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> bmBc[];</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> suffix[];</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> bmGs[];</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">preBmBc</span><span class="params">(String pattern)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 坏字符距离数组，用 256 来表示数组长度了，包含所有的 ASCII 字符</span></span><br><span class="line">        bmBc = <span class="keyword">new</span> <span class="keyword">int</span>[R];</span><br><span class="line">        <span class="keyword">int</span> m = pattern.length();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 坏字符没有出现在模式中 </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; R; i++)</span><br><span class="line">            bmBc[i] = m;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 坏字符存在模式中  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m - <span class="number">1</span>; i++)</span><br><span class="line">            bmBc[pattern.charAt(i)] = m - i - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">preSuffix</span><span class="params">(String pattern)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = pattern.length();</span><br><span class="line">        <span class="comment">// suffix 数组长度为模式长度</span></span><br><span class="line">        suffix = <span class="keyword">new</span> <span class="keyword">int</span>[m];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从右向左扫描</span></span><br><span class="line">        <span class="keyword">int</span> i = m - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> f = i, g = i;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 最后一个元素就是模式本身，所以长度为 m </span></span><br><span class="line">        suffix[m - <span class="number">1</span>] = m;</span><br><span class="line">        <span class="comment">// 从倒数第二个字符开始</span></span><br><span class="line">        <span class="keyword">for</span> (i = m - <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="comment">// 如果满足假设条件，利用已经计算过的 suffix 值</span></span><br><span class="line">            <span class="keyword">if</span> (i &gt; g &amp;&amp; suffix[i + m - <span class="number">1</span> - f] &lt; i - g)</span><br><span class="line">                suffix[i] = suffix[i + m - <span class="number">1</span> - f];</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 否则逐个字符比较</span></span><br><span class="line">                <span class="comment">// f 记录上一轮匹配成功的起始位置</span></span><br><span class="line">                f = g = i;</span><br><span class="line">                <span class="comment">// g 在第 i 个位置，从右向左移动，直到出现不匹配</span></span><br><span class="line">                <span class="comment">// g 同时记录上一轮匹配失配位置</span></span><br><span class="line">                <span class="keyword">while</span> (g &gt;= <span class="number">0</span> &amp;&amp; pattern.charAt(g) == </span><br><span class="line">                        pattern.charAt(m - <span class="number">1</span> - i + g))</span><br><span class="line">                    g--;</span><br><span class="line">                <span class="comment">// 第 i 个位置的公共好后缀长度为 i - g</span></span><br><span class="line">                suffix[i] = i - g;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">preBmGs</span><span class="params">(String pattern)</span></span>&#123;</span><br><span class="line">        preSuffix(pattern);</span><br><span class="line">        <span class="keyword">int</span> m = pattern.length();</span><br><span class="line">        bmGs = <span class="keyword">new</span> <span class="keyword">int</span>[m];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// case3: 模式中完全不存在和好后缀匹配的子串  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++)</span><br><span class="line">            bmGs[i] = m;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// case2：模式中没有最长好后缀的子串，则在好后缀中找到</span></span><br><span class="line">        <span class="comment">// pattern[m-1-s…m-1]=pattern[0…s] 尽量长并匹配的子串</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = m - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">            <span class="comment">// 满足头部匹配条件</span></span><br><span class="line">            <span class="keyword">if</span> (suffix[i] == i + <span class="number">1</span>)</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; m - <span class="number">1</span> - i; j++)</span><br><span class="line">                    <span class="keyword">if</span> (bmGs[j] == m)</span><br><span class="line">                        bmGs[j] = m - <span class="number">1</span> - i;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// case1：模式中有子串和最长好后缀完全匹配</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= m - <span class="number">2</span>; i++)</span><br><span class="line">            bmGs[m - <span class="number">1</span> - suffix[i]] = m - <span class="number">1</span> - i;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (a &gt; b) ? a : b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">bm</span><span class="params">(String pattern, String text)</span></span>&#123;</span><br><span class="line">        <span class="comment">/* Pre-processing */</span></span><br><span class="line">        preBmBc(pattern);</span><br><span class="line">        preBmGs(pattern);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Searching */</span></span><br><span class="line">        <span class="keyword">int</span> m = pattern.length();</span><br><span class="line">        <span class="keyword">int</span> n = text.length();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> i = m -<span class="number">1</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span> (j &lt;= n - m &amp;&amp; i &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (pattern.charAt(i) == text.charAt(i + j)) &#123;</span><br><span class="line">                i--;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                j += max(bmGs[i], bmBc[text.charAt(i + j)] - m + <span class="number">1</span> + i);</span><br><span class="line">                <span class="comment">// 这里直接恢复为模式的最右边，可能存在重复计算问题</span></span><br><span class="line">                <span class="comment">// 如果模式从右向左已经匹配了 x 位，这 x 位会重复和文本作比较</span></span><br><span class="line">                i = m - <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (i &lt; <span class="number">0</span>) <span class="keyword">return</span> j;</span><br><span class="line">        <span class="keyword">return</span> n;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a href="https://github.com/redspider110/algs4/blob/master/src/main/java/edu/princeton/cs/algs4/BoyerMoore.java" target="_blank" rel="noopener">algs4: bm</a> 。从算法实现也可以看出，<code>BM</code> 算法和从右向左的暴力算法相比，增加预处理阶段，并且文本大范围向后移动，其他思路基本一致。<code>BM</code> 算法主要是改进了暴力匹配算法中，文本移动的位置；而模式中已经匹配成功的，并没有特别处理，也就是可能出现冗余的匹配计算。  </p>
+<h3 id="时间复杂度-1"><a href="#时间复杂度-1" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><p><code>BM</code> 算法在最坏情况下，和暴力匹配算法一致，时间复杂度为 <code>O(MN)</code>；但实际中通常情况下时间复杂度仅需 <code>O(N/M)</code> 。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>《算法：第四版》 第 5 章  </li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/05/boyer-moore_string_search_algorithm.html" target="_blank" rel="noopener">阮一峰：字符串匹配的Boyer-Moore算法</a>  </li>
+<li><a href="http://www.cnblogs.com/lanxuezaipiao/p/3452579.html" target="_blank" rel="noopener">grep之字符串搜索算法Boyer-Moore由浅入深</a>  </li>
+<li><a href="http://www-igm.univ-mlv.fr/~lecroq/string/node14.html" target="_blank" rel="noopener">Boyer-Moore algorithm</a>  </li>
+<li><a href="http://www.cs.utexas.edu/~moore/best-ideas/string-searching/index.html" target="_blank" rel="noopener">Moore 官网</a>  </li>
+<li><a href="https://baike.baidu.com/item/Boyer-%20Moore%E7%AE%97%E6%B3%95/16548374?fr=aladdin" target="_blank" rel="noopener">百科：Boyer-Moore 算法</a>  </li>
+<li><a href="https://www.cnblogs.com/en-heng/p/5095542.html" target="_blank" rel="noopener">更快的Boyer-Moore算法</a>  </li>
+<li><a href="https://blog.csdn.net/sealyao/article/details/4568167" target="_blank" rel="noopener">Boyer-Moore算法学习</a>  </li>
+<li><a href="https://subetter.com/articles/boyer-moore-algorithm.html" target="_blank" rel="noopener">Boyer-Moore 算法</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/09/18/0103-algorithms-strings-search-bm/" title="算法 - 子字符串匹配 BM 算法">http://redspider110.github.io/2018/09/18/0103-algorithms-strings-search-bm/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithms/" rel="tag"># Algorithms</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/12/0102-algorithms-strings-search-kmp/" rel="next" title="算法 - 子字符串匹配 KMP 算法">
+                <i class="fa fa-chevron-left"></i> 算法 - 子字符串匹配 KMP 算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/20/0104-algorithms-strings-sorting/" rel="prev" title="算法 - 字符串排序算法">
+                算法 - 字符串排序算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从右至左暴力匹配算法"><span class="nav-number">1.</span> <span class="nav-text">从右至左暴力匹配算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法实现"><span class="nav-number">1.1.</span> <span class="nav-text">算法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间复杂度"><span class="nav-number">1.2.</span> <span class="nav-text">时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BM-算法基础概念"><span class="nav-number">2.</span> <span class="nav-text">BM 算法基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#坏字符规则"><span class="nav-number">2.1.</span> <span class="nav-text">坏字符规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#坏字符规则移动位数"><span class="nav-number">2.2.</span> <span class="nav-text">坏字符规则移动位数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好后缀规则"><span class="nav-number">2.3.</span> <span class="nav-text">好后缀规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好后缀规则移动位数"><span class="nav-number">2.4.</span> <span class="nav-text">好后缀规则移动位数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文本移动位数"><span class="nav-number">2.5.</span> <span class="nav-text">文本移动位数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图解"><span class="nav-number">2.6.</span> <span class="nav-text">图解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BM-算法解析"><span class="nav-number">3.</span> <span class="nav-text">BM 算法解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#坏字符距离数组-bmBc"><span class="nav-number">3.1.</span> <span class="nav-text">坏字符距离数组 bmBc[]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#坏字符规则移动位数-1"><span class="nav-number">3.2.</span> <span class="nav-text">坏字符规则移动位数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好后缀长度数组-suffix"><span class="nav-number">3.3.</span> <span class="nav-text">好后缀长度数组 suffix[]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好后缀移位数组-bmGs"><span class="nav-number">3.4.</span> <span class="nav-text">好后缀移位数组 bmGs[]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#算法实现-1"><span class="nav-number">3.5.</span> <span class="nav-text">算法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间复杂度-1"><span class="nav-number">3.6.</span> <span class="nav-text">时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

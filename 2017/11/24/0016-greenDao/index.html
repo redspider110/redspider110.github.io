@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,OpenSourceLibary,Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍greenDao 是一个将对象映射到 SQLite 数据库中的轻量且快速的 ORM 解决方案    greenDAO is an open source Android ORM making development for SQLite databases fun again. greenDAO frees you from these by mapping Java objects to d">
+<meta name="keywords" content="Java,OpenSourceLibary,Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="greenDao">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/24/0016-greenDao/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍greenDao 是一个将对象映射到 SQLite 数据库中的轻量且快速的 ORM 解决方案    greenDAO is an open source Android ORM making development for SQLite databases fun again. greenDAO frees you from these by mapping Java objects to d">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0016-greenDao-greenDao_Core-Classes.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.340Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="greenDao">
+<meta name="twitter:description" content="介绍greenDao 是一个将对象映射到 SQLite 数据库中的轻量且快速的 ORM 解决方案    greenDAO is an open source Android ORM making development for SQLite databases fun again. greenDAO frees you from these by mapping Java objects to d">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0016-greenDao-greenDao_Core-Classes.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/24/0016-greenDao/">
+
+
+
+
+
+  <title>greenDao | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/24/0016-greenDao/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">greenDao</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T14:30:30+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenSourceLibary/" itemprop="url" rel="index">
+                    <span itemprop="name">OpenSourceLibary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><code>greenDao</code> 是一个将对象映射到 <code>SQLite</code> 数据库中的轻量且快速的 <code>ORM</code> 解决方案   </p>
+<p><code>greenDAO is an open source Android ORM making development for SQLite databases fun again. greenDAO frees you from these by mapping Java objects to database tables (called ORM, “object/relational mapping”).</code><br><a href="http://greenrobot.org/greendao/" target="_blank" rel="noopener">官网</a>  ,   <a href="https://github.com/greenrobot/greenDAO" target="_blank" rel="noopener">github</a>   </p>
+<a id="more"></a>
+
+<h2 id="对象关系映射-ORM"><a href="#对象关系映射-ORM" class="headerlink" title="对象关系映射 ORM"></a>对象关系映射 <code>ORM</code></h2><p><code>ORM: Object Relational Mapping</code> 对象关系映射，是一种程序技术，用于实现面向对象编程语言里不同类型系统的数据之间的转换，主要解决<strong>对象-关系</strong>的映射  </p>
+<table>
+<thead>
+<tr>
+<th>面向对象概念</th>
+<th>面向关系概念</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>表</td>
+</tr>
+<tr>
+<td>对象</td>
+<td>表的行</td>
+</tr>
+<tr>
+<td>属性</td>
+<td>表的列</td>
+</tr>
+</tbody></table>
+<p><code>ORM</code> 的思想：将关系数据库中表中的记录映射成为对象，以对象的形式展现，程序员可以把对数据库的操作转化为对对象的操作  </p>
+<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><p>需要添加三个地方，见如下注释：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// In your root build.gradle file:</span><br><span class="line">buildscript &#123;</span><br><span class="line">    repositories &#123;</span><br><span class="line">        jcenter()</span><br><span class="line">        mavenCentral() // add repository</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath &apos;com.android.tools.build:gradle:2.3.1&apos;</span><br><span class="line">        classpath &apos;org.greenrobot:greendao-gradle-plugin:3.2.2&apos; // add plugin</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">// In your app projects build.gradle file:</span><br><span class="line">apply plugin: &apos;com.android.application&apos;</span><br><span class="line">apply plugin: &apos;org.greenrobot.greendao&apos; // apply plugin</span><br><span class="line"> </span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile &apos;org.greenrobot:greendao:3.2.2&apos; // add library</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="DaoMaster"><a href="#DaoMaster" class="headerlink" title="DaoMaster"></a>DaoMaster</h3><p>整个 <code>greenDao</code> 的入口，持有数据库对象（<code>SQLiteDatabase</code>），可以创建和删除表，它的内部类 <code>OpenHelper</code> 和 <code>DevOpenHelper</code> 是 <code>SQLiteOpenHelper</code> 的实现。  </p>
+<h3 id="DaoSession"><a href="#DaoSession" class="headerlink" title="DaoSession"></a>DaoSession</h3><p>管理所有的  <code>Dao</code> 对象，实现所有的增删改查等功能。</p>
+<h3 id="Daos"><a href="#Daos" class="headerlink" title="Daos"></a>Daos</h3><p><code>Daos: Data access objects</code> 数据访问对象，<code>greenDao</code> 为每个 <code>Entity</code> 都会创建一个 <code>Dao</code>，常见的增删改查都是在 <code>Dao</code> 中进行的。    </p>
+<h3 id="Entities"><a href="#Entities" class="headerlink" title="Entities"></a>Entities</h3><p>类似数据库的一张表。</p>
+<p>联系图：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0016-greenDao-greenDao_Core-Classes.png" alt="0016-greenDao-greenDao_Core-Classes.png"></p>
+<h3 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h3><p>在 <code>app/build.gradle</code> 中添加 <code>Schema</code> 配置：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">greendao &#123;</span><br><span class="line">    schemaVersion 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>支持如下参数：  </p>
+<ul>
+<li>schemaVersion<br>数据库 <code>schema</code> 版本号，如果数据库或者表相关有修改或迁移，需要增加该值  </li>
+<li>daoPackage<br><code>dao</code> 源码的包名，默认为 <code>entity</code> 代码所在目录  </li>
+<li>targetGenDir<br><code>greenDao</code> 生成代码的目录地址，默认： <code>build/generated/source/greendao</code>  </li>
+<li>generateTests<br>自动产生带有测试目录  </li>
+<li>targetGenDirTests<br>单元测试源码地址，默认：<code>src/androidTest/java</code>   </li>
+</ul>
+<h2 id="常见流程"><a href="#常见流程" class="headerlink" title="常见流程"></a>常见流程</h2><h3 id="创建实体类-Entity"><a href="#创建实体类-Entity" class="headerlink" title="创建实体类 Entity"></a>创建实体类 <code>Entity</code></h3><p>类名需要使用 <code>@Entity</code> 标注，主键使用 <code>@Id</code> 标注，必须使用 <code>long/Long</code> 类型。如果是 <code>Long</code> 类型，主键是由 <code>greenDao</code> 维护的，类似自增长（允许之前删掉了的 <code>id</code> 重复使用，所以需要注意 <code>id</code> 相同但实际内容已经改变），我们不需要手动修改；如果是 <code>long</code> 类型，需要代码中主动赋值，否则默认为 <code>0</code> 导致插入时抛出重复错误异常     </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Entity</span><br><span class="line">public class Fun &#123;</span><br><span class="line">    @Id</span><br><span class="line">    private Long id;</span><br><span class="line">    private String author;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>Entity</code> 标注的类，如果有属性字段修改，必须重新编译一次生成对应的构造函数及 <code>setter/getter</code>   </p>
+</blockquote>
+<h3 id="编译工程"><a href="#编译工程" class="headerlink" title="编译工程"></a>编译工程</h3><p><code>AS</code> 中点击编译工程，<code>greenDao</code> 自动生成对应文件：</p>
+<ul>
+<li><code>Entity</code> 标注的类，自动生成构造函数，<code>setter/getter</code> 等   </li>
+<li><code>DaoMaster，DaoSession</code> 等辅助类，方便后续编码时调用   </li>
+</ul>
+<h3 id="实例化-DaoSession"><a href="#实例化-DaoSession" class="headerlink" title="实例化 DaoSession"></a>实例化 <code>DaoSession</code></h3><ul>
+<li>创建 <code>DbHelper</code>，初始化数据库，处理数据库升级等等   </li>
+<li>构造函数中实例化一个 <code>DaoSession</code>，通过该实例来做增删改查等相关操作    </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class DbHelper extends DaoMaster.OpenHelper&#123;</span><br><span class="line"></span><br><span class="line">    private static final String DATABASE_NAME = &quot;FunReading.db&quot;;</span><br><span class="line">    private static final boolean ENCRYPTED = false;</span><br><span class="line">    private DaoSession mDaoSession;</span><br><span class="line"></span><br><span class="line">    public DbHelper(Context context)&#123;</span><br><span class="line">        super(context, DATABASE_NAME);</span><br><span class="line">        Database db = ENCRYPTED ? getEncryptedWritableDb(&quot;super-secret&quot;) : getWritableDb();</span><br><span class="line">        mDaoSession = new DaoMaster(db).newSession();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) &#123;</span><br><span class="line">        super.onUpgrade(db, oldVersion, newVersion);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public DaoSession getDaoSession()&#123;</span><br><span class="line">        return mDaoSession;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：<code>DevOpenHelper</code> 会在数据库升级时，删除所有的表，意味着这将导致数据的丢失，只能在开发调试的时候使用    </p>
+</blockquote>
+<h2 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">// DaoSession 或者 通过 DaoSession 拿到 Dao 后，做增删改查</span><br><span class="line">FunDao funDao = mDaoSession.getFunDao();</span><br><span class="line">// 1. 增</span><br><span class="line">funDao.insert(fun);              // 单条</span><br><span class="line">funDao.insertInTx(funList); // 批量</span><br><span class="line"></span><br><span class="line">// 2. 删  </span><br><span class="line">funDao.deleteByKey(fun.getId());  // 单条</span><br><span class="line">funDao.deleteByKeyInTx(idList);   // 批量</span><br><span class="line">funDao.deleteAll();                         // 所有</span><br><span class="line"></span><br><span class="line">// 3. 改 </span><br><span class="line">funDao.update(fun);               // 单条</span><br><span class="line">funDao.updateInTx(funList);  // 批量</span><br><span class="line"></span><br><span class="line">// 4. 查</span><br><span class="line">funDao.load(id);                // 单条</span><br><span class="line">funDao.loadAll();               // 所有</span><br><span class="line">funDao.queryRaw(...);       // 支持 sql 原始查看方式</span><br><span class="line">// 条件查询，where 条件与</span><br><span class="line">funDao.queryBuilder().where(where).build().list();</span><br><span class="line">// 条件或</span><br><span class="line">funDao.queryBuilder().whereOr(where).build().list();</span><br></pre></td></tr></table></figure>
+
+<h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><h3 id="实体对应表"><a href="#实体对应表" class="headerlink" title="实体对应表"></a>实体对应表</h3><ul>
+<li><code>@Entity</code> 定义实体  </li>
+<li><code>@nameInDb</code> 在数据库中的名字，如不写则为实体中类名  </li>
+<li><code>@indexes</code> 索引  </li>
+<li><code>@createInDb</code> 是否创建表，默认为true,false时不创建  </li>
+<li><code>@schema</code> 指定架构名称为实体  </li>
+<li><code>@active</code> 无论是更新生成都刷新  </li>
+<li><code>@Property(nameInDb = &quot;USERNAME&quot;)</code><br>标准字段对应数据库中的字段名，也就是java的字段熟悉命名可以和数据库字段命名不一致，但是要通过该注解转换    <h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3></li>
+<li><code>@Id</code>  </li>
+<li><code>@NotNull</code> 不为null  </li>
+<li><code>@Unique</code> 表示该字段唯一    </li>
+<li><code>@ToMany</code> 一对多  </li>
+<li><code>@OrderBy</code> 排序  </li>
+<li><code>@ToOne</code> 一对一  </li>
+<li><code>@Transient</code> 不存储在数据库中  </li>
+<li><code>@generated</code> 由 <code>greendao</code> 产生的构造函数或方法   </li>
+</ul>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="重复-Id-无法新增数据"><a href="#重复-Id-无法新增数据" class="headerlink" title="重复 Id 无法新增数据"></a>重复 <code>Id</code> 无法新增数据</h3><p><code>android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed: FUN._id (code 1555)</code><br>出现这种情况可以设置主键为 <code>Long</code> 类型，让 <code>greenDao</code> 自动增长主键，避免出现字段不唯一报错   </p>
+<h3 id="数据类型不支持"><a href="#数据类型不支持" class="headerlink" title="数据类型不支持"></a>数据类型不支持</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:Execution failed for task &apos;:app:greendao&apos;.</span><br><span class="line">Can&apos;t add property &apos;Variable(type=VariableType(name=com.***.funreading.model.DataType, isPrimitive=false, originalName=DataType, typeArguments=null), name=type)&apos; to entity Fun due to: Unsupported type com.***.funreading.model.DataType`</span><br></pre></td></tr></table></figure>
+
+<p>不能保存自定义数据类型    </p>
+<h2 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h2><ol>
+<li><a href="http://blog.csdn.net/fesdgasdgasdg/article/details/51835699" target="_blank" rel="noopener">http://blog.csdn.net/fesdgasdgasdg/article/details/51835699</a>   </li>
+<li><a href="http://www.open-open.com/lib/view/open1438065400878.html" target="_blank" rel="noopener">http://www.open-open.com/lib/view/open1438065400878.html</a>   </li>
+<li><a href="http://www.cnblogs.com/ZWRpoi/p/6209346.html" target="_blank" rel="noopener">greenDAO3基本使用</a>   </li>
+<li><a href="http://www.cnblogs.com/dsxniubility/p/6204169.html" target="_blank" rel="noopener">greenDao进阶</a>   </li>
+<li><a href="http://www.jianshu.com/p/4986100eff90" target="_blank" rel="noopener">GreenDao3.0简单使用</a>  </li>
+<li><a href="http://blog.csdn.net/axuanqq/article/details/51344299" target="_blank" rel="noopener">GreenDao 使用教程</a>   </li>
+<li><a href="http://www.jianshu.com/p/4e6d72e7f57a" target="_blank" rel="noopener">GreenDao3 使用说明</a>      </li>
+<li><a href="http://www.cnblogs.com/dsxniubility/p/6204169.html" target="_blank" rel="noopener">查询进阶</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/24/0016-greenDao/" title="greenDao">http://redspider110.github.io/2017/11/24/0016-greenDao/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/OpenSourceLibary/" rel="tag"># OpenSourceLibary</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/24/0015-gson/" rel="next" title="Gson">
+                <i class="fa fa-chevron-left"></i> Gson
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/24/0017-glide/" rel="prev" title="Glide">
+                Glide <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对象关系映射-ORM"><span class="nav-number">2.</span> <span class="nav-text">对象关系映射 ORM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖"><span class="nav-number">3.</span> <span class="nav-text">依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">4.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DaoMaster"><span class="nav-number">4.1.</span> <span class="nav-text">DaoMaster</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DaoSession"><span class="nav-number">4.2.</span> <span class="nav-text">DaoSession</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Daos"><span class="nav-number">4.3.</span> <span class="nav-text">Daos</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Entities"><span class="nav-number">4.4.</span> <span class="nav-text">Entities</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Schema"><span class="nav-number">4.5.</span> <span class="nav-text">Schema</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见流程"><span class="nav-number">5.</span> <span class="nav-text">常见流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建实体类-Entity"><span class="nav-number">5.1.</span> <span class="nav-text">创建实体类 Entity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译工程"><span class="nav-number">5.2.</span> <span class="nav-text">编译工程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化-DaoSession"><span class="nav-number">5.3.</span> <span class="nav-text">实例化 DaoSession</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#增删改查"><span class="nav-number">6.</span> <span class="nav-text">增删改查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解"><span class="nav-number">7.</span> <span class="nav-text">注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实体对应表"><span class="nav-number">7.1.</span> <span class="nav-text">实体对应表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">7.2.</span> <span class="nav-text">其他</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">8.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重复-Id-无法新增数据"><span class="nav-number">8.1.</span> <span class="nav-text">重复 Id 无法新增数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据类型不支持"><span class="nav-number">8.2.</span> <span class="nav-text">数据类型不支持</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档："><span class="nav-number">9.</span> <span class="nav-text">参考文档：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

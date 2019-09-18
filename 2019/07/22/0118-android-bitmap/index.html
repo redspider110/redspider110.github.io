@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android Bitmap 占用内存大小、优化方案等等。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Bitmap 相关">
+<meta property="og:url" content="http://redspider110.github.io/2019/07/22/0118-android-bitmap/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Android Bitmap 占用内存大小、优化方案等等。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.395Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Bitmap 相关">
+<meta name="twitter:description" content="Android Bitmap 占用内存大小、优化方案等等。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/07/22/0118-android-bitmap/">
+
+
+
+
+
+  <title>Android Bitmap 相关 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/07/22/0118-android-bitmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android Bitmap 相关</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-22T09:00:00+08:00">
+                2019-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Android Bitmap</code> 占用内存大小、优化方案等等。  </p>
+<a id="more"></a>
+
+<h2 id="BitmapFactory-Options"><a href="#BitmapFactory-Options" class="headerlink" title="BitmapFactory.Options"></a><code>BitmapFactory.Options</code></h2><p><code>BitmapFactory</code> 在解码生成 <code>Bitmap</code> 时，会通过 <code>Options</code> 的各种参数来做控制。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Options</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Options</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        inScaled = <span class="keyword">true</span>;</span><br><span class="line">        inPremultiplied = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果设置了，重用该位图的存储空间</span></span><br><span class="line">    <span class="keyword">public</span> Bitmap inBitmap;</span><br><span class="line">    <span class="comment">// 返回的 Bitmap 是否可操作</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inMutable;</span><br><span class="line">    <span class="comment">// 设置为 true ，不会将 bitmap 加载到内存！解码时返回的 bitmap 是 null</span></span><br><span class="line">    <span class="comment">// 但是能通过 Options.out*** 获取图片的大小等  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inJustDecodeBounds;</span><br><span class="line">    <span class="comment">// 采样率，值为接近 2 的指数幂</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> inSampleSize;</span><br><span class="line">    <span class="comment">// 色彩模式，默认为 ARGB_8888  </span></span><br><span class="line">    <span class="keyword">public</span> Bitmap.Config inPreferredConfig = Bitmap.Config.ARGB_8888;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> ColorSpace inPreferredColorSpace = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 透明通道，默认为 true ，表示 bitmap 中添加透明通道</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inPremultiplied;</span><br><span class="line">    <span class="comment">// 位图的像素密度，即每英寸有多少个像素；通常为资源文件所在目录对应 density</span></span><br><span class="line">    <span class="comment">// 也就是说资源文件放到不同的 drawable-**** 目录下，这个值是不一样的</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> inDensity;</span><br><span class="line">    <span class="comment">// 绘制位图屏幕的密度；通常为显示这张图片手机的 density </span></span><br><span class="line">    <span class="comment">// 也就是说不同手机显示时，这个值是不一样的</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> inTargetDensity;</span><br><span class="line">    <span class="comment">// 正在使用的实际屏幕的像素密度；暂时没发现在哪会用到</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> inScreenDensity;</span><br><span class="line">    <span class="comment">// 是否缩放  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inScaled;</span><br><span class="line">    <span class="comment">// 解码后可以拿到原始图片的宽高、类型等属性</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> outWidth;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> outHeight;</span><br><span class="line">    <span class="keyword">public</span> String outMimeType;</span><br><span class="line">    <span class="keyword">public</span> Bitmap.Config outConfig;</span><br><span class="line">    <span class="keyword">public</span> ColorSpace outColorSpace;</span><br><span class="line">    <span class="comment">// 解码时临时存储数组</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] inTempStorage;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面几个已经废弃</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inDither;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inPurgeable;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inInputShareable;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> inPreferQualityOverSpeed;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> mCancel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="重要属性"><a href="#重要属性" class="headerlink" title="重要属性"></a>重要属性</h3><ul>
+<li><code>inJustDecodeBounds</code><br>设置为 <code>true</code> 时，不会为图片分配内存，解码时返回为 <code>null</code> 没有 <code>bitmap</code> ，但是会设置 <code>Options.out***</code> 相关属性；即将被解码图片的属性读出来，而不生成 <code>Bitmap</code> 也不加载到内存。<br>在被读取图片尺寸很大或者存储大小非常大时，通常通过该属性预读取图片相关参数，避免直接加载引起 <code>OOM</code> 。  </li>
+<li><code>inSampleSize</code><br>采样率，值为最接近接近 2 的指数幂。即采样后得到的图片大小为原始宽高的 <code>1/inSampleSize</code> 。比如原始图片大小为 <code>100*100</code> ，采样率为 4，最终生成大小为 <code>25*25</code> ，整个像素大小减小到 <code>1/16</code> 。常用于压缩大尺寸图片。  </li>
+<li><code>inPreferredConfig</code><br>色彩模式，默认为 <code>ARGB_8888</code> ，即 4 字节存储。可以在解码前通过设置 <code>Config</code> 来决定使用几字节存储。常用于压缩图片存储空间，采用 <code>RGB_565</code> 模式。  </li>
+<li><code>inMutable</code><br>是否可操作标记。比如返回的 <code>Bitmap</code> 会通过 <code>Canvas</code> 重新绘制，必须设置为 <code>true</code> ，否则会抛出异常 <code>Immutable bitmap passed to Canvas constructor</code> 。  </li>
+<li><code>inScaled, inDensity, inTargetDensity</code><br>表示图片是否被缩放；如果设置为缩放，缩放比例为 <code>scale = inTargetDensity/inDensity</code> ，其中 <code>inTargetDensity</code> 表示当前显示图片手机的密度， <code>inDensity</code> 为资源文件所在 <code>drawable-</code> 目录对应的密度；通常只有从资源文件中加载 <code>Bitmap</code> 时，这几个字段才会生效；如果是直接从 <code>Asserts</code> 或者本地文件等等中加载，是不会有影响的。  </li>
+<li><code>outWidth, outHeight</code><br>表示解码一张图片时，获取图片原始的宽、高、类型等信息。  </li>
+</ul>
+<h3 id="色彩模式-Bitmap-Config"><a href="#色彩模式-Bitmap-Config" class="headerlink" title="色彩模式 Bitmap.Config"></a>色彩模式 <code>Bitmap.Config</code></h3><p>色彩模式，表示 <code>Bitmap</code> 由哪些颜色组成，并占用几位内存：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Config &#123;</span><br><span class="line">    ALPHA_8     (<span class="number">1</span>),</span><br><span class="line">    RGB_565     (<span class="number">3</span>),</span><br><span class="line">    <span class="meta">@Deprecated</span></span><br><span class="line">    ARGB_4444   (<span class="number">4</span>),</span><br><span class="line">    ARGB_8888   (<span class="number">5</span>),</span><br><span class="line">    RGBA_F16    (<span class="number">6</span>),</span><br><span class="line">    HARDWARE    (<span class="number">7</span>);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>常见色彩模式及对应描述：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Config</th>
+<th align="left">占用内存字节(byte)</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">ALPHA_8</td>
+<td align="left">1</td>
+<td align="left">单透明通道，只由透明度组成</td>
+</tr>
+<tr>
+<td align="left">RGB_565</td>
+<td align="left">2</td>
+<td align="left">由 RGB 三色组成，分别占 5, 6, 5 位</td>
+</tr>
+<tr>
+<td align="left">ARGB_4444</td>
+<td align="left">4</td>
+<td align="left">已废弃</td>
+</tr>
+<tr>
+<td align="left">ARGB_8888</td>
+<td align="left">4</td>
+<td align="left">24 位真彩色，由透明度 RGB 四部分组成</td>
+</tr>
+<tr>
+<td align="left">RGBA_F16</td>
+<td align="left">8</td>
+<td align="left">Android8.0新增（更丰富的色彩表现HDR）</td>
+</tr>
+<tr>
+<td align="left">HARDWARE</td>
+<td align="left">Special</td>
+<td align="left">Android 8.0 新增 （Bitmap直接存储在graphic memory）</td>
+</tr>
+</tbody></table>
+<h2 id="密度-Density"><a href="#密度-Density" class="headerlink" title="密度 Density"></a>密度 <code>Density</code></h2><h3 id="当前设备密度"><a href="#当前设备密度" class="headerlink" title="当前设备密度"></a>当前设备密度</h3><p>当前设备密度主要由显示屏的参数等决定，通常显示设备 <code>LCD</code> 的规格书中，会明确指出屏幕尺寸（ <code>3.5</code> 寸）、分辨率 <code>320*480</code> 、能显示多少种颜色 <code>65K colors</code> 等等，但并没有给出具体的 <code>dpi, density, densityDpi</code> ；这些密度相关值都是在软件代码中设置的，而软件的主要依据是屏幕分辨率的宽度。<br><code>Android</code> 中通常是使用 <code>ro.sf.lcd_density</code> 属性来记录当前显示屏对应的密度值的，可以在下列任意一个文件中设置（高通平台）：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">device/qcom/common/init/init_msm***.c</span><br><span class="line">device/qcom/common/rootdir/etc/init.qcom.***.sh</span><br></pre></td></tr></table></figure>
+
+<p>以 <code>init_msm8916.c</code> 文件为例：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> VIRTUAL_SIZE <span class="meta-string">"/sys/class/graphics/fb0/virtual_size"</span></span></span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_msm_properties</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> msm_id, </span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">unsigned</span> <span class="keyword">long</span> msm_ver, <span class="keyword">char</span> *board_type)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> rc;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> virtual_size = <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 获取分辨率，并取出宽度</span></span><br><span class="line">    rc = read_file2(VIRTUAL_SIZE, str, <span class="keyword">sizeof</span>(str));</span><br><span class="line">    <span class="keyword">if</span> (rc) &#123;</span><br><span class="line">        virtual_size = strtoul(str, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(virtual_size &gt;= <span class="number">1080</span>) &#123;</span><br><span class="line">        property_set(PROP_LCDDENSITY, <span class="string">"480"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (virtual_size &gt;= <span class="number">720</span>) &#123;</span><br><span class="line">        <span class="comment">// For 720x1280 resolution</span></span><br><span class="line">        <span class="comment">// 当前分辨率为 720*2880 ，设置密度为 320</span></span><br><span class="line">        property_set(PROP_LCDDENSITY, <span class="string">"320"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (virtual_size &gt;= <span class="number">480</span>) &#123;</span><br><span class="line">        <span class="comment">// For 480x854 resolution QRD.</span></span><br><span class="line">        property_set(PROP_LCDDENSITY, <span class="string">"240"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span></span><br><span class="line">        property_set(PROP_LCDDENSITY, <span class="string">"320"</span>);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以 <code>init.qcom.early_boot.sh</code> 文件为例：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">// 从 virtual_size 读取分辨率，并获取宽度值</span><br><span class="line">if [ -f /sys/class/graphics/fb0/virtual_size ]; then</span><br><span class="line">    res=`cat /sys/class/graphics/fb0/virtual_size` 2&gt; /dev/null</span><br><span class="line">    fb_width=$&#123;res%,*&#125;</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">// 根据宽度来设置密度，比如当前显示设备为 720*2880 ，则密度设置为 320</span><br><span class="line">function set_density_by_fb() &#123;</span><br><span class="line">    #put default density based on width</span><br><span class="line">    if [ -z $fb_width ]; then</span><br><span class="line">        setprop ro.sf.lcd_density 320</span><br><span class="line">    else</span><br><span class="line">        if [ $fb_width -ge 1440 ]; then</span><br><span class="line">           setprop ro.sf.lcd_density 560</span><br><span class="line">        elif [ $fb_width -ge 1080 ]; then</span><br><span class="line">           setprop ro.sf.lcd_density 480</span><br><span class="line">        elif [ $fb_width -ge 720 ]; then</span><br><span class="line">           setprop ro.sf.lcd_density 320 #for 720X1280 resolution</span><br><span class="line">        elif [ $fb_width -ge 480 ]; then</span><br><span class="line">            setprop ro.sf.lcd_density 240 #for 480X854 QRD resolution</span><br><span class="line">        else</span><br><span class="line">            setprop ro.sf.lcd_density 160</span><br><span class="line">        fi</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>DisplayMetrics</code> 中，默认的 <code>density, densityDpi</code> 都是根据这个属性来设置默认值的：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DisplayMetrics</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">float</span> density;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> densityDpi;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Deprecated</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> DENSITY_DEVICE = getDeviceDensity();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_DEVICE_STABLE = getDeviceDensity();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setToDefaults</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// 默认值</span></span><br><span class="line">        density =  DENSITY_DEVICE / (<span class="keyword">float</span>) DENSITY_DEFAULT;</span><br><span class="line">        densityDpi =  DENSITY_DEVICE;</span><br><span class="line">        scaledDensity = density;</span><br><span class="line">        xdpi = DENSITY_DEVICE;</span><br><span class="line">        ydpi = DENSITY_DEVICE;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getDeviceDensity</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SystemProperties.getInt(<span class="string">"qemu.sf.lcd_density"</span>,</span><br><span class="line">                SystemProperties.getInt(<span class="string">"ro.sf.lcd_density"</span>, </span><br><span class="line">                DENSITY_DEFAULT));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论： <code>Android</code> 系统会根据显示设备分辨率的宽度，来设置对应的 <code>lcd_density</code> 属性， <code>DisplayMetrics</code> 中会根据这个属性值来设置系统的 <code>density, densityDpi</code> ，而这两个值决定了资源文件中位图缩放的比例。  </p>
+</blockquote>
+<h3 id="资源文件对应密度"><a href="#资源文件对应密度" class="headerlink" title="资源文件对应密度"></a>资源文件对应密度</h3><p>资源文件存放在不同的目录 <code>mdpi, hdpi</code> 等，对应的密度信息如下：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">DensityDpi</th>
+<th align="left">res</th>
+<th align="left">Density</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">120dpi</td>
+<td align="left">ldpi</td>
+<td align="left">0.75</td>
+</tr>
+<tr>
+<td align="left">160dpi</td>
+<td align="left">mdpi</td>
+<td align="left">1</td>
+</tr>
+<tr>
+<td align="left">240dpi</td>
+<td align="left">hdpi</td>
+<td align="left">1.5</td>
+</tr>
+<tr>
+<td align="left">320dpi</td>
+<td align="left">xhdpi</td>
+<td align="left">2</td>
+</tr>
+<tr>
+<td align="left">480dpi</td>
+<td align="left">xxhdpi</td>
+<td align="left">3</td>
+</tr>
+<tr>
+<td align="left">640dpi</td>
+<td align="left">xxxhdpi</td>
+<td align="left">4</td>
+</tr>
+</tbody></table>
+<p>参考：<a href="https://developer.android.google.cn/training/multiscreen/screendensities" target="_blank" rel="noopener">Android 官网-支持不同的像素密度</a> ，这些资源目录对应的 <code>DensityDpi</code> 的值是固定的，源码中以常量方式存在：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DisplayMetrics</span> </span>&#123;</span><br><span class="line">    <span class="comment">// res 下的标准密度</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_LOW = <span class="number">120</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_MEDIUM = <span class="number">160</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_HIGH = <span class="number">240</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_XHIGH = <span class="number">320</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_XXHIGH = <span class="number">480</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_XXXHIGH = <span class="number">640</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_DEFAULT = DENSITY_MEDIUM;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 其他密度</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_TV = <span class="number">213</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DENSITY_260 = <span class="number">260</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>160dpi</code> 为标准密度，即 <code>density=1</code> ； <code>Density</code> 的计算方式是当前 <code>DensityDpi</code> 和标准密度的比值：比如 <code>XXHIGH</code> ，其 <code>Density=480/160=3</code> 。<br><code>dp</code> 与 <code>px</code> 的换算公式为： <code>px = dp * Density</code> ；因此资源位图如果没有以正确的尺寸放到对应合适的 <code>drawable-</code> 目录下，会出现位图缩放，导致失真、模糊等等。<br>比如一张 <code>48*48</code> 的位图，放于 <code>drawable-mdpi</code> 中，它在 <code>densityDpi=160</code> 的设备中将会无缩放直接显示；但是它在 <code>densityDpi=320</code> 的设备中，在同样大小的 <code>ImageView</code> 中显示，则需要将图片放大到 2 倍，如果图片细节处理不好，放大后可能会出现模糊；这种情况下，需要 <code>UI</code> 工程师提供一张对应的 <code>96*96</code> 位图放到 <code>drawable-xhdpi</code> 目录下就不会缩放了。对于 <code>48*48</code> 的位图，在不同密度的屏幕上正确显示，需要的尺寸及存放目录如下：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">分辨率</th>
+<th align="left">drawable 目录</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">36x36</td>
+<td align="left">ldpi</td>
+</tr>
+<tr>
+<td align="left">48x48</td>
+<td align="left">mdpi</td>
+</tr>
+<tr>
+<td align="left">72x72</td>
+<td align="left">hdpi</td>
+</tr>
+<tr>
+<td align="left">96x96</td>
+<td align="left">xhdpi</td>
+</tr>
+<tr>
+<td align="left">144x144</td>
+<td align="left">xxhdpi</td>
+</tr>
+<tr>
+<td align="left">192x192</td>
+<td align="left">xxxhdpi</td>
+</tr>
+</tbody></table>
+<h2 id="Bitmap-的内存"><a href="#Bitmap-的内存" class="headerlink" title="Bitmap 的内存"></a><code>Bitmap</code> 的内存</h2><h3 id="内存计算"><a href="#内存计算" class="headerlink" title="内存计算"></a>内存计算</h3><p>获取 <code>Bitmap</code> 占用内存的大小，对应方法如下：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Bitmap.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getByteCount</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getAllocationByteCount</span><span class="params">()</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，如果设置了 <code>BitmapFactory.Options.inBitmap</code> 即采用 <code>Bitmap</code> 内存复用时， <code>getByteCount</code> 表示新增内存空间大小；否则两者相等，都表示 <code>Bitmap</code> 实际占用内存空间大小。<br>计算方式：<code>Bitmap内存 ≈ 像素数据总大小 = 横向像素值 * 纵向像素值 * 每个像素的内存</code> ，其中：  </p>
+<ul>
+<li>每个像素占用内存<br>由色彩模式决定，即 <code>Bitmap.Config</code> ；在 <code>BitmapFactory</code> 解码时，可以指定 <code>Options.inPreferredConfig</code> 来设置对应的色彩模式。默认为 <code>ARGB_8888</code> 即 4 字节，通常可以使用 <code>RGB_565</code> 即 2 字节来压缩。  </li>
+<li>横向像素值/纵向像素值<br>大致的计算方式为 <code>dstWidth = srcWidth*scale</code> ；其中缩放比例 <code>scale = inTargetDensity / inDensity</code> 。如果需要更精确的计算，参考 <code>BitmapFactory.cpp::doDecode</code> 源码：  </li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BitmapFactory.cpp::doDecode</span></span><br><span class="line"><span class="comment">// Scale is necessary due to density differences.</span></span><br><span class="line"><span class="keyword">if</span> (scale != <span class="number">1.0f</span>) &#123;</span><br><span class="line">    willScale = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// 先乘以缩放系数，再加上 0.5 ，最后转为整型</span></span><br><span class="line">    scaledWidth = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(scaledWidth * scale + <span class="number">0.5f</span>);</span><br><span class="line">    scaledHeight = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(scaledHeight * scale + <span class="number">0.5f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这个缩放只对通过<strong>资源文件 <code>drawable-</code> <em>*生成 <code>Bitmap</code> 时有效，即通过 `BitmapFactory.decodeResource</em></strong><code>相关代码，才会使用缩放；其他方法解码时不会使用缩放，即</code>scale` 为 1 。  </p>
+</blockquote>
+<h3 id="资源文件占用的内存"><a href="#资源文件占用的内存" class="headerlink" title="资源文件占用的内存"></a>资源文件占用的内存</h3><p>加载<strong>资源文件</strong>在内存当中占用的大小取决于以下几点：  </p>
+<ul>
+<li>色彩模式  </li>
+<li>采样率  </li>
+<li>资源文件存放的目录 <code>inDensity</code> ，即 <code>hdpi,xxhdpi,mdpi</code> 等  </li>
+<li>目标显示屏幕 <code>inTargetDensity</code>  </li>
+</ul>
+<p>比如一张 <code>720x1080</code> 大小的图片，放在 <code>drawable-xhdpi</code> 目录下（即 <code>inDensity = 320</code> ），使用 <code>BitmapFactory.decodeResource</code> 来解码生成 <code>Bitmap</code> ，分别在不同手机上占用内存空间大小：  </p>
+<ul>
+<li>在 <code>720x1080</code> 手机 <code>inTargetDensity = 320</code> 上加载，图片不会被压缩  </li>
+<li>在 <code>480x800</code> 手机 <code>inTargetDensity = 240</code> 上加载，缩放率 <code>scale=240/320=3/4</code>  </li>
+<li>在 <code>1080x1920</code> 手机 <code>inTargetDensity = 480</code> 上加载，缩放率 <code>scale=480/320=3/2</code>  </li>
+</ul>
+<h3 id="Bitmap-内存回收"><a href="#Bitmap-内存回收" class="headerlink" title="Bitmap 内存回收"></a><code>Bitmap</code> 内存回收</h3><ul>
+<li><code>Android 2.3.3(API 10)</code> 及以下的系统<br>在 2.3 以下的系统中， <code>Bitmap</code> 的像素数据是存储在 <code>native</code> 中， <code>Bitmap</code> 对象是存储在 <code>Java</code> 堆中的，所以在回收 <code>Bitmap</code> 时，需要回收两个部分的空间： <code>native</code> 和 <code>Java</code> 堆。即先调用 <code>recycle()</code> 释放 <code>native</code> 中 <code>Bitmap</code> 的像素数据，再对 <code>Bitmap</code> 对象置 <code>null</code> ，保证 <code>GC</code> 对 <code>Bitmap</code> 对象的回收。  </li>
+<li><code>Android 3.0(API 11)</code> 及以上的系统<br>在 3.0 以上的系统中， <code>Bitmap</code> 的像素数据和对象本身都是存储在 <code>Java</code> 堆中的，无需主动调用 <code>recycle()</code> ，只需将对象置 <code>null</code> ，由 <code>GC</code> 自动管理。  </li>
+</ul>
+<h3 id="Bitmap-内存复用"><a href="#Bitmap-内存复用" class="headerlink" title="Bitmap 内存复用"></a><code>Bitmap</code> 内存复用</h3><p>从 <code>Android3.0</code> 开始，在 <code>Bitmap</code> 中引入了一个新的字段 <code>BitmapFactory.Options.inBitmap</code> ，设置此字段为 <code>true</code> 后，解码方法会尝试复用一张存在的 <code>Bitmap</code> 。这意味着 <code>Bitmap</code> 的内存被复用，避免了内存的回收及申请过程，显然性能表现更佳。<br><code>Android4.4(API 19)</code> 之前只有格式为 <code>jpg, png</code> ，同等宽高（要求苛刻）， <code>inSampleSize</code> 为 1 的 <code>Bitmap</code> 才可以复用。从 <code>Android4.4(API 19)</code> 开始被复用的 <code>Bitmap</code> 的内存大于需要新申请内存的 <code>Bitmap</code> 的内存就可以了。  </p>
+<h2 id="加载大图片"><a href="#加载大图片" class="headerlink" title="加载大图片"></a>加载大图片</h2><p>根据计算公式：<code>Bitmap</code> 占用内存的大小主要由图片分辨率等决定（和图片文件大小有几兆无关，它只是占用 <code>ROM</code> ，不是 <code>RAM</code> ），因此加载大图片前可以先读取图片的宽高等信息，再计算采样率，最后再加载缩放到指定大小。<br>为了避免 <code>OOM</code> 异常，最好在解析每张图片的时候都先检查一下图片的大小，以下几个因素是我们需要考虑的：  </p>
+<ul>
+<li>预估一下加载整张图片所需占用的内存  </li>
+<li>为了加载这一张图片你所愿意提供多少内存  </li>
+<li>用于展示这张图片的控件的实际大小  </li>
+<li>当前设备的屏幕尺寸和分辨率  </li>
+</ul>
+<p>需要注意的是，如果使用 <code>InputStream</code> 解码获取 <code>Bitmap</code> ，因为流的特性，只能读取一次；所以如果多次读取同一张图，可以使用文件描述符等来实现。  </p>
+<h3 id="获取-ImageView"><a href="#获取-ImageView" class="headerlink" title="获取 ImageView"></a>获取 <code>ImageView</code></h3><p>如果 <code>ImageView</code> 设置为自适应或者匹配屏幕大小，在没有完成加载前，读取到的宽高为 0 ，因此可以先获取当前手机屏幕分辨率，给出一个预估值。  </p>
+<h3 id="获取图片宽高分辨率"><a href="#获取图片宽高分辨率" class="headerlink" title="获取图片宽高分辨率"></a>获取图片宽高分辨率</h3><p><code>BitmapFactory.Options.inJustDecodeBounds</code> 设置为 <code>true</code> ，解码时仅读取图片宽高等信息，不会将图片加载到内存。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BitmapFactory.Options options = <span class="keyword">new</span> BitmapFactory.Options();</span><br><span class="line">options.inJustDecodeBounds = <span class="keyword">true</span>;      <span class="comment">// 不将图片加载到内存，仅读取图片信息</span></span><br><span class="line">BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor()</span><br><span class="line">    , <span class="keyword">null</span>, options);       <span class="comment">// 这次解码，返回的 Bitmap 为空</span></span><br><span class="line">Log.d(TAG, <span class="string">" width = "</span> + options.outWidth + </span><br><span class="line">    <span class="string">", height = "</span> + options.outHeight);  <span class="comment">// outWidth, outHeight 即为图片分辨率</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="计算采样率-inSampleSize"><a href="#计算采样率-inSampleSize" class="headerlink" title="计算采样率 inSampleSize"></a>计算采样率 <code>inSampleSize</code></h3><p>根据给定的宽高信息，计算被加载图片最合适的采样率。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">calculateInSampleSize</span><span class="params">(BitmapFactory.Options options, <span class="keyword">int</span> reqWidth, <span class="keyword">int</span> reqHeight)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> width = options.outWidth;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> height = options.outHeight;</span><br><span class="line">    <span class="keyword">int</span> inSampleSize = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (height &gt; reqHeight || width &gt; reqWidth) &#123;</span><br><span class="line">        <span class="comment">//使用需要的宽高的最大值来计算比率</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> suitedValue = reqHeight &gt; reqWidth ? reqHeight : reqWidth;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> heightRatio = Math.round((<span class="keyword">float</span>) height / (<span class="keyword">float</span>) suitedValue);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> widthRatio = Math.round((<span class="keyword">float</span>) width / (<span class="keyword">float</span>) suitedValue);</span><br><span class="line"></span><br><span class="line">        inSampleSize = heightRatio &gt; widthRatio ? heightRatio : widthRatio;<span class="comment">//用最大</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> inSampleSize;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="指定采样率初步加载图片"><a href="#指定采样率初步加载图片" class="headerlink" title="指定采样率初步加载图片"></a>指定采样率初步加载图片</h3><p>根据计算出来的采样率，初步加载图片。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">options.inSampleSize = calculateInSampleSize(options, size.x, size.y);</span><br><span class="line">options.inJustDecodeBounds = <span class="keyword">false</span>;     <span class="comment">// 设置为 false 加载到内存并生成 Bitmap</span></span><br><span class="line">options.inMutable = <span class="keyword">true</span>;</span><br><span class="line">options.inPreferredConfig = Bitmap.Config.RGB_565;</span><br><span class="line">Bitmap display = BitmapFactory.decodeFileDescriptor(</span><br><span class="line">    pfd.getFileDescriptor(), <span class="keyword">null</span>, options);</span><br><span class="line"><span class="comment">// 输出实际加载后的图片分辨率</span></span><br><span class="line">Log.d(TAG, <span class="string">"display.width = "</span> + display.getWidth() +</span><br><span class="line">        <span class="string">", display.height = "</span> + display.getHeight());</span><br></pre></td></tr></table></figure>
+
+<h3 id="缩放到指定大小"><a href="#缩放到指定大小" class="headerlink" title="缩放到指定大小"></a>缩放到指定大小</h3><p>根据给定的 <code>Bitmap</code> ，以及指定的大小，使用 <code>createScaledBitmap</code> 来创建缩放后的 <code>Bitmap</code> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Bitmap detectBitmap = Bitmap.createScaledBitmap(src, dstX, dstY, <span class="keyword">false</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置-inMutable-的几种方式"><a href="#设置-inMutable-的几种方式" class="headerlink" title="设置 inMutable 的几种方式"></a>设置 <code>inMutable</code> 的几种方式</h3><ul>
+<li><code>BitmapFactory.Options.inMutable = true</code>  </li>
+<li><code>Bitmap.copy(null, true)</code>  </li>
+</ul>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><ul>
+<li><code>Matrix</code> 矩阵  </li>
+</ul>
+<p><strong>大图小用用采样，小图大用用矩阵</strong></p>
+<ul>
+<li><code>BitmapRegionDecoder</code><br><code>BitmapRegionDecoder</code> 分区域加载：<br><code>public Bitmap decodeRegion(Rect rect, BitmapFactory.Options options) {...}</code> 指定区域加载图片，不用通过采样率压缩。  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.jianshu.com/p/c545f2a6cafc" target="_blank" rel="noopener">浅谈BitmapFactory.Options</a>  </li>
+<li><a href="https://www.cnblogs.com/tianzhijiexian/p/4254110.html" target="_blank" rel="noopener">根据ImageView的大小来压缩Bitmap，避免OOM</a>  </li>
+<li><a href="https://blog.csdn.net/lsyz0021/article/details/51356670" target="_blank" rel="noopener">Android 开发绕不过的坑：你的 Bitmap 究竟占多大内存</a>  </li>
+<li><a href="https://www.jianshu.com/p/4ba3e63c8cdc" target="_blank" rel="noopener">Android性能优化：Bitmap详解&amp;你的Bitmap占多大内存</a>  </li>
+<li><a href="https://www.jianshu.com/p/756817f12fd5" target="_blank" rel="noopener">图片加载和Bitmap的内存优化</a>  </li>
+<li><a href="https://blog.csdn.net/lmj623565791/article/details/49300989" target="_blank" rel="noopener">鸿洋：Android 高清加载巨图方案</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/07/22/0118-android-bitmap/" title="Android Bitmap 相关">http://redspider110.github.io/2019/07/22/0118-android-bitmap/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/03/0117-dl-mtcnn/" rel="next" title="MTCNN 人脸检测">
+                <i class="fa fa-chevron-left"></i> MTCNN 人脸检测
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#BitmapFactory-Options"><span class="nav-number">1.</span> <span class="nav-text">BitmapFactory.Options</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重要属性"><span class="nav-number">1.1.</span> <span class="nav-text">重要属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#色彩模式-Bitmap-Config"><span class="nav-number">1.2.</span> <span class="nav-text">色彩模式 Bitmap.Config</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#密度-Density"><span class="nav-number">2.</span> <span class="nav-text">密度 Density</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#当前设备密度"><span class="nav-number">2.1.</span> <span class="nav-text">当前设备密度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资源文件对应密度"><span class="nav-number">2.2.</span> <span class="nav-text">资源文件对应密度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bitmap-的内存"><span class="nav-number">3.</span> <span class="nav-text">Bitmap 的内存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存计算"><span class="nav-number">3.1.</span> <span class="nav-text">内存计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资源文件占用的内存"><span class="nav-number">3.2.</span> <span class="nav-text">资源文件占用的内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bitmap-内存回收"><span class="nav-number">3.3.</span> <span class="nav-text">Bitmap 内存回收</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bitmap-内存复用"><span class="nav-number">3.4.</span> <span class="nav-text">Bitmap 内存复用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载大图片"><span class="nav-number">4.</span> <span class="nav-text">加载大图片</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取-ImageView"><span class="nav-number">4.1.</span> <span class="nav-text">获取 ImageView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取图片宽高分辨率"><span class="nav-number">4.2.</span> <span class="nav-text">获取图片宽高分辨率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#计算采样率-inSampleSize"><span class="nav-number">4.3.</span> <span class="nav-text">计算采样率 inSampleSize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指定采样率初步加载图片"><span class="nav-number">4.4.</span> <span class="nav-text">指定采样率初步加载图片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缩放到指定大小"><span class="nav-number">4.5.</span> <span class="nav-text">缩放到指定大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置-inMutable-的几种方式"><span class="nav-number">4.6.</span> <span class="nav-text">设置 inMutable 的几种方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续"><span class="nav-number">5.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

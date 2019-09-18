@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Tools,Gitlab,Blog,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
+<meta name="keywords" content="Tools,Gitlab,Blog">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gitlab 搭建个人 Blog">
+<meta property="og:url" content="http://redspider110.github.io/2017/10/11/0001-setup-gitlab-blog/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.332Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gitlab 搭建个人 Blog">
+<meta name="twitter:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/10/11/0001-setup-gitlab-blog/">
+
+
+
+
+
+  <title>Gitlab 搭建个人 Blog | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/10/11/0001-setup-gitlab-blog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Gitlab 搭建个人 Blog</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-11T18:00:00+08:00">
+                2017-10-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/myTools/" itemprop="url" rel="index">
+                    <span itemprop="name">myTools</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><code>Gitlab</code> 已经越来越强大，同时也可以使用它提供的 <code>pages</code> 搭建个人静态博客<br><a href="https://about.gitlab.com/features/pages/" target="_blank" rel="noopener">官网 pages 介绍</a><br><a href="https://docs.gitlab.com/ee/user/project/pages/" target="_blank" rel="noopener">官网 doc</a>  </p>
+<h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h2><ul>
+<li><code>Fork</code> 官网推荐模板<br>模板支持很多种静态博客：<code>hugo, hexo, jekyll</code> 等<br>这里选用 <code>hexo</code>：<a href="https://gitlab.com/pages/hexo" target="_blank" rel="noopener">hexo模板链接</a>  </li>
+<li>Enable shared Runners<br>在 <code>Settings -- CI / CD -- Runners settings</code> 中检查，是否打开该功能  </li>
+<li>Configure your project (optional)<br>在 <code>Settings -- General -- Advanced settings -- Rename repository</code>中，将仓库名称和路径都修改为 <code>username.gitlab.io</code>  </li>
+<li>Manually run a pipeline<br>下载该仓库修改并提交后，触发一次自动编译<br>在 <code>CI / CD -- Pipelines</code> 中，查看任务是否执行成功  </li>
+<li>Visit your site!<br>搭建完毕！直接访问 <code>https://username.gitlab.io</code> 即可<br>如果无法访问，可能会存在一点延时，过几分钟后再访问  </li>
+</ul>
+<a id="more"></a>
+
+<h2 id="Hexo-环境搭建"><a href="#Hexo-环境搭建" class="headerlink" title="Hexo 环境搭建"></a><code>Hexo</code> 环境搭建</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p><code>Hexo</code> 是一个快速、简洁且高效的博客框架。<code>Hexo</code> 使用 <code>Markdown</code>（或其他渲染引擎）解析文章，在几秒内即可利用靓丽的主题生成静态网页。</p>
+<h3 id="安装-Node-js-和-git"><a href="#安装-Node-js-和-git" class="headerlink" title="安装 Node.js 和 git"></a>安装 <code>Node.js</code> 和 <code>git</code></h3><p><code>Hexo</code> 安装依赖 <code>Node.js</code> 和 <code>git</code>，所以需要先安装这两个环境  </p>
+<ul>
+<li>Node.js<br><a href="https://nodejs.org/en/" target="_blank" rel="noopener">Node.js 官网</a> 下载 <code>Windows</code> 下的稳定安装包，一路 <code>Next</code> 安装完毕后，重新开启 <code>window cmd</code> 终端，查看版本号测试是否安装成功：  </li>
+</ul>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ npm --version</span><br><span class="line"><span class="number">3</span>.<span class="number">10</span>.<span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>git<br><a href="https://git-scm.com/" target="_blank" rel="noopener">windows 工具 git-scm 官网</a>    </li>
+</ul>
+<h3 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 <code>Hexo</code></h3><p><code>Windows</code> 下的 <code>Node.js</code> 和 <code>git</code> 环境准备好后，在 <code>windows cmd</code> 终端中，只需一条命令就可以安装 <code>Hexo</code> ：<br><code>npm install -g hexo-cli</code><br><a href="https://hexo.io/zh-cn/docs/index.html" target="_blank" rel="noopener">官网安装文档</a>   </p>
+<p><code>windows cmd</code> 终端中查看版本号：  </p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ hexo --version</span><br><span class="line">hexo-cli: <span class="number">1</span>.<span class="number">0</span>.<span class="number">3</span></span><br><span class="line"><span class="function">os: <span class="title">Windows_NT</span> 6.1.7601 <span class="title">win32</span> <span class="title">x64</span></span></span><br><span class="line"><span class="function"><span class="title">http_parser</span>: 2.7.0</span></span><br><span class="line"><span class="function"><span class="title">node</span>: 6.11.4</span></span><br><span class="line"><span class="function"><span class="title">v8</span>: 5.1.281.108</span></span><br><span class="line"><span class="function"><span class="title">uv</span>: 1.11.0</span></span><br><span class="line"><span class="function"><span class="title">zlib</span>: 1.2.11</span></span><br><span class="line"><span class="function"><span class="title">ares</span>: 1.10.1-<span class="title">DEV</span></span></span><br><span class="line"><span class="function"><span class="title">icu</span>: 58.2</span></span><br><span class="line"><span class="function"><span class="title">modules</span>: 48</span></span><br><span class="line"><span class="function"><span class="title">openssl</span>: 1.0.2<span class="title">l</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="gitlab-博客本地环境预览"><a href="#gitlab-博客本地环境预览" class="headerlink" title="gitlab 博客本地环境预览"></a><code>gitlab</code> 博客本地环境预览</h2><p>本地安装好 <code>Hexo</code> 环境后，可以本地预览 <code>gitlab</code> 中写的博客了。<code>Hexo</code> 相关命令建议在 <code>windows cmd</code> 中输入，打印信息会比 <code>git bash</code>  中的多  </p>
+<ul>
+<li><code>hexo</code> 初始化博客目录<br><code>cmd</code> 中执行如下命令，等待初始化完毕，并产生 <code>node_modules</code> 目录<br><code>E:\01_work\00_My\06_blog&gt; hexo init username.gitlab.io</code>  </li>
+<li>安装 <code>hexo-server</code><br><code>Hexo 3.0</code> 把服务器独立成了个别模块，必须先安装 <a href="https://github.com/hexojs/hexo-server" target="_blank" rel="noopener">hexo-server</a> 才能使用：<br><code>npm install hexo-server --save</code><br>注意：搭建时如果没有先安装该模块，也可以直接执行 <code>hexo server</code> ；但是当安装完本地搜索 <code>hexo-generator-searchdb</code> 后，提示需要安装该模块，而此时再安装 <code>hexo-server</code> ，会导致 <code>hexo server</code> 运行后，无法预览网页。  </li>
+<li>下载博客<br><code>git-bash</code> 在<strong>同级目录</strong>中下载 <code>gitlab</code> 博客仓库：<br><code>git clone git@gitlab.com:username/username.gitlab.io.git username.gitlab</code>   </li>
+<li>重命名博客目录并拷贝第一步生成的 <code>node_modules</code> 目录<br>将前面 <code>hexo</code> 命令生成的 <code>username.gitlab.io</code> 目录重命名 <code>delete</code><br>将 <code>git</code> 下载的博客目录由 <code>username.gitlab</code> 更换为 <code>username.gitlab.io</code><br>将 <code>delete</code> 目录中的 <code>node_modules</code> 拷贝到 <code>username.gitlab.io</code> 中<br>也就是从 <code>gitlab</code> 中下载的博客目录需要 <code>hexo</code> 初始化命令生成的 <code>node_modules</code><br>（这里也可以简单的使用比较工具 <code>BeyondCompare</code> 将 <code>git</code> 管理的仓库，合入到 <code>hexo</code> 建立的博客目录中，这样效率比较高）  </li>
+<li><code>cmd</code> 开启服务验证  </li>
+</ul>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>\<span class="title">username.gitlab.io</span>&gt;<span class="title">hexo</span> <span class="title">server</span> -<span class="title">l</span></span></span><br><span class="line"><span class="function"><span class="title">INFO</span>  <span class="title">Start</span> <span class="title">processing</span></span></span><br><span class="line"><span class="function"><span class="title">INFO</span>  <span class="title">Hexo</span> <span class="title">is</span> <span class="title">running</span> <span class="title">at</span> <span class="title">http</span>://<span class="title">localhost</span>:4000/<span class="title">username.gitlab.io</span>/. <span class="title">Press</span> <span class="title">Ctrl</span>+<span class="title">C</span> <span class="title">to</span> <span class="title">stop</span>.</span></span><br></pre></td></tr></table></figure>
+
+<p>浏览器中打开 <code>http://localhost:4000/username.gitlab.io</code> 验证！如果有时读取失败或者读取的内容不对，可以清空浏览器的缓存，再重新登录查看！  </p>
+<h2 id="设置主题和样式-NexT"><a href="#设置主题和样式-NexT" class="headerlink" title="设置主题和样式 NexT"></a>设置主题和样式 <code>NexT</code></h2><h3 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h3><p><code>Hexo</code> 可以非常方便的更换主题，而且官网及第三方精美主题也很多，本博客选用了国内最流行主题之一： <code>NexT</code><br><a href="https://hexo.io/" target="_blank" rel="noopener">Hexo 官网及主题</a><br><a href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="noopener">NexT github</a><br><a href="http://theme-next.iissnan.com/" target="_blank" rel="noopener">NexT 文档</a><br><a href="http://notes.iissnan.com/" target="_blank" rel="noopener">NexT 作者博客</a>  </p>
+<h3 id="下载-NexT-主题"><a href="#下载-NexT-主题" class="headerlink" title="下载 NexT 主题"></a>下载 <code>NexT</code> 主题</h3><p><code>Hexo</code> 所有主题都在目录 <code>theme\</code> 下，直接下载 <code>NexT</code> 主题到该目录：<br><code>git clone --branch v5.1.3 https://github.com/iissnan/hexo-theme-next themes/next</code><br>下载好后，删掉目录中的 <code>.git, .github</code> 目录，并将该目录整体提交到博客仓库中  </p>
+<h3 id="更换博客主题"><a href="#更换博客主题" class="headerlink" title="更换博客主题"></a>更换博客主题</h3><p>修改<strong>站点配置文件</strong>，仓库根目录下 <code>_config.yml</code>  ，更换主题为 <code>next</code> ：  </p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/_config.yml b/_config.yml</span><br><span class="line">index 5cb4781..fcb21db 100644</span><br><span class="line"><span class="comment">--- a/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/_config.yml</span></span><br><span class="line">@@ -64,7 +64,8 @@ pagination_dir: page</span><br><span class="line"> # Extensions</span><br><span class="line"> ## Plugins: https://hexo.io/plugins/</span><br><span class="line"> ## Themes: https://hexo.io/themes/</span><br><span class="line"><span class="deletion">-theme: landscape</span></span><br><span class="line"><span class="addition">+#theme: landscape</span></span><br><span class="line"><span class="addition">+theme: next</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="更换博客样式"><a href="#更换博客样式" class="headerlink" title="更换博客样式"></a>更换博客样式</h3><p>修改<strong>主题配置文件</strong>，文件路径 <code>theme\next\_config.yml</code>，本博客采用和主题作者一直的样式 <code>Pisces</code> ：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/themes/next/_config.yml b/themes/next/_config.yml</span><br><span class="line">index f12e1a1..7bc85a8 100644</span><br><span class="line"><span class="comment">--- a/themes/next/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/themes/next/_config.yml</span></span><br><span class="line">@@ -99,9 +99,9 @@ menu_icons:</span><br><span class="line"> # ---------------------------------------------------------------</span><br><span class="line"></span><br><span class="line"> # Schemes</span><br><span class="line"><span class="deletion">-scheme: Muse</span></span><br><span class="line"><span class="addition">+#scheme: Muse</span></span><br><span class="line"> #scheme: Mist</span><br><span class="line"><span class="deletion">-#scheme: Pisces</span></span><br><span class="line"><span class="addition">+scheme: Pisces</span></span><br><span class="line"> #scheme: Gemini</span><br></pre></td></tr></table></figure>
+
+<p>参考官网文档对这几种样式有基本的介绍及效果展示：  </p>
+<ul>
+<li>Muse<br>默认 Scheme，这是 NexT 最初的版本，黑白主调，大量留白<br><a href="https://notes.wanghao.work" target="_blank" rel="noopener">XiaMo</a> | <a href="https://oawan.me" target="_blank" rel="noopener">OAwan</a> | <a href="http://hui-wang.info" target="_blank" rel="noopener">Hui Wang</a>  </li>
+<li>Mist<br>Muse 的紧凑版本，整洁有序的单栏外观<br><a href="https://blog.zzbd.org" target="_blank" rel="noopener">Jeff</a> | <a href="http://uchuhimo.me" target="_blank" rel="noopener">uchuhimo</a> | <a href="http://www.ixirong.com" target="_blank" rel="noopener">xirong</a>  </li>
+<li>Pisces<br>双栏 Scheme，小家碧玉似的清新<br><a href="http://notes.iissnan.com" target="_blank" rel="noopener">Vi</a> | <a href="https://blog.mrx.one" target="_blank" rel="noopener">Acris</a> | <a href="https://rainylog.com" target="_blank" rel="noopener">Rainy</a>  </li>
+<li>Gemini<br><a href="https://almostover.ru" target="_blank" rel="noopener">Ivan.Nginx</a> | <a href="http://sh.alynx.xyz" target="_blank" rel="noopener">Alynx</a> | <a href="https://raincal.top" target="_blank" rel="noopener">Raincal</a>   </li>
+</ul>
+<h3 id="设置语言，支持中文"><a href="#设置语言，支持中文" class="headerlink" title="设置语言，支持中文"></a>设置语言，支持中文</h3><p>修改<strong>站点配置文件</strong>，仓库根目录下 <code>_config.yml</code>  ，设置语言为 <code>zh-Hans</code> 支持中文： </p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/_config.yml b/_config.yml</span><br><span class="line">index fcb21db..486f8b5 100644</span><br><span class="line"><span class="comment">--- a/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/_config.yml</span></span><br><span class="line">@@ -7,7 +7,7 @@ title: Hexo</span><br><span class="line"> subtitle:</span><br><span class="line"> description:</span><br><span class="line"> author: John Doe</span><br><span class="line"><span class="deletion">-language:</span></span><br><span class="line"><span class="addition">+language: zh-Hans</span></span><br><span class="line"> timezone:</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置菜单"><a href="#设置菜单" class="headerlink" title="设置菜单"></a>设置菜单</h3><p>常见菜单有：主页、标签、分类、归档，<code>NexT</code> 默认只有主页和归档，需要添加标签和分类  </p>
+<ul>
+<li>新建页面<br><a href="https://hexo.io/zh-cn/docs/front-matter.html#%E5%88%86%E7%B1%BB%E5%92%8C%E6%A0%87%E7%AD%BE" target="_blank" rel="noopener">Hexo 的分类与标签文档</a>，官网上有详细的新建流程  </li>
+</ul>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// <span class="number">1</span>. hexo 命令新建标签页面</span><br><span class="line"><span class="function">E:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>\<span class="title">username.gitlab.io</span>&gt;<span class="title">hexo</span> <span class="title">new</span> <span class="title">page</span> <span class="title">tags</span></span></span><br><span class="line"><span class="function"><span class="title">INFO</span>  <span class="title">Created</span>: <span class="title">E</span>:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>\<span class="title">username.gitlab.io</span>\<span class="title">source</span>\<span class="title">tags</span>\<span class="title">index.md</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">// 2. 修改产生的文件，添加页面类型</span></span><br><span class="line"><span class="function">// 在 <span class="title">source</span>\<span class="title">tags</span>\<span class="title">index.md</span> 文件中添加 '<span class="title">type</span>: "<span class="title">tags</span>"' ，将页面的类型设置为 <span class="title">tags</span></span></span><br><span class="line"><span class="function">---</span></span><br><span class="line"><span class="function"><span class="title">title</span>: <span class="title">tags</span></span></span><br><span class="line"><span class="function"><span class="title">date</span>: 2017-10-12 09:54:34</span></span><br><span class="line"><span class="function"><span class="title">type</span>: "<span class="title">tags</span>"</span></span><br><span class="line"><span class="function">---</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">// 3. 同样方式新建分类页面</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加新菜单支持<br>修改<strong>主题配置文件</strong>，文件路径 <code>theme\next\_config.yml</code>，把 <code>tags</code> 和 <code>categories</code> 注释取消掉</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">menu:</span></span><br><span class="line"><span class="attr">  home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="comment">#about: /about/ || user</span></span><br><span class="line"><span class="attr">  tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line"><span class="attr">  categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line"><span class="attr">  archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="comment">#schedule: /schedule/ || calendar</span></span><br><span class="line">  <span class="comment">#sitemap: /sitemap.xml || sitemap</span></span><br><span class="line">  <span class="comment">#commonweal: /404/ || heartbeat</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加本地搜索"><a href="#添加本地搜索" class="headerlink" title="添加本地搜索"></a>添加本地搜索</h3><p>添加百度/谷歌/本地 自定义站点内容搜索</p>
+<ul>
+<li>安装 <code>hexo-generator-searchdb</code><br>在站点的根目录下执行以下命令：  </li>
+</ul>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>\<span class="title">username.gitlab.io</span>&gt;<span class="title">npm</span> <span class="title">install</span> <span class="title">hexo</span>-<span class="title">generator</span>-<span class="title">searchdb</span> --<span class="title">save</span></span></span><br><span class="line"><span class="function"><span class="title">hexo</span>-<span class="title">site</span>@0.0.0 <span class="title">E</span>:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>\<span class="title">username.gitlab.io</span></span></span><br><span class="line"><span class="function">`-- <span class="title">hexo</span>-<span class="title">generator</span>-<span class="title">searchdb</span>@1.0.8</span></span><br><span class="line"><span class="function">  +-- <span class="title">ejs</span>@1.0.0</span></span><br><span class="line"><span class="function">  `-- <span class="title">striptags</span>@3.1.0</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编辑<strong>站点配置文件</strong>，新增以下内容到任意位置：  </li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line"><span class="attr">  path:</span> <span class="string">search.xml</span></span><br><span class="line"><span class="attr">  field:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">  format:</span> <span class="string">html</span></span><br><span class="line"><span class="attr">  limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编辑<strong>主题配置文件</strong>，启用本地搜索功能：  </li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Local search</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="设置站点相关信息"><a href="#设置站点相关信息" class="headerlink" title="设置站点相关信息"></a>设置站点相关信息</h3><p>修改<strong>站点配置文件</strong>，仓库根目录下 <code>_config.yml</code>  ，添加站点相关信息：  </p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Site</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">Earth</span> <span class="string">Guardian</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">You</span> <span class="string">are</span> <span class="string">not</span> <span class="string">LATE!You</span> <span class="string">are</span> <span class="string">not</span> <span class="string">EARLY!</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">地球卫士</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">redspider110</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-Hans</span></span><br><span class="line"><span class="attr">timezone:</span> <span class="string">Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他主题设置"><a href="#其他主题设置" class="headerlink" title="其他主题设置"></a>其他主题设置</h3><p>修改<strong>主题配置文件</strong>，文件路径 <code>theme\next\_config.yml</code>  </p>
+<ul>
+<li><p>站点建立时间<br>取消如下字段的注释： <code>since: 2017</code>  </p>
+</li>
+<li><p>开启页面统计<br>找到 <code>busuanzi_count</code> 设置项，按照如下方法修改  </p>
+</li>
+</ul>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ git diff themes/next/_config.yml</span><br><span class="line">diff --git a/themes/next/_config.yml b/themes/next/_config.yml</span><br><span class="line">index e9b0371..2d757eb 100644</span><br><span class="line"><span class="comment">--- a/themes/next/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/themes/next/_config.yml</span></span><br><span class="line">@@ -478,18 +478,19 @@ leancloud_visitors:</span><br><span class="line"> # Get more information on http://ibruce.info/2015/04/04/busuanzi/</span><br><span class="line"> busuanzi_count:</span><br><span class="line">   # count values only if the other configs are false</span><br><span class="line"><span class="deletion">-  enable: false</span></span><br><span class="line"><span class="addition">+  enable: true</span></span><br><span class="line">   # custom uv span for the whole site</span><br><span class="line"><span class="deletion">-  site_uv: true</span></span><br><span class="line"><span class="addition">+  site_uv: false</span></span><br><span class="line">   site_uv_header: &lt;i class="fa fa-user"&gt;&lt;/i&gt;</span><br><span class="line">   site_uv_footer:</span><br><span class="line">   # custom pv span for the whole site</span><br><span class="line"><span class="deletion">-  site_pv: true</span></span><br><span class="line"><span class="addition">+  site_pv: false</span></span><br><span class="line">   site_pv_header: &lt;i class="fa fa-eye"&gt;&lt;/i&gt;</span><br><span class="line">   site_pv_footer:</span><br><span class="line">   # custom pv span for one page only</span><br><span class="line">   page_pv: true</span><br><span class="line"><span class="deletion">-  page_pv_header: &lt;i class="fa fa-file-o"&gt;&lt;/i&gt;</span></span><br><span class="line"><span class="addition">+  #page_pv_header: &lt;i class="fa fa-file-o"&gt;&lt;/i&gt;</span></span><br><span class="line"><span class="addition">+  page_pv_header: &lt;i class="fa fa-eye"&gt;&lt;/i&gt; 阅读次数</span></span><br><span class="line">   page_pv_footer:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开启页面阅读进度<br><code>scrollpercent: true</code>  </li>
+</ul>
+<h2 id="gitlab-github-混合发布"><a href="#gitlab-github-混合发布" class="headerlink" title="gitlab/github 混合发布"></a><code>gitlab/github</code> 混合发布</h2><p>最近（2018.3.1之后） <code>gitlab pages</code> 功能异常，每次提交后 <code>CI/CD</code> 都会出错，提示 <code>hexo</code> 找不到，具体错误如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">├── moment@2.21.0</span><br><span class="line">├── cheerio@0.20.0 (entities@1.1.1, dom-serializer@0.1.0, css-select@1.2.0, htmlparser2@3.8.3, jsdom@7.2.2)</span><br><span class="line">├── warehouse@2.2.0 (graceful-fs@4.1.11, is-plain-object@2.0.4, JSONStream@1.3.2, cuid@1.3.8)</span><br><span class="line">└── lodash@4.17.5</span><br><span class="line">npm info ok </span><br><span class="line">$ hexo deploy</span><br><span class="line">ERROR Local hexo not found in /builds/***/hexo</span><br><span class="line">ERROR Try running: &apos;npm install hexo --save&apos;</span><br><span class="line">ERROR: Job failed: exit code 1</span><br></pre></td></tr></table></figure>
+
+<p>提了个 <a href="https://gitlab.com/pages/pages.gitlab.io/issues/59" target="_blank" rel="noopener">issues</a> ，后期再找解决方案。当前先采用 <code>gitlab/github</code> 混合发布的方法提交：  </p>
+<ul>
+<li><code>github</code><br>发布的时候，提交上去的只有转换好的 <code>html</code> 文件，当做 <code>pages</code> 使用。  </li>
+<li><code>gitlab</code><br>保存文本及所有提交记录，方便后续追溯。  </li>
+</ul>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>按照上面的方法搭建 <code>gitlab</code> 环境及 <code>hexo</code> 博客，参考<a href="http://lovenight.github.io/2015/11/10/Hexo-3-1-1-%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/?" target="_blank" rel="noopener">静态博客搭建指南</a> 搭建 <code>github pages</code>，生成对应的仓库，并添加 <code>ssh-key</code>。</p>
+<h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3><p>上一步拿到了 <code>github pages</code> 仓库地址：<code>git@github.com:***/***.github.io.git</code>，修改当前博客的配置文件 <code>_config.yml</code>：  </p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/_config.yml b/_config.yml</span><br><span class="line">index a7356be..e3ea455 100644</span><br><span class="line"><span class="comment">--- a/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/_config.yml</span></span><br><span class="line">@@ -12,9 +12,11 @@ timezone: Asia/Shanghai</span><br><span class="line"></span><br><span class="line"> # URL</span><br><span class="line"> ## If your site is put in a subdirectory, </span><br><span class="line"> # set url as 'http://yoursite.com/child' and root as '/child/'</span><br><span class="line"><span class="deletion">-url: /</span></span><br><span class="line"><span class="deletion">-root: "/***.gitlab.io/"</span></span><br><span class="line"><span class="addition">+url: http://***.github.io</span></span><br><span class="line"><span class="addition">+root: /</span></span><br><span class="line"> permalink: :year/:month/:day/:title/</span><br><span class="line"> permalink_defaults:</span><br><span class="line"></span><br><span class="line">@@ -79,9 +81,9 @@ theme: next</span><br><span class="line"> # Deployment</span><br><span class="line"> ## Docs: https://hexo.io/docs/deployment.html</span><br><span class="line"> deploy:</span><br><span class="line"><span class="deletion">-  type:git</span></span><br><span class="line"><span class="deletion">-  repo:git@gitlab.com:***/***.gitlab.io.git</span></span><br><span class="line"><span class="deletion">-  branch:master</span></span><br><span class="line"><span class="addition">+  type: git</span></span><br><span class="line"><span class="addition">+  repo: git@github.com:***/***.github.io.git</span></span><br><span class="line"><span class="addition">+  branch: master</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-hexo-deployer-git"><a href="#安装-hexo-deployer-git" class="headerlink" title="安装 hexo-deployer-git"></a>安装 <code>hexo-deployer-git</code></h3><ul>
+<li>安装<br><code>npm install --save hexo-deployer-git</code> ，安装 <code>hexo-deployer-git</code> 发布工具。  </li>
+<li>配置<br>安装完 <code>hexo-deployer-git</code> 工具后，会在当前 <code>blog</code> 目录下，生成 <code>.deployer-git</code> 目录，它是一个 <code>.git</code> 仓库，我们使用 <code>hexo d</code> 命令发布时，也就是将该 <code>.git</code> 仓库提交到远程目标仓库上。<br>使用 <code>git config user.name/email</code> 配置远程仓库的访问账号。  </li>
+</ul>
+<h3 id="提交和发布"><a href="#提交和发布" class="headerlink" title="提交和发布"></a>提交和发布</h3><ul>
+<li>提交<br>提交是指提交到 <code>gitlab</code> 中，使用常用的 <code>git</code> 命令 <code>commit</code> 就行。  </li>
+<li>发布<br>发布是指发布到 <code>github pages</code> 中，使用 <code>hexo d -g</code> 命令发布，同时会在 <code>github</code> 中生成提交记录，但这个提交记录可读性非常差，通常为生成 <code>html</code> 更新所有目录。  </li>
+</ul>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="css-is-missing"><a href="#css-is-missing" class="headerlink" title="css is missing"></a>css is missing</h3><p>访问博客时，没有任何 <code>css</code> 样式，解决方案为在 <code>_config.yml</code> 文件中修改 <code>root</code> 目录：  </p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/_config.yml b/_config.yml</span><br><span class="line">index 78c62ed..5cb4781 100644</span><br><span class="line"><span class="comment">--- a/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/_config.yml</span></span><br><span class="line">@@ -13,7 +13,8 @@ timezone:</span><br><span class="line"> # URL</span><br><span class="line"> ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'</span><br><span class="line"> url: /</span><br><span class="line"><span class="deletion">-root: "/hexo/"</span></span><br><span class="line"><span class="addition">+#root: "/hexo/"</span></span><br><span class="line"><span class="addition">+root: "/yourusernname.gitlab.io/"</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="hexo-version-查看版本号提示本地没有-hexo"><a href="#hexo-version-查看版本号提示本地没有-hexo" class="headerlink" title="hexo version 查看版本号提示本地没有 hexo"></a><code>hexo version</code> 查看版本号提示本地没有 <code>hexo</code></h3><p>错误信息如下，查看版本提示并没有 <code>hexo</code> 命令？</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span>&gt; <span class="title">hexo</span> <span class="title">version</span></span></span><br><span class="line"><span class="function"><span class="title">ERROR</span> <span class="title">Local</span> <span class="title">hexo</span> <span class="title">not</span> <span class="title">found</span> <span class="title">in</span> <span class="title">E</span>:\01<span class="title">_work</span>\00<span class="title">_My</span>\06<span class="title">_blog</span></span></span><br><span class="line"><span class="function"><span class="title">ERROR</span> <span class="title">Try</span> <span class="title">running</span>: '<span class="title">npm</span> <span class="title">install</span> <span class="title">hexo</span> --<span class="title">save</span>'</span></span><br></pre></td></tr></table></figure>
+
+<p>这是因为当前博客目录已经包含了 <code>hexo</code> 相关配置文件了，需要重新在 <code>Windows cmd</code> 终端中运行上述命令，生成 <code>node_modules</code> 目录</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/10/11/0001-setup-gitlab-blog/" title="Gitlab 搭建个人 Blog">http://redspider110.github.io/2017/10/11/0001-setup-gitlab-blog/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tools/" rel="tag"># Tools</a>
+          
+            <a href="/tags/Gitlab/" rel="tag"># Gitlab</a>
+          
+            <a href="/tags/Blog/" rel="tag"># Blog</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/11/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/12/0002-git-guide/" rel="prev" title="Git 相关操作">
+                Git 相关操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建步骤"><span class="nav-number">2.</span> <span class="nav-text">搭建步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hexo-环境搭建"><span class="nav-number">3.</span> <span class="nav-text">Hexo 环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍-1"><span class="nav-number">3.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-Node-js-和-git"><span class="nav-number">3.2.</span> <span class="nav-text">安装 Node.js 和 git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-Hexo"><span class="nav-number">3.3.</span> <span class="nav-text">安装 Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gitlab-博客本地环境预览"><span class="nav-number">4.</span> <span class="nav-text">gitlab 博客本地环境预览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置主题和样式-NexT"><span class="nav-number">5.</span> <span class="nav-text">设置主题和样式 NexT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍-2"><span class="nav-number">5.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载-NexT-主题"><span class="nav-number">5.2.</span> <span class="nav-text">下载 NexT 主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更换博客主题"><span class="nav-number">5.3.</span> <span class="nav-text">更换博客主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更换博客样式"><span class="nav-number">5.4.</span> <span class="nav-text">更换博客样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置语言，支持中文"><span class="nav-number">5.5.</span> <span class="nav-text">设置语言，支持中文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置菜单"><span class="nav-number">5.6.</span> <span class="nav-text">设置菜单</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加本地搜索"><span class="nav-number">5.7.</span> <span class="nav-text">添加本地搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置站点相关信息"><span class="nav-number">5.8.</span> <span class="nav-text">设置站点相关信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他主题设置"><span class="nav-number">5.9.</span> <span class="nav-text">其他主题设置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gitlab-github-混合发布"><span class="nav-number">6.</span> <span class="nav-text">gitlab/github 混合发布</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">6.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改配置文件"><span class="nav-number">6.2.</span> <span class="nav-text">修改配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-hexo-deployer-git"><span class="nav-number">6.3.</span> <span class="nav-text">安装 hexo-deployer-git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提交和发布"><span class="nav-number">6.4.</span> <span class="nav-text">提交和发布</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到的问题"><span class="nav-number">7.</span> <span class="nav-text">遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#css-is-missing"><span class="nav-number">7.1.</span> <span class="nav-text">css is missing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hexo-version-查看版本号提示本地没有-hexo"><span class="nav-number">7.2.</span> <span class="nav-text">hexo version 查看版本号提示本地没有 hexo</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

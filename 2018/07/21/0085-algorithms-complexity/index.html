@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Algorithms,Maths,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="算法相关的数学基础，以及时间复杂度的计算方式。">
+<meta name="keywords" content="Algorithms,Maths">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法 - 数学基础和时间复杂度">
+<meta property="og:url" content="http://redspider110.github.io/2018/07/21/0085-algorithms-complexity/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="算法相关的数学基础，以及时间复杂度的计算方式。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-exponent.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-exponent-function.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-logarithm.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-logarithm-function.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-geometric-progression.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-arithmetic-progression.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-mathematical-induction.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-expression.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-lim.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-table-function.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-Comparison_computational_complexity.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-elements-operations.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-time-complexity-samples.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-common-time-complexity.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-recursion-sample-time-complexity.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-max-sequence.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-time-complexity-calculator.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-array-product-a-b.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-array-product-sample.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.374Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法 - 数学基础和时间复杂度">
+<meta name="twitter:description" content="算法相关的数学基础，以及时间复杂度的计算方式。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-exponent.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/07/21/0085-algorithms-complexity/">
+
+
+
+
+
+  <title>算法 - 数学基础和时间复杂度 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/07/21/0085-algorithms-complexity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">算法 - 数学基础和时间复杂度</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-21T09:00:00+08:00">
+                2018-07-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms/" itemprop="url" rel="index">
+                    <span itemprop="name">Algorithms</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>算法相关的数学基础，以及时间复杂度的计算方式。  </p>
+<a id="more"></a>
+
+<h2 id="数学基础"><a href="#数学基础" class="headerlink" title="数学基础"></a>数学基础</h2><h3 id="指数-Exponent"><a href="#指数-Exponent" class="headerlink" title="指数 Exponent"></a>指数 <code>Exponent</code></h3><p>指数是幂运算 <code>aⁿ(a≠0)</code> 中的一个参数，<code>a</code> 为底数，<code>n</code> 为指数，指数位于底数的右上角，幂运算表示指数个底数相乘。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-exponent.png" alt="0085-exponent.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-exponent-function.png" alt="0085-exponent-function.png"></p>
+<h3 id="对数-Logarithm"><a href="#对数-Logarithm" class="headerlink" title="对数 Logarithm"></a>对数 <code>Logarithm</code></h3><p>对数是对求幂的逆运算，用于求解出幂运算中的指数。  </p>
+<blockquote>
+<p>在计算机科学中，除非有特别声明，所有的对数都是以 2 为底的，比如 <code>logN</code> 是标准写法。有些计算机相关书籍中提到的 <code>lgN</code> 也是以 2 为底的（这点需要特别注意，并不是数学中的以 10 为底）。  </p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-logarithm.png" alt="0085-logarithm.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-logarithm-function.png" alt="0085-logarithm-function.png"></p>
+<ul>
+<li>如果 <code>a(a&gt;0，a≠1)</code> 的 <code>b</code> 次幂等于 <code>N</code>，即 <code>aᵇ=N</code>，那么数 <code>b</code> 叫做以 <code>a</code> 为底 <code>N</code> 的对数，记作：<code>logₐN=b</code>，其中 <code>a</code> 叫做对数的<strong>底数</strong>，<code>N</code> 叫做<strong>真数</strong>  </li>
+<li>以 10 为底的对数叫<strong>常用对数</strong>，记作 <code>log10N</code>，简记为 <code>lgN</code>  </li>
+<li>以无理数 <code>e(e=2.718 28…)</code> 为底的对数叫做<strong>自然对数</strong>，记作 <code>logₑN</code>，简记为 <code>lnN</code>   </li>
+</ul>
+<h3 id="级数-Series"><a href="#级数-Series" class="headerlink" title="级数 Series"></a>级数 <code>Series</code></h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-geometric-progression.png" alt="0085-geometric-progression.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-arithmetic-progression.png" alt="0085-arithmetic-progression.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-1.png" alt="0085-series-1.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-2.png" alt="0085-series-2.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-series-3.png" alt="0085-series-3.png"></p>
+<h3 id="模运算"><a href="#模运算" class="headerlink" title="模运算"></a>模运算</h3><p>如果 <code>N</code> 整除 <code>A - B</code>，那么我们就说 <code>A</code> 与 <code>B</code> 模 <code>N</code> 同余 <code>congruent</code>，记为 <code>A≡B(mod N)</code>。直观地看，这意味着无论 <code>A</code> 还是 <code>B</code> 被 <code>N</code> 去除，所得余数都是相同的。于是：<code>81≡61≡1(mod 10)</code>。如同等号的情形一样，若 <code>A≡B(mod N)</code>，则 <code>A+C ≡ B+C(mod N)</code> 以及 <code>AD≡BD(mod N)</code> 。  </p>
+<h2 id="证明方法"><a href="#证明方法" class="headerlink" title="证明方法"></a>证明方法</h2><h3 id="数学归纳法-Mathematical-induction"><a href="#数学归纳法-Mathematical-induction" class="headerlink" title="数学归纳法 Mathematical induction"></a>数学归纳法 <code>Mathematical induction</code></h3><p>归纳法证明有两个标准部分：  </p>
+<ul>
+<li>基准情形 <code>base case</code><br>确定定理对于某个小的值的正确性，这一步通常很简单，只需要验证最小值是否满足定理。  </li>
+<li>归纳假设 <code>inductive hypothesis</code><br>假设定理对直到某个有限数 <code>k</code> 的所有情况都是成立的，然后使用这个假设证明：定理对下一个值 <code>k+1</code> 也是成立的。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-mathematical-induction.png" alt="0085-mathematical-induction.png"></p>
+<h3 id="反证法-Reductio-ad-absurdum"><a href="#反证法-Reductio-ad-absurdum" class="headerlink" title="反证法 Reductio ad absurdum"></a>反证法 <code>Reductio ad absurdum</code></h3><p>反证法证明是通过假设定理不成立，然后证明该假设导致某个已知的性质不成立，从而证明原假设是错误的。  </p>
+<p>![0085-reductio-ad- absurdum.png](<a href="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-reductio-ad-" target="_blank" rel="noopener">https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-reductio-ad-</a> absurdum.png)</p>
+<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><p>递归的四条基本法则：  </p>
+<ul>
+<li>基准情形 <code>base case</code><br>必须要有某些基准情形，它们不需要递归就能求解。  </li>
+<li>不断推进 <code>making progress</code><br>对于那些需要递归求解的情形，递归调用必须能够朝着产生基准情形的方向推进。  </li>
+<li>设计法则 <code>design rule</code><br>假设所有的递归调用都能运行。  </li>
+<li>合成效益法则 <code>compound interest rule</code><br>在求解一个问题的同一个实例时，切勿在不同的递归调用中做<strong>重复性</strong>的工作。  </li>
+</ul>
+<p>通常使用数学归纳法来梳理递归的思路。  </p>
+<p>递归就是方法中调用自己，我们换个思路来理解递归，包含三要素：  </p>
+<ul>
+<li>递归总有一个最简单的情况。也就是说方法的第一条语句通常是 <code>return</code> 的条件语句  </li>
+<li>递归总是去尝试一个规模更小的子问题，这样递归才能收敛到最简单的情况  </li>
+<li>递归调用的父问题和尝试解决的子问题不应该有交集  </li>
+</ul>
+<h2 id="不等式"><a href="#不等式" class="headerlink" title="不等式"></a>不等式</h2><h3 id="四个常见定义"><a href="#四个常见定义" class="headerlink" title="四个常见定义"></a>四个常见定义</h3><ul>
+<li>如果存在正常数 <code>c</code> 和 <code>n0</code> 使得当 <code>N≥n0</code> 时 <code>T(N)≤cf(N)</code>，则记为 <code>T(N)=Ο(f(N))</code>  </li>
+<li>如果存在正常数 <code>c</code> 和 <code>n0</code> 使得当 <code>N≥n0</code> 时 <code>T(N)≥cg(N)</code>，则记为 <code>T(N)=Ω(g(N))</code>  </li>
+<li><code>T(N)=Θ(h(N))</code> 当且仅当 <code>T(N)=Ο(h(N))</code> 且 <code>T(N)=Ω(h(N))</code>  </li>
+<li>如果 <code>T(N)=Ο(p(N))</code> 且 <code>T(N)≠Θ(p(N))</code>，则 <code>T(N)=ο(p(N))</code>  </li>
+</ul>
+<h3 id="ΟΩΘο-的读音和意义"><a href="#ΟΩΘο-的读音和意义" class="headerlink" title="ΟΩΘο 的读音和意义"></a><code>ΟΩΘο</code> 的读音和意义</h3><p>这四个记号表示的是比较它们的<strong>相对增长率</strong> <code>relative rate of growth</code> 。  </p>
+<ul>
+<li><code>Ο</code><br>读作 <code>大O</code>；表示 <code>T(N)</code> 的增长率小于等于 <code>f(N)</code> 的增长率。即<strong>最大增长率</strong>为 <code>f(N)</code> ，<code>f(N)</code> 是 <code>T(N)</code> 的<strong>上界</strong>。  </li>
+<li><code>Ω</code><br>读作 <code>omega:[oʊˈmegə]</code>，欧米伽；表示 <code>T(N)</code> 的增长率大于等于 <code>g(N)</code> 的增长率。即<strong>最小增长率</strong>为 <code>g(N)</code> ，<code>g(N)</code> 是 <code>T(N)</code> 的<strong>下界</strong>。  </li>
+<li><code>Θ</code><br>读作 <code>theta[ˈθetə, ˈθi-]</code> ；表示 <code>T(N)</code> 和 <code>h(N)</code> 的<strong>增长率相等</strong>。   </li>
+<li><code>ο</code><br>读作 <code>小ο</code> ；表示 <code>T(N)</code> 的增长率<strong>小于</strong> <code>p(N)</code> 的增长率。它不同于 <code>大O</code>，因为 <code>Ο</code> 包含增长率相同的可能性。  </li>
+</ul>
+<p><code>ΟΩΘο</code> 统称：渐进符号 <code>Asymptotically notation</code>，在离散数学有详细的介绍，核心是极限的概念。  </p>
+<h3 id="重要结论"><a href="#重要结论" class="headerlink" title="重要结论"></a>重要结论</h3><p>为了证明某个函数 <code>T(N)=Ο(f(N))</code> ，通常不是形式的使用定义，而是使用一些已知结果。也就是锁证明是非常简单的，并不涉及到微积分相关。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-expression.png" alt="0085-expression.png"></p>
+<ul>
+<li><p>如果 <code>T1(N)=O(f(N))</code> 且 <code>T2(N)=O(g(N))</code>，那么：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T1(N) + T2(N) = max(O(f(N)), O(g(N)))</span><br><span class="line">T1(N) * T2(N) = O(f(N) * g(N))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果 <code>T(N)</code> 是一个 <code>k</code> 次多项式，则 <code>T(N)=Θ(Nᵏ)</code>  </p>
+</li>
+<li><p>对任意常数 <code>k</code>，<code>logᵏN=O(N)</code>，它告诉我们对数增长得非常缓慢。  </p>
+</li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>关于 <code>大O</code><br>将常数或低阶项放进 <code>大O</code> 是非常坏的习惯。通常在需要 <code>大O</code> 的任何分析中，需要各种简化：低阶项可以被忽略，常数可以舍弃。此时，要求精度很低。  </li>
+<li>极限<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-lim.png" alt="0085-lim.png"></li>
+</ul>
+<h3 id="常见函数增长率"><a href="#常见函数增长率" class="headerlink" title="常见函数增长率"></a>常见函数增长率</h3><ul>
+<li><p>常见函数<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-table-function.png" alt="0085-table-function.png"></p>
+</li>
+<li><p>数学特征函数图<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-Comparison_computational_complexity.png" alt="0085-Comparison_computational_complexity.png"></p>
+</li>
+<li><p><code>y</code> 轴为时间图<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-elements-operations.png" alt="0085-elements-operations.png"></p>
+</li>
+</ul>
+<h2 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h2><p>时间复杂度 <code>Time Complexity</code>：主要关心算法的平均运行时间和最坏情况下的运行时间。<br><code>D.E.Knuth</code> 认为一个程序运行的总时间主要和两点有关：  </p>
+<ul>
+<li>执行每条语句的耗时  </li>
+<li>执行每条语句的频率  </li>
+</ul>
+<p>每条语句的耗时和操作系统、计算机硬件等都高度相关；所以算法关注的时间复杂度主要是计算执行频率。  </p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-time-complexity-samples.png" alt="0085-time-complexity-samples.png"></p>
+<h3 id="时间计算一般法则"><a href="#时间计算一般法则" class="headerlink" title="时间计算一般法则"></a>时间计算一般法则</h3><ul>
+<li><p>法则 1：<code>FOR</code> 循环<br>一次 <code>for</code> 循环的运行时间至多是该 <code>for</code> 循环内语句的运行时间乘以迭代次数。通常为 <code>O(N)</code>。  </p>
+</li>
+<li><p>法则 2：嵌套的 <code>FOR</code> 循环<br>从里到外分析这些循环，在一组嵌套循环内部的一条语句总的运行时间为该语句的运行时间乘以该组所有的 <code>for</code> 循环的大小的乘积。如下面程序为 <code>O(N²)</code> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;N; i++)</span><br><span class="line">  <span class="keyword">for</span>(j=<span class="number">0</span>; j&lt;N; j++)</span><br><span class="line">    k++;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>法则 3：顺序语句<br>将各个语句的运行时间求和，即其中的最大值就是最终的运行时间。<br>第一个 <code>for</code> 循环花费为 <code>O(N)</code>，第二个 <code>for</code> 循环花费为 <code>O(N²)</code>，最终总的开销为最大值 <code>O(N²)</code> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;N; i++)</span><br><span class="line">  A[i] = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;N; i++)</span><br><span class="line">  <span class="keyword">for</span>(j=<span class="number">0</span>; j&lt;N; j++)</span><br><span class="line">    A[i] += A[j] + i + j;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>法则 4：<code>IF/ELSE</code> 语句<br>一个 <code>if/else</code> 语句的运行时间，不超过判断再加上 <code>max(S1, S2)</code> 的总运行时间。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if(condition)</span><br><span class="line">  S1;</span><br><span class="line">else</span><br><span class="line">  S2;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="对数"><a href="#对数" class="headerlink" title="对数"></a>对数</h3><p>分析算法时间复杂度最混乱的方面大概集中在对数上面。对数最长出现的规律概括为：  </p>
+<ul>
+<li>如果一个算法用常数时间 <code>O(1)</code> 将问题的大小消减为其一部分（通常为一半 1/2），那么该算法就是 <code>O(logN)</code>。也就是说，通常的二分法或者对半分治等算法。  </li>
+<li>如果使用常数时间只是将问题减少一个常数（如将问题减少 1），那么该算法就是 <code>O(N)</code>  </li>
+</ul>
+<h3 id="常见时间复杂度"><a href="#常见时间复杂度" class="headerlink" title="常见时间复杂度"></a>常见时间复杂度</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-common-time-complexity.png" alt="0085-common-time-complexity.png"></p>
+<h2 id="典型示例"><a href="#典型示例" class="headerlink" title="典型示例"></a>典型示例</h2><h3 id="递归转换为-for-循环"><a href="#递归转换为-for-循环" class="headerlink" title="递归转换为 for 循环"></a>递归转换为 <code>for</code> 循环</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-recursion-sample-time-complexity.png" alt="0085-recursion-sample-time-complexity.png"></p>
+<h3 id="最大子序列和的估算与精算"><a href="#最大子序列和的估算与精算" class="headerlink" title="最大子序列和的估算与精算"></a>最大子序列和的估算与精算</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-max-sequence.png" alt="0085-max-sequence.png"></p>
+<p>例如：输入整数序列：-2, 11, 8, -4, -1, 16, 5, 0，则输出答案为 35，即从 <code>A2～A6</code> 。<br>根据求和公式，很容易写出代码（简单的扩展求和公式）。  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MaxSubsequenceSum</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> A[], <span class="keyword">int</span> N)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ThisSum, MaxSum, i, j, k;</span><br><span class="line">    MaxSum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;N; i++)</span><br><span class="line">        <span class="keyword">for</span>(j=i; j&lt;N; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            ThisSum = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(k=i; k&lt;=j; k++)</span><br><span class="line">                ThisSum += A[k];</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(ThisSum &gt; MaxSum)</span><br><span class="line">                MaxSum = ThisSum;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> MaxSum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>估算<br>上述算法由三重嵌套 <code>for</code> 循环语句组成，根据法则 2，估算出时间复杂度为 <code>O(N³)</code> 。  </li>
+<li>精确计算<br>精确计算出来的时间复杂度仍然是 <code>O(N³)</code>，所以通常只需要估算，精确的计算往往涉及到复杂的数学运算。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-time-complexity-calculator.png" alt="0085-time-complexity-calculator.png"></li>
+</ul>
+<h2 id="其他数学知识"><a href="#其他数学知识" class="headerlink" title="其他数学知识"></a>其他数学知识</h2><h3 id="数论基础"><a href="#数论基础" class="headerlink" title="数论基础"></a>数论基础</h3><ul>
+<li>约数和倍数<br>整数 <code>a</code> 除以整数 <code>b(b≠0)</code>，除得的商正好是整数而没有余数，我们就说 <code>a</code> 能被 <code>b</code> 整除，或 <code>b</code> 能整除 <code>a</code>。<br><code>a</code> 称为 <code>b</code> 的<strong>倍数</strong>，<code>b</code> 称为 <code>a</code> 的<strong>约数</strong>，约数也称为<strong>因数</strong>。  </li>
+<li>最大公约数<br><code>gcd: greatest common divisor</code>，也称最大公因数、最大公因子：指两个或多个整数共有约数中最大的一个。<br>欧几里得算法：两个整数的最大公约数等于其中较小的那个数和两数相除余数的最大公约数。<br><code>gcd(a,b) = gcd(b,a mod b) (不妨设a&gt;b 且r=a mod b ,r不为0)</code>  </li>
+<li>最小公倍数<br><code>lcm: least common multiple</code>，两个或多个整数公有的倍数叫做它们的公倍数，除 0 以外最小的一个公倍数就叫做这几个整数的<strong>最小公倍数</strong>。  </li>
+<li>质数和合数<br>质数 <code>prime number</code> 又称素数，有无限个。质数：在大于 1 的自然数中，除了 1 和它本身以外不再有其他因数；否则称为合数。<br>判断方法：对正整数 <code>n</code>，如果用 2 到 <code>n</code> 的根号之间的所有整数去除，均无法整除，则 <code>n</code> 为质数。  </li>
+</ul>
+<h3 id="矩阵乘方"><a href="#矩阵乘方" class="headerlink" title="矩阵乘方"></a>矩阵乘方</h3><p>只有在第一个矩阵的列数 <code>column</code> 和第二个矩阵的行数 <code>row</code> 相同时才有意义。<br>设 <code>A</code> 为 <code>m × p</code> 的矩阵，<code>B</code> 为 <code>p × n</code> 的矩阵，那么称 <code>m × n</code> 的矩阵 <code>C</code> 为矩阵 <code>A</code> 与 <code>B</code> 的乘积，记作 <code>C=AB</code>，其中矩阵 <code>C</code> 中的第 <code>i</code> 行第 <code>j</code> 列元素可以表示为：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-array-product-a-b.png" alt="0085-array-product-a-b.png"></p>
+<p>示例： </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0085-array-product-sample.png" alt="0085-array-product-sample.png"></p>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><ul>
+<li>空间复杂度  </li>
+<li><a href="http://www.cnblogs.com/magialmoon/p/3757767.html" target="_blank" rel="noopener">一个Java对象到底占用多大内存</a>  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>《数据结构与算法分析：C语言实现》第一、二章  </li>
+<li>《算法：第四版》 第 1.4 章  </li>
+<li><a href="https://www.zhihu.com/question/21387264" target="_blank" rel="noopener">知乎：如何理解算法时间复杂度</a>  </li>
+<li><a href="https://stackoverflow.com/questions/487258/what-is-a-plain-english-explanation-of-big-o-notation" target="_blank" rel="noopener">What is a plain English explanation of “Big O” notation?</a>  </li>
+<li><a href="https://en.wikipedia.org/wiki/Time_complexity" target="_blank" rel="noopener">wiki 时间复杂度</a>  </li>
+<li><a href="http://bigocheatsheet.com/" target="_blank" rel="noopener">常见算法时间复杂度</a>  </li>
+<li><a href="https://blog.csdn.net/Sensation_cyq/article/details/51603534" target="_blank" rel="noopener">上标及下标 Unicode</a>  </li>
+<li><a href="https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts" target="_blank" rel="noopener">Wiki Unicode 上下标</a>  </li>
+<li><a href="https://blog.csdn.net/juejing2271/article/details/75112220" target="_blank" rel="noopener">算法数学基础知识</a>  </li>
+<li><a href="https://www.jianshu.com/p/f4cca5ce055a" target="_blank" rel="noopener">十分钟搞定时间复杂度</a>  </li>
+<li><a href="https://www.zhihu.com/question/22393997" target="_blank" rel="noopener">快速排序法的平均复杂度为 O(nlogn)</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/07/21/0085-algorithms-complexity/" title="算法 - 数学基础和时间复杂度">http://redspider110.github.io/2018/07/21/0085-algorithms-complexity/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithms/" rel="tag"># Algorithms</a>
+          
+            <a href="/tags/Maths/" rel="tag"># Maths</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/19/0084-algorithms-data-structure/" rel="next" title="算法 - 数据结构和算法">
+                <i class="fa fa-chevron-left"></i> 算法 - 数据结构和算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/26/0086-algorithms-sorting/" rel="prev" title="算法 - 排序">
+                算法 - 排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数学基础"><span class="nav-number">1.</span> <span class="nav-text">数学基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#指数-Exponent"><span class="nav-number">1.1.</span> <span class="nav-text">指数 Exponent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对数-Logarithm"><span class="nav-number">1.2.</span> <span class="nav-text">对数 Logarithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#级数-Series"><span class="nav-number">1.3.</span> <span class="nav-text">级数 Series</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模运算"><span class="nav-number">1.4.</span> <span class="nav-text">模运算</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#证明方法"><span class="nav-number">2.</span> <span class="nav-text">证明方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数学归纳法-Mathematical-induction"><span class="nav-number">2.1.</span> <span class="nav-text">数学归纳法 Mathematical induction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反证法-Reductio-ad-absurdum"><span class="nav-number">2.2.</span> <span class="nav-text">反证法 Reductio ad absurdum</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#递归"><span class="nav-number">3.</span> <span class="nav-text">递归</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不等式"><span class="nav-number">4.</span> <span class="nav-text">不等式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#四个常见定义"><span class="nav-number">4.1.</span> <span class="nav-text">四个常见定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ΟΩΘο-的读音和意义"><span class="nav-number">4.2.</span> <span class="nav-text">ΟΩΘο 的读音和意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重要结论"><span class="nav-number">4.3.</span> <span class="nav-text">重要结论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">4.4.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见函数增长率"><span class="nav-number">4.5.</span> <span class="nav-text">常见函数增长率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时间复杂度"><span class="nav-number">5.</span> <span class="nav-text">时间复杂度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">5.1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间计算一般法则"><span class="nav-number">5.2.</span> <span class="nav-text">时间计算一般法则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对数"><span class="nav-number">5.3.</span> <span class="nav-text">对数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见时间复杂度"><span class="nav-number">5.4.</span> <span class="nav-text">常见时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#典型示例"><span class="nav-number">6.</span> <span class="nav-text">典型示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#递归转换为-for-循环"><span class="nav-number">6.1.</span> <span class="nav-text">递归转换为 for 循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最大子序列和的估算与精算"><span class="nav-number">6.2.</span> <span class="nav-text">最大子序列和的估算与精算</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他数学知识"><span class="nav-number">7.</span> <span class="nav-text">其他数学知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数论基础"><span class="nav-number">7.1.</span> <span class="nav-text">数论基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#矩阵乘方"><span class="nav-number">7.2.</span> <span class="nav-text">矩阵乘方</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续"><span class="nav-number">8.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

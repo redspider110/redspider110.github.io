@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="内部类：将一个类定义置入另一个类定义中。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 内部类">
+<meta property="og:url" content="http://redspider110.github.io/2018/02/07/0048-java-inner-class/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="内部类：将一个类定义置入另一个类定义中。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 内部类">
+<meta name="twitter:description" content="内部类：将一个类定义置入另一个类定义中。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/02/07/0048-java-inner-class/">
+
+
+
+
+
+  <title>Java 内部类 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/02/07/0048-java-inner-class/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 内部类</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-07T09:00:00+08:00">
+                2018-02-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>内部类：将一个类定义置入另一个类定义中。  </p>
+<a id="more"></a>
+
+<p><code>Java</code> 顶级类类名必须与文件名相同（大小写也必须一样），并且顶级类只能使用 <code>public</code> 或者不用访问控制符（<code>default</code>，包内可见）。在顶级类中新定义的类，都是内部类。<br><code>Java</code> 内部类分四种：成员内部类、局部内部类、匿名内部类和静态内部类。  </p>
+<h2 id="成员内部类"><a href="#成员内部类" class="headerlink" title="成员内部类"></a>成员内部类</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>定义在一个类的内部，但是没有 <code>static</code> 关键字修饰，像成员变量一样定义的类，即为成员内部类。  </p>
+<h3 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h3><p>成员内部类作用域是整个外部类，类似成员变量。  </p>
+<h3 id="访问范围"><a href="#访问范围" class="headerlink" title="访问范围"></a>访问范围</h3><ul>
+<li>成员内部类能够访问外部类的所有属性及方法（包含外部类的 <code>private</code> 成员）  </li>
+<li>外部类对内部类实例化对象后（不能直接使用），通过该对象能够访问成员内部类的所有成员和方法（包含成员内部类的 <code>private</code> 成员）  </li>
+</ul>
+<h3 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h3><p>成员内部类的实例化，必须先实例化外部类。通过外部类的对象，new 一个成员内部类对象。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">OuterClass outerClass = <span class="keyword">new</span> OuterClass();</span><br><span class="line">OuterClass.InnerClass inner = outerClass.new InnerClass();</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 成员内部类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterClass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外部类私有成员变量</span></span><br><span class="line">    <span class="keyword">private</span> String outerPrivateStr = <span class="string">"outerPrivateStr"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外部类私有方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 外部类不能直接访问内部类的成员  </span></span><br><span class="line">        <span class="comment">// InnerClass.this.innerPublicStr;  //! Won't compile.</span></span><br><span class="line">        System.out.println(<span class="string">"OuterClass show."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accessInnerClassMemberNeedInstantiation</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 需要实例化后，外部类才能访问内部类的所有成员变量</span></span><br><span class="line">        InnerClass innerClass = <span class="keyword">new</span> InnerClass();</span><br><span class="line">        System.out.println(<span class="string">"OuterClass::access**MemberNeedInstantiation: "</span></span><br><span class="line">                + innerClass.innerPrivateStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InnerClass</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> String innerPublicStr = <span class="string">"innerPublicStr"</span>;</span><br><span class="line">        <span class="keyword">private</span> String innerPrivateStr = <span class="string">"innerPrivateStr"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">InnerClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="comment">// Constructor.</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="comment">// 成员内部类能够直接访问外部类的所有成员变量和方法  </span></span><br><span class="line">            <span class="comment">// 使用 OuterClass.this.outerPrivateStr</span></span><br><span class="line">            <span class="comment">// 或者直接使用 outerPrivateStr</span></span><br><span class="line">            System.out.println(<span class="string">"InnerClass show: "</span> </span><br><span class="line">                    + OuterClass.<span class="keyword">this</span>.outerPrivateStr);</span><br><span class="line">            OuterClass.<span class="keyword">this</span>.show();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 测试</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInnerClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        OuterClass outerClass = <span class="keyword">new</span> OuterClass();</span><br><span class="line">        <span class="comment">// 成员内部类的实例化，必须先实例化外部类</span></span><br><span class="line">        <span class="comment">// 通过外部类的对象，new 一个成员内部类对象</span></span><br><span class="line">        OuterClass.InnerClass innerClass = outerClass.new InnerClass();</span><br><span class="line">        innerClass.show();</span><br><span class="line">        outerClass.accessInnerClassMemberNeedInstantiation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 结果</span></span><br><span class="line">InnerClass show: outerPrivateStr</span><br><span class="line">OuterClass show.</span><br><span class="line">OuterClass::accessInnerClassMemberNeedInstantiation: innerPrivateStr</span><br></pre></td></tr></table></figure>
+
+<h2 id="局部内部类"><a href="#局部内部类" class="headerlink" title="局部内部类"></a>局部内部类</h2><h3 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h3><p>局部内部类指的是定义在一个方法或代码块中的类。因为在方法或代码块内部，所以和局部变量一样，<strong>不能有任何访问控制修饰符（<code>public</code> 也不行）来修饰局部内部类</strong>。  </p>
+<h3 id="作用域-1"><a href="#作用域-1" class="headerlink" title="作用域"></a>作用域</h3><p>局部内部类的作用域为方法或代码块内部，类似方法内的局部变量。  </p>
+<h3 id="访问范围-1"><a href="#访问范围-1" class="headerlink" title="访问范围"></a>访问范围</h3><ul>
+<li>局部内部类在方法或代码块外是不可见的。所以只能在<strong>当前方法或代码块中</strong>对局部内部类实例化对象，并可以访问局部内部类所有的成员和方法（<code>private</code> 类型也可以）  </li>
+<li>局部内部类可以访问外部类所有成员和方法  </li>
+<li>局部内部类访问方法或代码块内的成员变量时，只能访问 <code>final</code> 类型变量（语法检查，<code>jdk 1.8</code> 及以上不必指定 <code>final</code>）  </li>
+</ul>
+<p>在局部内部类内部，可以使用访问控制符修饰变量或方法，但是局部内部类整个作用域都在方法或代码块内，而这个范围是可以访问局部内部类所有成员和方法的，所以使用访问控制符没有任何意义。  </p>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterMethodLocalClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String outPrivateStr = <span class="string">"outPrivateStr"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showMethodLocalInnerClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">        String cannotShow = <span class="string">"cannotShow"</span>;</span><br><span class="line">        <span class="keyword">final</span> String finalStringShow = <span class="string">"finalStringShow"</span>;</span><br><span class="line">        <span class="comment">// 定义局部内部类</span></span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">MethodLocalInnerClass</span></span>&#123;</span><br><span class="line">            <span class="comment">// 使用访问控制符没有任何意义</span></span><br><span class="line">            <span class="keyword">private</span> String methodLocalInnerClassPrivateStr </span><br><span class="line">                    = <span class="string">"methodLocalInnerClassPrivateStr"</span>;</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="title">MethodLocalInnerClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">                <span class="comment">// Constructor.</span></span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">                <span class="comment">// 不能访问非 final 变量</span></span><br><span class="line">                <span class="comment">// cannotShow.  //Won't compile.</span></span><br><span class="line">                System.out.println(<span class="string">"MethodLocalInnerClass: "</span> </span><br><span class="line">                    + OuterMethodLocalClass.<span class="keyword">this</span>.outPrivateStr);</span><br><span class="line">                System.out.println(<span class="string">"MethodLocalInnerClass: "</span> </span><br><span class="line">                    + finalStringShow);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 实例化局部内部类，并能访问所有成员和方法  </span></span><br><span class="line">        MethodLocalInnerClass methodLocalInnerClass </span><br><span class="line">            = <span class="keyword">new</span> MethodLocalInnerClass();</span><br><span class="line">        methodLocalInnerClass.show();</span><br><span class="line">        System.out.println(<span class="string">"OuterMethodLocalClass::show**InnerClass: "</span> </span><br><span class="line">            + methodLocalInnerClass.methodLocalInnerClassPrivateStr);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 代码块中，局部内部类</span></span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">CodeBlockInnerClass</span></span>&#123;</span><br><span class="line">            <span class="comment">// </span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMethodLocalInnerClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        OuterMethodLocalClass outerMethodLocalClass </span><br><span class="line">            = <span class="keyword">new</span> OuterMethodLocalClass();</span><br><span class="line">        outerMethodLocalClass.showMethodLocalInnerClass();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 结果</span></span><br><span class="line">MethodLocalInnerClass: outPrivateStr</span><br><span class="line">MethodLocalInnerClass: finalStringShow</span><br><span class="line">OuterMethodLocalClass::show**InnerClass: methodLocalInnerClassPrivateStr</span><br></pre></td></tr></table></figure>
+
+<h2 id="匿名内部类"><a href="#匿名内部类" class="headerlink" title="匿名内部类"></a>匿名内部类</h2><h3 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h3><p>没有类名的，特殊的<strong>局部内部类</strong>，隐式的继承一个父类或者是实现某个接口。所谓匿名内部类就是在 <code>new</code> 一个对象时，改变类的方法。<br><code>Java</code> 抽象类和接口（特殊的抽象类）是不能实例化的，但是抽象类或接口对象是可以指向实现类对象实例，最常见的方式就是使用匿名内部类充当这个实现类。  </p>
+<h3 id="作用域-2"><a href="#作用域-2" class="headerlink" title="作用域"></a>作用域</h3><p>匿名内部类的作用域，它是一次性使用，用完即走。  </p>
+<h3 id="访问范围-2"><a href="#访问范围-2" class="headerlink" title="访问范围"></a>访问范围</h3><p>因匿名内部类为特殊的局部内部类，所以局部内部类的所有限制都对其生效。  </p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li><strong>注意事项</strong>：匿名内部类不能有构造方法  </li>
+<li>实例化对象的格式  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> 类名或接口名()&#123;</span><br><span class="line">    重写方法;</span><br><span class="line">&#125;；     <span class="comment">//注意分号</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>匿名内部类，<code>new</code> 出来一个对象，该对象可以直接调用匿名内部类的方法。  </p>
+<h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>重写或实现方法<br>当仅仅需要重写类方法，或者实现抽象类/接口的方法时，使用匿名内部类使代码变得很简洁。  </li>
+<li>重新定义新方法，调用外部类的 <code>protected</code> 方法  </li>
+</ul>
+<h3 id="示例-2"><a href="#示例-2" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterAnonymousClass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">(Showable showable)</span></span>&#123;</span><br><span class="line">        showable.show();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">protectedMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"OuterAnonymousClass::protectedMethod"</span>);</span><br><span class="line">        <span class="comment">//mRunnable.run();</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用匿名内部类，作为接口或者抽象类的实现类</span></span><br><span class="line">    <span class="comment">// new 一个匿名内部类的标准格式</span></span><br><span class="line">    <span class="keyword">private</span> Runnable mRunnable  = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="comment">// 匿名内部类中的成员变量毫无用处</span></span><br><span class="line">        <span class="keyword">private</span> String anonymousInnerClassPrivateStr </span><br><span class="line">            = <span class="string">"anonymousInnerClassPrivateStr"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 可以访问外部类所有成员和方法</span></span><br><span class="line">            System.out.println(<span class="string">"OuterAnonymousClass::AnonymousInnerClass "</span> </span><br><span class="line">                + OuterAnonymousClass.<span class="keyword">this</span>.OuterPrivateStr);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAnonymousClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Function 1: 匿名内部类  </span></span><br><span class="line">        <span class="comment">// 1. new 一个 OuterAnonymousClass 实例，调用 show 方法  </span></span><br><span class="line">        <span class="comment">// 2. new 一个 Showable 实例，并实现该接口的 show 方法</span></span><br><span class="line">        <span class="keyword">new</span> OuterAnonymousClass().show(<span class="keyword">new</span> Showable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                System.out.println(<span class="string">"TestAnonymousClass::OuterAnonymousClass</span></span><br><span class="line"><span class="string">                        ::Showable::show"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Function 2: 匿名内部类调用 protected 方法</span></span><br><span class="line">        <span class="keyword">new</span> OuterAnonymousClass()&#123;</span><br><span class="line">            <span class="comment">// 重新定义新方法，调用类的 protected 方法</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callParentProtectedMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">                <span class="keyword">super</span>.protectedMethod();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 定义的新方法，只能这个匿名类实例调用</span></span><br><span class="line">        &#125;.callParentProtectedMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 结果</span></span><br><span class="line">TestAnonymousClass::OuterAnonymousClass::Showable::show</span><br><span class="line">OuterAnonymousClass::protectedMethod</span><br></pre></td></tr></table></figure>
+
+<h2 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h2><h3 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h3><p>必须以 <code>static</code> 关键字标注类名，只能修饰<strong>成员内部类</strong>。  </p>
+<h3 id="作用域-3"><a href="#作用域-3" class="headerlink" title="作用域"></a>作用域</h3><p>静态内部类作用域为全局，并不依赖外部类实例，可以直接访问和使用。  </p>
+<h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><ul>
+<li>嵌套类<br>静态内部类在 <code>oracle</code> 中被定义为 <code>static nested classes</code>，即嵌套类；而其他为内部类 <code>inner classes</code>，是平行类。  </li>
+<li>创建对象<br>创建嵌套类对象，并不需要外部类实例化对象，静态类直接使用可以将其看成静态成员。  </li>
+</ul>
+<h3 id="访问范围-3"><a href="#访问范围-3" class="headerlink" title="访问范围"></a>访问范围</h3><ul>
+<li>只能访问外部类中的静态的成员变量或者是静态的方法  </li>
+<li>外部类访问静态内部类成员变量不受限制  </li>
+</ul>
+<h3 id="示例-3"><a href="#示例-3" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterStaticNestedClass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String outPublicStr = <span class="string">"outPublicStr"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String outPrivateStaticStr = <span class="string">"outPrivateStaticStr"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">StaticNestedClass</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> String staticNestedClassPrivateStr </span><br><span class="line">            = <span class="string">"staticNestedClassPrivateStr"</span>;</span><br><span class="line">        <span class="keyword">public</span> String staticNestedClassPublicStr </span><br><span class="line">            = <span class="string">"staticNestedClassPublicStr"</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> String staticNestedClassPublicStaticStr </span><br><span class="line">            = <span class="string">"staticNestedClassPublicStaticStr"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">StaticNestedClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="comment">//Constructor.</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showNormalMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="comment">// outPublicStr  //!Won't compile.</span></span><br><span class="line">            System.out.println(<span class="string">"*::StaticNestedClass::showNormalMethod "</span></span><br><span class="line">                + outPrivateStaticStr);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">showStaticMethod</span><span class="params">()</span></span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"*::StaticNestedClass::showStaticMethod "</span> </span><br><span class="line">                + outPrivateStaticStr);</span><br><span class="line">            System.out.println(<span class="string">"*::StaticNestedClass::showStaticMethod "</span> </span><br><span class="line">                + staticNestedClassPublicStaticStr);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showStaticNestedClassAccessControl</span><span class="params">()</span></span>&#123;</span><br><span class="line">        StaticNestedClass staticNestedClass = <span class="keyword">new</span> StaticNestedClass();</span><br><span class="line">        System.out.println(<span class="string">"*::showStatic*AccessControl::StaticNestedClass "</span> </span><br><span class="line">            + staticNestedClass.staticNestedClassPrivateStr);</span><br><span class="line">        System.out.println(<span class="string">"*::showStatic*AccessControl::StaticNestedClass "</span> </span><br><span class="line">            + staticNestedClass.staticNestedClassPublicStr);</span><br><span class="line">        System.out.println(<span class="string">"*::showStatic*AccessControl::StaticNestedClass "</span> </span><br><span class="line">            + StaticNestedClass.staticNestedClassPublicStaticStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStaticNestedClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. StaticNestedClass: object.</span></span><br><span class="line">        OuterStaticNestedClass.StaticNestedClass staticInnerClass </span><br><span class="line">            = <span class="keyword">new</span> OuterStaticNestedClass.StaticNestedClass();</span><br><span class="line">        staticInnerClass.showNormalMethod();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. StaticNestedClass: static method.</span></span><br><span class="line">        OuterStaticNestedClass.StaticNestedClass.showStaticMethod();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. OuterStaticNestedClass: object.</span></span><br><span class="line">        OuterStaticNestedClass outerStaticNestedClass </span><br><span class="line">            = <span class="keyword">new</span> OuterStaticNestedClass();</span><br><span class="line">        outerStaticNestedClass.showStaticNestedClassAccessControl();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.结果  </span></span><br><span class="line">*::StaticNestedClass::showNormalMethod outPrivateStaticStr</span><br><span class="line">*::StaticNestedClass::showStaticMethod outPrivateStaticStr</span><br><span class="line">*::StaticNestedClass::showStaticMethod staticNestedClassPublicStaticStr</span><br><span class="line">*::showStatic*AccessControl::StaticNestedClass staticNestedClassPrivateStr</span><br><span class="line">*::showStatic*AccessControl::StaticNestedClass staticNestedClassPublicStr</span><br><span class="line">*::showStatic*AccessControl::StaticNestedClass staticNested*PublicStaticStr</span><br></pre></td></tr></table></figure>
+
+<h2 id="内部类持有外部类的引用"><a href="#内部类持有外部类的引用" class="headerlink" title="内部类持有外部类的引用"></a>内部类持有外部类的引用</h2><h3 id="反编译内部类"><a href="#反编译内部类" class="headerlink" title="反编译内部类"></a>反编译内部类</h3><ul>
+<li><p>成员内部类  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterClass</span>$<span class="title">InnerClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// 持有外部类引用</span></span><br><span class="line">  <span class="keyword">public</span> OuterClass$InnerClass(OuterClass <span class="keyword">this</span>$<span class="number">0</span>) &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"InnerClass show: "</span> + </span><br><span class="line">        OuterClass.access$<span class="number">100</span>(<span class="keyword">this</span>.<span class="keyword">this</span>$<span class="number">0</span>));</span><br><span class="line">    OuterClass.access$<span class="number">200</span>(<span class="keyword">this</span>.<span class="keyword">this</span>$<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>局部内部类  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OuterMethodLocalClass</span>$1<span class="title">MethodLocalInnerClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// 持有外部类引用</span></span><br><span class="line">  <span class="keyword">public</span> OuterMethodLocalClass$<span class="number">1</span>MethodLocalInnerClass(</span><br><span class="line">        OuterMethodLocalClass <span class="keyword">this</span>$<span class="number">0</span>) &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"MethodLocalInnerClass: "</span> </span><br><span class="line">        + OuterMethodLocalClass.access$<span class="number">000</span>(<span class="keyword">this</span>.<span class="keyword">this</span>$<span class="number">0</span>));</span><br><span class="line">    System.out.println(<span class="string">"MethodLocalInnerClass: finalStringShow"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>匿名内部类  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OuterAnonymousClass</span>$1</span></span><br><span class="line"><span class="class">  <span class="keyword">implements</span> <span class="title">Runnable</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// 持有外部类引用</span></span><br><span class="line">  OuterAnonymousClass$<span class="number">1</span>(OuterAnonymousClass <span class="keyword">this</span>$<span class="number">0</span>) &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"OuterAnonymousClass::AnonymousInnerClass "</span> </span><br><span class="line">        + OuterAnonymousClass.access$<span class="number">000</span>(<span class="keyword">this</span>.<span class="keyword">this</span>$<span class="number">0</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>静态内部类  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OuterStaticNestedClass</span>$<span class="title">StaticNestedClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  <span class="keyword">private</span> String staticNestedClassPrivateStr </span><br><span class="line">        = <span class="string">"staticNestedClassPrivateStr"</span>;</span><br><span class="line">  <span class="keyword">public</span> String staticNestedClassPublicStr </span><br><span class="line">        = <span class="string">"staticNestedClassPublicStr"</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> String staticNestedClassPublicStaticStr </span><br><span class="line">        = <span class="string">"staticNestedClassPublicStaticStr"</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showNormalMethod</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"OuterStaticNestedClass::StaticNestedClass</span></span><br><span class="line"><span class="string">        ::showNormalMethod "</span> + OuterStaticNestedClass.access$<span class="number">000</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">showStaticMethod</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"OuterStaticNestedClass::StaticNestedClass</span></span><br><span class="line"><span class="string">        ::showStaticMethod "</span> + OuterStaticNestedClass.access$<span class="number">000</span>());</span><br><span class="line">    System.out.println(<span class="string">"OuterStaticNestedClass::StaticNestedClass</span></span><br><span class="line"><span class="string">        ::showStaticMethod "</span> + staticNestedClassPublicStaticStr);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>通过反编译内部类对应的 <code>class</code> 文件，可以看出内部类在构造方法中，传入了外部类的引用 <code>this$0</code>，内部类在访问外部类的成员或方法时，都需要传递该参数 <code>this.this$0</code>，只有静态内部类例外。这也可看出为什么静态内部类在实例化时不需要外部类实例化，而其他内部类在实例化时必须先实例化外部类了。<br>换句话说：<strong>静态内部类不持有外部类对象的引用，而其他内部类都会持有</strong>。  </p>
+<p>内部类虽然和外部类写在同一个文件中，但是编译完成后会生成各自的 <code>class</code> 文件，编译过程中：  </p>
+<ul>
+<li>编译器自动为非静态内部类添加一个成员变量，这个成员变量的类型和外部类的类型相同，这个成员变量就是指向外部类对象的引用  </li>
+<li>编译器自动为非静态内部类的构造方法添加一个参数，参数的类型是外部类的类型，这个参数为内部类中添加的成员变量赋值  </li>
+<li>在调用非静态内部类的构造函数初始化内部类对象时，会默认传入外部类的引用  </li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>作用域<br>四种内部类作用域不同，根据作用域范围大小：静态内部类 &gt; 成员内部类 &gt; 局部内部类 &gt; 匿名内部类。通常我们可以根据需求（作用域）来选择使用哪种内部类。  </li>
+<li>访问范围<br>在外部类整个类内部这个范围内，是不受访问控制符限制的，即 <code>private</code> 变量外部类和内部类是可以相互直接访问到的。所以内部类中通常会省略访问控制符。  </li>
+<li>生成的 <code>class</code> 文件<br>内部类是一个编译时的概念，一旦编译成功，就会成为完全不同的两个类。每个类编译后都会生成一个 <code>.class</code> 文件，内部类生成的对应文件格式为：<code>外部类$内部类.class</code>，例如：<code>OuterClass$Inner.class</code>。  </li>
+<li><code>static</code> 关键字<br><code>static</code> 关键字只能出现在静态内部类，不能出现在其他内部类中，除非是常量 <code>static final</code>。非静态内部类需要引用外部类的对象，如果有 <code>static</code> 成员，意味着外部类不需要创建实例对象，所以这是不允许的。  </li>
+<li>引用外部类的成员<br>格式：<code>OuterClass.this.***</code>，<code>***</code> 表示成员变量，或者直接使用 <code>***</code>。  </li>
+</ul>
+<h3 id="内部类的作用"><a href="#内部类的作用" class="headerlink" title="内部类的作用"></a>内部类的作用</h3><ul>
+<li>内部类能很好的聚合代码  </li>
+<li>内部类可以很好的实现隐藏，通过访问控制符控制是否能被外部类访问  </li>
+<li>内部类可以隐藏接口的实现细节，而只需对外提供这个接口就行  </li>
+<li>实现多重继承，使用多个内部类分别继承，达到多重继承的目的  </li>
+</ul>
+<h3 id="静态内部类的设计意图"><a href="#静态内部类的设计意图" class="headerlink" title="静态内部类的设计意图"></a>静态内部类的设计意图</h3><p>首先它是内部类，所以拥有内部类的一些便捷性，外部类可以访问静态内部类的所有成员变量和方法。但是因为静态属性，静态内部类不持有外部类引用，和外部类平级。由静态内部类的角度看外部类，可以认为是独立的两个类。静态内部类适合于当做内部类使用但是又不依赖外部类。  </p>
+<h3 id="闭包和局部内部类"><a href="#闭包和局部内部类" class="headerlink" title="闭包和局部内部类"></a>闭包和局部内部类</h3><p>闭包：是指可以包含自由（未绑定到特定对象）变量的代码块；这些自由变量不是在这个代码块内或者任何全局上下文中定义的，而是在定义代码块的环境中定义（局部变量）。闭包是动态语言中的概念，并不适合 <code>Java</code> 这种静态语言。<br>闭包允许将一些行为封装，将它像一个对象一样传来递去，而且它依然能够访问到原来第一次声明时的上下文。闭包允许我们创建函数指针，并把它们作为参数传递（在 <code>JAVA</code> 中，闭包是通过“接口+内部类”实现）。<br>参考上面局部内部类中的示例：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// OuterMethodLocalClass.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showMethodLocalInnerClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">    String cannotShow = <span class="string">"cannotShow"</span>;</span><br><span class="line">    <span class="keyword">final</span> String finalStringShow = <span class="string">"finalStringShow"</span>;</span><br><span class="line">    <span class="comment">// 定义局部内部类</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">MethodLocalInnerClass</span></span>&#123;</span><br><span class="line">        ...        </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">            <span class="comment">// 不能访问非 final 变量</span></span><br><span class="line">            <span class="comment">// cannotShow.  //Won't compile.</span></span><br><span class="line">            ...</span><br><span class="line">            System.out.println(<span class="string">"MethodLocalInnerClass: "</span> </span><br><span class="line">                + finalStringShow);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中：内部类 <code>MethodLocalInnerClass</code> 使用了局部变量 <code>finalStringShow</code>，这个就是闭包的例子。<br>同时根据注释也可以看出，这个局部变量必须是 <code>final</code> 的，否则会编译不过（<code>Java 8</code> 支持这个语法糖可以编过，8 以下都无法编译）。也就是说，<code>Java</code> 中实现闭包的概念需要使用 <code>final</code> 来修饰自由变量。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.tutorialspoint.com/java/java_innerclasses.htm" target="_blank" rel="noopener">Nested Classes</a>  </li>
+<li><a href="https://www.cnblogs.com/nzhbk/p/6489005.html" target="_blank" rel="noopener">java内部类及四种内部类的实现方式</a>  </li>
+<li><a href="http://www.cnblogs.com/dolphin0520/p/3811445.html" target="_blank" rel="noopener">Java内部类详解</a>  </li>
+<li><a href="http://blog.csdn.net/zhangjg_blog/article/details/20000769" target="_blank" rel="noopener">深入理解Java中为什么内部类可以访问外部类的成员</a>  </li>
+<li><a href="http://andy136566.iteye.com/blog/1061951/" target="_blank" rel="noopener">内部类的作用</a>  </li>
+<li><a href="https://www.zhihu.com/question/28197253" target="_blank" rel="noopener">为什么Java内部类要设计成静态和非静态两种</a>  </li>
+<li><a href="https://www.jianshu.com/p/35f12fc6bfca" target="_blank" rel="noopener">为什么说Java匿名内部类是残缺的闭包</a>  </li>
+<li><a href="https://www.zhihu.com/question/63548795" target="_blank" rel="noopener">Java和JavaScript的闭包原理区别？</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/02/07/0048-java-inner-class/" title="Java 内部类">http://redspider110.github.io/2018/02/07/0048-java-inner-class/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/06/0047-java-access-control/" rel="next" title="Java 访问控制符">
+                <i class="fa fa-chevron-left"></i> Java 访问控制符
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/26/0049-design-patterns-factory/" rel="prev" title="设计模式--创建型：简单工厂、工厂方法模式、抽象工厂模式">
+                设计模式--创建型：简单工厂、工厂方法模式、抽象工厂模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#成员内部类"><span class="nav-number">1.</span> <span class="nav-text">成员内部类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用域"><span class="nav-number">1.2.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问范围"><span class="nav-number">1.3.</span> <span class="nav-text">访问范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化"><span class="nav-number">1.4.</span> <span class="nav-text">实例化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">1.5.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#局部内部类"><span class="nav-number">2.</span> <span class="nav-text">局部内部类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义-1"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用域-1"><span class="nav-number">2.2.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问范围-1"><span class="nav-number">2.3.</span> <span class="nav-text">访问范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">2.4.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名内部类"><span class="nav-number">3.</span> <span class="nav-text">匿名内部类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义-2"><span class="nav-number">3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用域-2"><span class="nav-number">3.2.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问范围-2"><span class="nav-number">3.3.</span> <span class="nav-text">访问范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">3.4.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用"><span class="nav-number">3.5.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-2"><span class="nav-number">3.6.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态内部类"><span class="nav-number">4.</span> <span class="nav-text">静态内部类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义-3"><span class="nav-number">4.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用域-3"><span class="nav-number">4.2.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点-1"><span class="nav-number">4.3.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问范围-3"><span class="nav-number">4.4.</span> <span class="nav-text">访问范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-3"><span class="nav-number">4.5.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内部类持有外部类的引用"><span class="nav-number">5.</span> <span class="nav-text">内部类持有外部类的引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译内部类"><span class="nav-number">5.1.</span> <span class="nav-text">反编译内部类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">5.2.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内部类的作用"><span class="nav-number">6.1.</span> <span class="nav-text">内部类的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态内部类的设计意图"><span class="nav-number">6.2.</span> <span class="nav-text">静态内部类的设计意图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包和局部内部类"><span class="nav-number">6.3.</span> <span class="nav-text">闭包和局部内部类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

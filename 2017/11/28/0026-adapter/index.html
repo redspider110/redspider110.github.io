@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Adapter,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基础适配器模式将一个类的接口转换成客户希望的另外一个接口， Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。">
+<meta name="keywords" content="Android,Adapter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Adapter 详解">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/28/0026-adapter/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="基础适配器模式将一个类的接口转换成客户希望的另外一个接口， Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_adapter_design_pattern.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_android_adapter-class.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_arrayadapter_sample.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_swapCursor_code.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_spinner_pattern_and_dropdown_diff.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.345Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Adapter 详解">
+<meta name="twitter:description" content="基础适配器模式将一个类的接口转换成客户希望的另外一个接口， Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_adapter_design_pattern.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/28/0026-adapter/">
+
+
+
+
+
+  <title>Adapter 详解 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/28/0026-adapter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Adapter 详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-28T15:00:00+08:00">
+                2017-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h3><p>将一个类的接口转换成客户希望的另外一个接口， <code>Adapter</code> 模式使得原本由于接口不兼容而不能一起工作的那些类可以在一起工作。 </p>
+<a id="more"></a>
+
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_adapter_design_pattern.png" alt="0026_adapter_design_pattern.png"></p>
+<h3 id="Android-中适配器模式的运用"><a href="#Android-中适配器模式的运用" class="headerlink" title="Android 中适配器模式的运用"></a><code>Android</code> 中适配器模式的运用</h3><p><code>Android</code> 中的 <code>ListView</code> 、 <code>GridView</code>  、 <code>Spinner</code> 、 <code>AutoCompleted</code> 等 <code>AdapterView</code> 在做视图展示时需要填充数据，但是每个视图的显示效果，需要的数据等等都不一样，所以增加了一个 <code>Adapter</code> 层来应对变化。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_android_adapter-class.png" alt="0026_android_adapter-class.png"></p>
+<h3 id="常用的-Adapter"><a href="#常用的-Adapter" class="headerlink" title="常用的 Adapter"></a>常用的 <code>Adapter</code></h3><ul>
+<li><code>BaseAdapter</code><br>抽象类，自定义 <code>Adapter</code> 实现该类，拥有较高的灵活性  </li>
+<li><code>ArrayAdapter</code><br>支持泛型操作，最为简单，常用来展示一行文本    </li>
+<li><code>SimpleCursorAdapter</code><br>绑定查询到的 <code>Cursor</code> 游标到视图上，字段和 <code>View</code> 的 <code>id</code> 对应起来  </li>
+<li><code>SimpleAdapter</code><br>有最好的扩充性，可以自定义出各种效果，需要实现数据填充  </li>
+</ul>
+<h3 id="Adapter-对应的常用系统自带布局文件"><a href="#Adapter-对应的常用系统自带布局文件" class="headerlink" title="Adapter 对应的常用系统自带布局文件"></a><code>Adapter</code> 对应的常用系统自带布局文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// 单行文本TextView  </span><br><span class="line">android.R.layout.simple_list_item_1.xml  </span><br><span class="line">// 两行文本TextView，如名字-电话号码  </span><br><span class="line">android.R.layout.simple_list_item_2.xml  </span><br><span class="line">// 单行文本CheckedTextView，具有RadioButton样式   </span><br><span class="line">android.R.layout.simple_list_item_single_choice.xml  </span><br><span class="line">// 单行文本CheckedTextView，具有CheckBox样式  </span><br><span class="line">android.R.layout.simple_list_item_multiple_choice.xml   </span><br><span class="line">// 单行文本CheckedTextView，也是多选但是是&quot;对勾&quot;样式  </span><br><span class="line">android.R.layout.simple_list_item_checked.xml  </span><br><span class="line">// 两行文本TextView，加上一个RadioButton  </span><br><span class="line">android.R.layout.simple_list_item_2_single_choice.xml  </span><br><span class="line">// 单行文本TextView，选中整行高亮  </span><br><span class="line">android.R.layout.simple_list_item_activated_1.xml  </span><br><span class="line">// 两行文本TextView，选中整行高亮  </span><br><span class="line">android.R.layout.simple_list_item_activated_2.xml  </span><br><span class="line">// 单行文本TextView，spinner    </span><br><span class="line">android.R.layout.simple_spinner_item.xml  </span><br><span class="line">// 单行文本CheckedTextView，下拉样式，和simple_spinner_item区别不大</span><br><span class="line">android.R.layout.simple_spinner_dropdown_item.xml  </span><br><span class="line">// 单行文本TextView，下拉样式，常用于自动填充，AutoCompleted    </span><br><span class="line">android.R.layout.simple_dropdown_item_1line.xml</span><br><span class="line">// 单行文本TextView，expandalble样式（有左边距，左边空出一部分）</span><br><span class="line">android.R.layout.simple_expandable_list_item_1.xml</span><br><span class="line">// 两行文本TextView，expandalble样式</span><br><span class="line">android.R.layout.simple_expandable_list_item_2.xml</span><br></pre></td></tr></table></figure>
+
+<h2 id="ArrayAdapter-介绍"><a href="#ArrayAdapter-介绍" class="headerlink" title="ArrayAdapter 介绍"></a><code>ArrayAdapter</code> 介绍</h2><h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>用来显示至少包含一行 <code>TextView</code> 的字符串列表  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义，泛型操作，T 可以是简单数据类型，也可以是自定义的类（需要实现 toString ）</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArrayAdapter</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">BaseAdapter</span> <span class="keyword">implements</span> <span class="title">Filterable</span>, <span class="title">ThemedSpinnerAdapter</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造函数必须要指定布局</span></span><br><span class="line"><span class="comment">// 不指定 TextView id，表示布局就是一个 TextView，初始化空 ArrayList</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(Context, <span class="keyword">int</span>)</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 组合布局，指定具体的 TextView id</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(Context, <span class="keyword">int</span>, <span class="keyword">int</span>)</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 不指定 TextView id，布局就是一个 TextView，指定数据数组</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(Context, <span class="keyword">int</span>, T[])</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 组合布局，指定具体的 TextView id，并指定数据数组</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(Context, <span class="keyword">int</span>, <span class="keyword">int</span>, T[])</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 不指定 TextView id，布局就是一个 TextView，指定数据 List</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(Context, <span class="keyword">int</span>, List&lt;T&gt;)</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">// 以上构造函数都会调用这个最详细的构造</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayAdapter</span><span class="params">(@NonNull Context context, @LayoutRes <span class="keyword">int</span> resource,</span></span></span><br><span class="line"><span class="function"><span class="params">            @IdRes <span class="keyword">int</span> textViewResourceId, @NonNull List&lt;T&gt; objects)</span> </span>&#123;...&#125;</span><br><span class="line">...</span><br><span class="line"><span class="comment">// getView 的具体实现</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@NonNull</span> <span class="function">View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, @Nullable View convertView,</span></span></span><br><span class="line"><span class="function"><span class="params">        @NonNull ViewGroup parent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> createViewFromResource(mInflater, position, convertView, parent, mResource);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="meta">@NonNull</span> <span class="function">View <span class="title">createViewFromResource</span><span class="params">(@NonNull LayoutInflater inflater, <span class="keyword">int</span> position,</span></span></span><br><span class="line"><span class="function"><span class="params">        @Nullable View convertView, @NonNull ViewGroup parent, <span class="keyword">int</span> resource)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> View view;</span><br><span class="line">    <span class="keyword">final</span> TextView text;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (convertView == <span class="keyword">null</span>) &#123;</span><br><span class="line">        view = inflater.inflate(resource, parent, <span class="keyword">false</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        view = convertView;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (mFieldId == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">//  If no custom field is assigned, assume the whole resource is a TextView</span></span><br><span class="line">            <span class="comment">// 不指定 TextView id，则默认整个布局文件就是 TextView</span></span><br><span class="line">            text = (TextView) view;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//  Otherwise, find the TextView field within the layout</span></span><br><span class="line">            <span class="comment">// 至少包含一个 TextView</span></span><br><span class="line">            text = (TextView) view.findViewById(mFieldId);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (text == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Failed to find view with ID "</span></span><br><span class="line">                        + mContext.getResources().getResourceName(mFieldId)</span><br><span class="line">                        + <span class="string">" in item layout"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassCastException e) &#123;</span><br><span class="line">        Log.e(<span class="string">"ArrayAdapter"</span>, <span class="string">"You must supply a resource ID for a TextView"</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">                <span class="string">"ArrayAdapter requires the resource ID to be a TextView"</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// getItem 的实现是从 objects 中获取数据</span></span><br><span class="line">    <span class="keyword">final</span> T item = getItem(position);</span><br><span class="line">    <span class="keyword">if</span> (item <span class="keyword">instanceof</span> CharSequence) &#123;</span><br><span class="line">        text.setText((CharSequence) item);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 数据转换为字符串。T 可以是简单数据类型，也可以是自定义的类</span></span><br><span class="line">        text.setText(item.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> view;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>根据源码构造函数的分析，我们常用的有如下三种：  </p>
+<ul>
+<li>简单字符串显示  </li>
+<li>自定义布局  </li>
+<li>自定义数据集合  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 展示三种 ArrayAdapter 的用法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initArrayAdapter</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 简单字符串显示，使用系统自带的布局 simple_list_item_1</span></span><br><span class="line">    ListView  arrayListLeft = (ListView) findViewById(R.id.lv_array_adapter_left);</span><br><span class="line">    String[] arrayData1 = <span class="keyword">new</span> String[]&#123;<span class="string">"Left1"</span>, <span class="string">"Left2"</span>, <span class="string">"Left3"</span>, <span class="string">"Left4"</span>&#125;;</span><br><span class="line">    ArrayAdapter stringAdapter = <span class="keyword">new</span> ArrayAdapter&lt;String&gt;(<span class="keyword">this</span>,</span><br><span class="line">            android.R.layout.simple_list_item_1, arrayData1);</span><br><span class="line">    arrayListLeft.setAdapter(stringAdapter);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 自定义布局，布局 array_adapter_user_samples 文件中必须包含 TextView 和 Button</span></span><br><span class="line">    <span class="comment">// 初始化 ArrayAdapter 时，需要指定 TextView 的 ID：tv_array_adapter_sample</span></span><br><span class="line">    ListView  arrayListCenter = (ListView) findViewById(R.id.lv_array_adapter_center);</span><br><span class="line">    String[] arrayData2 = <span class="keyword">new</span> String[]&#123;<span class="string">"Center1"</span>, <span class="string">"Center2"</span>, <span class="string">"Center3"</span>, <span class="string">"Center4"</span>&#125;;</span><br><span class="line">    ArrayAdapter userLayoutAdapter = <span class="keyword">new</span> ArrayAdapter&lt;String&gt;(<span class="keyword">this</span>,</span><br><span class="line">            R.layout.array_adapter_user_samples, R.id.tv_array_adapter_sample, arrayData2);</span><br><span class="line">    arrayListCenter.setAdapter(userLayoutAdapter);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 自定义数据集合，使用系统自带布局 simple_list_item_checked</span></span><br><span class="line">    ListView  arrayListRight = (ListView) findViewById(R.id.lv_array_adapter_right);</span><br><span class="line">    List&lt;UserData&gt; dataList = initUserDataList();</span><br><span class="line">    ArrayAdapter userDataAdapter = <span class="keyword">new</span> ArrayAdapter&lt;UserData&gt;(<span class="keyword">this</span>,</span><br><span class="line">            android.R.layout.simple_list_item_checked, dataList);</span><br><span class="line">    arrayListRight.setAdapter(userDataAdapter);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义数据类，必须重写 toString，根据 ArrayAdapter 源码分析</span></span><br><span class="line"><span class="comment">// 数据填充时，必须使用 toString 来赋值</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">UserData</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String mStr;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mNum;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserData</span><span class="params">(String str, <span class="keyword">int</span> num)</span></span>&#123;</span><br><span class="line">        mStr = str;</span><br><span class="line">        mNum = num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mStr + String.valueOf(mNum);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 初始化数据集合</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> List&lt;UserData&gt; <span class="title">initUserDataList</span><span class="params">()</span></span>&#123;</span><br><span class="line">    List&lt;UserData&gt; dataList = <span class="keyword">new</span> ArrayList&lt;UserData&gt;();</span><br><span class="line">    String pre = <span class="string">"Right"</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">4</span>; i++) &#123;</span><br><span class="line">        UserData data = <span class="keyword">new</span> UserData(pre, i);</span><br><span class="line">        dataList.add(data);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dataList;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上代码对应的效果图：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_arrayadapter_sample.png" alt="0026_arrayadapter_sample.png"></p>
+<h2 id="SimpleCursorAdapter-介绍"><a href="#SimpleCursorAdapter-介绍" class="headerlink" title="SimpleCursorAdapter 介绍"></a><code>SimpleCursorAdapter</code> 介绍</h2><h3 id="类定义"><a href="#类定义" class="headerlink" title="类定义"></a>类定义</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 类定义</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleCursorAdapter</span> <span class="keyword">extends</span> <span class="title">ResourceCursorAdapter</span> </span>&#123;...&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceCursorAdapter</span> <span class="keyword">extends</span> <span class="title">CursorAdapter</span> </span>&#123;...&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Adapter that exposes data from a &#123;<span class="doctag">@link</span> android.database.Cursor Cursor&#125; to a</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> android.widget.ListView ListView&#125; widget.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * The Cursor must include a column named "_id" or this class will not work.</span></span><br><span class="line"><span class="comment"> * Additionally, using &#123;<span class="doctag">@link</span> android.database.MergeCursor&#125; with this class will</span></span><br><span class="line"><span class="comment"> * not work if the merged Cursors have overlapping values in their "_id"</span></span><br><span class="line"><span class="comment"> * columns.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">CursorAdapter</span> <span class="keyword">extends</span> <span class="title">BaseAdapter</span> <span class="keyword">implements</span> <span class="title">Filterable</span>,</span></span><br><span class="line"><span class="class">        <span class="title">CursorFilter</span>.<span class="title">CursorFilterClient</span>, <span class="title">ThemedSpinnerAdapter</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SimpleCursorAdapter</span><span class="params">(Context context, <span class="keyword">int</span> layout, Cursor c, </span></span></span><br><span class="line"><span class="function"><span class="params">    String[] from, <span class="keyword">int</span>[] to, <span class="keyword">int</span> flags)</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>： <code>CursorAdapter</code> 中的 <code>Cursor</code> 必须包含一列 “_id”，也就是查询时 <code>projection</code> 中要包含 <code>_id</code>，但 <code>UI</code> 中并不需要显示这列     </p>
+</blockquote>
+<h3 id="具体示例及错误分析"><a href="#具体示例及错误分析" class="headerlink" title="具体示例及错误分析"></a>具体示例及错误分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 例子使用 CursorLoader 异步加载</span></span><br><span class="line"><span class="comment">// 构造函数初始化时传递的是一个 null 的 cursor，只需要显示姓名和号码</span></span><br><span class="line">String[] from = <span class="keyword">new</span> String[]&#123;</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone.NUMBER&#125;;</span><br><span class="line"><span class="keyword">int</span>[] to = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;android.R.id.text1, android.R.id.text2&#125;;</span><br><span class="line">mSimpleCursorAdapter = <span class="keyword">new</span> SimpleCursorAdapter(<span class="keyword">this</span>,</span><br><span class="line">        android.R.layout.simple_list_item_2, <span class="keyword">null</span>, from, to, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 projections，必须包含一列 _id</span></span><br><span class="line">String[] projections = <span class="keyword">new</span> String[]&#123;</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone._ID,</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone.NUMBER&#125;;</span><br><span class="line"><span class="comment">// 返回具体的实例，包含 Cursor</span></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">new</span> CursorLoader(getApplicationContext(),</span><br><span class="line">        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,</span><br><span class="line">        projections, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果 projections 中不包含 id， 在使用 swapCursor 时会抛出如下异常</span></span><br><span class="line"><span class="number">06</span>-<span class="number">30</span> <span class="number">11</span>:<span class="number">15</span>:<span class="number">26.679</span> <span class="number">11899</span>-<span class="number">11899</span>/com.***.*** E/AndroidRuntime: </span><br><span class="line">FATAL EXCEPTION: main</span><br><span class="line">Process: com.***.***, PID: <span class="number">11899</span></span><br><span class="line">java.lang.IllegalArgumentException: column <span class="string">'_id'</span> does not exist</span><br><span class="line">    at android.database.AbstractCursor.getColumnIndexOrThrow(AbstractCursor.java:<span class="number">303</span>)</span><br><span class="line">    at android.database.CursorWrapper.getColumnIndexOrThrow(CursorWrapper.java:<span class="number">78</span>)</span><br><span class="line">    at android.widget.CursorAdapter.swapCursor(CursorAdapter.java:<span class="number">342</span>)</span><br><span class="line">    at android.widget.SimpleCursorAdapter.swapCursor(SimpleCursorAdapter.java:<span class="number">346</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="swapCursor-的源码分析"><a href="#swapCursor-的源码分析" class="headerlink" title="swapCursor 的源码分析"></a><code>swapCursor</code> 的源码分析</h3><p><code>CursorAdapter.java</code> 文件中：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_swapCursor_code.png" alt="0026_swapCursor_code.png"></p>
+<h2 id="SimpleAdapter-介绍"><a href="#SimpleAdapter-介绍" class="headerlink" title="SimpleAdapter 介绍"></a><code>SimpleAdapter</code> 介绍</h2><p><code>SimpleAdapter</code> 的扩展性最好，可以定义各种各样的布局出来，可以显示比较复杂的列表，包括每行显示图片、文字等，只是简单的负责显示。<br>使用 <code>SimpleAdapter</code> 的数据用一般都是 <code>HashMap</code> 构成的 <code>List</code>。<code>HashMap</code> 的每个键值数据映射到布局文件中对应 <code>id</code> 的组件上。因为系统没有对应的布局文件可用，我们可以自己定义一个布局。  </p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SimpleAdapter</span><span class="params">(Context context, List&lt;? extends Map&lt;String, ?&gt;&gt; data,</span></span></span><br><span class="line"><span class="function"><span class="params">        @LayoutRes <span class="keyword">int</span> resource, String[] from, @IdRes <span class="keyword">int</span>[] to)</span> </span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<ul>
+<li>context  </li>
+<li>data<br>由 <code>Map(String ,Object)</code> 列表填充的数据集合  </li>
+<li>resource<br>界面布局文件  </li>
+<li>from<br>数据 <code>Map</code> 集合中的 <code>key</code>   </li>
+<li>to<br>布局文件中各组件 <code>id</code>，和 <code>Map</code> 集合中的 <code>key</code>  需要一一对应，资源数据按照这个对应关系来填充值  </li>
+</ul>
+<h3 id="系统默认支持的布局"><a href="#系统默认支持的布局" class="headerlink" title="系统默认支持的布局"></a>系统默认支持的布局</h3><p>默认布局中支持如下控件：  </p>
+<ul>
+<li>Checkable  </li>
+<li>TextView  </li>
+<li>ImageView  </li>
+</ul>
+<p>参考 <code>bindview</code> 源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SimpleAdapter.java:: bindview，代码部分有删减</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">bindView</span><span class="params">(<span class="keyword">int</span> position, View view)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> ViewBinder binder = mViewBinder;</span><br><span class="line">    <span class="keyword">final</span> String[] from = mFrom;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span>[] to = mTo;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">boolean</span> bound = <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 使用了系统默认不支持的控件，需要实现 ViewBinder</span></span><br><span class="line">    <span class="comment">// 重写 setViewValue</span></span><br><span class="line">    <span class="keyword">if</span> (binder != <span class="keyword">null</span>) &#123;</span><br><span class="line">        bound = binder.setViewValue(v, data, text);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 系统默认支持的控件：Checkable，TextView，ImageView</span></span><br><span class="line">    <span class="comment">// 如果 binder 不存在或者绑定不成功，使用系统默认方式绑定</span></span><br><span class="line">    <span class="keyword">if</span> (!bound) &#123;</span><br><span class="line">        <span class="keyword">if</span> (v <span class="keyword">instanceof</span> Checkable) &#123;</span><br><span class="line">            <span class="keyword">if</span> (data <span class="keyword">instanceof</span> Boolean) &#123;</span><br><span class="line">                ((Checkable) v).setChecked((Boolean) data);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (v <span class="keyword">instanceof</span> TextView) &#123;</span><br><span class="line">                <span class="comment">// Note: keep the instanceof TextView check at the bottom of these</span></span><br><span class="line">                <span class="comment">// ifs since a lot of views are TextViews (e.g. CheckBoxes).</span></span><br><span class="line">                setViewText((TextView) v, text);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(v.getClass().getName() +</span><br><span class="line">                        <span class="string">" should be bound to a Boolean, not a "</span> +</span><br><span class="line">                        (data == <span class="keyword">null</span> ? <span class="string">"&lt;unknown type&gt;"</span> : data.getClass()));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (v <span class="keyword">instanceof</span> TextView) &#123;</span><br><span class="line">            <span class="comment">// Note: keep the instanceof TextView check at the bottom of these</span></span><br><span class="line">            <span class="comment">// ifs since a lot of views are TextViews (e.g. CheckBoxes).</span></span><br><span class="line">            setViewText((TextView) v, text);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (v <span class="keyword">instanceof</span> ImageView) &#123;</span><br><span class="line">            <span class="keyword">if</span> (data <span class="keyword">instanceof</span> Integer) &#123;</span><br><span class="line">                setViewImage((ImageView) v, (Integer) data);                            </span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                setViewImage((ImageView) v, text);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(v.getClass().getName() + <span class="string">" is not a "</span> +</span><br><span class="line">                    <span class="string">" view that can be bounds by this SimpleAdapter"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考源码，按以下顺序绑定数据：  </p>
+<ul>
+<li>Checkable<br>如果 <code>View</code> 实现了 <code>Checkable</code>（例如 <code>CheckBox</code>），期望绑定值是一个布尔类型  </li>
+<li>TextView<br>期望绑定值是一个字符串类型，通过调用 <code>setViewText(TextView, String)</code> 绑定数据    </li>
+<li>ImageView<br>期望绑定值是一个资源 <code>id</code> 或者一个字符串，通过调用 <code>setViewImage(ImageView, int)</code> 或 <code>setViewImage(ImageView, String)</code> 绑定数据  </li>
+</ul>
+<p>如果没有一个合适的绑定发生将会抛出 <code>IllegalStateException</code>  </p>
+<h3 id="自定义布局"><a href="#自定义布局" class="headerlink" title="自定义布局"></a>自定义布局</h3><p>自定义布局中如果包含了不是系统默认支持控件，需要实现 <code>ViewBinder</code> 接口  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">interface</span> <span class="title">ViewBinder</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Binds the specified data to the specified view.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * When binding is handled by this ViewBinder, this method must return true.</span></span><br><span class="line"><span class="comment">     * If this method returns false, SimpleAdapter will attempts to handle</span></span><br><span class="line"><span class="comment">     * the binding on its own.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> view the view to bind the data to</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data the data to bind to the view</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> textRepresentation a safe String representation of the supplied data:</span></span><br><span class="line"><span class="comment">     *        it is either the result of data.toString() or an empty String but it</span></span><br><span class="line"><span class="comment">     *        is never null</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true if the data was bound to the view, false otherwise</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">setViewValue</span><span class="params">(View view, Object data, String textRepresentation)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="BaseAdapter-介绍"><a href="#BaseAdapter-介绍" class="headerlink" title="BaseAdapter 介绍"></a><code>BaseAdapter</code> 介绍</h2><h3 id="类定义及重写"><a href="#类定义及重写" class="headerlink" title="类定义及重写"></a>类定义及重写</h3><p>类定义：<br><code>public abstract class BaseAdapter implements ListAdapter, SpinnerAdapter {...}</code></p>
+<p>重写四个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getItem</span><span class="params">(<span class="keyword">int</span> position)</span></span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getItemId</span><span class="params">(<span class="keyword">int</span> position)</span></span>&#123;...&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>getView</code> 最关键，特别是数据很多时如果全部加载会非常消耗资源，导致 <code>ListView</code> 滑动慢，常用的解决方案是：<code>convertView + ViewHolder</code> 方案  </p>
+<h3 id="ViewHolder-的意义"><a href="#ViewHolder-的意义" class="headerlink" title="ViewHolder 的意义"></a><code>ViewHolder</code> 的意义</h3><p><code>ViewHolder</code> 是一个静态类， 用来缓存了显示数据的视图，加快 <code>UI</code> 的响应速度。  </p>
+<blockquote>
+<p>To work efficiently the adapter implemented here uses two techniques:<br>（译：提升 Adapter 性能的两种方法：）<br>-It reuses the convertView passed to getView() to avoid inflating View when it is not necessary<br>（译：重用缓存 convertView 传递给 getView() 方法来避免填充不必要的视图）<br>-It uses the ViewHolder pattern to avoid calling findViewById() when it is not necessary<br>（译：使用 ViewHolder 模式来避免没有必要的调用 findViewById()：因为太多的 findViewById 也会影响性能）<br>ViewHolder类的作用<br>-The ViewHolder pattern consists in storing a data structure in the tag of the view<br>returned by getView().This data structures contains references to the views we want to bind data to, thus avoiding calling to findViewById() every time getView() is invoked<br>（译：ViewHolder 模式通过 getView() 方法返回的视图的标签 Tag 中存储一个数据结构，这个数据结构包含了指向我们要绑定数据的视图的引用，从而避免每次调用 getView() 的时候调用 findViewById()）  </p>
+</blockquote>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 静态类ViewHolder</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ViewHolder</span></span>&#123;</span><br><span class="line">    ImageView img;</span><br><span class="line">    TextView tvName;</span><br><span class="line">    TextView tvDesc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomAdapter</span> <span class="keyword">extends</span> <span class="title">BaseAdapter</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LayoutInflater mLayoutInflater;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomAdapter</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">        mLayoutInflater = LayoutInflater.from(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写四个方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mAdapterData.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getItem</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mAdapterData.get(position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getItemId</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> position;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 使用Holder</span></span><br><span class="line">        ViewHolder holder = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span>(convertView == <span class="keyword">null</span>)&#123;</span><br><span class="line">            convertView = mLayoutInflater.inflate(R.layout.simple_adapter_user_samples, <span class="keyword">null</span>);</span><br><span class="line">            holder = <span class="keyword">new</span> ViewHolder();</span><br><span class="line">            holder.img = (ImageView) convertView.findViewById(R.id.iv_simple_adapter);</span><br><span class="line">            holder.tvName = (TextView) convertView.findViewById(R.id.tv_simple_adapter_name);</span><br><span class="line">            holder.tvDesc = (TextView) convertView.findViewById(R.id.tv_simple_adapter_desc);</span><br><span class="line">            <span class="comment">// Holder保存到converView中</span></span><br><span class="line">            convertView.setTag(holder);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            holder = (ViewHolder) convertView.getTag();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Map&lt;String, Object&gt; map = mAdapterData.get(position);</span><br><span class="line">        holder.img.setImageResource((<span class="keyword">int</span>)map.get(ADAPTER_KEY_IMG));</span><br><span class="line">        holder.tvName.setText((String)map.get(ADAPTER_KEY_NAME));</span><br><span class="line">        holder.tvDesc.setText((String)map.get(ADAPTER_KEY_DESC));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> convertView;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Spinner-介绍"><a href="#Spinner-介绍" class="headerlink" title="Spinner 介绍"></a><code>Spinner</code> 介绍</h2><h3 id="标准用法"><a href="#标准用法" class="headerlink" title="标准用法"></a>标准用法</h3><p>定义布局文件和下拉布局，并填充数据  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Spinner spinner = (Spinner)findViewById(R.id.spinner_show_checkedtextview);</span><br><span class="line"><span class="comment">// Spinner 显示的样式为 simple_spinner_item，自定义的布局修改了系统的背景色</span></span><br><span class="line">ArrayAdapter&lt;CharSequence&gt; adapter = ArrayAdapter.createFromResource(</span><br><span class="line">        <span class="keyword">this</span>, R.array.screen_orientations, R.layout.simple_spinner_item);</span><br><span class="line"><span class="comment">// Spinner 下拉菜单显示的样式为 simple_spinner_dropdown_item</span></span><br><span class="line">adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);</span><br><span class="line">spinner.setAdapter(adapter);</span><br></pre></td></tr></table></figure>
+
+<p><code>Spinner</code> 显示样式和下拉菜单样式的区别：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0026_spinner_pattern_and_dropdown_diff.png" alt="0026_spinner_pattern_and_dropdown_diff.png"></p>
+<p>如果 <code>Adapter</code> 不设置 <code>setDropDownViewResource</code> ，默认下拉菜单和显示使用同一个布局。</p>
+<h3 id="两种模式"><a href="#两种模式" class="headerlink" title="两种模式"></a>两种模式</h3><p>默认模式为 <code>dropdown</code>  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">android:spinnerMode="dialog"</span><br><span class="line">android:spinnerMode="dropdown"</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/28/0026-adapter/" title="Adapter 详解">http://redspider110.github.io/2017/11/28/0026-adapter/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Adapter/" rel="tag"># Adapter</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/27/0025-loader/" rel="next" title="Loader 机制">
+                <i class="fa fa-chevron-left"></i> Loader 机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/28/0027-constraint-layout/" rel="prev" title="ConstraintLayout 详解">
+                ConstraintLayout 详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#适配器模式"><span class="nav-number">1.1.</span> <span class="nav-text">适配器模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-中适配器模式的运用"><span class="nav-number">1.2.</span> <span class="nav-text">Android 中适配器模式的运用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用的-Adapter"><span class="nav-number">1.3.</span> <span class="nav-text">常用的 Adapter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adapter-对应的常用系统自带布局文件"><span class="nav-number">1.4.</span> <span class="nav-text">Adapter 对应的常用系统自带布局文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ArrayAdapter-介绍"><span class="nav-number">2.</span> <span class="nav-text">ArrayAdapter 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">2.1.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">2.2.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SimpleCursorAdapter-介绍"><span class="nav-number">3.</span> <span class="nav-text">SimpleCursorAdapter 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类定义"><span class="nav-number">3.1.</span> <span class="nav-text">类定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体示例及错误分析"><span class="nav-number">3.2.</span> <span class="nav-text">具体示例及错误分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#swapCursor-的源码分析"><span class="nav-number">3.3.</span> <span class="nav-text">swapCursor 的源码分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SimpleAdapter-介绍"><span class="nav-number">4.</span> <span class="nav-text">SimpleAdapter 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构造函数"><span class="nav-number">4.1.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统默认支持的布局"><span class="nav-number">4.2.</span> <span class="nav-text">系统默认支持的布局</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义布局"><span class="nav-number">4.3.</span> <span class="nav-text">自定义布局</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BaseAdapter-介绍"><span class="nav-number">5.</span> <span class="nav-text">BaseAdapter 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类定义及重写"><span class="nav-number">5.1.</span> <span class="nav-text">类定义及重写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewHolder-的意义"><span class="nav-number">5.2.</span> <span class="nav-text">ViewHolder 的意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例-1"><span class="nav-number">5.3.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spinner-介绍"><span class="nav-number">6.</span> <span class="nav-text">Spinner 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#标准用法"><span class="nav-number">6.1.</span> <span class="nav-text">标准用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种模式"><span class="nav-number">6.2.</span> <span class="nav-text">两种模式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是在针对 Android 平台中使用 JNI 的分析。">
+<meta name="keywords" content="Java,Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android JNI">
+<meta property="og:url" content="http://redspider110.github.io/2019/04/10/0112-android-jni/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="本文是在针对 Android 平台中使用 JNI 的分析。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-designa.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-AndroidStudio_ndk_javah.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-AndroidStudio-red-tips.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.391Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android JNI">
+<meta name="twitter:description" content="本文是在针对 Android 平台中使用 JNI 的分析。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-designa.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/04/10/0112-android-jni/">
+
+
+
+
+
+  <title>Android JNI | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/04/10/0112-android-jni/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android JNI</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-10T09:00:00+08:00">
+                2019-04-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文是在针对 <code>Android</code> 平台中使用 <code>JNI</code> 的分析。  </p>
+<a id="more"></a>
+
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><p><code>JNI:Java Native Interface</code> 是 <code>Java</code> 本地开发接口，<code>JNI</code> 是一个协议，这个协议用来沟通 <code>Java</code> 代码和外部的本地代码 <code>C/C++</code> ，确保 <code>Java</code> 和 <code>C/C++</code> 代码之间能相互调用。  </p>
+<h2 id="类型与数据结构"><a href="#类型与数据结构" class="headerlink" title="类型与数据结构"></a>类型与数据结构</h2><h3 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h3><p><code>Java</code> 基本数据类型在 <code>JNI</code> 中的对应关系：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Java 类型</th>
+<th align="left">Native 类型</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">boolean</td>
+<td align="left">jboolean</td>
+<td align="left">unsigned 8 bits</td>
+</tr>
+<tr>
+<td align="left">byte</td>
+<td align="left">jbyte</td>
+<td align="left">signed 8 bits</td>
+</tr>
+<tr>
+<td align="left">char</td>
+<td align="left">jchar</td>
+<td align="left">unsigned 16 bits</td>
+</tr>
+<tr>
+<td align="left">short</td>
+<td align="left">jshort</td>
+<td align="left">signed 16 bits</td>
+</tr>
+<tr>
+<td align="left">int</td>
+<td align="left">jint</td>
+<td align="left">signed 32 bits</td>
+</tr>
+<tr>
+<td align="left">long</td>
+<td align="left">jlong</td>
+<td align="left">signed 64 bits</td>
+</tr>
+<tr>
+<td align="left">float</td>
+<td align="left">jfloat</td>
+<td align="left">32 bits</td>
+</tr>
+<tr>
+<td align="left">double</td>
+<td align="left">jdouble</td>
+<td align="left">64 bits</td>
+</tr>
+<tr>
+<td align="left">void</td>
+<td align="left">void</td>
+<td align="left">not applicable</td>
+</tr>
+</tbody></table>
+<p><code>jni.h</code> 中基本类型对应源码：  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// jni.h</span></span><br><span class="line"><span class="comment">/* Primitive types that match up with Java equivalents. */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint8_t</span>  jboolean; <span class="comment">/* unsigned 8 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int8_t</span>   jbyte;    <span class="comment">/* signed 8 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">uint16_t</span> jchar;    <span class="comment">/* unsigned 16 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int16_t</span>  jshort;   <span class="comment">/* signed 16 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int32_t</span>  jint;     <span class="comment">/* signed 32 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int64_t</span>  jlong;    <span class="comment">/* signed 64 bits */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">float</span>    jfloat;   <span class="comment">/* 32-bit IEEE 754 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">double</span>   jdouble;  <span class="comment">/* 64-bit IEEE 754 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* "cardinal indices and sizes" */</span></span><br><span class="line"><span class="keyword">typedef</span> jint     jsize;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> JNI_FALSE   0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> JNI_TRUE    1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="引用类型"><a href="#引用类型" class="headerlink" title="引用类型"></a>引用类型</h3><p><code>Java</code> 中的引用类型 <code>Object</code> 对应 <code>JNI</code> 中的 <code>jobject</code> ，代表一切引用类型。在 <code>C++</code> 中通过类继承的方式体现层级，在 <code>C</code> 中都是无类型指针 <code>void*</code> ；先看对应关系：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Java 类型</th>
+<th align="left">Native 类型</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Object</td>
+<td align="left">jobject</td>
+<td align="left">所有的 Java 对象</td>
+</tr>
+<tr>
+<td align="left">Class</td>
+<td align="left">jclass</td>
+<td align="left">Class 对象</td>
+</tr>
+<tr>
+<td align="left">Throwable</td>
+<td align="left">jthrowable</td>
+<td align="left">可抛出类型对象</td>
+</tr>
+<tr>
+<td align="left">String</td>
+<td align="left">jstring</td>
+<td align="left">字符串</td>
+</tr>
+<tr>
+<td align="left">Object[]</td>
+<td align="left">jarray</td>
+<td align="left">数组</td>
+</tr>
+<tr>
+<td align="left">boolean[]</td>
+<td align="left">jbooleanArray</td>
+<td align="left">布尔数组</td>
+</tr>
+<tr>
+<td align="left">byte[]</td>
+<td align="left">jbyteArray</td>
+<td align="left">字节数组</td>
+</tr>
+<tr>
+<td align="left">char[]</td>
+<td align="left">jcharArray</td>
+<td align="left">字符数组</td>
+</tr>
+<tr>
+<td align="left">short[]</td>
+<td align="left">jshortArray</td>
+<td align="left">短整型数组</td>
+</tr>
+<tr>
+<td align="left">int[]</td>
+<td align="left">jintArray</td>
+<td align="left">整形数组</td>
+</tr>
+<tr>
+<td align="left">long[]</td>
+<td align="left">jlongArray</td>
+<td align="left">长整型数组</td>
+</tr>
+<tr>
+<td align="left">float[]</td>
+<td align="left">jfloatArray</td>
+<td align="left">浮点数组</td>
+</tr>
+<tr>
+<td align="left">double[]</td>
+<td align="left">jdoubleArray</td>
+<td align="left">双浮点数组</td>
+</tr>
+</tbody></table>
+<p><code>jni.h</code> 中引用类型对应的源码：  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Reference types, in C++</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jobject</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jclass</span> :</span> <span class="keyword">public</span> _jobject &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jstring</span> :</span> <span class="keyword">public</span> _jobject &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jarray</span> :</span> <span class="keyword">public</span> _jobject &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jobjectArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jbooleanArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jbyteArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jcharArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jshortArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jintArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jlongArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jfloatArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jdoubleArray</span> :</span> <span class="keyword">public</span> _jarray &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> _<span class="title">jthrowable</span> :</span> <span class="keyword">public</span> _jobject &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> _jobject*       jobject;</span><br><span class="line"><span class="keyword">typedef</span> _jclass*        jclass;</span><br><span class="line"><span class="keyword">typedef</span> _jstring*       jstring;</span><br><span class="line"><span class="keyword">typedef</span> _jarray*        jarray;</span><br><span class="line"><span class="keyword">typedef</span> _jobjectArray*  jobjectArray;</span><br><span class="line"><span class="keyword">typedef</span> _jbooleanArray* jbooleanArray;</span><br><span class="line"><span class="keyword">typedef</span> _jbyteArray*    jbyteArray;</span><br><span class="line"><span class="keyword">typedef</span> _jcharArray*    jcharArray;</span><br><span class="line"><span class="keyword">typedef</span> _jshortArray*   jshortArray;</span><br><span class="line"><span class="keyword">typedef</span> _jintArray*     jintArray;</span><br><span class="line"><span class="keyword">typedef</span> _jlongArray*    jlongArray;</span><br><span class="line"><span class="keyword">typedef</span> _jfloatArray*   jfloatArray;</span><br><span class="line"><span class="keyword">typedef</span> _jdoubleArray*  jdoubleArray;</span><br><span class="line"><span class="keyword">typedef</span> _jthrowable*    jthrowable;</span><br><span class="line"><span class="keyword">typedef</span> _jobject*       jweak;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span> <span class="comment">/* not __cplusplus */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Reference types, in C.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">void</span>*           jobject;</span><br><span class="line"><span class="keyword">typedef</span> jobject         jclass;</span><br><span class="line"><span class="keyword">typedef</span> jobject         jstring;</span><br><span class="line"><span class="keyword">typedef</span> jobject         jarray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jobjectArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jbooleanArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jbyteArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jcharArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jshortArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jintArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jlongArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jfloatArray;</span><br><span class="line"><span class="keyword">typedef</span> jarray          jdoubleArray;</span><br><span class="line"><span class="keyword">typedef</span> jobject         jthrowable;</span><br><span class="line"><span class="keyword">typedef</span> jobject         jweak;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* not __cplusplus */</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="属性和方法"><a href="#属性和方法" class="headerlink" title="属性和方法"></a>属性和方法</h3><p><code>Java</code> 中的属性和方法，在反射时会用到，在 <code>JNI</code> 中由对应类型：  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">jfieldID</span>;</span>                       <span class="comment">/* opaque structure */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">jfieldID</span>* <span class="title">jfieldID</span>;</span>     <span class="comment">/* field IDs */</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">jmethodID</span>;</span>                      <span class="comment">/* opaque structure */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">jmethodID</span>* <span class="title">jmethodID</span>;</span>   <span class="comment">/* method IDs */</span></span><br></pre></td></tr></table></figure>
+
+<p>这里并没有给出 <code>_jfieldID, _jmethodID</code> 两个结构体的详细定义，但是可以用 <code>jfieldID, jmethodID</code> 两个结构体指针来表示 <code>Java</code> 类的属性和方法。  </p>
+<h3 id="可变参数列表"><a href="#可变参数列表" class="headerlink" title="可变参数列表"></a>可变参数列表</h3><p><code>Java</code> 方法中的可变参数列表比如 <code>void set(String... params)</code> ，不定长度的参数可以看做一个数组；在 <code>JNI</code> 中使用 <code>jvalue</code> 来表示，它是一个联合体，通常在 <code>C/C++</code> 调用 <code>Java</code> 时会用到：  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> jvalue &#123;</span><br><span class="line">    jboolean    z;</span><br><span class="line">    jbyte       b;</span><br><span class="line">    jchar       c;</span><br><span class="line">    jshort      s;</span><br><span class="line">    jint        i;</span><br><span class="line">    jlong       j;</span><br><span class="line">    jfloat      f;</span><br><span class="line">    jdouble     d;</span><br><span class="line">    jobject     l;</span><br><span class="line">&#125; jvalue;</span><br></pre></td></tr></table></figure>
+
+<h3 id="类型签名-Type-Signatures"><a href="#类型签名-Type-Signatures" class="headerlink" title="类型签名 Type Signatures"></a>类型签名 <code>Type Signatures</code></h3><p><code>JNI</code> 中使用 <code>Java VM</code> 虚拟机的类型签名格式来表示：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">类型签名</th>
+<th align="left">Java 类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Z</td>
+<td align="left">boolean</td>
+</tr>
+<tr>
+<td align="left">B</td>
+<td align="left">byte</td>
+</tr>
+<tr>
+<td align="left">C</td>
+<td align="left">char</td>
+</tr>
+<tr>
+<td align="left">S</td>
+<td align="left">short</td>
+</tr>
+<tr>
+<td align="left">I</td>
+<td align="left">int</td>
+</tr>
+<tr>
+<td align="left">J</td>
+<td align="left">long</td>
+</tr>
+<tr>
+<td align="left">F</td>
+<td align="left">float</td>
+</tr>
+<tr>
+<td align="left">D</td>
+<td align="left">double</td>
+</tr>
+<tr>
+<td align="left">L fully-qualified-class ;</td>
+<td align="left">fully-qualified-class</td>
+</tr>
+<tr>
+<td align="left">[ type</td>
+<td align="left">type[]</td>
+</tr>
+<tr>
+<td align="left">( arg-types ) ret-type</td>
+<td align="left">method type</td>
+</tr>
+</tbody></table>
+<p>这个表格包含如下几个部分：  </p>
+<ul>
+<li>基本类型<br>基本类型都使用单个字符来表示签名，如 <code>int a</code> ，签名为 <code>I</code> 。  </li>
+<li>类全限定名<br>类都使用全限定名，并<strong>以 <code>L</code> 开头，<code>;</code> 分号结尾</strong>，比如 <code>String</code> 的全限定名为： <code>Ljava/lang/String;</code> 。  </li>
+<li>数组<br>数组必须以 <code>[</code> 开头，比如 <code>int[]</code> 表示为：<code>[I</code> 。  </li>
+<li>方法描述符<br>先写参数再写返回值，比如方法 <code>long f (int n, String s, int[] arr);</code> 表示为 <code>(ILjava/lang/String;[I)J</code> 。  </li>
+</ul>
+<h2 id="字符串编码"><a href="#字符串编码" class="headerlink" title="字符串编码"></a>字符串编码</h2><h3 id="Unicode-编码"><a href="#Unicode-编码" class="headerlink" title="Unicode 编码"></a><code>Unicode</code> 编码</h3><p>字符串常见的编码有 <code>ASCII</code> 和 <code>Unicode</code> ；其中 <code>ASCII</code> 只能表示 128 种符号，对于英文完全够用了，但是对于中文、俄文、阿拉伯文等远远不够，于是新定义了通用型 <code>Unicode</code> 方案，它使用 21 位来编码，表示范围为 <code>U+0000 ~ U+10FFFF</code> 接近几百万个字符，其中 <code>U+D800 ~ U+DFFF</code> 之间为保留码位。<br><code>ASCII</code> 只需要 8 位就能全部表示完，但是 <code>Unicode</code> 编码方案，并没有规定如何存储，因此实现 <code>Unicode</code> 的存储出现了不同的 <code>UTF: Unicode Transformation Format</code> 编码方案：<code>UTF-8, UTF-16, UTF-32</code> 。其中 <code>UTF-8, UTF-16</code> 是变长编码，而 <code>UTF-32</code> 是 <code>32 bit</code> 定长编码。  </p>
+<h3 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a><code>UTF-8</code></h3><p><code>UTF-8: 8-bit Unicode Transformation Format</code> 变长编码，每个 <code>Unicode</code> 字符被编码为 1-4 个字节，对应关系如下：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Unicode 编码</th>
+<th align="left">UTF-8 编码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">U+0000  ~ U+007F</td>
+<td align="left">0xxxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+0080  ~ U+07FF</td>
+<td align="left">110xxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+0800  ~ U+FFFF</td>
+<td align="left">1110xxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+10000 ~ U+10FFFF</td>
+<td align="left">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+</tbody></table>
+<p>也就是最高字节有几个 1 即表示当前 <code>Unicode</code> 字符占几个字节；所以英文字符只需要 1 个字节，绝大部分中文需要 3 个字节，少数可能会使用 4 个字节。  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Unicode 码</th>
+<th align="left">对应字符</th>
+<th align="left">UTF-8 编码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">U+0041</td>
+<td align="left">A</td>
+<td align="left">0x41</td>
+</tr>
+<tr>
+<td align="left">U+7834</td>
+<td align="left">破</td>
+<td align="left">0xE7 0xA0 0xB4</td>
+</tr>
+<tr>
+<td align="left">U+6653</td>
+<td align="left">晓</td>
+<td align="left">0xE6 0x99 0x93</td>
+</tr>
+<tr>
+<td align="left">U+2A6A5</td>
+<td align="left">𪚥(四个龍)</td>
+<td align="left">0xF0 0xAA 0x9A 0xA5</td>
+</tr>
+</tbody></table>
+<p>从实际的结果上看，<code>UTF-8</code> 编码只有在单字节内的 <code>Unicode</code> 码和对应的 <code>UTF-8</code> 编码相同；多字节的 <code>UTF-8</code> 编码已经看不出对应的 <code>Unicode</code> 码了。  </p>
+<h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a><code>UTF-16</code></h3><p><code>UTF-16: 16-bit Unicode Transformation Format</code> 变长编码，每个 <code>Unicode</code> 字符被编码为 2 个或者 4 个字节；即码位范围 <code>U+0000 ~ U+FFFF</code> 使用 2 字节，而 <code>U+10000 ~U+10FFFF</code> 使用 4 字节。  </p>
+<p>码位范围 <code>U+0000 ~ U+FFFF</code> ，以中文为例，相当于能表示 65536 个常用汉字，因为使用的是 2 字节，所以这个范围内的 <code>UTF-16</code> 编码和 <code>Unicode</code> 码完全一样：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Unicode</th>
+<th align="left">字符</th>
+<th align="left">UTF-16 码元</th>
+<th align="left">UTF-16 LE 小端</th>
+<th align="left">UTF-16 BE 大端</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">U+0041</td>
+<td align="left">A</td>
+<td align="left">0x0041</td>
+<td align="left">0x41 0x00</td>
+<td align="left">0x00 0x41</td>
+</tr>
+<tr>
+<td align="left">U+7834</td>
+<td align="left">破</td>
+<td align="left">0x7834</td>
+<td align="left">0x34 0x78</td>
+<td align="left">0x78 0x34</td>
+</tr>
+<tr>
+<td align="left">U+6653</td>
+<td align="left">晓</td>
+<td align="left">0x6653</td>
+<td align="left">0x53 0x66</td>
+<td align="left">0x66 0x53</td>
+</tr>
+</tbody></table>
+<p>码位范围 <code>U+10000 ~U+10FFFF</code> ，并不是直接使用 4 字节存储的，而是使用的代理码，即先将码表减去 <code>0x10000</code> 再针对高低 10 位分别与前导码做或运算后再存储的，这里不做详细分析。  </p>
+<h3 id="修改后的-UTF-8-编码"><a href="#修改后的-UTF-8-编码" class="headerlink" title="修改后的 UTF-8 编码"></a>修改后的 <code>UTF-8</code> 编码</h3><p><code>JVM</code> 中字符串使用的是修改后的 <code>UTF-8</code> 编码方案，即 <code>Modified UTF-8</code> ，它实际是 <code>UTF-8</code> 和 <code>UTF-16</code> 的一个混合体：  </p>
+<table>
+<thead>
+<tr>
+<th align="left">Unicode 编码</th>
+<th align="left">Modified UTF-8 编码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">U+0000  ~ U+007F</td>
+<td align="left">0xxxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+0080  ~ U+07FF</td>
+<td align="left">110xxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+0800  ~ U+FFFF</td>
+<td align="left">1110xxxx 10xxxxxx 10xxxxxx</td>
+</tr>
+<tr>
+<td align="left">U+10000 ~ U+10FFFF</td>
+<td align="left">11101101 1010vvvv 10wwwwww 11101101 1011yyyy 10zzzzzz</td>
+</tr>
+</tbody></table>
+<p>修改后的 <code>UTF-8</code> 只使用 1 字节、 2 字节、 3 字节和 6 字节四种方式来存储，其中码位范围 <code>U+10000 ~U+10FFFF</code> 的第 1 和 4 字节都是固定的 <code>11101101</code> ，另外 4 个字节使用的是 <code>UTF-16</code> 的代理码，高 10 位放入第 2 和第 3 字节，低 10 位放入第 5 和第 6 字节。<br><code>JNI</code> 中的字符串也采用的是这种修改后的 <code>UTF-8</code> 编码。  </p>
+<h2 id="JNI-接口指针"><a href="#JNI-接口指针" class="headerlink" title="JNI 接口指针"></a><code>JNI</code> 接口指针</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p><code>JNI</code> 的设计架构如下图所示：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-designa.png" alt="0112-android-jni-designa.png"></p>
+<p><code>JNI</code> 接口指针指向函数表，包含当前线程的所有信息，而这个接口指针在 <code>JNI</code> 中，使用 <code>JNIEnv</code> 来表示；每个线程对应一个 <code>JNIEnv</code> 结构，它们保存在线程本地存储 <code>TLS</code> 中；因此不同的线程的 <code>JNIEnv</code> 是不同，也不能相互共享使用。<br><code>JavaVM</code> 是虚拟机在 <code>JNI</code> 层的代表，一个进程只有一个 <code>JavaVM</code>，所有的线程共用一个 <code>JavaVM</code> ，所以一个 <code>JavaVM</code> 中可以有多个 <code>JNIEnv</code> 。  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// jni.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">JNIInvokeInterface</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">JNIEnv</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">JavaVM</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">JNINativeInterface</span>* <span class="title">C_JNIEnv</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__cplusplus)</span></span><br><span class="line"><span class="keyword">typedef</span> _JNIEnv JNIEnv;</span><br><span class="line"><span class="keyword">typedef</span> _JavaVM JavaVM;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">JNINativeInterface</span>* <span class="title">JNIEnv</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">JNIInvokeInterface</span>* <span class="title">JavaVM</span>;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="JavaVM-源码"><a href="#JavaVM-源码" class="headerlink" title="JavaVM 源码"></a><code>JavaVM</code> 源码</h3><p><code>JavaVM</code> 代表的是虚拟机相关信息，源码中 <code>JavaVM</code> 实际就是 <code>JNIInvokeInterface</code> 指针，在 <code>C++</code> 中，<code>_JavaVM</code> 是 <code>JNIInvokeInterface</code> 的包装类。  </p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// jni.h</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * JNI invocation interface.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">JNIInvokeInterface</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span>*       reserved0;</span><br><span class="line">    <span class="keyword">void</span>*       reserved1;</span><br><span class="line">    <span class="keyword">void</span>*       reserved2;</span><br><span class="line"></span><br><span class="line">    jint        (*DestroyJavaVM)(JavaVM*);</span><br><span class="line">    jint        (*AttachCurrentThread)(JavaVM*, JNIEnv**, <span class="keyword">void</span>*);</span><br><span class="line">    jint        (*DetachCurrentThread)(JavaVM*);</span><br><span class="line">    jint        (*GetEnv)(JavaVM*, <span class="keyword">void</span>**, jint);</span><br><span class="line">    jint        (*AttachCurrentThreadAsDaemon)(JavaVM*, JNIEnv**, <span class="keyword">void</span>*);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * C++ version.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">JavaVM</span> &#123;</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">JNIInvokeInterface</span>* <span class="title">functions</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__cplusplus)</span></span><br><span class="line">    <span class="function">jint <span class="title">DestroyJavaVM</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;DestroyJavaVM(<span class="keyword">this</span>); &#125;</span><br><span class="line">    <span class="function">jint <span class="title">AttachCurrentThread</span><span class="params">(JNIEnv** p_env, <span class="keyword">void</span>* thr_args)</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;AttachCurrentThread(<span class="keyword">this</span>, p_env, thr_args); &#125;</span><br><span class="line">    <span class="function">jint <span class="title">DetachCurrentThread</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;DetachCurrentThread(<span class="keyword">this</span>); &#125;</span><br><span class="line">    <span class="function">jint <span class="title">GetEnv</span><span class="params">(<span class="keyword">void</span>** env, jint version)</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;GetEnv(<span class="keyword">this</span>, env, version); &#125;</span><br><span class="line">    <span class="function">jint <span class="title">AttachCurrentThreadAsDaemon</span><span class="params">(JNIEnv** p_env, <span class="keyword">void</span>* thr_args)</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;AttachCurrentThreadAsDaemon(<span class="keyword">this</span>, p_env, thr_args); &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/*__cplusplus*/</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="JNIEnv-源码"><a href="#JNIEnv-源码" class="headerlink" title="JNIEnv 源码"></a><code>JNIEnv</code> 源码</h3><p><code>JNIEnv</code> 代表了当前线程的函数表，几乎包含了所有的 <code>JNI</code> 函数，它是线程隔离 <code>TLS</code> 的，所以不能在线程间共享。<code>JNIEnv</code> 主要用于操作 <code>Java</code> 对象的类、方法、属性等，可以理解为反射的 <code>C/C++</code> 实现。<br><code>JNIEnv</code> 实际是 <code>JNINativeInterface</code> 结构指针，在 <code>C++</code> 中，<code>_JNIEnv</code> 是 <code>JNINativeInterface</code> 的包装类。所以它们的调用有两种风格：  </p>
+<ul>
+<li><code>C</code> 风格：<code>(*env)-&gt;NewStringUTF(env, “Hellow World!”);</code>  </li>
+<li><code>C++</code> 风格： <code>env-&gt;NewStringUTF(“Hellow World!”);</code>  </li>
+</ul>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">JNINativeInterface</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span>*       reserved0;</span><br><span class="line">    <span class="keyword">void</span>*       reserved1;</span><br><span class="line">    <span class="keyword">void</span>*       reserved2;</span><br><span class="line">    <span class="keyword">void</span>*       reserved3;</span><br><span class="line"></span><br><span class="line">    jint        (*GetVersion)(JNIEnv *);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类反射</span></span><br><span class="line">    jclass      (*DefineClass)(JNIEnv*, <span class="keyword">const</span> <span class="keyword">char</span>*, jobject, </span><br><span class="line">                <span class="keyword">const</span> jbyte*, jsize);</span><br><span class="line">    jclass      (*FindClass)(JNIEnv*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jmethodID   (*FromReflectedMethod)(JNIEnv*, jobject);</span><br><span class="line">    jfieldID    (*FromReflectedField)(JNIEnv*, jobject);</span><br><span class="line">    <span class="comment">/* spec doesn't show jboolean parameter */</span></span><br><span class="line">    jobject     (*ToReflectedMethod)(JNIEnv*, jclass, jmethodID, jboolean);</span><br><span class="line"></span><br><span class="line">    jclass      (*GetSuperclass)(JNIEnv*, jclass);</span><br><span class="line">    jboolean    (*IsAssignableFrom)(JNIEnv*, jclass, jclass);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* spec doesn't show jboolean parameter */</span></span><br><span class="line">    jobject     (*ToReflectedField)(JNIEnv*, jclass, jfieldID, jboolean);</span><br><span class="line"></span><br><span class="line">    jint        (*Throw)(JNIEnv*, jthrowable);</span><br><span class="line">    jint        (*ThrowNew)(JNIEnv *, jclass, <span class="keyword">const</span> <span class="keyword">char</span> *);</span><br><span class="line">    jthrowable  (*ExceptionOccurred)(JNIEnv*);</span><br><span class="line">    <span class="keyword">void</span>        (*ExceptionDescribe)(JNIEnv*);</span><br><span class="line">    <span class="keyword">void</span>        (*ExceptionClear)(JNIEnv*);</span><br><span class="line">    <span class="keyword">void</span>        (*FatalError)(JNIEnv*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jint        (*PushLocalFrame)(JNIEnv*, jint);</span><br><span class="line">    jobject     (*PopLocalFrame)(JNIEnv*, jobject);</span><br><span class="line"></span><br><span class="line">    jobject     (*NewGlobalRef)(JNIEnv*, jobject);</span><br><span class="line">    <span class="keyword">void</span>        (*DeleteGlobalRef)(JNIEnv*, jobject);</span><br><span class="line">    <span class="keyword">void</span>        (*DeleteLocalRef)(JNIEnv*, jobject);</span><br><span class="line">    jboolean    (*IsSameObject)(JNIEnv*, jobject, jobject);</span><br><span class="line"></span><br><span class="line">    jobject     (*NewLocalRef)(JNIEnv*, jobject);</span><br><span class="line">    jint        (*EnsureLocalCapacity)(JNIEnv*, jint);</span><br><span class="line"></span><br><span class="line">    jobject     (*AllocObject)(JNIEnv*, jclass);</span><br><span class="line">    jobject     (*NewObject)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jobject     (*NewObjectV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jobject     (*NewObjectA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line"></span><br><span class="line">    jclass      (*GetObjectClass)(JNIEnv*, jobject);</span><br><span class="line">    jboolean    (*IsInstanceOf)(JNIEnv*, jobject, jclass);</span><br><span class="line">    <span class="comment">// 获取方法的 ID</span></span><br><span class="line">    jmethodID   (*GetMethodID)(JNIEnv*, jclass, <span class="keyword">const</span> <span class="keyword">char</span>*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jobject     (*CallObjectMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jobject     (*CallObjectMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jobject     (*CallObjectMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jboolean    (*CallBooleanMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jboolean    (*CallBooleanMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jboolean    (*CallBooleanMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jbyte       (*CallByteMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jbyte       (*CallByteMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jbyte       (*CallByteMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jchar       (*CallCharMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jchar       (*CallCharMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jchar       (*CallCharMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jshort      (*CallShortMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jshort      (*CallShortMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jshort      (*CallShortMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jint        (*CallIntMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jint        (*CallIntMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jint        (*CallIntMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jlong       (*CallLongMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jlong       (*CallLongMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jlong       (*CallLongMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jfloat      (*CallFloatMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jfloat      (*CallFloatMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jfloat      (*CallFloatMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jdouble     (*CallDoubleMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    jdouble     (*CallDoubleMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    jdouble     (*CallDoubleMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    <span class="keyword">void</span>        (*CallVoidMethod)(JNIEnv*, jobject, jmethodID, ...);</span><br><span class="line">    <span class="keyword">void</span>        (*CallVoidMethodV)(JNIEnv*, jobject, jmethodID, va_list);</span><br><span class="line">    <span class="keyword">void</span>        (*CallVoidMethodA)(JNIEnv*, jobject, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line"></span><br><span class="line">    jobject     (*CallNonvirtualObjectMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jobject     (*CallNonvirtualObjectMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jobject     (*CallNonvirtualObjectMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jboolean    (*CallNonvirtualBooleanMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jboolean    (*CallNonvirtualBooleanMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                         jmethodID, va_list);</span><br><span class="line">    jboolean    (*CallNonvirtualBooleanMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                         jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jbyte       (*CallNonvirtualByteMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jbyte       (*CallNonvirtualByteMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jbyte       (*CallNonvirtualByteMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jchar       (*CallNonvirtualCharMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jchar       (*CallNonvirtualCharMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jchar       (*CallNonvirtualCharMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jshort      (*CallNonvirtualShortMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jshort      (*CallNonvirtualShortMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jshort      (*CallNonvirtualShortMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jint        (*CallNonvirtualIntMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jint        (*CallNonvirtualIntMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jint        (*CallNonvirtualIntMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jlong       (*CallNonvirtualLongMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jlong       (*CallNonvirtualLongMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jlong       (*CallNonvirtualLongMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jfloat      (*CallNonvirtualFloatMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jfloat      (*CallNonvirtualFloatMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jfloat      (*CallNonvirtualFloatMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jdouble     (*CallNonvirtualDoubleMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    jdouble     (*CallNonvirtualDoubleMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    jdouble     (*CallNonvirtualDoubleMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    <span class="keyword">void</span>        (*CallNonvirtualVoidMethod)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, ...);</span><br><span class="line">    <span class="keyword">void</span>        (*CallNonvirtualVoidMethodV)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, va_list);</span><br><span class="line">    <span class="keyword">void</span>        (*CallNonvirtualVoidMethodA)(JNIEnv*, jobject, jclass,</span><br><span class="line">                        jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取属性字段的 ID </span></span><br><span class="line">    jfieldID    (*GetFieldID)(JNIEnv*, jclass, <span class="keyword">const</span> <span class="keyword">char</span>*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jobject     (*GetObjectField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jboolean    (*GetBooleanField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jbyte       (*GetByteField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jchar       (*GetCharField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jshort      (*GetShortField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jint        (*GetIntField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jlong       (*GetLongField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jfloat      (*GetFloatField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line">    jdouble     (*GetDoubleField)(JNIEnv*, jobject, jfieldID);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>        (*SetObjectField)(JNIEnv*, jobject, jfieldID, jobject);</span><br><span class="line">    <span class="keyword">void</span>        (*SetBooleanField)(JNIEnv*, jobject, jfieldID, jboolean);</span><br><span class="line">    <span class="keyword">void</span>        (*SetByteField)(JNIEnv*, jobject, jfieldID, jbyte);</span><br><span class="line">    <span class="keyword">void</span>        (*SetCharField)(JNIEnv*, jobject, jfieldID, jchar);</span><br><span class="line">    <span class="keyword">void</span>        (*SetShortField)(JNIEnv*, jobject, jfieldID, jshort);</span><br><span class="line">    <span class="keyword">void</span>        (*SetIntField)(JNIEnv*, jobject, jfieldID, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*SetLongField)(JNIEnv*, jobject, jfieldID, jlong);</span><br><span class="line">    <span class="keyword">void</span>        (*SetFloatField)(JNIEnv*, jobject, jfieldID, jfloat);</span><br><span class="line">    <span class="keyword">void</span>        (*SetDoubleField)(JNIEnv*, jobject, jfieldID, jdouble);</span><br><span class="line"></span><br><span class="line">    jmethodID   (*GetStaticMethodID)(JNIEnv*, jclass, <span class="keyword">const</span> <span class="keyword">char</span>*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jobject     (*CallStaticObjectMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jobject     (*CallStaticObjectMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jobject     (*CallStaticObjectMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jboolean    (*CallStaticBooleanMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jboolean    (*CallStaticBooleanMethodV)(JNIEnv*, jclass, jmethodID,</span><br><span class="line">                        va_list);</span><br><span class="line">    jboolean    (*CallStaticBooleanMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jbyte       (*CallStaticByteMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jbyte       (*CallStaticByteMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jbyte       (*CallStaticByteMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jchar       (*CallStaticCharMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jchar       (*CallStaticCharMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jchar       (*CallStaticCharMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jshort      (*CallStaticShortMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jshort      (*CallStaticShortMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jshort      (*CallStaticShortMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jint        (*CallStaticIntMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jint        (*CallStaticIntMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jint        (*CallStaticIntMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jlong       (*CallStaticLongMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jlong       (*CallStaticLongMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jlong       (*CallStaticLongMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jfloat      (*CallStaticFloatMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jfloat      (*CallStaticFloatMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jfloat      (*CallStaticFloatMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    jdouble     (*CallStaticDoubleMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    jdouble     (*CallStaticDoubleMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    jdouble     (*CallStaticDoubleMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line">    <span class="keyword">void</span>        (*CallStaticVoidMethod)(JNIEnv*, jclass, jmethodID, ...);</span><br><span class="line">    <span class="keyword">void</span>        (*CallStaticVoidMethodV)(JNIEnv*, jclass, jmethodID, va_list);</span><br><span class="line">    <span class="keyword">void</span>        (*CallStaticVoidMethodA)(JNIEnv*, jclass, jmethodID, <span class="keyword">const</span> jvalue*);</span><br><span class="line"></span><br><span class="line">    jfieldID    (*GetStaticFieldID)(JNIEnv*, jclass, <span class="keyword">const</span> <span class="keyword">char</span>*,</span><br><span class="line">                        <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    jobject     (*GetStaticObjectField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jboolean    (*GetStaticBooleanField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jbyte       (*GetStaticByteField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jchar       (*GetStaticCharField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jshort      (*GetStaticShortField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jint        (*GetStaticIntField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jlong       (*GetStaticLongField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jfloat      (*GetStaticFloatField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line">    jdouble     (*GetStaticDoubleField)(JNIEnv*, jclass, jfieldID);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticObjectField)(JNIEnv*, jclass, jfieldID, jobject);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticBooleanField)(JNIEnv*, jclass, jfieldID, jboolean);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticByteField)(JNIEnv*, jclass, jfieldID, jbyte);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticCharField)(JNIEnv*, jclass, jfieldID, jchar);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticShortField)(JNIEnv*, jclass, jfieldID, jshort);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticIntField)(JNIEnv*, jclass, jfieldID, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticLongField)(JNIEnv*, jclass, jfieldID, jlong);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticFloatField)(JNIEnv*, jclass, jfieldID, jfloat);</span><br><span class="line">    <span class="keyword">void</span>        (*SetStaticDoubleField)(JNIEnv*, jclass, jfieldID, jdouble);</span><br><span class="line"></span><br><span class="line">    jstring     (*NewString)(JNIEnv*, <span class="keyword">const</span> jchar*, jsize);</span><br><span class="line">    jsize       (*GetStringLength)(JNIEnv*, jstring);</span><br><span class="line">    <span class="keyword">const</span> jchar* (*GetStringChars)(JNIEnv*, jstring, jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseStringChars)(JNIEnv*, jstring, <span class="keyword">const</span> jchar*);</span><br><span class="line">    jstring     (*NewStringUTF)(JNIEnv*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line">    jsize       (*GetStringUTFLength)(JNIEnv*, jstring);</span><br><span class="line">    <span class="comment">/* JNI spec says this returns const jbyte*, but that's inconsistent */</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* (*GetStringUTFChars)(JNIEnv*, jstring, jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseStringUTFChars)(JNIEnv*, jstring, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line">    jsize       (*GetArrayLength)(JNIEnv*, jarray);</span><br><span class="line">    jobjectArray (*NewObjectArray)(JNIEnv*, jsize, jclass, jobject);</span><br><span class="line">    jobject     (*GetObjectArrayElement)(JNIEnv*, jobjectArray, jsize);</span><br><span class="line">    <span class="keyword">void</span>        (*SetObjectArrayElement)(JNIEnv*, jobjectArray, jsize, jobject);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新建基本类型数组</span></span><br><span class="line">    jbooleanArray (*NewBooleanArray)(JNIEnv*, jsize);</span><br><span class="line">    jbyteArray    (*NewByteArray)(JNIEnv*, jsize);</span><br><span class="line">    jcharArray    (*NewCharArray)(JNIEnv*, jsize);</span><br><span class="line">    jshortArray   (*NewShortArray)(JNIEnv*, jsize);</span><br><span class="line">    jintArray     (*NewIntArray)(JNIEnv*, jsize);</span><br><span class="line">    jlongArray    (*NewLongArray)(JNIEnv*, jsize);</span><br><span class="line">    jfloatArray   (*NewFloatArray)(JNIEnv*, jsize);</span><br><span class="line">    jdoubleArray  (*NewDoubleArray)(JNIEnv*, jsize);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取基本类型数组中的元素，返回对应指针类型（表示一个数组）</span></span><br><span class="line">    jboolean*   (*GetBooleanArrayElements)(JNIEnv*, jbooleanArray, jboolean*);</span><br><span class="line">    jbyte*      (*GetByteArrayElements)(JNIEnv*, jbyteArray, jboolean*);</span><br><span class="line">    jchar*      (*GetCharArrayElements)(JNIEnv*, jcharArray, jboolean*);</span><br><span class="line">    jshort*     (*GetShortArrayElements)(JNIEnv*, jshortArray, jboolean*);</span><br><span class="line">    jint*       (*GetIntArrayElements)(JNIEnv*, jintArray, jboolean*);</span><br><span class="line">    jlong*      (*GetLongArrayElements)(JNIEnv*, jlongArray, jboolean*);</span><br><span class="line">    jfloat*     (*GetFloatArrayElements)(JNIEnv*, jfloatArray, jboolean*);</span><br><span class="line">    jdouble*    (*GetDoubleArrayElements)(JNIEnv*, jdoubleArray, jboolean*);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseBooleanArrayElements)(JNIEnv*, jbooleanArray,</span><br><span class="line">                        jboolean*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseByteArrayElements)(JNIEnv*, jbyteArray,</span><br><span class="line">                        jbyte*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseCharArrayElements)(JNIEnv*, jcharArray,</span><br><span class="line">                        jchar*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseShortArrayElements)(JNIEnv*, jshortArray,</span><br><span class="line">                        jshort*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseIntArrayElements)(JNIEnv*, jintArray,</span><br><span class="line">                        jint*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseLongArrayElements)(JNIEnv*, jlongArray,</span><br><span class="line">                        jlong*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseFloatArrayElements)(JNIEnv*, jfloatArray,</span><br><span class="line">                        jfloat*, jint);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseDoubleArrayElements)(JNIEnv*, jdoubleArray,</span><br><span class="line">                        jdouble*, jint);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>        (*GetBooleanArrayRegion)(JNIEnv*, jbooleanArray,</span><br><span class="line">                        jsize, jsize, jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetByteArrayRegion)(JNIEnv*, jbyteArray,</span><br><span class="line">                        jsize, jsize, jbyte*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetCharArrayRegion)(JNIEnv*, jcharArray,</span><br><span class="line">                        jsize, jsize, jchar*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetShortArrayRegion)(JNIEnv*, jshortArray,</span><br><span class="line">                        jsize, jsize, jshort*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetIntArrayRegion)(JNIEnv*, jintArray,</span><br><span class="line">                        jsize, jsize, jint*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetLongArrayRegion)(JNIEnv*, jlongArray,</span><br><span class="line">                        jsize, jsize, jlong*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetFloatArrayRegion)(JNIEnv*, jfloatArray,</span><br><span class="line">                        jsize, jsize, jfloat*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetDoubleArrayRegion)(JNIEnv*, jdoubleArray,</span><br><span class="line">                        jsize, jsize, jdouble*);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* spec shows these without const; some jni.h do, some don't */</span></span><br><span class="line">    <span class="keyword">void</span>        (*SetBooleanArrayRegion)(JNIEnv*, jbooleanArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetByteArrayRegion)(JNIEnv*, jbyteArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jbyte*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetCharArrayRegion)(JNIEnv*, jcharArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jchar*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetShortArrayRegion)(JNIEnv*, jshortArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jshort*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetIntArrayRegion)(JNIEnv*, jintArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jint*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetLongArrayRegion)(JNIEnv*, jlongArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jlong*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetFloatArrayRegion)(JNIEnv*, jfloatArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jfloat*);</span><br><span class="line">    <span class="keyword">void</span>        (*SetDoubleArrayRegion)(JNIEnv*, jdoubleArray,</span><br><span class="line">                        jsize, jsize, <span class="keyword">const</span> jdouble*);</span><br><span class="line"></span><br><span class="line">    jint        (*RegisterNatives)(JNIEnv*, jclass, <span class="keyword">const</span> JNINativeMethod*,</span><br><span class="line">                        jint);</span><br><span class="line">    jint        (*UnregisterNatives)(JNIEnv*, jclass);</span><br><span class="line">    jint        (*MonitorEnter)(JNIEnv*, jobject);</span><br><span class="line">    jint        (*MonitorExit)(JNIEnv*, jobject);</span><br><span class="line">    jint        (*GetJavaVM)(JNIEnv*, JavaVM**);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>        (*GetStringRegion)(JNIEnv*, jstring, jsize, jsize, jchar*);</span><br><span class="line">    <span class="keyword">void</span>        (*GetStringUTFRegion)(JNIEnv*, jstring, jsize, jsize, <span class="keyword">char</span>*);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span>*       (*GetPrimitiveArrayCritical)(JNIEnv*, jarray, jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleasePrimitiveArrayCritical)(JNIEnv*, jarray, <span class="keyword">void</span>*, jint);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> jchar* (*GetStringCritical)(JNIEnv*, jstring, jboolean*);</span><br><span class="line">    <span class="keyword">void</span>        (*ReleaseStringCritical)(JNIEnv*, jstring, <span class="keyword">const</span> jchar*);</span><br><span class="line"></span><br><span class="line">    jweak       (*NewWeakGlobalRef)(JNIEnv*, jobject);</span><br><span class="line">    <span class="keyword">void</span>        (*DeleteWeakGlobalRef)(JNIEnv*, jweak);</span><br><span class="line"></span><br><span class="line">    jboolean    (*ExceptionCheck)(JNIEnv*);</span><br><span class="line"></span><br><span class="line">    jobject     (*NewDirectByteBuffer)(JNIEnv*, <span class="keyword">void</span>*, jlong);</span><br><span class="line">    <span class="keyword">void</span>*       (*GetDirectBufferAddress)(JNIEnv*, jobject);</span><br><span class="line">    jlong       (*GetDirectBufferCapacity)(JNIEnv*, jobject);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* added in JNI 1.6 */</span></span><br><span class="line">    jobjectRefType (*GetObjectRefType)(JNIEnv*, jobject);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * C++ object wrapper.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * This is usually overlaid on a C struct whose first element is a</span></span><br><span class="line"><span class="comment"> * JNINativeInterface*.  We rely somewhat on compiler behavior.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">JNIEnv</span> &#123;</span></span><br><span class="line">    <span class="comment">/* do not rename this; it does not seem to be entirely opaque */</span></span><br><span class="line">    <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">JNINativeInterface</span>* <span class="title">functions</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__cplusplus)</span></span><br><span class="line"></span><br><span class="line">    <span class="function">jint <span class="title">GetVersion</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> functions-&gt;GetVersion(<span class="keyword">this</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/*__cplusplus*/</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="JNI-引用"><a href="#JNI-引用" class="headerlink" title="JNI 引用"></a><code>JNI</code> 引用</h2><p><code>JNI</code> 支持将类实例和数组类型（如 <code>jobject, jclass, jstring, jarray</code> ）作为不透明的引用，通过使用 <code>JNI</code> 方法来得到指向该数据结构的指针的引用，也就是说 <code>JNI</code> 操作的内容都是引用。<code>JNI</code> 规范中定义了三种引用：  </p>
+<ul>
+<li><code>Local Reference</code> 局部引用  </li>
+<li><code>Global Reference</code> 全局引用  </li>
+<li><code>Weak Global Reference</code> 弱全局引用  </li>
+</ul>
+<p>这三种引用的作用域和生命周期都不一样：  </p>
+<ul>
+<li>局部引用在方法返回时会被自动释放，当局部引用在使用过程中，<code>GC</code> 不会回收该对象  </li>
+<li>全局引用和弱全局引用，一直保存直到手动释放  </li>
+<li>全局引用在释放前不会被 <code>GC</code> 回收；弱全局引用 <code>GC</code> 时会被回收  </li>
+</ul>
+<h3 id="局部引用"><a href="#局部引用" class="headerlink" title="局部引用"></a>局部引用</h3><ul>
+<li>通过 <code>NewLocalRef</code> ；或者大部分创建接口 <code>FindClass, NewObject, GetObjectClass, NewCharArray</code> 等都会生成局部引用  </li>
+<li>虽然局部引用在方法返回时会自动释放，但是通常如果后续并不使用该引用了，应该主动释放 <code>DeleteLocalRef</code> </li>
+<li>局部引用是线程相关的，不在跨函数使用，不能跨线前使用  </li>
+</ul>
+<h3 id="全局引用"><a href="#全局引用" class="headerlink" title="全局引用"></a>全局引用</h3><ul>
+<li>全局引用必须主动创建 <code>NewGlobalRef</code> ；通过 <code>DeleteGlobalRef</code> 主动释放  </li>
+<li>全局引用可以跨方法使用，可以在多线程中使用  </li>
+<li>全局引用在使用中，引用的对象不会被 <code>GC</code> 回收，需要特别注意  </li>
+</ul>
+<h3 id="弱全局引用"><a href="#弱全局引用" class="headerlink" title="弱全局引用"></a>弱全局引用</h3><ul>
+<li>弱全局引用必须主动创建 <code>NewWeakGlobalRef</code> ；通过 <code>DeleteGlobalWeakRef</code> 主动释放  </li>
+<li>弱全局引用可以跨方法使用，可以在多线程中使用  </li>
+<li>弱全局引用在使用中，引用的对象可能会被 <code>GC</code> 回收，使用时需要做空判断  </li>
+</ul>
+<h3 id="引用比较"><a href="#引用比较" class="headerlink" title="引用比较"></a>引用比较</h3><p>使用 <code>IsSameObject</code> 比较两个引用是否指向同一个对象：<code>jboolean (IsSameObject)(JNIEnv, jobject, jobject);</code> ；返回 <code>JNI_TRUE</code> 表示指向的是同一个。  </p>
+<h2 id="API-基本功能"><a href="#API-基本功能" class="headerlink" title="API 基本功能"></a><code>API</code> 基本功能</h2><p><code>JNIEnv</code> 主要是操作 <code>Java</code> 中的代码，类似反射，所以主要根据 <code>Java</code> 特性来介绍例子。先说明 <code>JNI</code> 中几个重要的类型：  </p>
+<ul>
+<li><code>jclass</code> ：表示 <code>Java</code> 中的类  </li>
+<li><code>jfieldID</code> ：表示 <code>Java</code> 中的属性字段 <code>ID</code>  </li>
+<li><code>jmethodID</code> ：表示 <code>Java</code> 中的方法 <code>ID</code>  </li>
+<li><code>jobject</code> ：表示 <code>Java</code> 中的一切对象  </li>
+</ul>
+<h3 id="动态注册方法"><a href="#动态注册方法" class="headerlink" title="动态注册方法"></a>动态注册方法</h3><p><code>Java</code> 中 <code>native</code> 的方法可以通过静态注册和动态注册的方式和 <code>C/C++</code> 中的代码绑定：  </p>
+<ul>
+<li>静态注册<br>必须满足命名格式：<code>Java_packageName_className_nativeMethodName</code> ，都是以下划线 <code>_</code> 拼接的。如果满足这个格式，<code>Java</code> 和 <code>C/C++</code> 会自动关联。  </li>
+<li>动态注册<br>不需要满足命名格式，在 <code>so</code> 文件加载时，通过代码动态注册来关联。  </li>
+</ul>
+<p>动态注册的入口函数为 <code>JNI_OnLoad</code> ，并通过 <code>JNINativeMethod</code> 结构体提供映射表，示例代码 <code>Java</code> 中的 <code>dynamicRegistration</code> 动态注册匹配 <code>nativeDynamicRegistration</code> 方法：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">nativeDynamicRegistration</span><span class="params">()</span></span>&#123;</span><br><span class="line">    LOGE(<span class="string">"nativeDynamicRegistration"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> JNINativeMethod gRegisterMethods[] = &#123;</span><br><span class="line">    <span class="comment">/* name, signature, funcPtr */</span></span><br><span class="line">    &#123;<span class="string">"dynamicRegistration"</span>,<span class="string">"()V"</span>,(<span class="keyword">void</span>*)nativeDynamicRegistration&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">jint <span class="title">registerNativeMethods</span><span class="params">(JNIEnv* env, <span class="keyword">const</span> <span class="keyword">char</span>* className,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">const</span> JNINativeMethod* gMethods, <span class="keyword">int</span> numMethods)</span></span>&#123;</span><br><span class="line">    LOGE(<span class="string">"registerNativeMethods."</span>);</span><br><span class="line"></span><br><span class="line">    jclass clz = env-&gt;FindClass(className);</span><br><span class="line">    <span class="keyword">if</span> (clz == <span class="literal">NULL</span>)&#123;</span><br><span class="line">        LOGE(<span class="string">"can't find class = %s"</span>, className);</span><br><span class="line">        <span class="keyword">return</span> JNI_ERR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 动态注册</span></span><br><span class="line">    <span class="keyword">if</span> (env-&gt;RegisterNatives(clz, gMethods, numMethods) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        LOGE(<span class="string">"register natives error!"</span>);</span><br><span class="line">        <span class="keyword">return</span> JNI_ERR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    env-&gt;DeleteLocalRef(clz);</span><br><span class="line">    <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">jint <span class="title">JNI_OnLoad</span><span class="params">(JavaVM* vm, <span class="keyword">void</span>* reserved)</span></span>&#123;</span><br><span class="line">    LOGE(<span class="string">"JNI_OnLoad..."</span>);</span><br><span class="line"></span><br><span class="line">    JNIEnv* env = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (vm-&gt;GetEnv((<span class="keyword">void</span>**) &amp;env, JNI_VERSION_1_6) != JNI_OK)&#123;</span><br><span class="line">        LOGE(<span class="string">"vm get env error."</span>);</span><br><span class="line">        <span class="keyword">return</span> JNI_ERR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    registerNativeMethods(env, </span><br><span class="line">            <span class="string">"com/***/jni/JniClient"</span>,</span><br><span class="line">            gRegisterMethods, </span><br><span class="line">            <span class="keyword">sizeof</span>(gRegisterMethods)/<span class="keyword">sizeof</span>(JNINativeMethod));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> JNI_VERSION_1_6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码中：  </p>
+<ul>
+<li><code>JNI_OnLoad</code> 是入口函数，在 <code>so</code> 文件加载时调用，可以在该函数中使用全局变量保存 <code>vm</code> 变量的值  </li>
+<li><code>JNINativeMethod</code> 定义映射数组时，每个映射方法必须按照：名称、方法签名、函数指针；格式来匹配  </li>
+<li><code>env-&gt;RegisterNatives</code> 注册方法映射数组  </li>
+</ul>
+<h3 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h3><p>从字符串编码那一节我们可以看到，<code>Java, JNI, C/C++</code> 对字符串编码都不一样，所以 <code>JNI</code> 中的字符串操作需要先进行转码；可以简单的理解为：  </p>
+<ul>
+<li><code>jstring</code> ：<code>Java</code> 和 <code>JNI</code> 中可以相互传递和使用  </li>
+<li><code>char *</code> ：<code>C/C++</code> 和 <code>JNI</code> 中可以相互传递和使用  </li>
+<li><code>jchar*</code> ：<code>JNI</code> 中特有的（本文暂时没找到怎么用）  </li>
+</ul>
+<p>因此我们重点需要关注的就是 <code>jstring, char*</code> 之间的转换了；相关 <code>API</code> ：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// jchar* 和 jstring 相互转换</span></span><br><span class="line">jstring     (*NewString)(JNIEnv*, <span class="keyword">const</span> jchar*, jsize);</span><br><span class="line">jsize       (*GetStringLength)(JNIEnv*, jstring);</span><br><span class="line"><span class="keyword">const</span> jchar* (*GetStringChars)(JNIEnv*, jstring, jboolean*);</span><br><span class="line"><span class="keyword">void</span>        (*ReleaseStringChars)(JNIEnv*, jstring, <span class="keyword">const</span> jchar*);</span><br><span class="line"></span><br><span class="line"><span class="comment">// jstring 和 char* 相互转换  </span></span><br><span class="line">jstring     (*NewStringUTF)(JNIEnv*, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br><span class="line">jsize       (*GetStringUTFLength)(JNIEnv*, jstring);</span><br><span class="line"><span class="comment">/* JNI spec says this returns const jbyte*, but that's inconsistent */</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* (*GetStringUTFChars)(JNIEnv*, jstring, jboolean*);</span><br><span class="line"><span class="keyword">void</span>        (*ReleaseStringUTFChars)(JNIEnv*, jstring, <span class="keyword">const</span> <span class="keyword">char</span>*);</span><br></pre></td></tr></table></figure>
+
+<p>示例代码，<code>Java</code> 传入的字符包含中英文，从 <code>JNI</code> 中返回的字符串也包含中英文：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String input = <span class="string">"abc你好"</span>;</span><br><span class="line">String resultStr = sampleString(input);</span><br><span class="line">Log.d(TAG, <span class="string">"showJNI: resultStr = "</span> + resultStr);</span><br></pre></td></tr></table></figure>
+
+<p><code>JNI</code> 对字符串的处理：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">JNIEXPORT jstring JNICALL</span><br><span class="line">Java_com_***_jni_JniClient_sampleString</span><br><span class="line">        (JNIEnv *env, jobject instance, jstring input)&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *inputStr = env-&gt;GetStringUTFChars(input, <span class="literal">NULL</span>);</span><br><span class="line">    LOGE(<span class="string">"sampleString, inputStr = %s"</span>, inputStr);</span><br><span class="line">    env-&gt;ReleaseStringUTFChars(input, inputStr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *resultStr = <span class="string">"从JNI中返回的结果！"</span>;</span><br><span class="line">    jstring result = env-&gt;NewStringUTF(resultStr);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">11:07:52.786 E/JniClient-jni: sampleString, inputStr = abc你好</span><br><span class="line">11:07:52.787 D/JniSampleActivity:: showJNI: resultStr = 从JNI中返回的结果！</span><br></pre></td></tr></table></figure>
+
+<h3 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h3><p><code>JNI</code> 中数组操作重要 <code>API</code> ：  </p>
+<ul>
+<li><code>GetIntArrayElements...</code> 获取数组的元素，返回一个指针类型，表示指向一个数组  </li>
+<li><code>GetArrayLength</code> 获取数组长度  </li>
+<li>使用完毕后，需要使用 <code>ReleaseIntArrayElements</code> 释放内存  </li>
+<li><code>NewCharArray</code> 创建数组  </li>
+<li><code>SetCharArrayRegion</code> 拷贝内容到数组  </li>
+</ul>
+<p>先看 <code>Java</code> 端调用的代码：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">char</span>[] samplesArray(<span class="keyword">int</span>[] array);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 native 方法，传入 int 数组</span></span><br><span class="line"><span class="keyword">int</span>[] array = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line"><span class="keyword">char</span>[] results = samplesArray(array);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; results.length; ++i)&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"showJNI: c["</span> + i + <span class="string">"] = "</span> + results[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>JNI</code> 中的实现，先获取数组指针，再获取数组长度，遍历打印数组，最后释放内存：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">JNIEXPORT jcharArray JNICALL</span><br><span class="line">Java_com_***_jni_JniClient_samplesArray(</span><br><span class="line">        JNIEnv *env, jobject instance, jintArray intArray) &#123;</span><br><span class="line">    jint *<span class="built_in">array</span> = env-&gt;GetIntArrayElements(intArray, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">int</span> length = env-&gt;GetArrayLength(intArray);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; ++i) &#123;</span><br><span class="line">        LOGE(<span class="string">"samplesArray[%d]=%d"</span>, i, <span class="built_in">array</span>[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    env-&gt;ReleaseIntArrayElements(intArray,<span class="built_in">array</span>, <span class="literal">NULL</span>);</span><br><span class="line">    </span><br><span class="line">    jchar result[] = &#123;<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>, <span class="string">'d'</span>, <span class="string">'e'</span>&#125;;</span><br><span class="line">    jcharArray charArray = env-&gt;NewCharArray(length);</span><br><span class="line">    env-&gt;SetCharArrayRegion(charArray, <span class="number">0</span>, length, result);</span><br><span class="line">    <span class="keyword">return</span> charArray;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建-Java-对象"><a href="#创建-Java-对象" class="headerlink" title="创建 Java 对象"></a>创建 <code>Java</code> 对象</h3><p><code>JNI</code> 中创建 <code>Java</code> 对象步骤：  </p>
+<ul>
+<li>根据 <code>package/Classname</code> 类名来查找对应类  </li>
+<li>查找构造方法 <code>ID</code> ，构造方法默认名称为 <code>&lt;init&gt;</code>  </li>
+<li>根据构造方法 <code>ID</code> 和类来创建对象  </li>
+<li>对象使用完毕后，需要删除释放  </li>
+</ul>
+<blockquote>
+<p>查找类时，传递的参数不是类的全限定名，只需要包名和类名即可！  </p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Constructor</span></span><br><span class="line">jclass clz = env-&gt;FindClass(<span class="string">"com/***/jni/JniObject"</span>);</span><br><span class="line">jmethodID defaultConstructorID=env-&gt;GetMethodID(clz, <span class="string">"&lt;init&gt;"</span>, <span class="string">"()V"</span>);</span><br><span class="line">jobject jniObjectInstance = env-&gt;NewObject(clz, defaultConstructorID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// release</span></span><br><span class="line">env-&gt;DeleteLocalRef(jniObjectInstance);</span><br><span class="line">env-&gt;DeleteLocalRef(clz);</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取-Java-对象的属性和方法"><a href="#获取-Java-对象的属性和方法" class="headerlink" title="获取 Java 对象的属性和方法"></a>获取 <code>Java</code> 对象的属性和方法</h3><p>和反射一样，<code>public, private</code> 等访问控制符并不生效，<code>JNI</code> 中可以获取 <code>Java</code> 对象所有的属性和方法，包含 <code>private</code> 修饰的。重要 <code>API</code> ：  </p>
+<ul>
+<li><code>GetFieldID</code> ：获取属性 <code>ID</code> ；参数需要使用类型签名  </li>
+<li><code>GetMethodID</code> ：获取方法 <code>ID</code> ；参数需要使用方法的类型签名  </li>
+<li><code>GetObjectField/GetIntField...</code> ：获取属性对应的值，有多个基本类型变种  </li>
+<li><code>CallVoidMethod/CallBooleanMethod...</code> ：调用某个方法，根据返回值有多个基本类型变种  </li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取和调用 public 的属性和方法</span></span><br><span class="line"><span class="comment">// public field and method</span></span><br><span class="line">jfieldID publicIntID = env-&gt;GetFieldID(clz, <span class="string">"publicInt"</span>, <span class="string">"I"</span>);</span><br><span class="line">jint publicIntValue = env-&gt;GetIntField(jniObjectInstance, publicIntID);</span><br><span class="line">LOGE(<span class="string">"default publicIntValue = %d"</span>, publicIntValue);</span><br><span class="line"><span class="comment">// change value</span></span><br><span class="line">publicIntValue = <span class="number">100</span>;</span><br><span class="line">env-&gt;SetIntField(jniObjectInstance, publicIntID, publicIntValue);</span><br><span class="line"><span class="comment">// check value</span></span><br><span class="line">jint publicIntValue1 = env-&gt;GetIntField(jniObjectInstance, publicIntID);</span><br><span class="line">LOGE(<span class="string">"modify publicIntValue1 = %d"</span>, publicIntValue1);</span><br><span class="line"><span class="comment">// call public method: setPublicInt</span></span><br><span class="line">jmethodID  setPublicIntMethodId = </span><br><span class="line">    env-&gt;GetMethodID(clz, <span class="string">"setPublicInt"</span>, <span class="string">"(I)V"</span>);</span><br><span class="line">publicIntValue = <span class="number">200</span>;</span><br><span class="line">env-&gt;CallVoidMethod(jniObjectInstance, </span><br><span class="line">    setPublicIntMethodId, publicIntValue);</span><br><span class="line"><span class="comment">// check value</span></span><br><span class="line">jint publicIntValue2 = env-&gt;GetIntField(jniObjectInstance, publicIntID);</span><br><span class="line">LOGE(<span class="string">"modify by Method, publicIntValue = %d"</span>, publicIntValue2);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取和调用 private 的属性和方法</span></span><br><span class="line"><span class="comment">// private field and method</span></span><br><span class="line">jfieldID privateBooleanID = env-&gt;GetFieldID(clz, <span class="string">"privateBoolean"</span>, <span class="string">"Z"</span>);</span><br><span class="line">jboolean privateBooleanValue = </span><br><span class="line">    env-&gt;GetBooleanField(jniObjectInstance, privateBooleanID);</span><br><span class="line">LOGE(<span class="string">"default privateBooleanValue = %d"</span>, privateBooleanValue);</span><br><span class="line"><span class="comment">// call private method: setPrivateBoolean</span></span><br><span class="line">jmethodID  setPrivateBooleanId = </span><br><span class="line">    env-&gt;GetMethodID(clz, <span class="string">"setPrivateBoolean"</span>, <span class="string">"(Z)V"</span>);</span><br><span class="line">privateBooleanValue = <span class="number">1</span>;</span><br><span class="line">env-&gt;CallVoidMethod(jniObjectInstance, </span><br><span class="line">    setPrivateBooleanId, privateBooleanValue);</span><br><span class="line"><span class="comment">// check value</span></span><br><span class="line">jboolean privateBooleanValue2 = </span><br><span class="line">    env-&gt;GetBooleanField(jniObjectInstance, privateBooleanID);</span><br><span class="line">LOGE(<span class="string">"modify by private Method, privateBooleanValue = %d"</span>, </span><br><span class="line">    privateBooleanValue2);</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取-Java-中-static-静态属性和方法"><a href="#获取-Java-中-static-静态属性和方法" class="headerlink" title="获取 Java 中 static 静态属性和方法"></a>获取 <code>Java</code> 中 <code>static</code> 静态属性和方法</h3><p><code>static</code> 修饰的属性和方法是属于类的，所以在调用时，并不需要指定对象 <code>jobject</code> ；重要 <code>API</code> ：  </p>
+<ul>
+<li><code>GetStaticFieldID</code> ：获取静态 <code>static</code> 属性 <code>ID</code> ；参数需要使用类型签名   </li>
+<li><code>GetStaticMethodID</code> ：获取静态 <code>static</code> 方法 <code>ID</code> ；参数需要使用方法的类型签名  </li>
+<li><code>GetStaticObjectField/GetStaticIntField...</code> ：获取静态属性的值，有多个基本类型的变种  </li>
+<li><code>CallStaticVoidMethod/CallStaticIntMethod...</code> ：调用静态方法，根据返回值有多个基本类型的变种  </li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// static field and method</span></span><br><span class="line">jfieldID publicStaticStrID = </span><br><span class="line">    env-&gt;GetStaticFieldID(clz, <span class="string">"publicStaticStr"</span>, <span class="string">"Ljava/lang/String;"</span>);</span><br><span class="line">jstring publicStaticStrValue = </span><br><span class="line">    (jstring)env-&gt;GetStaticObjectField(clz, publicStaticStrID);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> *strValue = env-&gt;GetStringUTFChars(publicStaticStrValue,<span class="literal">NULL</span>);</span><br><span class="line">LOGE(<span class="string">"default publicStaticStrValue = %s"</span>, strValue);</span><br><span class="line">env-&gt;ReleaseStringUTFChars(publicStaticStrValue, strValue);</span><br><span class="line"></span><br><span class="line"><span class="comment">// call static method: changeValue</span></span><br><span class="line">jmethodID  changeValueId = env-&gt;GetStaticMethodID(clz, </span><br><span class="line">    <span class="string">"changeValue"</span>, <span class="string">"(Ljava/lang/String;)V"</span>);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> newStr = <span class="string">"Hello from C++, changeValue"</span>;</span><br><span class="line">jstring publicStaticStrValue2 = env-&gt;NewStringUTF(newStr.c_str());</span><br><span class="line">env-&gt;CallStaticVoidMethod(clz, changeValueId, publicStaticStrValue2);</span><br><span class="line"><span class="comment">// check value</span></span><br><span class="line">jstring publicStaticStrValue3 = </span><br><span class="line">    (jstring)env-&gt;GetStaticObjectField(clz, publicStaticStrID);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> *newStrValue = </span><br><span class="line">    env-&gt;GetStringUTFChars(publicStaticStrValue3, <span class="literal">NULL</span>);</span><br><span class="line">LOGE(<span class="string">"modify by static Method, publicStaticStrValue = %s"</span>, newStrValue);</span><br><span class="line">env-&gt;ReleaseStringUTFChars(publicStaticStrValue3, newStrValue);</span><br></pre></td></tr></table></figure>
+
+<p>注意事项：  </p>
+<ul>
+<li>这里在获取字符串时，<code>jobject</code> 可以直接强制转换为 <code>jstring</code>  </li>
+<li><code>jstring</code> 打印时，需要转换为 <code>char*</code> 指针  </li>
+</ul>
+<h3 id="JNI-中对-Java-多态的处理"><a href="#JNI-中对-Java-多态的处理" class="headerlink" title="JNI 中对 Java 多态的处理"></a><code>JNI</code> 中对 <code>Java</code> 多态的处理</h3><p><code>Java</code> 多态中的重载，可以通过方法签名（参数不一样）来区分；重写，通常情况下并不需要通过子类调用父类的重写方法，但是 <code>JNI</code> 中提供了该功能；重要 <code>API</code> ：  </p>
+<ul>
+<li><code>CallNonvirtualVoidMethod/CallNonvirtualIntMethod...</code> ：在重写时，直接调用父类的方法  </li>
+</ul>
+<p><code>Java</code> 示例代码，<code>father.show</code> 因为重写，输出结果为 <code>Son, show:</code> ：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JniPolymorphic</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"JniPolymorphic"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Father father = <span class="keyword">new</span> Son();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span></span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">            Log.d(TAG, <span class="string">"Father, show: "</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Father</span></span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            Log.d(TAG, <span class="string">"Son, show: "</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>JNI</code> 中，可以通过 <code>CallNonvirtualVoidMethod</code> 来直接调用，输出 <code>Father, show:</code> ：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构造 JniPolymorphic 对象</span></span><br><span class="line">jclass clz = env-&gt;FindClass(<span class="string">"com/***/jni/JniPolymorphic"</span>);</span><br><span class="line">jmethodID defaultConstructorID = env-&gt;GetMethodID(clz, <span class="string">"&lt;init&gt;"</span>, <span class="string">"()V"</span>);</span><br><span class="line">jobject jniObjectInstance = env-&gt;NewObject(clz, defaultConstructorID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取 father 对象</span></span><br><span class="line">jfieldID fatherID = env-&gt;GetFieldID(clz, <span class="string">"father"</span>,</span><br><span class="line">    <span class="string">"Lcom/***/jni/JniPolymorphic$Father;"</span>);</span><br><span class="line">jobject fatherObject = env-&gt;GetObjectField(jniObjectInstance, fatherID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取 show 方法的 id</span></span><br><span class="line">jclass fatherClass = env-&gt;FindClass(<span class="string">"com/***/jni/JniPolymorphic$Father"</span>);</span><br><span class="line">jmethodID fatherShowMethodID = </span><br><span class="line">    env-&gt;GetMethodID(fatherClass, <span class="string">"show"</span>, <span class="string">"()V"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 father 对象的 show 方法，因为重写，输出的结果为 Son, show</span></span><br><span class="line">env-&gt;CallVoidMethod(fatherObject, fatherShowMethodID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 father 对象的 show 方法，这里调用的是 Father 父类的 show 方法 </span></span><br><span class="line"><span class="comment">// 所以输出结果为 Father, show</span></span><br><span class="line">env-&gt;CallNonvirtualVoidMethod(fatherObject, </span><br><span class="line">    fatherClass, fatherShowMethodID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// release</span></span><br><span class="line">env-&gt;DeleteLocalRef(jniObjectInstance);</span><br><span class="line">env-&gt;DeleteLocalRef(clz);</span><br><span class="line">env-&gt;DeleteLocalRef(fatherObject);</span><br><span class="line">env-&gt;DeleteLocalRef(fatherClass);</span><br></pre></td></tr></table></figure>
+
+<p>注意事项：  </p>
+<ul>
+<li>内部类的类名拼接时，需要使用美元符 <code>$</code>  </li>
+</ul>
+<h2 id="Android-NDK"><a href="#Android-NDK" class="headerlink" title="Android NDK"></a><code>Android NDK</code></h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><ul>
+<li><code>Android NDK</code> 是一套允许使用 <code>C/C++</code> 等语言，以原生代码实现部分应用的工具集，<a href="https://developer.android.google.cn/ndk/index.html" target="_blank" rel="noopener">Google NDK 官网</a>  </li>
+<li><code>CMake</code> 一款外部构建工具，可与 <code>Gradle</code> 搭配使用来构建原生库；<code>Android Studio</code> 中已经使用 <code>Cmake</code> 替换原来的 <code>ndk-build</code>  </li>
+<li><code>LLDB</code> 一种调试程序，<code>Android Studio</code> 使用它来调试原生代码  </li>
+</ul>
+<h3 id="CPU-架构及-ABI"><a href="#CPU-架构及-ABI" class="headerlink" title="CPU 架构及 ABI"></a><code>CPU</code> 架构及 <code>ABI</code></h3><p>不同的 <code>CPU</code> 架构：<code>ARMv5, ARMv7, x86, MIPS, ARMv8, MIPS64, x86_64</code> 都关联着一个对应的 <code>ABI</code> 。<code>ABI（Application Binary Interface）</code> 决定了二进制文件如何与系统进行交互。<code>CPU</code> 对应的 <code>ABI</code> 有 <code>armeabi, armeabi­v7a, arm64­v8a, x86, x86_64, mips, mips64</code> 。<a href="https://developer.android.google.cn/ndk/guides/abis" target="_blank" rel="noopener"><code>Android NDK</code> 支持的 <code>ABI</code>，查看官网</a>    </p>
+<ul>
+<li><code>armeabi</code><br>将创建以基于 <code>ARM v5</code> 的设备为目标的库。使用软件浮点运算，可以在所有 <code>ARM</code> 设备上运行；<code>NDK</code> 中已经弃用。  </li>
+<li><code>armeabi-v7a</code><br>创建支持基于 <code>ARM v7</code> 的设备的库，并将使用硬件 <code>FPU</code> 指令，支持硬件浮点运算及高级扩展功能。与 <code>ARMv5、v6</code> 设备不兼容。</li>
+<li><code>mips</code><br>是世界上很流行的一种 <code>RISC</code> 处理器，其机制是尽量利用软件办法避免流水线中的数据相关问题；<code>NDK</code> 已弃用。  </li>
+<li><code>x86</code><br>支持基于硬件的浮点运算的 <code>IA-32</code> 指令集。<code>x86</code> 是可以兼容 <code>armeabi</code> 平台运行的，无论是 <code>armeabi-v7a</code> 还是 <code>armeabi</code>，同时带来的也是性能上的损耗。  </li>
+</ul>
+<p>当前现状，几个大厂的 <code>APK</code> (微信，美团等) 都只使用了 <code>armeabi-v7a</code>，可能是 <code>Android</code> 手机碎片化严重，为了能支持更多的设备。<code>Gradle</code> 中如果不指定，默认会生成所有架构对应的 <code>so</code> ，导致 <code>apk</code> 很大。这里可以参考大厂，只指定 <code>armeabi-v7a</code> ！在 <code>defaultConfig</code> 中增加如下代码：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ndk&#123;</span><br><span class="line">    abiFilter &apos;armeabi-v7a&apos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Android-Studio-设置快速生成-h-文件"><a href="#Android-Studio-设置快速生成-h-文件" class="headerlink" title="Android Studio 设置快速生成 h 文件"></a><code>Android Studio</code> 设置快速生成 h 文件</h3><p>这个方法是使用命令对 <code>Java</code> 中的 <code>native</code> 方法，手动生成对应头文件，非常方便。  </p>
+<p><a href="https://upload-images.jianshu.io/upload_images/606437-1fa4fa1e5a666dfb.png" target="_blank" rel="noopener">AndroidStudio 中快速生成 h 文件，查看大图</a>  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-AndroidStudio_ndk_javah.png" alt="0112-android-jni-AndroidStudio_ndk_javah.png"></p>
+<p>对应填写的参数如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$JDKPath$\bin\javah.exe</span><br><span class="line">-classpath . -jni -encoding $FileEncoding$ -d $ModuleFileDir$\src\main\jni $FileClass$</span><br><span class="line">$ModuleFileDir$\src\main\java</span><br></pre></td></tr></table></figure>
+
+<h3 id="搭建-JNI-编译环境"><a href="#搭建-JNI-编译环境" class="headerlink" title="搭建 JNI 编译环境"></a>搭建 <code>JNI</code> 编译环境</h3><p>在 <code>Android Studio</code> 中搭建好 <code>JNI</code> 编译环境后，所有的 <code>native</code> 代码会自动生成对应的 <code>JNI</code> 代码。  </p>
+<ul>
+<li>新建 <code>jni</code> 目录 <code>Folder -&gt; JNI Folder</code> ，并创建 <code>JNI</code> 对应的 <code>cpp</code> 文件  </li>
+<li>新建 <code>CMakeLists.txt</code> 文件，可以拷贝一份模板并将 <code>cpp</code> 文件和生成库的名称替换下  </li>
+<li><code>build.gradle</code> 中添加 <code>CMakeLists.txt</code> 路径，并重新 <code>sync</code> 工程确保能正确编译  </li>
+<li><code>Java</code> 文件中添加 <code>native</code> 方法，测试是否能自动生成对应的 <code>JNI</code><br>如果是新建 <code>Native</code> 工程，则会自动添加；但是手动新建的，<code>native</code> 方法总是生成对应的 <code>.c</code> 文件，需要拷贝到 <code>.cpp</code> 中；如果使用了动态注册，则 <code>Android Studio</code> 中对 <code>native</code> 方法不再出现小红灯提示，这个时候只能手动生成头文件了。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0112-android-jni-AndroidStudio-red-tips.png" alt="0112-android-jni-AndroidStudio-red-tips.png"></p>
+<h3 id="C-C-中的-LOG-打印"><a href="#C-C-中的-LOG-打印" class="headerlink" title="C/C++ 中的 LOG 打印"></a><code>C/C++</code> 中的 <code>LOG</code> 打印</h3><ul>
+<li><p><code>Cmake中</code> 增加 <code>log</code> 模块  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">target_link_libraries(hello-jni</span><br><span class="line">                      log)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>C/C++</code> 包含头文件<br><code>#include &lt;android/log.h&gt;</code>  </p>
+</li>
+<li><p>自定义 <code>LOG</code> 输出  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOGI(...) \</span></span><br><span class="line">  ((<span class="keyword">void</span>)__android_log_print(ANDROID_LOG_INFO, <span class="string">"MyTag::"</span>, __VA_ARGS__))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>C/C++</code> 代码中使用 <code>LOG</code> 打印<br><code>LOGI(&quot;sum %d&quot;, sum);</code>  </p>
+</li>
+</ul>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p><code>JNI</code> 代码出错后，会导致 <code>crash</code> ，根据 <code>logcat</code> 中 <code>backtrace</code> 输出的出错地址，来找到原始代码出错行。工具主要是 <code>ndk</code> 提供的 <code>addr2line</code> 和 <code>ndk-stack</code> 。  </p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>出错的源码：  </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Java_com_***_jni_JniClient_sampleReflectJNI(</span><br><span class="line">        JNIEnv *env, jobject instance) &#123;</span><br><span class="line">    jclass clz = env-&gt;FindClass(<span class="string">"Lcom/***/jni/JniObject;"</span>);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>出错原因是 <code>env-&gt;FindClass</code> 时，找不到指定类 <code>Lcom/***/jni/JniObject;</code> （<code>FindClass</code> 方法参数中类名不需要添加 <code>L</code> 和 <code>;</code> ，直接使用 <code>package/Classname</code> ），在 <code>logcat</code> 中输出了如下错误信息：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">    --------- beginning of crash</span><br><span class="line">2019-04-15 10:11:59.805 10175-10175/com.*** A/libc: Fatal signal 6 (SIGABRT), code -6 in tid 10175 (dbasicknowledge), pid 10175 (dbasicknowledge)</span><br><span class="line">2019-04-15 10:11:59.805 10175-10175/com.*** A/zygote: runtime.cc:531] </span><br><span class="line">2019-04-15 10:11:59.918 10224-10224/? I/crash_dump32: obtaining output fd from tombstoned, type: kDebuggerdTombstone</span><br><span class="line">2019-04-15 10:11:59.919 796-796/? I//system/bin/tombstoned: received crash request for pid 10175</span><br><span class="line">2019-04-15 10:11:59.920 10224-10224/? I/crash_dump32: performing dump of process 10175 (target tid = 10175)</span><br><span class="line">2019-04-15 10:11:59.920 10224-10224/? A/DEBUG: *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***</span><br><span class="line">2019-04-15 10:11:59.921 10224-10224/? A/DEBUG: Build fingerprint: &apos;Panasonic/ELUGA_Ray_710/ELUGA_Ray_710:8.1.0/OPM1.171019.011/013015:user/release-keys&apos;</span><br><span class="line">2019-04-15 10:11:59.921 10224-10224/? A/DEBUG: Revision: &apos;0&apos;</span><br><span class="line">2019-04-15 10:11:59.921 10224-10224/? A/DEBUG: ABI: &apos;arm&apos;</span><br><span class="line">2019-04-15 10:11:59.921 10224-10224/? A/DEBUG: pid: 10175, tid: 10175, name: dbasicknowledge  &gt;&gt;&gt; com.*** &lt;&lt;&lt;</span><br><span class="line">2019-04-15 10:11:59.921 10224-10224/? A/DEBUG: signal 6 (SIGABRT), code -6 (SI_TKILL), fault addr --------</span><br><span class="line">2019-04-15 10:11:59.927 10224-10224/? A/DEBUG: Abort message: &apos;java_vm_ext.cc:534] JNI DETECTED ERROR IN APPLICATION: illegal class name &apos;Lcom/***/jni/JniObject;&apos;&apos;</span><br><span class="line">2019-04-15 10:11:59.928 10224-10224/? A/DEBUG:     r0 00000000  r1 000027bf  r2 00000006  r3 00000008</span><br><span class="line">2019-04-15 10:11:59.928 10224-10224/? A/DEBUG:     r4 000027bf  r5 000027bf  r6 ffc85f8c  r7 0000010c</span><br><span class="line">2019-04-15 10:11:59.928 10224-10224/? A/DEBUG:     r8 00000000  r9 e940c1a0  sl 0000000a  fp ffc85fd8</span><br><span class="line">2019-04-15 10:11:59.928 10224-10224/? A/DEBUG:     ip cdf4ac20  sp ffc85f78  lr ea4f7c6d  pc ea4f170e  cpsr 200f0030</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG: backtrace:</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #00 pc 0001a70e  /system/lib/libc.so (abort+63)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #01 pc 0035ad89  /system/lib/libart.so (art::Runtime::Abort(char const*)+392)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #02 pc 0041a62d  /system/lib/libart.so (android::base::LogMessage::~LogMessage()+452)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #03 pc 0024d2f9  /system/lib/libart.so (art::JavaVMExt::JniAbort(char const*, char const*)+1212)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #04 pc 0024d47b  /system/lib/libart.so (art::JavaVMExt::JniAbortV(char const*, char const*, std::__va_list)+58)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #05 pc 000d5bd3  /system/lib/libart.so (art::ScopedCheck::AbortF(char const*, ...)+42)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #06 pc 000c126d  /system/lib/libart.so (art::CheckJNI::FindClass(_JNIEnv*, char const*)+496)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #07 pc 000081c5  /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/lib/arm/libjni-sample.so (_JNIEnv::FindClass(char const*)+36)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #08 pc 0000812d  /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/lib/arm/libjni-sample.so (Java_com_***_jni_JniClient_sampleReflectJNI+24)</span><br><span class="line">2019-04-15 10:11:59.936 10224-10224/? A/DEBUG:     #09 pc 0000a0fb  /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/oat/arm/base.odex (offset 0xa000)</span><br><span class="line">2019-04-15 10:12:01.314 796-796/? E//system/bin/tombstoned: Tombstone written to: /data/tombstones/tombstone_05</span><br></pre></td></tr></table></figure>
+
+<p>也可以将 <code>tombstone</code> 取出来获取更详细的信息。  </p>
+<h3 id="addr2line-工具"><a href="#addr2line-工具" class="headerlink" title="addr2line 工具"></a><code>addr2line</code> 工具</h3><p><code>addr2line</code> 工具在 <code>ndk</code> 的交叉编译工具链中，根据当前调试手机平台选择具体的交叉编译工具，示例代码使用的是 <code>armeabi</code>：<code>ndk-bundle\toolchains\arm-linux-androideabi-4.9\prebuilt\windows-x86_64\bin</code> ，找到 <code>arm-linux-androideabi-addr2line.exe</code> 文件，它就是 <code>addr2line</code> 工具。<br>命令格式： <code>addr2line -e so文件 出错地址</code> ；上面示例中，<code>so</code> 文件为 <code>libjni-sample.so</code> ，这个库文件在 <code>Android Studio</code> 的 <code>app\build\intermediates\cmake\debug\obj\armeabi-v7a\</code> 目录下；错误地址是 <code>0000812d</code> ，完整命令如下：  </p>
+<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">C:\**\<span class="title">ndk</span>-<span class="title">bundle</span>\<span class="title">toolchains</span>\<span class="title">arm</span>-<span class="title">linux</span>-<span class="title">androideabi</span>-4.9\<span class="title">prebuilt</span>\<span class="title">windows</span>-<span class="title">x86_64</span>\<span class="title">bin</span>&gt;<span class="title">arm</span>-<span class="title">linux</span>-<span class="title">androideabi</span>-<span class="title">addr2line.exe</span> -<span class="title">e</span> <span class="title">E</span>:\***\<span class="title">app</span>\<span class="title">build</span>\<span class="title">intermediates</span>\<span class="title">cmake</span>\<span class="title">debug</span>\<span class="title">obj</span>\<span class="title">armeabi</span>-<span class="title">v7a</span>\<span class="title">libjni</span>-<span class="title">sample.so</span> 0<span class="title">x0000812d</span></span></span><br><span class="line"><span class="function"><span class="title">E</span>:\***\<span class="title">app</span>\<span class="title">src</span>\<span class="title">main</span>\<span class="title">jni</span>/<span class="title">JniClient.cpp</span>:26</span></span><br></pre></td></tr></table></figure>
+
+<p>得到的解析结果为源码 <code>JniClient.cpp</code> 的第 26 行错误。  </p>
+<h3 id="ndk-stack-工具"><a href="#ndk-stack-工具" class="headerlink" title="ndk-stack 工具"></a><code>ndk-stack</code> 工具</h3><p><code>ndk-stack</code> 工具在 <code>ndk</code> 的当前目录 <code>$NDK_HOME</code> 下，是一个脚本文件 <code>ndk-stack.cmd</code> ，不需要指定交叉编译版本，取出 <code>tombstone</code> 文件后，使用 <code>ndk-stack</code> 自动解析出错误行。<br>命令格式： <code>ndk-stack -sym so所在文件目录 -dump tobstone &gt; 1.txt</code> ；上面示例中，不需要指定 <code>so</code> 文件名，只需要支持所在目录就行；完整命令如下：  </p>
+<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">C:\***\<span class="title">ndk</span>-<span class="title">bundle</span>\<span class="title">ndk</span>-<span class="title">stack.cmd</span> -<span class="title">sym</span> <span class="title">E</span>:\***\<span class="title">app</span>\<span class="title">build</span>\<span class="title">intermediates</span>\<span class="title">cmake</span>\<span class="title">debug</span>\<span class="title">obj</span>\<span class="title">armeabi</span>-<span class="title">v7a</span>\ -<span class="title">dump</span> <span class="title">tombstone_05</span> &gt; 1.<span class="title">txt</span></span></span><br></pre></td></tr></table></figure>
+
+<p>我们打开 <code>1.txt</code> 文件，可以查看到解析的结果：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">********** Crash dump: **********</span><br><span class="line">Build fingerprint: &apos;Panasonic/ELUGA_Ray_710/ELUGA_Ray_710:8.1.0/OPM1.171019.011/013015:user/release-keys&apos;</span><br><span class="line">Abort message: &apos;java_vm_ext.cc:534] JNI DETECTED ERROR IN APPLICATION: illegal class name &apos;L/com/***/jni/JniObject;&apos;&apos;</span><br><span class="line">#00 0x0001a70e /system/lib/libc.so (abort+63)</span><br><span class="line">#01 0x0035ad89 /system/lib/libart.so (art::Runtime::Abort(char const*)+392)</span><br><span class="line">#02 0x0041a62d /system/lib/libart.so (android::base::LogMessage::~LogMessage()+452)</span><br><span class="line">#03 0x0024d2f9 /system/lib/libart.so (art::JavaVMExt::JniAbort(char const*, char const*)+1212)</span><br><span class="line">#04 0x0024d47b /system/lib/libart.so (art::JavaVMExt::JniAbortV(char const*, char const*, std::__va_list)+58)</span><br><span class="line">#05 0x000d5bd3 /system/lib/libart.so (art::ScopedCheck::AbortF(char const*, ...)+42)</span><br><span class="line">#06 0x000c126d /system/lib/libart.so (art::CheckJNI::FindClass(_JNIEnv*, char const*)+496)</span><br><span class="line">#07 0x000081c5 /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/lib/arm/libjni-sample.so (_JNIEnv::FindClass(char const*)+36)</span><br><span class="line">    _JNIEnv::FindClass(char const*)</span><br><span class="line">    C:/***/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include\jni.h:504:14</span><br><span class="line">#08 0x0000812d /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/lib/arm/libjni-sample.so (Java_com_***_jni_JniClient_sampleReflectJNI+24)</span><br><span class="line">    Java_com_***_jni_JniClient_sampleReflectJNI</span><br><span class="line">    E:\***\app\src\main\jni\JniClient.cpp:26:23</span><br><span class="line">#09 0x0000a0fb /data/app/com.***-cnsQVEa2GWUFUs2IvyISdw==/oat/arm/base.odex (offset 0xa000)</span><br><span class="line">Crash dump is completed</span><br></pre></td></tr></table></figure>
+
+<p>得到了同样的解析结果： <code>JniClient.cpp</code> 的第 26 行错误。  </p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
+<li><code>JNI</code> 默认对应的是 <code>C</code> 代码，所以在 <code>C++</code> 代码中需要做如下声明：<code>extern &quot;C&quot;</code>  </li>
+<li><code>Android</code> 中 <code>jni.h</code> 定义的函数，都是在 <code>art/runtime/jni_internal.cc</code> 中实现的  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html" target="_blank" rel="noopener">Oracle: Java 8 JNI 官网</a>  </li>
+<li><a href="https://developer.android.google.cn/training/articles/perf-jni.html" target="_blank" rel="noopener">Goolge: Android JNI 官网</a>  </li>
+<li><a href="https://developer.android.google.cn/ndk/index.html" target="_blank" rel="noopener">Google: NDK 官网</a>  </li>
+<li><strong><a href="https://www.jianshu.com/p/87ce6f565d37" target="_blank" rel="noopener">隔壁老李头：Android JNI</a></strong>  </li>
+<li><a href="https://www.cnblogs.com/myd620/p/8981569.html" target="_blank" rel="noopener">Unicode 与 utf8 utf16 utf32的关系</a>  </li>
+<li><a href="https://www.jianshu.com/p/1b00ca07b003" target="_blank" rel="noopener">字符、编码和Java中的编码</a>  </li>
+<li><a href="https://blog.csdn.net/qq_38880380/article/details/86585271" target="_blank" rel="noopener">C–中文汉字占用字节长度</a>  </li>
+<li><a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.7" target="_blank" rel="noopener">JVM Utf8</a>  </li>
+<li><a href="https://www.cnblogs.com/WoodJim/p/4797127.html" target="_blank" rel="noopener">JNI中引用类型</a>  </li>
+<li><a href="https://blog.csdn.net/qq_28261343/article/details/80946828" target="_blank" rel="noopener">在JNI中使用引用</a>  </li>
+<li><a href="https://blog.csdn.net/wujian946110509/article/details/78022033" target="_blank" rel="noopener">JavaVM和 JNIEnv 动态注册本地方法</a>  </li>
+<li><a href="https://blog.csdn.net/self_study/article/details/78886686" target="_blank" rel="noopener">NewString 与 NewStringUtf 解析</a>  </li>
+<li><a href="https://www.jianshu.com/p/0366d01bdeeb" target="_blank" rel="noopener">NI数据类型与方法属性访问</a>  </li>
+<li><a href="https://developer.android.google.cn/studio/projects/add-native-code" target="_blank" rel="noopener">Android Studio 中添加 C/C++ 代码</a>  </li>
+<li><a href="https://blog.csdn.net/hgy413/article/details/82842768" target="_blank" rel="noopener">Android Studio NDK快速生成.h头文件</a>  </li>
+<li><strong><a href="https://www.jianshu.com/nb/10785521" target="_blank" rel="noopener">小楠总: Android NDK开发之旅</a></strong>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/04/10/0112-android-jni/" title="Android JNI">http://redspider110.github.io/2019/04/10/0112-android-jni/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/02/0111-android-seandroid/" rel="next" title="seAndroid 安全机制">
+                <i class="fa fa-chevron-left"></i> seAndroid 安全机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/0113-android-graphics-display/" rel="prev" title="Android 图形显示简述">
+                Android 图形显示简述 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类型与数据结构"><span class="nav-number">2.</span> <span class="nav-text">类型与数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本数据类型"><span class="nav-number">2.1.</span> <span class="nav-text">基本数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#引用类型"><span class="nav-number">2.2.</span> <span class="nav-text">引用类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#属性和方法"><span class="nav-number">2.3.</span> <span class="nav-text">属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可变参数列表"><span class="nav-number">2.4.</span> <span class="nav-text">可变参数列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类型签名-Type-Signatures"><span class="nav-number">2.5.</span> <span class="nav-text">类型签名 Type Signatures</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串编码"><span class="nav-number">3.</span> <span class="nav-text">字符串编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode-编码"><span class="nav-number">3.1.</span> <span class="nav-text">Unicode 编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-8"><span class="nav-number">3.2.</span> <span class="nav-text">UTF-8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-16"><span class="nav-number">3.3.</span> <span class="nav-text">UTF-16</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改后的-UTF-8-编码"><span class="nav-number">3.4.</span> <span class="nav-text">修改后的 UTF-8 编码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI-接口指针"><span class="nav-number">4.</span> <span class="nav-text">JNI 接口指针</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念"><span class="nav-number">4.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaVM-源码"><span class="nav-number">4.2.</span> <span class="nav-text">JavaVM 源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JNIEnv-源码"><span class="nav-number">4.3.</span> <span class="nav-text">JNIEnv 源码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JNI-引用"><span class="nav-number">5.</span> <span class="nav-text">JNI 引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#局部引用"><span class="nav-number">5.1.</span> <span class="nav-text">局部引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全局引用"><span class="nav-number">5.2.</span> <span class="nav-text">全局引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弱全局引用"><span class="nav-number">5.3.</span> <span class="nav-text">弱全局引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#引用比较"><span class="nav-number">5.4.</span> <span class="nav-text">引用比较</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#API-基本功能"><span class="nav-number">6.</span> <span class="nav-text">API 基本功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#动态注册方法"><span class="nav-number">6.1.</span> <span class="nav-text">动态注册方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串操作"><span class="nav-number">6.2.</span> <span class="nav-text">字符串操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数组"><span class="nav-number">6.3.</span> <span class="nav-text">数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建-Java-对象"><span class="nav-number">6.4.</span> <span class="nav-text">创建 Java 对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取-Java-对象的属性和方法"><span class="nav-number">6.5.</span> <span class="nav-text">获取 Java 对象的属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取-Java-中-static-静态属性和方法"><span class="nav-number">6.6.</span> <span class="nav-text">获取 Java 中 static 静态属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JNI-中对-Java-多态的处理"><span class="nav-number">6.7.</span> <span class="nav-text">JNI 中对 Java 多态的处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-NDK"><span class="nav-number">7.</span> <span class="nav-text">Android NDK</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念"><span class="nav-number">7.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-架构及-ABI"><span class="nav-number">7.2.</span> <span class="nav-text">CPU 架构及 ABI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-Studio-设置快速生成-h-文件"><span class="nav-number">7.3.</span> <span class="nav-text">Android Studio 设置快速生成 h 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#搭建-JNI-编译环境"><span class="nav-number">7.4.</span> <span class="nav-text">搭建 JNI 编译环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-C-中的-LOG-打印"><span class="nav-number">7.5.</span> <span class="nav-text">C/C++ 中的 LOG 打印</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调试"><span class="nav-number">8.</span> <span class="nav-text">调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">8.1.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#addr2line-工具"><span class="nav-number">8.2.</span> <span class="nav-text">addr2line 工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ndk-stack-工具"><span class="nav-number">8.3.</span> <span class="nav-text">ndk-stack 工具</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">9.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">10.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

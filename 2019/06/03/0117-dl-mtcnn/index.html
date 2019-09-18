@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="DeepLearning,TensorFlow,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="MTCNN 人脸检测关键 5 点：眼、鼻、嘴。">
+<meta name="keywords" content="DeepLearning,TensorFlow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MTCNN 人脸检测">
+<meta property="og:url" content="http://redspider110.github.io/2019/06/03/0117-dl-mtcnn/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="MTCNN 人脸检测关键 5 点：眼、鼻、嘴。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-summary.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-architecures.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-loss.jpg">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MTCNN 人脸检测">
+<meta name="twitter:description" content="MTCNN 人脸检测关键 5 点：眼、鼻、嘴。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-summary.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2019/06/03/0117-dl-mtcnn/">
+
+
+
+
+
+  <title>MTCNN 人脸检测 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2019/06/03/0117-dl-mtcnn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MTCNN 人脸检测</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-03T09:00:00+08:00">
+                2019-06-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DeepLearning/" itemprop="url" rel="index">
+                    <span itemprop="name">DeepLearning</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>MTCNN</code> 人脸检测关键 5 点：眼、鼻、嘴。  </p>
+<a id="more"></a>
+
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><code>MTCNN</code> 人脸检测模型由中国科学院深圳先进技术研究院，在 2016 年发布，通过三个网络级联实现人脸 5 个关键点（双眼、鼻、嘴）的定位检测；大致检测流程如下：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-summary.jpg" alt="0117-dl-mtcnn-summary.jpg"></p>
+<h3 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h3><ul>
+<li>人脸识别中 <code>MTCNN</code> 多任务卷积论文：<a href="https://arxiv.org/abs/1702.04710" target="_blank" rel="noopener">Multi-Task Convolutional Neural Network for Pose-Invariant Face Recognition</a>  </li>
+<li><code>MTCNN</code> 实现人脸关键点检测论文：<a href="https://arxiv.org/abs/1604.02878v1" target="_blank" rel="noopener">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</a>  </li>
+<li>论文作者 <code>kpzhang93</code> 代码仓库，包含最新的论文和代码：<a href="https://github.com/kpzhang93/MTCNN_face_detection_alignment" target="_blank" rel="noopener">Github上官方代码实现</a>  </li>
+<li><code>Facenet</code> 中基于 <code>kpzhang93</code> 提供的数据对齐人脸：<a href="https://github.com/davidsandberg/facenet/tree/master/src/align" target="_blank" rel="noopener">Facenet 中使用 TensorFlow 实现的 MTCNN</a>  </li>
+<li>基于 <code>davidsandberg/facenet</code> 提供的数据，转换为 <code>TensorFlow</code> 中的模型 <code>pb</code> 文件：<a href="https://github.com/vcvycy/TensorflowFreezeModel" target="_blank" rel="noopener">vcvycy: MTCNN-TensorFlow-freeze-model</a>  </li>
+<li><code>vcvycy</code> 基于上面的模型 <code>pb</code> 文件，在 <code>Android</code> 上的实现：<a href="https://github.com/vcvycy/MTCNN4Android" target="_blank" rel="noopener">MTCNN TensorFlow mobile</a>  </li>
+<li>参考 <code>kpzhang93</code> 的论文，自己准备数据，基于 <code>TensorFlow</code> 的实现完整的 <code>MTCNN</code> 并生成模型：<a href="https://github.com/AITTSMD/MTCNN-Tensorflow" target="_blank" rel="noopener">AITTSMD: MTCNN-TensorFlow</a>  </li>
+<li>基于 <code>AITTSMD</code> 训练的数据转换为 <code>tflite</code>：<a href="https://github.com/jiangxiluning/facenet_mtcnn_to_mobile" target="_blank" rel="noopener">pb 转 tflite</a>  </li>
+<li><code>WIDERFACE</code> 人脸数据集，常用于自己训练模型：<a href="http://shuoyang1213.me/WIDERFACE/" target="_blank" rel="noopener">WIDERFACE data</a>  </li>
+<li>人脸和关键 5 点数据集，需要翻墙下载（已下载到个人网盘）：<a href="http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm" target="_blank" rel="noopener">Deep Convolutional Network Cascade for Facial Point Detection</a>  </li>
+</ul>
+<h3 id="几个名词"><a href="#几个名词" class="headerlink" title="几个名词"></a>几个名词</h3><ul>
+<li><code>Bounding box regression</code><br>边框回归，预测的框有可能不是完整的被检测到的物体，需要微调到到真实大小的框，这个预测框转换为真实框的过程叫做边框回归。  </li>
+<li><code>IoU</code><br><code>IoU: Intersec over Union</code> 交并比，也就是重叠度，计算的是预测框和真实框的交集和并集的比值，当 <code>IoU</code> 大于某个阈值（0.5）时，就认为预测框是正确的。常用于评价定位算法是否精准。  </li>
+<li><code>NMS</code><br><code>NMS: Non Maximum Suppression</code> 非极大值抑制，即只保留局部最大值，用于去掉重复的检测框，只保留局部最好的检测框，即检测分数最高的框。  </li>
+</ul>
+<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><h3 id="模型结构图"><a href="#模型结构图" class="headerlink" title="模型结构图"></a>模型结构图</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-architecures.png" alt="0117-dl-mtcnn-architecures.png"></p>
+<p>有三个独立的网络构成： <code>P-Net, R-Net, O-Net</code> 。  </p>
+<h3 id="P-Net"><a href="#P-Net" class="headerlink" title="P-Net"></a><code>P-Net</code></h3><p><code>P-Net: Proposal Network</code> ，是全卷积网络，因此可以接受任意尺寸的输入图片，这里假定输入大小为 <code>12*12*3</code> ：  </p>
+<ul>
+<li>第一层：使用 10 个 <code>3*3*3</code> 的卷积核，滑动步长为 1 ， <code>padding</code> 为 <code>VALID</code> ，卷积输出大小为 <code>10*10*10</code> ；再经过 <code>2*2</code> 的池化核，滑动步长为 2 的 <code>Max Pooling</code> ，生成 10 个 <code>5*5</code> 的特征图  </li>
+<li>第二层：使用 16 个 <code>3*3*10</code> 的卷积核，滑动步长为 1 ， <code>padding</code> 为 <code>VALID</code> ，生成 16 个 <code>3*3</code> 的特征图  </li>
+<li>第三层：使用 32 个 <code>3*3*16</code> 的卷积核，滑动步长为 1 ， <code>padding</code> 为 <code>VALID</code> ，生成 32 个 <code>1*1</code> 的特征图  </li>
+<li>对于这 32 个 <code>1*1</code> 的特征图，训练时分三部分并行处理：分类 <code>face classification</code> ， 回归框判断 <code>bounding box regression</code> ，轮廓点定位 <code>Facial landmark localization</code>  </li>
+<li>分类 <code>face classification</code> ： 使用 2 个 <code>1*1*32</code> 的卷积核，生成 2 个 <code>1*1</code> 的特征图用于分类  </li>
+<li>回归框判断 <code>bounding box regression</code> ：使用 4 个 <code>1*1*32</code> 的卷积核，生成 4 个 <code>1*1</code> 的特征图用于回归框判断  </li>
+<li>轮廓点定位 <code>Facial landmark localization</code> ：使用 10 个 <code>1*1*32</code> 的卷积核，生成 10 个 <code>1*1</code> 的特征图用于人脸轮廓点的定位  </li>
+</ul>
+<h3 id="R-Net"><a href="#R-Net" class="headerlink" title="R-Net"></a><code>R-Net</code></h3><p><code>R-Net: Refine Network</code> ，该网络先通过卷积然后再做全连接，也是分成三部分处理； <code>R-Net</code> 的输入为固定大小 <code>24*24*3</code> ，但是输入个数由 <code>P-Net</code> 输出的候选框个数决定。<br>当 <code>P-Net</code> 处理完图像后，得到的候选回归框通过 <code>NMS</code> 去除冗余，并将候选框调整为正方形区域；从原始图片中截取出候选框大小的图片，并缩放为 <code>24*24</code> 大小，作为 <code>R-Net</code> 的输入，每个 <code>24*24*3</code> 大小的候选框会经过 <code>R-Net</code> 处理：  </p>
+<ul>
+<li>第一层：使用 28 个 <code>3*3*3</code> 的卷积核，输出大小为 <code>22*22*28</code> ；再经过 <code>3*3</code> 的池化核，滑动步长为 2 的最大池化，生成 28 个 <code>11*11</code> 的特征图  </li>
+<li>第二层：使用 48 个 <code>3*3*28</code> 的卷积核，输出大小为 <code>9*9*48</code> ；再经过 <code>3*3</code> 的池化核，滑动步长为 2 的最大池化，生成 48 个 <code>4*4</code> 的特征图  </li>
+<li>第三层：使用 64 个 <code>2*2*48</code> 的卷积核，生成 64 个 <code>3*3</code> 的特征图  </li>
+<li>第四层：全连接层，64 个 <code>3*3</code> 的特征图喂入全连接层后，输出大小为 128 ；训练时，从这里分成三部分处理：分类 <code>face classification</code> ， 回归框判断 <code>bounding box regression</code> ，轮廓点定位 <code>Facial landmark localization</code>  </li>
+<li>分类 <code>face classification</code> ：全连接输入大小为 128 ，输出为人脸的 2 分类结果  </li>
+<li>回归框判断 <code>bounding box regression</code> ：全连接输入大小为 128 ，输出为大小为 4 的回归框判断结果  </li>
+<li>轮廓点定位 <code>Facial landmark localization</code> ：全连接输入大小为 128 ，输出为大小为 10 的轮廓点定位  </li>
+</ul>
+<h3 id="O-Net"><a href="#O-Net" class="headerlink" title="O-Net"></a><code>O-Net</code></h3><p><code>O-Net: Output Network</code> ，该网络和 <code>R-Net</code> 很类似； <code>O-Net</code> 的输入为固定大小 <code>48*48*3</code> ，但是输入个数由 <code>R-Net</code> 输出的候选框个数决定。<br>当 <code>R-Net</code> 处理完图像后，得到的候选回归框通过 <code>NMS</code> 去除冗余；从原始图片中截取出候选框大小的图片，并调整为 <code>48*48</code> 大小，作为 <code>O-Net</code> 的输入，每个 <code>48*48*3</code> 大小的候选框会经过 <code>O-Net</code> 处理：  </p>
+<ul>
+<li>第一层：使用 32 个 <code>3*3*3</code> 的卷积核，输出大小为 <code>46*46*32</code> ；再经过 <code>3*3</code> 的池化核，滑动步长为 2 的最大池化，生成 32 个 <code>23*23</code> 的特征图  </li>
+<li>第二层：使用 64 个 <code>3*3*32</code> 的卷积核，输出大小为 <code>21*21*64</code> ；再经过 <code>3*3</code> 的池化核，滑动步长为 2 的最大池化，生成 64 个 <code>10*10</code> 的特征图  </li>
+<li>第三层：使用 64 个 <code>3*3*64</code> 的卷积核，输出大小为 <code>8*8*64</code> ；再经过 <code>2*2</code> 的池化核，滑动步长为 2 的最大池化，生成 64 个 <code>4*4</code> 的特征图  </li>
+<li>第四层：使用 128 个 <code>2*2*64</code> 的卷积核，生成 128 个 <code>3*3</code> 的特征图  </li>
+<li>第五层：全连接层，128 个 <code>3*3</code> 的特征图喂入全连接层后，输出大小为 256 ；训练时，从这里分成三部分处理：分类 <code>face classification</code> ， 回归框判断 <code>bounding box regression</code> ，轮廓点定位 <code>Facial landmark localization</code>  </li>
+<li>分类 <code>face classification</code> ：全连接输入大小为 256 ，输出为人脸的 2 分类结果  </li>
+<li>回归框判断 <code>bounding box regression</code> ：全连接输入大小为 256 ，输出为大小为 4 的回归框判断结果  </li>
+<li>轮廓点定位 <code>Facial landmark localization</code> ：全连接输入大小为 256 ，输出为大小为 10 的轮廓点定位  </li>
+</ul>
+<h3 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h3><p>三个网络的损失函数分别为：  </p>
+<ul>
+<li><code>P-Net</code> 损失函数为二分类交叉熵  </li>
+<li><code>R-Net, O-Net</code> 损失函数都为 <code>L2</code> 均方差  </li>
+</ul>
+<p>多任务训练时，不是每个示例的都需要使用三种损失函数，在 <code>P-Net, R-Net</code> 中， <code>α</code> 分类、候选框、定位的值为 <code>1, 0.5, 0.5</code> ；在 <code>O-Net</code> 中， <code>α</code> 分类、候选框、定位的值为 <code>1, 0.5, 1</code> ；对于 <code>β∈(0,1)</code> 。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0117-dl-mtcnn-loss.jpg" alt="0117-dl-mtcnn-loss.jpg"></p>
+<h3 id="模型小结"><a href="#模型小结" class="headerlink" title="模型小结"></a>模型小结</h3><ul>
+<li>三个网络的卷积核的滑动步长都为 1 ， <code>padding</code> 都为 <code>VALID</code>  </li>
+<li>卷积后面激活函数为 <code>PReLU</code>  </li>
+<li>三个网络池化核滑动步长都为 2  </li>
+<li>三个网络的输出都为三部分：分类 <code>face classification</code> ， 回归框判断 <code>bounding box regression</code> ，轮廓点定位 <code>Facial landmark localization</code> ，但只有 <code>O-Net</code> 的轮廓定位点是有效的  </li>
+<li><code>P-Net</code> 使用了 <code>1*1</code> 的卷积来代替全连接，好处是输入可以是任意尺寸  </li>
+<li>2 个人脸分类结果：第二个表示是人脸的分数  </li>
+<li>4 个回归框结果：分别对应回归框映射时左上右下映射参数  </li>
+<li>10 个轮廓点定位：表示 5 个关键点（左眼，右眼、鼻、嘴左边、嘴右边）的坐标，其中第 1 个和第 6 个表示左眼坐标，第 2 个和第 7 个表示右眼坐标，以此类推  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://blog.csdn.net/qq_14845119/article/details/52680940" target="_blank" rel="noopener">MTCNN（Multi-task convolutional neural networks）人脸对齐</a>  </li>
+<li><a href="https://blog.csdn.net/tinyzhao/article/details/53236191" target="_blank" rel="noopener">人脸检测：MTCNN</a>  </li>
+<li><a href="https://blog.csdn.net/zijin0802034/article/details/77685438" target="_blank" rel="noopener">边框回归(Bounding Box Regression)详解</a></li>
+<li><a href="https://blog.csdn.net/u014061630/article/details/82818112" target="_blank" rel="noopener">目标检测之 IoU</a></li>
+<li><a href="https://blog.csdn.net/shuzfan/article/details/52711706" target="_blank" rel="noopener">NMS——非极大值抑制</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/32121614" target="_blank" rel="noopener">MTCNN人脸检测—RNet网络训练</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2019/06/03/0117-dl-mtcnn/" title="MTCNN 人脸检测">http://redspider110.github.io/2019/06/03/0117-dl-mtcnn/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/DeepLearning/" rel="tag"># DeepLearning</a>
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/27/0116-dl-tensorflow/" rel="next" title="TensorFlow 相关">
+                <i class="fa fa-chevron-left"></i> TensorFlow 相关
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/22/0118-android-bitmap/" rel="prev" title="Android Bitmap 相关">
+                Android Bitmap 相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相关资源"><span class="nav-number">1.1.</span> <span class="nav-text">相关资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几个名词"><span class="nav-number">1.2.</span> <span class="nav-text">几个名词</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模型结构"><span class="nav-number">2.</span> <span class="nav-text">模型结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模型结构图"><span class="nav-number">2.1.</span> <span class="nav-text">模型结构图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#P-Net"><span class="nav-number">2.2.</span> <span class="nav-text">P-Net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#R-Net"><span class="nav-number">2.3.</span> <span class="nav-text">R-Net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#O-Net"><span class="nav-number">2.4.</span> <span class="nav-text">O-Net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#损失函数"><span class="nav-number">2.5.</span> <span class="nav-text">损失函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型小结"><span class="nav-number">2.6.</span> <span class="nav-text">模型小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

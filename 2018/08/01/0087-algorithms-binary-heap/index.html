@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Algorithms,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="算法：优先队列、堆、二叉堆、索引优先队列、堆排序等相关介绍。">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法 - 优先队列 - 二叉堆">
+<meta property="og:url" content="http://redspider110.github.io/2018/08/01/0087-algorithms-binary-heap/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="算法：优先队列、堆、二叉堆、索引优先队列、堆排序等相关介绍。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-priority-queue-array.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-priority-queue-implement.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-show.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-swim.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-sink.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-insert-delmax.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-construct.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-index-priority-queue.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort-constuctor.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort-sink.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heapsort-trace.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heapsort-array.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-JDK-PriorityQueue-UML.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.375Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法 - 优先队列 - 二叉堆">
+<meta name="twitter:description" content="算法：优先队列、堆、二叉堆、索引优先队列、堆排序等相关介绍。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-priority-queue-array.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/08/01/0087-algorithms-binary-heap/">
+
+
+
+
+
+  <title>算法 - 优先队列 - 二叉堆 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/08/01/0087-algorithms-binary-heap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">算法 - 优先队列 - 二叉堆</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-01T09:00:00+08:00">
+                2018-08-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms/" itemprop="url" rel="index">
+                    <span itemprop="name">Algorithms</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>算法：优先队列、堆、二叉堆、索引优先队列、堆排序等相关介绍。  </p>
+<a id="more"></a>
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>优先队列 <code>Priority queue</code> ：是这样一种数据结构，支持删除优先级最高元素和插入元素。通常有两种实现方式：  </p>
+<ul>
+<li>最大优先队列：支持删除最大元素  </li>
+<li>最小优先队列：支持删除最小元素  </li>
+</ul>
+<h3 id="通用-API"><a href="#通用-API" class="headerlink" title="通用 API"></a>通用 <code>API</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxPQ</span>&lt;<span class="title">Key</span>&gt; <span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Key</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 存储优先队列的元素</span></span><br><span class="line">    <span class="keyword">private</span> Key[] pq;                    <span class="comment">// store items at indices 1 to n</span></span><br><span class="line">    <span class="comment">// 优先队列长度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> n;                       <span class="comment">// number of items on priority queue</span></span><br><span class="line">    <span class="comment">// 各种构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxPQ</span><span class="params">(<span class="keyword">int</span> initCapacity)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxPQ</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxPQ</span><span class="params">(<span class="keyword">int</span> initCapacity, Comparator&lt;Key&gt; comparator)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxPQ</span><span class="params">(Comparator&lt;Key&gt; comparator)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxPQ</span><span class="params">(Key[] keys)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 返回最大元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Key <span class="title">max</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 动态调整优先队列数组大小，以 2 的倍数调整</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">resize</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 插入元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(Key x)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 删除最大元素，并返回最大值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Key <span class="title">delMax</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 上浮</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 下沉</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sink</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/********************************************************************</span></span><br><span class="line"><span class="comment">    * Helper functions for compares and swaps.</span></span><br><span class="line"><span class="comment">    ********************************************************************/</span></span><br><span class="line">    <span class="comment">// 最大优先队列和最小优先队列，主要是在比较上返回值相反</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">less</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (comparator == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> ((Comparable&lt;Key&gt;) pq[i]).compareTo(pq[j]) &lt; <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> comparator.compare(pq[i], pq[j]) &lt; <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exch</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        Key swap = pq[i];</span><br><span class="line">        pq[i] = pq[j];</span><br><span class="line">        pq[j] = swap;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="优先队列的初级实现"><a href="#优先队列的初级实现" class="headerlink" title="优先队列的初级实现"></a>优先队列的初级实现</h3><ul>
+<li>数组实现无序<br>插入元素：直接插入到数组最后一列；删除最大元素：遍历数组找到最大元素，和最后一列交换后删除它。  </li>
+<li>数组实现有序<br>插入元素：类似插入排序，将所有较大元素向右移动一格使数组保持有序；删除元素：最大元素总是在数组最右边，直接删除。  </li>
+<li>链表实现<br>可以基于链表模拟栈操作，<code>pop</code> 找到并返回最大元素并删除；<code>push</code> 保证元素为逆序。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-priority-queue-array.png" alt="0087-priority-queue-array.png"></p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-priority-queue-implement.png" alt="0087-priority-queue-implement.png"></p>
+<h2 id="二叉堆"><a href="#二叉堆" class="headerlink" title="二叉堆"></a>二叉堆</h2><h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆 <code>Heap</code> 是一类特殊的数据结构的统称，堆通常是一个可以被看做一棵树的<strong>数组对象</strong>。堆总是满足下列性质：  </p>
+<ul>
+<li>堆中某个节点的值总是不大于或不小于其父节点的值  </li>
+<li>堆总是一棵完全二叉树  </li>
+</ul>
+<p>堆的定义如下：<code>n</code> 个元素的序列 <code>{K1,K2,Ki,…,Kn}</code> 当且仅当满足下关系时，称之为堆：  </p>
+<ul>
+<li><code>(Ki &lt;= K2i,ki &lt;= K2i+1)</code> 或者 <code>(Ki &gt;= K2i,Ki &gt;= K2i+1), (i = 1,2,3,4...n/2)</code>  </li>
+<li>若将和此次序列对应的一维数组（即以一维数组作此序列的存储结构）看成是一个完全二叉树，则堆的含义表明：完全二叉树中所有非终端结点的值均不大于（或不小于）其左、右孩子结点的值。由此，若序列 <code>{K1,K2,…,Kn}</code> 是堆，则堆顶元素（或完全二叉树的根）必为序列中 <code>n</code> 个元素的最小值（或最大值）  </li>
+</ul>
+<p>将根节点最大的堆叫做<strong>最大堆或大根堆</strong>，根节点最小的堆叫做<strong>最小堆或小根堆</strong>。<br><strong>堆有序</strong>：当一颗二叉树的每个节点都大于等于它的两个子节点时，称为堆有序。<br>常见的堆有：二叉堆、二项堆、斐波那契堆。本文重点介绍二叉堆。  </p>
+<h3 id="二叉堆-1"><a href="#二叉堆-1" class="headerlink" title="二叉堆"></a>二叉堆</h3><p>二叉堆 <code>binary heap</code> 是一种特殊的堆。二叉堆是：完全二叉树或者是近似完全二叉树。二叉堆有两种：  </p>
+<ul>
+<li>最大堆<br>父结点的键值总是大于或等于任何一个子节点的键值。  </li>
+<li>最小堆<br>父结点的键值总是小于或等于任何一个子节点的键值。  </li>
+</ul>
+<p>二叉堆定义：一组能够用堆有序的完全二叉树排序的元素，并在数组中按照层级存储（不使用数组的第一个位置）。<br>二叉堆在数组中的数学性质：  </p>
+<ul>
+<li>位置为 <code>k</code> 的节点，其父节点位置为向下取整 <code>[k/2]</code> ，其两个子节点位置为 <code>2k,2k+1</code>  </li>
+<li>位置为 <code>k</code> 的节点，在数组中向上移动一层时，则令 <code>k=2/k</code>；向下移动一层，则令 <code>k=2k</code> 或者 <code>k=2k+1</code>  </li>
+</ul>
+<p>本文中，默认堆数组的第 0 个元素不保留任何信息，从第 1 个元素开始存储堆元素。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-show.png" alt="0087-binary-heap-show.png"></p>
+<h2 id="二叉堆有序化"><a href="#二叉堆有序化" class="headerlink" title="二叉堆有序化"></a>二叉堆有序化</h2><p>二叉堆的插入和删除操作会打破堆的状态，需要遍历整个堆并按照要求将堆的状态恢复，称为堆的有序化。  </p>
+<h3 id="上浮"><a href="#上浮" class="headerlink" title="上浮"></a>上浮</h3><p>上浮 <code>swim</code> ：由下至上的堆有序化。如果堆的有序状态因为某个节点变得比它的父节点更大而打破，那么需要交换它和它的父节点来修复堆。但是交换后，该节点可能仍然比父节点大，因此需要重复比较，将这个节点不断的上移，直到找到更大的父节点。这个节点每次都需要上浮到堆的上一层，直到堆恢复有序状态。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-swim.png" alt="0087-binary-heap-swim.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (k &gt; <span class="number">1</span> &amp;&amp; less(k/<span class="number">2</span>, k)) &#123;</span><br><span class="line">        exch(k, k/<span class="number">2</span>);</span><br><span class="line">        k = k/<span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="下沉"><a href="#下沉" class="headerlink" title="下沉"></a>下沉</h3><p>下沉 <code>sink</code> ：由上至下的堆有序化。如果堆的有序状态因为某个节点变得比它的两个子节点或者其中一个子节点更小而打破，那么需要交换它和较大子节点来修复堆。同样，交换后该节点可能仍然比子节点或者其中一个子节点小，因此需要重复比较，将这个节点不断的下移，直到找到它的子节点都比它小或者堆的底部。这个节点每次都需要下沉到堆的下一层，直到堆恢复有序状态。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-sink.png" alt="0087-binary-heap-sink.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sink</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">2</span>*k &lt;= n) &#123;</span><br><span class="line">        <span class="comment">// 找出较大的子节点</span></span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">2</span>*k;</span><br><span class="line">        <span class="keyword">if</span> (j &lt; n &amp;&amp; less(j, j+<span class="number">1</span>)) j++;</span><br><span class="line">        <span class="comment">// 比较如果节点比较大子节点大，下沉结束</span></span><br><span class="line">        <span class="keyword">if</span> (!less(k, j)) <span class="keyword">break</span>;</span><br><span class="line">        <span class="comment">// 否则和较大子节点交换</span></span><br><span class="line">        exch(k, j);</span><br><span class="line">        k = j;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="插入和删除最大元素"><a href="#插入和删除最大元素" class="headerlink" title="插入和删除最大元素"></a>插入和删除最大元素</h3><ul>
+<li>插入元素<br>将新元素加入到数组末尾，并让这个新元素上浮到合适位置。  </li>
+<li>删除最大元素<br>从数组顶端删除最大元素（根元素），将数组的最后一个元素放到顶端，并将这个元素下沉到合适位置。  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-insert-delmax.png" alt="0087-binary-heap-insert-delmax.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(Key x)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// double size of array if necessary</span></span><br><span class="line">    <span class="comment">// 检查优先队列大小，是否需要扩容</span></span><br><span class="line">    <span class="keyword">if</span> (n == pq.length - <span class="number">1</span>) resize(<span class="number">2</span> * pq.length);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// add x, and percolate it up to maintain heap invariant</span></span><br><span class="line">    <span class="comment">// 将新元素加入到数组末尾</span></span><br><span class="line">    pq[++n] = x;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将新元素上浮到合适位置</span></span><br><span class="line">    swim(n);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> Key <span class="title">delMax</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断优先队列是否为空  </span></span><br><span class="line">    <span class="keyword">if</span> (isEmpty()) <span class="keyword">throw</span> </span><br><span class="line">        <span class="keyword">new</span> NoSuchElementException(<span class="string">"Priority queue underflow"</span>);</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 删除优先队列顶端元素，并将最后一个元素交换到顶端</span></span><br><span class="line">    Key max = pq[<span class="number">1</span>];</span><br><span class="line">    exch(<span class="number">1</span>, n);</span><br><span class="line">    pq[n] = <span class="keyword">null</span>;     <span class="comment">// to avoid loiterig and help with garbage collection</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将顶端元素下沉到合适位置 </span></span><br><span class="line">    sink(<span class="number">1</span>);    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 调整优先队列大小</span></span><br><span class="line">    <span class="keyword">if</span> ((n &gt; <span class="number">0</span>) &amp;&amp; (n == (pq.length - <span class="number">1</span>) / <span class="number">4</span>)) resize(pq.length / <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> max;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据上面算法的估算，插入和删除最大元素的时间复杂度都是 <code>O(logN)</code>。  </p>
+<h3 id="二叉堆构造过程"><a href="#二叉堆构造过程" class="headerlink" title="二叉堆构造过程"></a>二叉堆构造过程</h3><p>二叉堆的构造过程：逐个插入元素，保持堆的有序状态。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-construct.png" alt="0087-binary-heap-construct.png"></p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>可以看出，优先队列在插入元素的过程中，堆始终保持有序状态；删除最大值（最小值），堆仍然有序。优先队列的特点，不需要事先将所有元素读入内存，可以一边读入，一边保持堆有序状态。  </p>
+<h2 id="索引优先队列"><a href="#索引优先队列" class="headerlink" title="索引优先队列"></a>索引优先队列</h2><h3 id="意义"><a href="#意义" class="headerlink" title="意义"></a>意义</h3><p>索引优先队列，首先是一个优先队列，但是又带有索引。索引是用来干什么的呢？我们先回顾下上面介绍的优先队列中，<code>Key[] pq</code> 保存了所有元素，并构成二叉堆，并不方便查找指定元素的位置，或者在指定位置更新元素。索引优先队列，使用数组 <code>Key[] keys</code> 存储元素信息（或其他重要信息），增加一个整型数组 <code>int[] pq</code> 来保存元素下标（即索引），使用索引数组构成二叉堆。这样二叉堆在插入，删除，修改时，仅仅改变的是索引数组，而元素数组并不需要变化（删除元素时置空）。通过索引可以找到元素在堆中的下标，再用这个下标就能访问到元素。 </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-binary-heap-index-priority-queue.jpg" alt="0087-binary-heap-index-priority-queue.jpg"></p>
+<h3 id="通用-API-1"><a href="#通用-API-1" class="headerlink" title="通用 API"></a>通用 <code>API</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IndexMinPQ</span>&lt;<span class="title">Key</span> <span class="keyword">extends</span> <span class="title">Comparable</span>&lt;<span class="title">Key</span>&gt;&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> maxN;        <span class="comment">// maximum number of elements on PQ</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> n;           <span class="comment">// number of elements on PQ</span></span><br><span class="line">    <span class="comment">// pq 存储元素在 keys 中的下标（即索引），并构成二叉树</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] pq;        <span class="comment">// binary heap using 1-based indexing</span></span><br><span class="line">    <span class="comment">// qp 存储索引在 pq 中的下标，主要是方便检索 pq。换句话说</span></span><br><span class="line">    <span class="comment">// 元素在 keys 中的下标保存在 pq 中</span></span><br><span class="line">    <span class="comment">// 元素在 keys 中的下标，在 pq 中的下标，保存在 qp 中</span></span><br><span class="line">    <span class="comment">// 某个元素索引满足等式：qp[pq[i]] = pq[qp[i]] = i</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] qp;        <span class="comment">// inverse of pq - qp[pq[i]] = pq[qp[i]] = i</span></span><br><span class="line">    <span class="comment">// Key 可以包含很多信息，可以是自定义类</span></span><br><span class="line">    <span class="comment">// 只需要指定排序方式（指定某个属性为优先级，用于排序）</span></span><br><span class="line">    <span class="comment">// 索引优先队列中 Key[] 并不需要交换，也不会移动数据，只需要比较就行</span></span><br><span class="line">    <span class="comment">// 二叉堆建立、插入、删除，都基于索引数组 pq, qp</span></span><br><span class="line">    <span class="keyword">private</span> Key[] keys;      <span class="comment">// keys[i] = priority of i</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">IndexMinPQ</span><span class="params">(<span class="keyword">int</span> maxN)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 索引优先队列，指定索引位置插入元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="comment">// 最小值的索引</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minIndex</span><span class="params">()</span> </span>&#123;... <span class="keyword">return</span> pq[<span class="number">1</span>];&#125;</span><br><span class="line">    <span class="comment">// 最小值元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Key <span class="title">minKey</span><span class="params">()</span> </span>&#123;... <span class="keyword">return</span> keys[pq[<span class="number">1</span>]];&#125;</span><br><span class="line">    <span class="comment">// 删除最小值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">delMin</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Key <span class="title">keyOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;... <span class="keyword">return</span> keys[i];&#125;</span><br><span class="line">    <span class="comment">// 指定索引位置，修改元素值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">changeKey</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">decreaseKey</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increaseKey</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*************************************************************</span></span><br><span class="line"><span class="comment">    * General helper functions.</span></span><br><span class="line"><span class="comment">    **************************************************************/</span></span><br><span class="line">    <span class="comment">// 本示例介绍的是：索引最小优先队列，所以根存放的是最小值</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">greater</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> keys[pq[i]].compareTo(keys[pq[j]]) &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 仅仅改变索引数组和反向数组</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exch</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> swap = pq[i];</span><br><span class="line">        pq[i] = pq[j];</span><br><span class="line">        pq[j] = swap;</span><br><span class="line">        qp[pq[i]] = i;</span><br><span class="line">        qp[pq[j]] = j;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">   <span class="comment">/**************************************************************</span></span><br><span class="line"><span class="comment">    * Heap helper functions.</span></span><br><span class="line"><span class="comment">    **************************************************************/</span></span><br><span class="line">    <span class="comment">// 越小越上浮</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (k &gt; <span class="number">1</span> &amp;&amp; greater(k/<span class="number">2</span>, k)) &#123;</span><br><span class="line">            exch(k, k/<span class="number">2</span>);</span><br><span class="line">            k = k/<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 越大越下沉</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sink</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">2</span>*k &lt;= n) &#123;</span><br><span class="line">            <span class="keyword">int</span> j = <span class="number">2</span>*k;</span><br><span class="line">            <span class="keyword">if</span> (j &lt; n &amp;&amp; greater(j, j+<span class="number">1</span>)) j++;</span><br><span class="line">            <span class="keyword">if</span> (!greater(k, j)) <span class="keyword">break</span>;</span><br><span class="line">            exch(k, j);</span><br><span class="line">            k = j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键算法"><a href="#关键算法" class="headerlink" title="关键算法"></a>关键算法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 插入元素</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    n++;</span><br><span class="line">    <span class="comment">// 反向数组，记录索引在二叉堆的位置</span></span><br><span class="line">    qp[i] = n;</span><br><span class="line">    <span class="comment">// 索引始终加入到二叉堆最后一列</span></span><br><span class="line">    pq[n] = i;</span><br><span class="line">    <span class="comment">// 在指定索引位置添加元素</span></span><br><span class="line">    keys[i] = key;</span><br><span class="line">    <span class="comment">// 上浮到合适位置</span></span><br><span class="line">    swim(n);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除最小值</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">delMin</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 最小值始终在二叉堆第一个有效位置</span></span><br><span class="line">    <span class="keyword">int</span> min = pq[<span class="number">1</span>];</span><br><span class="line">    <span class="comment">// 二叉堆中最小值和最后一个元素交换</span></span><br><span class="line">    exch(<span class="number">1</span>, n--);</span><br><span class="line">    <span class="comment">// 将交换过来的索引下沉到合适位置</span></span><br><span class="line">    sink(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">assert</span> min == pq[n+<span class="number">1</span>];</span><br><span class="line">    <span class="comment">// 反向数组，元素数组，对应索引位置置空</span></span><br><span class="line">    qp[min] = -<span class="number">1</span>;        <span class="comment">// delete</span></span><br><span class="line">    keys[min] = <span class="keyword">null</span>;    <span class="comment">// to help with garbage collection</span></span><br><span class="line">    pq[n+<span class="number">1</span>] = -<span class="number">1</span>;        <span class="comment">// not needed</span></span><br><span class="line">    <span class="keyword">return</span> min;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改指定索引位置的元素</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">changeKey</span><span class="params">(<span class="keyword">int</span> i, Key key)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 修改元素值</span></span><br><span class="line">    keys[i] = key;</span><br><span class="line">    <span class="comment">// 这里是否可以优化，先比较 key 是变大还是变小了</span></span><br><span class="line">    <span class="comment">// 再来决定是上浮还是下沉</span></span><br><span class="line">    swim(qp[i]);</span><br><span class="line">    sink(qp[i]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">int</span> index = qp[i];</span><br><span class="line">    exch(index, n--);</span><br><span class="line">    swim(index);</span><br><span class="line">    sink(index);</span><br><span class="line">    keys[i] = <span class="keyword">null</span>;</span><br><span class="line">    qp[i] = -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><ul>
+<li>时间复杂度<br>索引优先队列，不管是插入、删除、修改等，时间复杂度都能控制在 <code>logN</code>，但是需要辅助数组来快速实现。  </li>
+<li>优点<br>除了能多保存元素信息，索引优先队列还可以更新<strong>指定索引</strong>的 <code>key</code> 值，这个是普通优先队列无法做到的。通常普通优先队列，对外 <code>API</code> 只包含队列的基本操作，只是在取出元素时，确保每次都是取出的最小值或者最大值。  </li>
+</ul>
+<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><h3 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h3><p>堆排序 <code>Heap sort</code>：使用堆数据结构设计的一种排序算法，它是选择排序的一种。利用小根堆或者大根堆的特性，每次选出最小值或者最大值来完成排序。堆排序有两个阶段：  </p>
+<ul>
+<li>堆构造阶段<br>将数据读入后，构造一个堆。堆的特点是，不管什么时候加入新数据，堆都是有序的。  </li>
+<li>堆下沉阶段（大根堆，由大到小排序）<br>始终从堆中取出最大元素，并得到排序结果。取出最大元素后，堆最后一列元素交换到堆顶，并下沉到合适位置，确保堆保持有序。  </li>
+</ul>
+<h3 id="动图演示"><a href="#动图演示" class="headerlink" title="动图演示"></a>动图演示</h3><ul>
+<li><p>堆构造-插入法<br>向优先队列一样，逐个插入新元素来构造堆，这个过程时间复杂度为 <code>NlogN</code> 。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort-constuctor.gif" alt="0087-heap-sort-constuctor.gif"></p>
+</li>
+<li><p>堆构造-原地构造（经典算法）<br>现有数组为元素读入顺序，直接在这个数组上构造堆。具体方法：从数组中间位置，从右向左逐个元素 <code>sink</code> 来构造堆，时间复杂度为 <code>N</code>。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort-sink.gif" alt="0087-heap-sort-sink.gif"></p>
+</li>
+<li><p>堆取出最大值<br>优先队列，逐个取出最大值，实现排序效果。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heap-sort.gif" alt="0087-heap-sort.gif"></p>
+</li>
+</ul>
+<h3 id="堆排序经典算法代码示例"><a href="#堆排序经典算法代码示例" class="headerlink" title="堆排序经典算法代码示例"></a>堆排序经典算法代码示例</h3><p>我们可以使用优先队列，插入元素方法构造堆，删除最大元素方法来实现堆排序。但是我们接下来介绍的是，使用 <code>sink</code> 下沉方法，来原地构造堆和排序，这种算法就是<strong>经典的堆排序算法</strong>，由 <code>J.W.Williams</code> 发明，并由 <code>R.W.Floyd</code> 在 1964 年改进。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(Comparable[] a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = a.length;</span><br><span class="line">    <span class="comment">// 堆构造</span></span><br><span class="line">    <span class="comment">// 核心思路：从数组中间位置，从右向左逐个将元素 sink 来构造堆</span></span><br><span class="line">    <span class="comment">// 也就是从最后一个子堆开始，逐个将子堆有序化</span></span><br><span class="line">    <span class="comment">// 当到最后一个子堆时，也就是整个堆，下沉第一个元素，确保整个堆有序化</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = n/<span class="number">2</span>; k &gt;= <span class="number">1</span>; k--)</span><br><span class="line">        sink(a, k, n);</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 堆排序</span></span><br><span class="line">    <span class="keyword">while</span> (n &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 核心思路：将最大值交换到数组最后一列</span></span><br><span class="line">        <span class="comment">// 将交换到第一个的元素，在剩下的 n-1 个元素中做下沉</span></span><br><span class="line">        <span class="comment">// 使得 n-1 个元素的堆恢复到有序状态，即始终确保堆第一个元素为最大值</span></span><br><span class="line">        <span class="comment">// 如此反复，直到只剩下第一个元素</span></span><br><span class="line">        <span class="comment">// 整个数组变成有序状态</span></span><br><span class="line">        exch(a, <span class="number">1</span>, n--);</span><br><span class="line">        sink(a, <span class="number">1</span>, n);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sink</span><span class="params">(Comparable[] a, <span class="keyword">int</span> k, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">2</span>*k &lt;= n) &#123;</span><br><span class="line">        <span class="comment">// 找出较大的子节点</span></span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">2</span>*k;</span><br><span class="line">        <span class="keyword">if</span> (j &lt; n &amp;&amp; less(a, j, j+<span class="number">1</span>)) j++;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 如果比子节点大，跳出</span></span><br><span class="line">        <span class="keyword">if</span> (!less(a, k, j)) <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 交换，并循环下沉到合适位置</span></span><br><span class="line">        exch(a, k, j);</span><br><span class="line">        k = j;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数组从 a[1] 开始为有效元素</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">less</span><span class="params">(Comparable[] a, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a[i].compareTo(a[j]) &lt; <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">exch</span><span class="params">(Object[] a, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">    Object swap = a[i];</span><br><span class="line">    a[i] = a[j];</span><br><span class="line">    a[j] = swap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="堆排序静态分解图"><a href="#堆排序静态分解图" class="headerlink" title="堆排序静态分解图"></a>堆排序静态分解图</h3><ul>
+<li><p>堆形态分解轨迹<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heapsort-trace.png" alt="0087-heapsort-trace.png"></p>
+</li>
+<li><p>数组形态分解轨迹<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-heapsort-array.png" alt="0087-heapsort-array.png"></p>
+</li>
+</ul>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><p>经典堆排序算法中：  </p>
+<ul>
+<li>堆构造只需少于 <code>2N</code> 次比较和 <code>N</code> 次交换  </li>
+<li>堆排序只需要 <code>2NlogN</code> 次比较和 <code>NlogN</code> 次交换  </li>
+<li>整个堆排序过程为上述之和  </li>
+</ul>
+<h2 id="JDK-中的优先队列"><a href="#JDK-中的优先队列" class="headerlink" title="JDK 中的优先队列"></a><code>JDK</code> 中的优先队列</h2><p><code>JDK</code> 中的优先队列源码为 <code>java.util.PriorityQueue.java</code>，默认是最小优先队列（小根堆），如果需要实现最大优先队列，在构造时传入自定义 <code>Comparator</code> 实现大根堆的比较就可以了。  </p>
+<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0087-JDK-PriorityQueue-UML.png" alt="0087-JDK-PriorityQueue-UML.png"></p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PriorityQueue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractQueue</span>&lt;<span class="title">E</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_INITIAL_CAPACITY = <span class="number">11</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存储元素数组</span></span><br><span class="line">    <span class="keyword">transient</span> Object[] queue; <span class="comment">// non-private to simplify nested class access</span></span><br><span class="line">    <span class="comment">// 元素个数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> size = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(Comparator&lt;? <span class="keyword">super</span> E&gt; comparator)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(<span class="keyword">int</span> initialCapacity,</span></span></span><br><span class="line"><span class="function"><span class="params">                         Comparator&lt;? <span class="keyword">super</span> E&gt; comparator)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(PriorityQueue&lt;? extends E&gt; c)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(SortedSet&lt;? extends E&gt; c)</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 优先队列中增加一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;<span class="keyword">return</span> offer(e);&#125;</span><br><span class="line">    <span class="comment">// 数组最后一列加入新元素，并将新元素上浮到合适位置</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (e == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        modCount++;</span><br><span class="line">        <span class="keyword">int</span> i = size;</span><br><span class="line">        <span class="keyword">if</span> (i &gt;= queue.length)</span><br><span class="line">            grow(i + <span class="number">1</span>);</span><br><span class="line">        size = i + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">0</span>)</span><br><span class="line">            queue[<span class="number">0</span>] = e;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            siftUp(i, e);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取出最小值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">peek</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> (size == <span class="number">0</span>) ? <span class="keyword">null</span> : (E) queue[<span class="number">0</span>];&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(Object o)</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取出最小值后，将最后一列元素交换并下沉到合适位置</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">poll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (size == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">int</span> s = --size;</span><br><span class="line">        modCount++;</span><br><span class="line">        E result = (E) queue[<span class="number">0</span>];</span><br><span class="line">        E x = (E) queue[s];</span><br><span class="line">        queue[s] = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (s != <span class="number">0</span>)</span><br><span class="line">            siftDown(<span class="number">0</span>, x);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUp</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (comparator != <span class="keyword">null</span>)</span><br><span class="line">            siftUpUsingComparator(k, x);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            siftUpComparable(k, x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="comment">// 上浮</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUpComparable</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        Comparable&lt;? <span class="keyword">super</span> E&gt; key = (Comparable&lt;? <span class="keyword">super</span> E&gt;) x;</span><br><span class="line">        <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> parent = (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">            Object e = queue[parent];</span><br><span class="line">            <span class="keyword">if</span> (key.compareTo((E) e) &gt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            queue[k] = e;</span><br><span class="line">            k = parent;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftUpUsingComparator</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDown</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (comparator != <span class="keyword">null</span>)</span><br><span class="line">            siftDownUsingComparator(k, x);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            siftDownComparable(k, x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="comment">// 下沉</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDownComparable</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;</span><br><span class="line">        Comparable&lt;? <span class="keyword">super</span> E&gt; key = (Comparable&lt;? <span class="keyword">super</span> E&gt;)x;</span><br><span class="line">        <span class="keyword">int</span> half = size &gt;&gt;&gt; <span class="number">1</span>;        <span class="comment">// loop while a non-leaf</span></span><br><span class="line">        <span class="keyword">while</span> (k &lt; half) &#123;</span><br><span class="line">            <span class="keyword">int</span> child = (k &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>; <span class="comment">// assume left child is least</span></span><br><span class="line">            Object c = queue[child];</span><br><span class="line">            <span class="keyword">int</span> right = child + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (right &lt; size &amp;&amp;</span><br><span class="line">                ((Comparable&lt;? <span class="keyword">super</span> E&gt;) c).compareTo((E) queue[right]) &gt; <span class="number">0</span>)</span><br><span class="line">                c = queue[child = right];</span><br><span class="line">            <span class="keyword">if</span> (key.compareTo((E) c) &lt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            queue[k] = c;</span><br><span class="line">            k = child;</span><br><span class="line">        &#125;</span><br><span class="line">        queue[k] = key;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">siftDownUsingComparator</span><span class="params">(<span class="keyword">int</span> k, E x)</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h3><p><code>PriorityQueue</code> 所有公共接口，几乎和队列保持一致。所以可以参考队列的使用方式，但实际的存储是以堆的形式存在的。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>《算法：第四版》 第 2 章  </li>
+<li><a href="https://visualgo.net/en/heap" target="_blank" rel="noopener">visualgo:排序动态演示</a>  </li>
+<li><a href="https://www.cs.usfca.edu/~galles/visualization/Heap.html" target="_blank" rel="noopener">usfca:数组原地堆构造</a>  </li>
+<li><a href="https://www.cnblogs.com/JVxie/p/4859889.html" target="_blank" rel="noopener">堆的基本概念及操作</a>  </li>
+<li><a href="https://www.cnblogs.com/nullzx/p/6624731.html" target="_blank" rel="noopener">索引优先队列的工作原理与简易实现</a>  </li>
+<li><a href="http://www.cnblogs.com/bethunebtj/p/4856563.html" target="_blank" rel="noopener">索引优先队列的原理及实现</a>  </li>
+<li><a href="https://blog.csdn.net/u013309870/article/details/71189189" target="_blank" rel="noopener">Java堆结构PriorityQueue完全解析</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/08/01/0087-algorithms-binary-heap/" title="算法 - 优先队列 - 二叉堆">http://redspider110.github.io/2018/08/01/0087-algorithms-binary-heap/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithms/" rel="tag"># Algorithms</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/26/0086-algorithms-sorting/" rel="next" title="算法 - 排序">
+                <i class="fa fa-chevron-left"></i> 算法 - 排序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/06/0088-algorithms-binary-search-tree/" rel="prev" title="算法 - 二叉查找树">
+                算法 - 二叉查找树 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用-API"><span class="nav-number">1.2.</span> <span class="nav-text">通用 API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优先队列的初级实现"><span class="nav-number">1.3.</span> <span class="nav-text">优先队列的初级实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉堆"><span class="nav-number">2.</span> <span class="nav-text">二叉堆</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#堆"><span class="nav-number">2.1.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二叉堆-1"><span class="nav-number">2.2.</span> <span class="nav-text">二叉堆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉堆有序化"><span class="nav-number">3.</span> <span class="nav-text">二叉堆有序化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#上浮"><span class="nav-number">3.1.</span> <span class="nav-text">上浮</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下沉"><span class="nav-number">3.2.</span> <span class="nav-text">下沉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入和删除最大元素"><span class="nav-number">3.3.</span> <span class="nav-text">插入和删除最大元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二叉堆构造过程"><span class="nav-number">3.4.</span> <span class="nav-text">二叉堆构造过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">3.5.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引优先队列"><span class="nav-number">4.</span> <span class="nav-text">索引优先队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#意义"><span class="nav-number">4.1.</span> <span class="nav-text">意义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用-API-1"><span class="nav-number">4.2.</span> <span class="nav-text">通用 API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键算法"><span class="nav-number">4.3.</span> <span class="nav-text">关键算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">4.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆排序"><span class="nav-number">5.</span> <span class="nav-text">堆排序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义-1"><span class="nav-number">5.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动图演示"><span class="nav-number">5.2.</span> <span class="nav-text">动图演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆排序经典算法代码示例"><span class="nav-number">5.3.</span> <span class="nav-text">堆排序经典算法代码示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆排序静态分解图"><span class="nav-number">5.4.</span> <span class="nav-text">堆排序静态分解图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">5.5.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-中的优先队列"><span class="nav-number">6.</span> <span class="nav-text">JDK 中的优先队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">6.1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">6.2.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-2"><span class="nav-number">6.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

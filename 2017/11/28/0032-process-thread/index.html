@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,Progress,Thread,IPC,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android 应用启动时，系统会为应用新建一个 Linux 的进程，默认情况下同一应用程序下的所有组件运行在相同的进程和线程（主线程，也是 UI 线程）中。一个Android 应用就是一个 Linux 进程，每个应用在各自的进程中运行，互不干扰比较安全。一个应用对应一个主线程，就是通常所说的 UI 线程，Android 遵守的就是单线程模型，所以说 UI 操作不是线程安全的。">
+<meta name="keywords" content="Android,Progress,Thread,IPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程和线程">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/28/0032-process-thread/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Android 应用启动时，系统会为应用新建一个 Linux 的进程，默认情况下同一应用程序下的所有组件运行在相同的进程和线程（主线程，也是 UI 线程）中。一个Android 应用就是一个 Linux 进程，每个应用在各自的进程中运行，互不干扰比较安全。一个应用对应一个主线程，就是通常所说的 UI 线程，Android 遵守的就是单线程模型，所以说 UI 操作不是线程安全的。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.347Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="进程和线程">
+<meta name="twitter:description" content="Android 应用启动时，系统会为应用新建一个 Linux 的进程，默认情况下同一应用程序下的所有组件运行在相同的进程和线程（主线程，也是 UI 线程）中。一个Android 应用就是一个 Linux 进程，每个应用在各自的进程中运行，互不干扰比较安全。一个应用对应一个主线程，就是通常所说的 UI 线程，Android 遵守的就是单线程模型，所以说 UI 操作不是线程安全的。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/28/0032-process-thread/">
+
+
+
+
+
+  <title>进程和线程 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/28/0032-process-thread/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">进程和线程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-28T21:30:00+08:00">
+                2017-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Android</code> 应用启动时，系统会为应用新建一个 <code>Linux</code> 的进程，默认情况下同一应用程序下的所有组件运行在相同的进程和线程（主线程，也是 <code>UI</code> 线程）中。<br>一个<code>Android</code> 应用就是一个 <code>Linux</code> 进程，每个应用在各自的进程中运行，互不干扰比较安全。一个应用对应一个主线程，就是通常所说的 <code>UI</code> 线程，<code>Android</code> 遵守的就是单线程模型，所以说 <code>UI</code> 操作不是线程安全的。  </p>
+<a id="more"></a>
+
+<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>虽然默认整个应用在同一进程中，但是可以在清单文件 <code>AndroidManifest.xml</code> 中定义组件是否以新建进程的方式运行。元素：<code>&lt;application&gt;, &lt;activity&gt;, &lt;service&gt;, &lt;receiver&gt;, &lt;provider&gt;</code>，均支持 <code>android:process</code> 属性，默认进程名为<strong>包名</strong>，如果设置了 <code>android:process=&quot;:remote&quot;</code> 属性，则进程名为：<code>包名:remote</code>。<br>可以通过设置此属性，使每个组件均在各自的进程中运行，或者使一些组件共享一个进程，而其他组件则不共享。 此外还可以设置此属性，使不同应用的组件在相同的进程中运行，但前提是这些应用共享相同的 <code>Linux</code> 用户 <code>ID</code> 并使用相同的证书进行签署。    </p>
+<p>注意：<code>android:process=&quot;:remote&quot;</code>，是否带分号是有区别的：  </p>
+<ul>
+<li>有分号<br>创建一个专属于当前进程的进程，他们的 <code>PID</code> 不同，但是父进程 <code>PPID</code> 是一样的。  </li>
+<li>没有分号<br>创建全局进程，不同的应用程序共享该进程。如果不带冒号，需要使用标准的命名规范命名进程名，例如 <code>com.xxx.xxx.xxx</code>，而且该进程是全局共享的进程，即不同应用的组件都可以运行于该进程，会创建两个完全独立的进程。这可以突破应用程序的 24M（或 16M ）内存限制。   </li>
+</ul>
+<p>如果内存不足，而其他为用户提供更紧急服务的进程又需要内存时，<code>Android</code> 可能会决定在某一时刻关闭某一进程。在被终止进程中运行的应用组件也会随之销毁。当这些组件需要再次运行时，系统将为它们重启进程。   </p>
+<h3 id="低内存进程管理"><a href="#低内存进程管理" class="headerlink" title="低内存进程管理"></a>低内存进程管理</h3><p><code>Android</code> 系统将尽量长时间地保持应用进程，但为了新建进程或运行更重要的进程，最终需要移除旧进程来回收内存。为了确定保留或终止哪些进程，系统会根据进程中正在运行的组件以及这些组件的状态，将每个进程放入“重要性层次结构”中。 必要时系统会首先消除重要性最低的进程，然后是重要性略逊的进程，依此类推，以回收系统资源。 进程优先级顺序为：  </p>
+<h4 id="Foreground-process：前台进程"><a href="#Foreground-process：前台进程" class="headerlink" title="Foreground process：前台进程"></a><code>Foreground process</code>：前台进程</h4><p>用户当前操作所必需的进程。如果一个进程满足以下任一条件，即视为前台进程：  </p>
+<ul>
+<li>托管用户正在交互的 <code>Activity</code> （已调用 <code>Activity</code> 的 <code>onResume()</code> 方法）  </li>
+<li>托管某个 <code>Service</code> ，后者绑定到用户正在交互的 <code>Activity</code>   </li>
+<li>托管正在“前台”运行的 <code>Service</code> （服务已调用 <code>startForeground()</code> ）  </li>
+<li>托管正执行一个生命周期回调的 <code>Service（onCreate() 、onStart()、onDestroy()）</code>  </li>
+<li>托管正执行其 <code>onReceive()</code> 方法的 <code>BroadcastReceiver</code>    </li>
+</ul>
+<p>通常，在任意给定时间前台进程都为数不多。只有在内存不足以支持它们同时继续运行这一万不得已的情况下，系统才会终止它们。此时，设备往往已达到内存分页状态，因此需要终止一些前台进程来确保用户界面正常响应.   </p>
+<h4 id="Visible-prcess：可见进程"><a href="#Visible-prcess：可见进程" class="headerlink" title="Visible prcess：可见进程"></a><code>Visible prcess</code>：可见进程</h4><p>没有任何前台组件、但仍会影响用户在屏幕上所见内容的进程。如果一个进程满足以下任一条件，即视为可见进程：   </p>
+<ul>
+<li>托管不在前台、但仍对用户可见的 <code>Activity</code> （已调用其 <code>onPause()</code> 方法）。例如，如果前台 <code>Activity</code> 启动了一个对话框，允许在其后显示上一  <code>Activity</code>，则有可能会发生这种情况  </li>
+<li>托管绑定到可见（或前台）<code>Activity</code>  的 <code>Service</code>  </li>
+</ul>
+<p>可见进程被视为是极其重要的进程，除非为了维持所有前台进程同时运行而必须终止，否则系统不会终止这些进程。  </p>
+<h4 id="Service-process：服务进程"><a href="#Service-process：服务进程" class="headerlink" title="Service process：服务进程"></a><code>Service process</code>：服务进程</h4><p>正在运行已使用 <code>startService()</code> 方法启动的服务且不属于上述两个更高类别进程的进程。尽管服务进程与用户所见内容没有直接关联，但是它们通常在执行一些用户关心的操作（例如，在后台播放音乐或从网络下载数据）。因此，除非内存不足以维持所有前台进程和可见进程同时运行，否则系统会让服务进程保持运行状态。    </p>
+<h4 id="Background-process：后台进程"><a href="#Background-process：后台进程" class="headerlink" title="Background process：后台进程"></a><code>Background process</code>：后台进程</h4><p>包含目前对用户不可见的 <code>Activity</code> 的进程（已调用 <code>Activity</code> 的 <code>onStop()</code> 方法）。这些进程对用户体验没有直接影响，系统可能随时终止它们，以回收内存供前台进程、可见进程或服务进程使用。通常会有很多后台进程在运行，因此它们会保存在<code>LRU</code>（最近最少使用）列表中，以确保包含用户最近查看的 <code>Activity</code> 的进程最后一个被终止。如果某个 <code>Activity</code> 正确实现了生命周期方法，并保存了其当前状态，则终止其进程不会对用户体验产生明显影响，因为当用户导航回该 <code>Activity</code> 时，<code>Activity</code> 会恢复其所有可见状态。    </p>
+<h4 id="Empty-process：空进程"><a href="#Empty-process：空进程" class="headerlink" title="Empty process：空进程"></a><code>Empty process</code>：空进程</h4><p>不含任何活动应用组件的进程。保留这种进程的的唯一目的是用作缓存，以缩短下次在其中运行组件所需的启动时间。 为使总体系统资源在进程缓存和底层内核缓存之间保持平衡，系统往往会终止这些进程。   </p>
+<blockquote>
+<p>一个进程的优先级是可以变化的。  </p>
+</blockquote>
+<p>此外一个进程的级别可能会因其他进程对它的依赖而有所提高，即服务于另一进程的进程其级别永远不会低于其所服务的进程。例如，如果进程 <code>A</code> 中的内容提供程序为进程 <code>B</code> 中的客户端提供服务，或者如果进程 <code>A</code> 中的服务绑定到进程 <code>B</code> 中的组件，则进程 <code>A</code> 始终被视为至少与进程 <code>B</code> 同样重要。<br>由于运行服务的进程其级别高于托管后台 <code>Activity</code> 的进程，因此启动长时间运行操作的 <code>Activity</code> <strong>最好为该操作启动服务，而不是简单地创建工作线程</strong>，当操作有可能比 <code>Activity</code> 更加持久时尤要如此。例如，正在将图片上传到网站的 <code>Activity</code> 应该启动服务来执行上传，这样一来，即使用户退出 <code>Activity</code>，仍可在后台继续执行上传操作。使用服务可以保证，无论 <code>Activity</code> 发生什么情况，该操作至少具备“服务进程”优先级。同理，广播接收器也应使用服务，而不是简单地将耗时冗长的操作放入线程中。   </p>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><h3 id="主线程（-UI-线程）"><a href="#主线程（-UI-线程）" class="headerlink" title="主线程（ UI 线程）"></a>主线程（ <code>UI</code> 线程）</h3><p>应用启动时，系统会为应用创建一个名为“主线程”的执行线程。此线程非常重要，因为它负责将事件分派给相应的用户界面小部件，其中包括绘图事件。此外，它也是应用与 <code>Android UI</code> 工具包组件（来自 <code>android.widget</code> 和 <code>android.view</code> 软件包的组件）进行交互的线程。因此，主线程有时也称为UI 线程。响应系统回调的方法（例如，报告用户操作的 <code>onKeyDown()</code> 或生命周期回调方法）始终在进程的 <code>UI</code> 线程中运行。<br>此外 <code>Android UI</code> 工具包并非线程安全工具包，因此只能通过 <code>UI</code> 线程操纵用户界面。 因此 <code>Android</code> 的单线程模式必须遵守两条规则：  </p>
+<ul>
+<li>不要阻塞 <code>UI</code> 线程  </li>
+<li>不要在 <code>UI</code> 线程之外访问 <code>Android UI</code> 工具包   </li>
+</ul>
+<h3 id="工作线程"><a href="#工作线程" class="headerlink" title="工作线程"></a>工作线程</h3><p>根据单线程模式，要保证应用 <code>UI</code> 的响应能力，关键是不能阻塞 <code>UI</code> 线程。 如果执行的操作不能很快完成，则应确保它们在单独的线程（“后台”或“工作”线程）中运行。<br><code>Android</code> 提供了几种途径来从其他线程访问 <code>UI</code> 线程：  </p>
+<ul>
+<li><code>Activity.runOnUiThread(Runnable)</code>  </li>
+<li><code>View.post(Runnable)</code>  </li>
+<li><code>View.postDelayed(Runnable,long)</code>  </li>
+</ul>
+<p>为了避免代码变得复杂且难以维护，可以在工作线程中使用 <code>Handler</code> 处理来自 <code>UI</code> 线程的消息。  </p>
+<h2 id="示例分析"><a href="#示例分析" class="headerlink" title="示例分析"></a>示例分析</h2><ul>
+<li><code>PID</code> 进程 <code>ID</code>  </li>
+<li><code>TID</code> 线程 <code>ID</code>  </li>
+</ul>
+<blockquote>
+<p>可以通过 <code>adb shell top</code> 或者 <code>adb shell ps</code> 来查看应用的进程及线程 <code>ID</code>。</p>
+</blockquote>
+<p>以下两个例子分别是： <code>Activity</code> 和 <code>Service</code> 属于同一进程或不同进程：   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// Service 设置新建进程</span><br><span class="line">// Activity 进程和 UI 主线程都是 18585</span><br><span class="line">07-31 09:51:28.002 18585-18585/? D/:XMT:ShowService:: onClick: button.onClick = Start Service</span><br><span class="line">// 启动 Service ，新进程和线程都是 18688</span><br><span class="line">07-31 09:51:28.015 18688-18688/? D/:XMT:StartService:: onCreate: </span><br><span class="line">07-31 09:51:28.016 18688-18688/? D/:XMT:StartService:: onStartCommand: flags = 0, startId = 1</span><br><span class="line">// Service 中新建线程 31645 执行耗时操作</span><br><span class="line">07-31 09:51:28.020 18688-31645/? D/:XMT:StartService:: run: </span><br><span class="line">07-31 09:51:31.020 18688-31645/? D/:XMT:StartService:: run: stopSelfResult.mStartId = 1</span><br><span class="line">// Service 完成生命周期销毁（实际通过 top 命令查看并未销毁，下次启动 Service 还是 18688）</span><br><span class="line">07-31 09:51:31.026 18688-18688/? D/:XMT:StartService:: onDestroy: </span><br><span class="line">// 回到 Activity </span><br><span class="line">07-31 09:51:32.854 18585-18585/? D/:XMT:ShowService:: onClick: button.onClick = Stop Service</span><br><span class="line"></span><br><span class="line">// 默认 Service 和 Activity 等属于同一个进程和主线程 31813 </span><br><span class="line">07-31 09:52:29.439 31813-31813/? D/:XMT:ShowService:: onClick: button.onClick = Start Service</span><br><span class="line">07-31 09:52:29.463 31813-31813/? D/:XMT:StartService:: onCreate: </span><br><span class="line">07-31 09:52:29.464 31813-31813/? D/:XMT:StartService:: onStartCommand: flags = 0, startId = 1</span><br><span class="line">// Service 中新建线程 31868 执行耗时操作</span><br><span class="line">07-31 09:52:29.467 31813-31868/? D/:XMT:StartService:: run: </span><br><span class="line">07-31 09:52:32.468 31813-31868/? D/:XMT:StartService:: run: stopSelfResult.mStartId = 1</span><br><span class="line">07-31 09:52:32.471 31813-31813/? D/:XMT:StartService:: onDestroy:</span><br></pre></td></tr></table></figure>
+
+<h2 id="区别和联系"><a href="#区别和联系" class="headerlink" title="区别和联系"></a>区别和联系</h2><ul>
+<li>单位   </li>
+</ul>
+<p><em>线程</em>是<strong>进程</strong>的一个组成部分，一个<strong>进程</strong>可以包含一个或多个<em>线程</em>。  </p>
+<ul>
+<li>占用资源<br>计算机内部的软硬件资源的分配与<em>线程</em>无关，<strong>进程</strong>是系统所有资源分配时候的一个基本单位，拥有一个完整的虚拟空间地址，线程是不会分配资源的。系统在运行的时候会为每个<strong>进程</strong>分配不同的内存区域，但是不会为<em>线程</em>分配内存（<em>线程</em>所使用的资源是它所属的<strong>进程</strong>的资源），<em>线程</em>组只能共享<strong>进程</strong>的资源。  </li>
+<li><code>CPU</code> 调度  </li>
+</ul>
+<p><em>线程</em>是<strong>进程</strong>的一个实体，是 <code>CPU</code> 调度和分配的基本单位，即执行运算的最小单位。其本身不拥有系统资源，只含有程序计数器、寄存器和栈等一些运行时必不可少的基本资源。所以在多核系统中开多线程才能最大化利用 <code>CPU</code>。     </p>
+<p>新开进程还是线程，如何选择？考虑的因素是什么？<br>根据上面的分析可以得出，如果是仅仅考虑后台处理，并发执行等可以只需要开线程就能满足；如果是需要考虑低内存管理进程优先级，应用能分配更多的源等可以新建进程。    </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://developer.android.com/guide/components/processes-and-threads.html#Threads" target="_blank" rel="noopener">https://developer.android.com/guide/components/processes-and-threads.html#Threads</a>  </li>
+<li><a href="http://www.cnblogs.com/yw123/p/3614734.html" target="_blank" rel="noopener">http://www.cnblogs.com/yw123/p/3614734.html</a>  </li>
+<li><a href="http://blog.csdn.net/u011895534/article/details/46873479" target="_blank" rel="noopener">http://blog.csdn.net/u011895534/article/details/46873479</a>  </li>
+<li><a href="http://www.cnblogs.com/android-blogs/p/5632549.html" target="_blank" rel="noopener">http://www.cnblogs.com/android-blogs/p/5632549.html</a>  </li>
+<li><a href="http://blog.csdn.net/u014297278/article/details/46762407" target="_blank" rel="noopener">http://blog.csdn.net/u014297278/article/details/46762407</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/28/0032-process-thread/" title="进程和线程">http://redspider110.github.io/2017/11/28/0032-process-thread/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Progress/" rel="tag"># Progress</a>
+          
+            <a href="/tags/Thread/" rel="tag"># Thread</a>
+          
+            <a href="/tags/IPC/" rel="tag"># IPC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/28/0031-view-dispatch-event/" rel="next" title="View 事件分发机制">
+                <i class="fa fa-chevron-left"></i> View 事件分发机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/28/0033-serializable-parcelable/" rel="prev" title="Serializable 和 Parcelable">
+                Serializable 和 Parcelable <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程"><span class="nav-number">1.</span> <span class="nav-text">进程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概念"><span class="nav-number">1.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低内存进程管理"><span class="nav-number">1.2.</span> <span class="nav-text">低内存进程管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Foreground-process：前台进程"><span class="nav-number">1.2.1.</span> <span class="nav-text">Foreground process：前台进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Visible-prcess：可见进程"><span class="nav-number">1.2.2.</span> <span class="nav-text">Visible prcess：可见进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Service-process：服务进程"><span class="nav-number">1.2.3.</span> <span class="nav-text">Service process：服务进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Background-process：后台进程"><span class="nav-number">1.2.4.</span> <span class="nav-text">Background process：后台进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Empty-process：空进程"><span class="nav-number">1.2.5.</span> <span class="nav-text">Empty process：空进程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程"><span class="nav-number">2.</span> <span class="nav-text">线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主线程（-UI-线程）"><span class="nav-number">2.1.</span> <span class="nav-text">主线程（ UI 线程）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工作线程"><span class="nav-number">2.2.</span> <span class="nav-text">工作线程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例分析"><span class="nav-number">3.</span> <span class="nav-text">示例分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#区别和联系"><span class="nav-number">4.</span> <span class="nav-text">区别和联系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

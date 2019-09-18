@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,IPC,AIDL,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概念全称：AIDL: Android Interface Definition Language ，它是 Android 接口定义语言。用它定义客户端与服务使用进程间通信 ( IPC ) 进行相互通信时都认可的编程接口。Android 中一个进程通常无法访问另一个进程的内存，进程需要将其对象分解成操作系统能够识别的原语，并将对象编组成跨越边界的对象。">
+<meta name="keywords" content="Android,IPC,AIDL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AIDL 详解">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/29/0035-aidl/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="概念全称：AIDL: Android Interface Definition Language ，它是 Android 接口定义语言。用它定义客户端与服务使用进程间通信 ( IPC ) 进行相互通信时都认可的编程接口。Android 中一个进程通常无法访问另一个进程的内存，进程需要将其对象分解成操作系统能够识别的原语，并将对象编组成跨越边界的对象。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AIDL 详解">
+<meta name="twitter:description" content="概念全称：AIDL: Android Interface Definition Language ，它是 Android 接口定义语言。用它定义客户端与服务使用进程间通信 ( IPC ) 进行相互通信时都认可的编程接口。Android 中一个进程通常无法访问另一个进程的内存，进程需要将其对象分解成操作系统能够识别的原语，并将对象编组成跨越边界的对象。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/29/0035-aidl/">
+
+
+
+
+
+  <title>AIDL 详解 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/29/0035-aidl/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AIDL 详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-29T11:00:00+08:00">
+                2017-11-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>全称：<code>AIDL: Android Interface Definition Language</code> ，它是 <code>Android</code> 接口定义语言。用它定义客户端与服务使用进程间通信 ( <code>IPC</code> ) 进行相互通信时都认可的编程接口。<code>Android</code> 中一个进程通常无法访问另一个进程的内存，进程需要将其对象分解成操作系统能够识别的原语，并将对象编组成跨越边界的对象。  </p>
+<a id="more"></a>
+
+<p><code>AIDL</code> 接口的调用是直接函数调用（同步的），执行进程取决于调用来自本地进程还是远程进程中的线程：  </p>
+<ul>
+<li>来自本地进程的调用在发起调用的同一线程内执行<br>如果该线程是 <code>UI</code> 主线程，则该线程继续在 <code>AIDL</code> 接口中执行；如果该线程是其他线程，则其在其他中线程执行。但是这种情况根本不应该使用 <code>AIDL</code>，而是应该通过实现本地 <code>Binder</code> 类创建接口  </li>
+<li>来自远程进程的调用，平台分派给当前应用自有进程内部维护的线程池<br>必须为来自未知线程的多次并发传入调用做好准备，即 <code>AIDL</code> 接口的实现必须是完全线程安全实现。   </li>
+</ul>
+<p><code>AIDL</code> 接口首次发布后对其进行的任何更改都必须保持向后兼容性，以避免中断其他应用对服务的使用。因为必须将 <code>.aidl</code> 文件复制到其他应用，才能让这些应用访问服务的接口，因此必须保留对原始接口的支持。   </p>
+<blockquote>
+<p>注意：如下介绍都是针对跨进程 <code>AIDL</code> 的用法。如果是在相同进程中，<code>AIDL</code> 相当于直接调用，和本地扩展 <code>Binder</code> 用法一样，具体原因参看 <code>asInterface</code> 的返回值。  </p>
+</blockquote>
+<h2 id="语法格式"><a href="#语法格式" class="headerlink" title="语法格式"></a>语法格式</h2><p>每个 <code>.aidl</code> 文件都必须定义单个接口，并且需要包含接口声明和方法，不支持定义字段。  </p>
+<h3 id="支持的数据类型"><a href="#支持的数据类型" class="headerlink" title="支持的数据类型"></a>支持的数据类型</h3><ul>
+<li>基本数据类型<br><code>byte, int , short, long, boolean, char, float, double, String, CharSequence</code> 等。  </li>
+<li>集合类型<br><code>List</code> 中的数据类型必须是基本类型或者 <code>Parcelable</code> 类型。可选择将 <code>List</code> 用作“通用”类（例如，<code>List&lt;String&gt;</code>）。另一端实际接收的具体类始终是 <code>ArrayList</code>，但生成的方法使用的是 <code>List</code> 接口。<br><code>Map</code> 支持的数据类型和 <code>List</code> 相同，但是<strong>不支持</strong>通用 <code>Map</code> 类（即不支持 <code>Map&lt;String,Integer&gt;</code> 这种格式）。另一端实际接收的具体类始终是 <code>HashMap</code> ，但生成的方法使用的<strong>只能是</strong> <code>Map</code> 接口。<br>示例： <code>void ListAndMapTypes(inout List&lt;String&gt; list, inout Map map);</code>   </li>
+<li>自定义 <code>Parcelable</code> 类型<br>必须为这些类型加入一个 <code>import</code> 语句，即使这些类型是和接口相同的软件包中定义。   </li>
+</ul>
+<h3 id="数据走向标记"><a href="#数据走向标记" class="headerlink" title="数据走向标记"></a>数据走向标记</h3><p>在 <code>AIDL</code> 进程传递数据时，都有一个数据拆包和打包的过程，这是一个很耗系统内存的。<strong><code>AIDL</code> 作为参数不需要指定，基本数据类型（<code>int, Long, String...</code>）默认且只能为 <code>in</code>，所有其他非基本数据类型都需要指定数据走向的方向标记</strong>。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">interface IMyIPCAidlInterface &#123;</span><br><span class="line">    // 1. AIDL 作为参数，不需要指定</span><br><span class="line">    void registerCallback(IMyAidlInterfaceCallback cb);</span><br><span class="line">    void unregisterCallback(IMyAidlInterfaceCallback cb);</span><br><span class="line">    </span><br><span class="line">    // 2. 基本数据类型，默认且只能为 in</span><br><span class="line">    void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,</span><br><span class="line">            double aDouble, String aString);</span><br><span class="line"></span><br><span class="line">    // 3. 非基本数据类型，必须指定具体的方向</span><br><span class="line">    void testListAndMapTypes(inout List&lt;String&gt; list, inout Map map);</span><br><span class="line">    MyDataParcelable updateBookOut(out MyDataParcelable myDataParcelable);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>举例客户端数据传递到服务端，走向标记解析：   </p>
+<ul>
+<li>in<br>类似<strong>值传递</strong>，形参只拷贝了数据内容到服务器端，服务器端的修改不会影响到客户端的实参。   </li>
+<li>out  </li>
+</ul>
+<p><strong>传递空对象，但是服务端的修改会同步写入客户端实参</strong>，相当于只传递了参数类型。形参传递时服务器端并没有直接使用，而是重新 <code>new</code> 了一个空对象；客户端的参数是无法传递进服务端的，在服务端对空对象填充完数据后，会同步写入客户端的实参，即服务端的修改会同步到客户端。      </p>
+<ul>
+<li>inout<br>类似<strong>引用传递</strong>，形参拷贝了数据内容到服务器端，但是服务器端的修改会重新写回客户端，所以客户端的实参跟着被修改了，也就是服务端的修改会同步影响客户端。     </li>
+</ul>
+<p>根据后文的源码分析，非基本数据类型不管是哪种走向标记，客户端和服务端在跨进程通信时，对象都不是直接传递的，而是在 <code>Studb.Proxy</code> 中通过 <code>Parcel</code> 重建了数据做中转，中转的过程中模拟了值传递或者引用传递的效果。示例：      </p>
+<blockquote>
+<p>注意：走向标记仅仅在跨进程时才有上面的含义。如果都是在相同进程中执行，不管如何标记都是引用传递，即相当于直接调用，并没有使用代理，具体参考 <code>asInterface</code> 的返回值。    </p>
+</blockquote>
+<h3 id="oneway-关键字"><a href="#oneway-关键字" class="headerlink" title="oneway 关键字"></a><code>oneway</code> 关键字</h3><p>表示用户请求相应功能时不需要等待响应可直接调用返回，非阻塞效果。该关键字可以用来声明接口或者声明方法，如果接口声明中用到了 <code>oneway</code> 关键字，则该接口声明的所有方法都采用 <code>oneway</code> 方式 。通过这种方式，服务端在回调客户端的方法时，可以同时通知所有客户端，而不必等待客户端执行完毕。    </p>
+<p>通俗来讲<code>oneway</code> 修饰方法 <code>F</code>，在包含了 <code>F</code> 的这段程序会先执行完了，才执行 <code>F</code> 方法。如果没有 <code>oneway</code> 关键字定义，即正常流程，程序先等待 <code>F</code> 方法调用完才会继续执行。参看代码示例：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Log.d(TAG, <span class="string">"handleMessage: MSG_UPDATE_DATA"</span>);</span><br><span class="line">MyDataParcelable data = RandomData.genMyDataParcelable();</span><br><span class="line"><span class="comment">// Broadcast to all clients the new value.</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> N = mCallbacks.beginBroadcast();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;N; i++) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mCallbacks.getBroadcastItem(i).updateData(data);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        <span class="comment">// The RemoteCallbackList will take care of removing</span></span><br><span class="line">        <span class="comment">// the dead object for us.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">mCallbacks.finishBroadcast();</span><br><span class="line">Log.d(TAG, <span class="string">"handleMessage: MSG_UPDATE_DATA, Callback Done!"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>有没有 <code>oneway</code> 关键字定义的前后对比 <code>Log</code> ：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// oneway 关键字定义 updateData，不会阻塞原有程序 handleMessage，执行完后才调用 updateData</span><br><span class="line">// 服务端可以同时通知所有的客户端，不必等待客户端执行完毕</span><br><span class="line">11:58:10.236 18798-18798/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA</span><br><span class="line">11:58:10.236 18798-18798/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA, Callback Done!</span><br><span class="line">11:58:10.237 18706-18726/* D/:ShowIPCActivity:: updateData: </span><br><span class="line">11:58:13.237 18706-18726/* D/:ShowIPCActivity:: updateData: done!</span><br><span class="line"></span><br><span class="line">// 没有 oneway，所有执行按照正常流程，直到 updateData 执行完才继续向前</span><br><span class="line">11:59:44.920 19822-19822/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA</span><br><span class="line">11:59:44.921 19713-19734/* D/:ShowIPCActivity:: updateData: </span><br><span class="line">11:59:47.921 19713-19734/* D/:ShowIPCActivity:: updateData: done!</span><br><span class="line">11:59:47.922 19822-19822/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA, Callback Done!</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>oneway</code> 关键字最终是在 <code>Binder</code> 机制中解析的，具体为 <code>IPCThreadState.cpp::transact</code> 中判断是否阻塞执行，具体参考<a href="http://redspider110.gitlab.io/redspider110.gitlab.io/2017/12/21/0041-android-binder/" target="_blank" rel="noopener">Android Binder 机制</a> 。</p>
+</blockquote>
+<h2 id="自定义-Parcelable-数据在-IPC-中传递"><a href="#自定义-Parcelable-数据在-IPC-中传递" class="headerlink" title="自定义 Parcelable 数据在 IPC 中传递"></a>自定义 <code>Parcelable</code> 数据在 <code>IPC</code> 中传递</h2><h3 id="实现-Parcelable-自定义类"><a href="#实现-Parcelable-自定义类" class="headerlink" title="实现 Parcelable 自定义类"></a>实现 <code>Parcelable</code> 自定义类</h3><p>在做进程间通信时，自定义的 <code>Parcelabel</code> 类除了完成默认的实现，还需要多增加两个方法（具体需求可以参见后面的源码分析）：  </p>
+<ul>
+<li>空的构造函数<br><code>out</code> 走向时，需要重新 <code>new</code> 一个空对象，就是调用的该构造函数：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">MyDataParcelable</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>从 <code>Parcel</code> 中读取数据<br><code>Parcelable</code> 数据 <code>clone</code> 时，需要通过该方法中转：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">readFromParcel</span><span class="params">(Parcel in)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建同名-AIDL-文件申明自己"><a href="#创建同名-AIDL-文件申明自己" class="headerlink" title="创建同名 AIDL 文件申明自己"></a>创建同名 <code>AIDL</code> 文件申明自己</h3><p>凡是自定义的 <code>Parcelabel</code> 类，在 <code>AIDL</code> 中使用时，必须要先定义自己，并用 <code>parcelable</code> 关键字做声明：    </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyDataParcelable.aidl</span></span><br><span class="line"><span class="comment">// 1. 包名</span></span><br><span class="line"><span class="keyword">package</span> ***.ipc;</span><br><span class="line"><span class="comment">// 2. parcelable 关键字做声明</span></span><br><span class="line"><span class="comment">// Declare MyDataParcelable so AIDL can find it and knows that </span></span><br><span class="line"><span class="comment">// it implements the parcelable protocol.</span></span><br><span class="line">parcelable MyDataParcelable;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果不定义，在使用过程中编译时会抛出异常：<br><code>couldn&#39;t find import for class ***.ipc.MyDataParcelable</code>   </p>
+</blockquote>
+<h2 id="AIDL-实现双向通信及示例"><a href="#AIDL-实现双向通信及示例" class="headerlink" title="AIDL 实现双向通信及示例"></a><code>AIDL</code> 实现双向通信及示例</h2><h3 id="服务端创建-AIDL-文件"><a href="#服务端创建-AIDL-文件" class="headerlink" title="服务端创建 AIDL 文件"></a>服务端创建 <code>AIDL</code> 文件</h3><p>服务端创建 <code>IMyIPCAidlInterface.aidl</code> 文件，供客户端调用：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMyIPCAidlInterface.aidl</span></span><br><span class="line"><span class="keyword">package</span> com.ymzs.androidbasicknowledge.ipc;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Declare any non-default types here with import statements</span></span><br><span class="line"><span class="keyword">import</span> com.ymzs.androidbasicknowledge.ipc.MyDataParcelable;</span><br><span class="line"><span class="keyword">import</span> com.ymzs.androidbasicknowledge.ipc.IMyAidlInterfaceCallback;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IMyIPCAidlInterface</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Demonstrates some basic types that you can use as parameters</span></span><br><span class="line"><span class="comment">     * and return values in AIDL.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">basicTypes</span><span class="params">(<span class="keyword">int</span> anInt, <span class="keyword">long</span> aLong, <span class="keyword">boolean</span> aBoolean, <span class="keyword">float</span> aFloat,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">double</span> aDouble, String aString)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">testListAndMapTypes</span><span class="params">(inout List&lt;String&gt; list, inout Map map)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">MyDataParcelable <span class="title">updateBookIn</span><span class="params">(in MyDataParcelable myDataParcelable)</span></span>;</span><br><span class="line">    <span class="function">MyDataParcelable <span class="title">updateBookOut</span><span class="params">(out MyDataParcelable myDataParcelable)</span></span>;</span><br><span class="line">    <span class="function">MyDataParcelable <span class="title">updateBookInOut</span><span class="params">(inout MyDataParcelable myDataParcelable)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">registerCallback</span><span class="params">(IMyAidlInterfaceCallback cb)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unregisterCallback</span><span class="params">(IMyAidlInterfaceCallback cb)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><ul>
+<li>创建 <code>IMyIPCAidlInterface.Stub</code> 实例，并实现接口函数<br><code>private IMyIPCAidlInterface.Stub mBinder = new IMyIPCAidlInterface.Stub() {...}</code>  </li>
+<li><code>onBind</code> 返回该实例<br>返回 <code>IMyIPCAidlInterface.Stub</code> 的实例：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"onBind: "</span>);</span><br><span class="line">    <span class="keyword">return</span> mBinder;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建回调列表以及注册和取消  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> RemoteCallbackList&lt;IMyAidlInterfaceCallback&gt; mCallbacks</span><br><span class="line">        = <span class="keyword">new</span> RemoteCallbackList&lt;IMyAidlInterfaceCallback&gt;();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span>(cb != <span class="keyword">null</span>) mCallbacks.register(cb);</span><br><span class="line"><span class="keyword">if</span>(cb != <span class="keyword">null</span>) mCallbacks.unregister(cb);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>回调客户端方法<br>这里可以通过 <code>oneway</code> 关键字定义回调是否阻塞。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Broadcast to all clients the new value.</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> N = mCallbacks.beginBroadcast();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;N; i++) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 逐个回调客户端</span></span><br><span class="line">        mCallbacks.getBroadcastItem(i).updateData(data);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        <span class="comment">// The RemoteCallbackList will take care of removing</span></span><br><span class="line">        <span class="comment">// the dead object for us.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">mCallbacks.finishBroadcast();</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端创建-AIDL-文件用于回调"><a href="#客户端创建-AIDL-文件用于回调" class="headerlink" title="客户端创建 AIDL 文件用于回调"></a>客户端创建 <code>AIDL</code> 文件用于回调</h3><p>客户端创建 <code>IMyIPCAidlInterfaceCallback.aidl</code> 文件，供服务端调用：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMyAidlInterfaceCallback.aidl</span></span><br><span class="line"><span class="keyword">package</span> com.ymzs.androidbasicknowledge.ipc;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Declare any non-default types here with import statements</span></span><br><span class="line"><span class="keyword">import</span> com.ymzs.androidbasicknowledge.ipc.MyDataParcelable;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Example of a callback interface used by IMyAidlInterfaceCallback to send</span></span><br><span class="line"><span class="comment"> * synchronous notifications back to its clients.  Note that this is a</span></span><br><span class="line"><span class="comment"> * one-way interface so the server does not block waiting for the client.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">oneway <span class="class"><span class="keyword">interface</span> <span class="title">IMyAidlInterfaceCallback</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">updateData</span><span class="params">(in MyDataParcelable myDataParcelable)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><ul>
+<li><p>创建 <code>IMyIPCAidlInterface</code> 实例<br><code>private IMyIPCAidlInterface mAIDLService = null;</code>    </p>
+</li>
+<li><p>绑定服务并初始化<br>必须使用 <code>IMyIPCAidlInterface.Stub.asInterface(IBinder);</code> 来初始化实例：   </p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> mAIDLIsBound = <span class="keyword">false</span>;</span><br><span class="line"><span class="keyword">private</span> ServiceConnection mAIDLServiceConnection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"onServiceConnected: "</span>);</span><br><span class="line">        mAIDLService = IMyIPCAidlInterface.Stub.asInterface(service);</span><br><span class="line">        mAIDLIsBound = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>创建 <code>IMyAidlInterfaceCallback</code> 实例<br><code>private final IMyAidlInterfaceCallback mCallback = new IMyAidlInterfaceCallback.Stub(){...}</code>   </p>
+</li>
+<li><p><code>Callback</code> 注册和取消注册  </p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mAIDLService.registerCallback(mCallback);</span><br><span class="line">mAIDLService.unregisterCallback(mCallback);</span><br></pre></td></tr></table></figure>
+
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>编译器会根据 <code>AIDL</code> 自动生成对应的 <code>Java</code> 文件，根据服务端的 <code>IMyIPCAidlInterface.aidl</code> 文件生成的代码做源码分析。  </p>
+<h3 id="文件路径及基本内容"><a href="#文件路径及基本内容" class="headerlink" title="文件路径及基本内容"></a>文件路径及基本内容</h3><p><code>app/build/generated/source/aidl/debug/***/ipc/IMyIPCAidlInterface.java</code>  </p>
+<p>文件的类结构：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * This file is auto-generated.  DO NOT MODIFY.</span></span><br><span class="line"><span class="comment"> * Original file: ***\\ipc\\IMyIPCAidlInterface.aidl</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">package</span> ***.ipc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IMyIPCAidlInterface</span> <span class="keyword">extends</span> <span class="title">android</span>.<span class="title">os</span>.<span class="title">IInterface</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Local-side IPC implementation stub class.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Stub</span> <span class="keyword">extends</span> <span class="title">android</span>.<span class="title">os</span>.<span class="title">Binder</span> <span class="keyword">implements</span> ***.<span class="title">ipc</span>.<span class="title">IMyIPCAidlInterface</span> </span>&#123;</span><br><span class="line">       <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> java.lang.String DESCRIPTOR = <span class="string">"***.ipc.IMyIPCAidlInterface"</span>;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Proxy</span> <span class="keyword">implements</span> ***.<span class="title">ipc</span>.<span class="title">IMyIPCAidlInterface</span> </span>&#123;</span><br><span class="line">            ....</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>DESCRIPTOR</code> 是 <code>Binder</code> 的唯一表标识，一般用类名表示。   </p>
+<h3 id="asInterface-的返回值"><a href="#asInterface-的返回值" class="headerlink" title="asInterface 的返回值"></a><code>asInterface</code> 的返回值</h3><p>将服务端的 <code>Binder</code> 对象转成客户端的所需的 <code>AIDL</code> 对象：   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ***.ipc.<span class="function">IMyIPCAidlInterface <span class="title">asInterface</span><span class="params">(android.os.IBinder obj)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ((obj == <span class="keyword">null</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</span><br><span class="line">    <span class="keyword">if</span> (((iin != <span class="keyword">null</span>) &amp;&amp; (iin <span class="keyword">instanceof</span> ***.ipc.IMyIPCAidlInterface))) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((***.ipc.IMyIPCAidlInterface) iin);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ***.ipc.IMyIPCAidlInterface.Stub.Proxy(obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面的源码可以看出，如果客户端和服务端：      </p>
+<ul>
+<li>在相同进程下<br>返回 <code>Stub</code> 对象本身。因为此时根本不需要跨进称通信。那么直接调用 <code>Stub</code> 对象的接口就可以了，返回的实现就是服务端的 <code>Stub</code> 实现，也就是客户端直接调用了服务端的代码。  </li>
+<li>跨进程<br>返回 <code>Stub.Proxy</code>对象。该对象持有着远程的 <code>Binder</code> 引用，因为现在需要跨进程通信，所以如果调用 <code>Stub.Proxy</code> 的接口的话，那么它们都将是 <code>IPC</code> 调用，它会通过调用 <code>transact</code> 方法去与服务端通信。      </li>
+</ul>
+<h3 id="in-走向标记分析"><a href="#in-走向标记分析" class="headerlink" title="in 走向标记分析"></a><code>in</code> 走向标记分析</h3><p><code>in</code> 模式下，对象从客户端传递到服务端后，不会被服务端修改：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTransact</span><span class="params">(<span class="keyword">int</span> code, android.os.Parcel data, android.os.Parcel reply, <span class="keyword">int</span> flags)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> android.os.RemoteException </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (code) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">case</span> TRANSACTION_updateBookIn: &#123;</span><br><span class="line">            data.enforceInterface(DESCRIPTOR);</span><br><span class="line">            ***.ipc.MyDataParcelable _arg0;</span><br><span class="line">            <span class="keyword">if</span> ((<span class="number">0</span> != data.readInt())) &#123;</span><br><span class="line">                <span class="comment">// 根据形参传入的数据，重新生成 _arg0 对象</span></span><br><span class="line">                _arg0 = ***.ipc.MyDataParcelable.CREATOR.createFromParcel(data);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                _arg0 = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 也就是客户端传递的参数在这作了中转，并没有直接传递给服务端  </span></span><br><span class="line">            <span class="comment">// 而是根据客户端传递参数，新建了一个_arg0 对象传递给服务端</span></span><br><span class="line">            ***.ipc.MyDataParcelable _result = <span class="keyword">this</span>.updateBookIn(_arg0);</span><br><span class="line">            reply.writeNoException();</span><br><span class="line">            <span class="keyword">if</span> ((_result != <span class="keyword">null</span>)) &#123;</span><br><span class="line">                reply.writeInt(<span class="number">1</span>);</span><br><span class="line">                <span class="comment">// 服务端的返回值对象也不是直接传递的，也是通过 parcel 中转的</span></span><br><span class="line">                _result.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  reply.writeInt(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ***.ipc.<span class="function">MyDataParcelable <span class="title">updateBookIn</span><span class="params">(***.ipc.MyDataParcelable myDataParcelable)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> android.os.RemoteException </span>&#123;</span><br><span class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</span><br><span class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</span><br><span class="line">    ***.ipc.MyDataParcelable _result;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        _data.writeInterfaceToken(DESCRIPTOR);</span><br><span class="line">        <span class="keyword">if</span> ((myDataParcelable != <span class="keyword">null</span>)) &#123;</span><br><span class="line">            _data.writeInt(<span class="number">1</span>);</span><br><span class="line">            <span class="comment">// 形参数据写入 _data</span></span><br><span class="line">            myDataParcelable.writeToParcel(_data, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            _data.writeInt(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// IPC 通信，将参数通过 parcel 传递进去</span></span><br><span class="line">        mRemote.transact(Stub.TRANSACTION_updateBookIn, _data, _reply, <span class="number">0</span>);</span><br><span class="line">        _reply.readException();</span><br><span class="line">        <span class="keyword">if</span> ((<span class="number">0</span> != _reply.readInt())) &#123;</span><br><span class="line">            <span class="comment">// 服务端的修改 _reply 重新生成 _result 并返回</span></span><br><span class="line">            _result = ***.ipc.MyDataParcelable.CREATOR.createFromParcel(_reply);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            _result = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        _reply.recycle();</span><br><span class="line">        _data.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// in 标记类型，形参的修改不会影响实参</span></span><br><span class="line">    <span class="keyword">return</span> _result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="out-走向标记分析"><a href="#out-走向标记分析" class="headerlink" title="out 走向标记分析"></a><code>out</code> 走向标记分析</h3><p><code>out</code> 模式下，对象无法从客户端传递到服务端，<code>Stub.Proxy</code> 在中转时新建了一个空对象传递给服务端。服务端针对该空对象填充数据后，<code>Stub.Proxy</code> 在中转时将空对象填充的数据，重新写回客户端对象，所以服务器端的修改会同步到客户端：       </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TRANSACTION_updateBookOut: &#123;</span><br><span class="line">    data.enforceInterface(DESCRIPTOR);</span><br><span class="line">    ***.ipc.MyDataParcelable _arg0;</span><br><span class="line">    <span class="comment">// out 模式下，new 了一个空对象</span></span><br><span class="line">    <span class="comment">// 所以自定义 Parcelable 时，必须实现空构造函数</span></span><br><span class="line">    _arg0 = <span class="keyword">new</span> ***.ipc.MyDataParcelable();</span><br><span class="line">    <span class="comment">// 根据传递的空对象，调用服务端的具体实现</span></span><br><span class="line">    ***.ipc.MyDataParcelable _result = <span class="keyword">this</span>.updateBookOut(_arg0);</span><br><span class="line">    reply.writeNoException();</span><br><span class="line">    <span class="keyword">if</span> ((_result != <span class="keyword">null</span>)) &#123;</span><br><span class="line">        reply.writeInt(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 服务端的返回结果写入 reply</span></span><br><span class="line">        _result.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        reply.writeInt(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((_arg0 != <span class="keyword">null</span>)) &#123;</span><br><span class="line">        reply.writeInt(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 服务端对空对象 _arg0 的修改，同步写入 reply</span></span><br><span class="line">        _arg0.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        reply.writeInt(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ***.ipc.<span class="function">MyDataParcelable <span class="title">updateBookOut</span><span class="params">(***.ipc.MyDataParcelable myDataParcelable)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> android.os.RemoteException </span>&#123;</span><br><span class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</span><br><span class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</span><br><span class="line">    ***.ipc.MyDataParcelable _result;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        _data.writeInterfaceToken(DESCRIPTOR);</span><br><span class="line">        <span class="comment">// 客户端传递进来的对象，并没有传递给服务端，_data 和 _reply 都是空的 Parcel</span></span><br><span class="line">        mRemote.transact(Stub.TRANSACTION_updateBookOut, _data, _reply, <span class="number">0</span>);</span><br><span class="line">        _reply.readException();</span><br><span class="line">        <span class="keyword">if</span> ((<span class="number">0</span> != _reply.readInt())) &#123;</span><br><span class="line">            <span class="comment">// 根据服务端的返回结果，生成一个对象作为返回值</span></span><br><span class="line">            _result = ***.ipc.MyDataParcelable.CREATOR.createFromParcel(_reply);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            _result = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((<span class="number">0</span> != _reply.readInt())) &#123;</span><br><span class="line">            <span class="comment">// 如果服务端对传进去的空对象填充了数据，该数据写回客户端</span></span><br><span class="line">            <span class="comment">// 即服务端的修改会同步影响到客户端</span></span><br><span class="line">            <span class="comment">// 自定义 Parcelable 时，必须实现 readFromParcel，这里会读取</span></span><br><span class="line">            myDataParcelable.readFromParcel(_reply);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        _reply.recycle();</span><br><span class="line">        _data.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="inout-走向标记分析"><a href="#inout-走向标记分析" class="headerlink" title="inout 走向标记分析"></a><code>inout</code> 走向标记分析</h3><p><code>inout</code> 走向类似引用传递，对象从客户端传递到服务端，服务端的修改同步会影响到客户端 ，综合了 <code>in</code> 和 <code>out</code> 的功能：    </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TRANSACTION_updateBookInOut: &#123;</span><br><span class="line">    data.enforceInterface(DESCRIPTOR);</span><br><span class="line">    ***.ipc.MyDataParcelable _arg0;</span><br><span class="line">    <span class="keyword">if</span> ((<span class="number">0</span> != data.readInt())) &#123;</span><br><span class="line">        <span class="comment">// 根据形参传入的数据，重新生成 _arg0 对象</span></span><br><span class="line">        _arg0 = ***.ipc.MyDataParcelable.CREATOR.createFromParcel(data);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        _arg0 = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ***.ipc.MyDataParcelable _result = <span class="keyword">this</span>.updateBookInOut(_arg0);</span><br><span class="line">    reply.writeNoException();</span><br><span class="line">    <span class="keyword">if</span> ((_result != <span class="keyword">null</span>)) &#123;</span><br><span class="line">        reply.writeInt(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 服务端的返回值对象通过 parcel 中转</span></span><br><span class="line">        _result.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        reply.writeInt(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((_arg0 != <span class="keyword">null</span>)) &#123;</span><br><span class="line">        reply.writeInt(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 服务端对对象 _arg0 的修改，同步写入 reply</span></span><br><span class="line">        _arg0.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        reply.writeInt(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ***.ipc.<span class="function">MyDataParcelable <span class="title">updateBookInOut</span><span class="params">(***.ipc.MyDataParcelable myDataParcelable)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> android.os.RemoteException </span>&#123;</span><br><span class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</span><br><span class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</span><br><span class="line">    ***.ipc.MyDataParcelable _result;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        _data.writeInterfaceToken(DESCRIPTOR);</span><br><span class="line">        <span class="keyword">if</span> ((myDataParcelable != <span class="keyword">null</span>)) &#123;</span><br><span class="line">            _data.writeInt(<span class="number">1</span>);</span><br><span class="line">            <span class="comment">// inout 模式下，形参数据写入 _data</span></span><br><span class="line">            myDataParcelable.writeToParcel(_data, <span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            _data.writeInt(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// IPC 通信，将参数通过 parcel 传递进去</span></span><br><span class="line">        mRemote.transact(Stub.TRANSACTION_updateBookInOut, _data, _reply, <span class="number">0</span>);</span><br><span class="line">        _reply.readException();</span><br><span class="line">        <span class="keyword">if</span> ((<span class="number">0</span> != _reply.readInt())) &#123;</span><br><span class="line">            <span class="comment">// 服务端的返回值重新生成 _result 并返回</span></span><br><span class="line">            _result = ***.ipc.MyDataParcelable.CREATOR.createFromParcel(_reply);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            _result = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((<span class="number">0</span> != _reply.readInt())) &#123;</span><br><span class="line">            <span class="comment">// 服务端对传进去对象做修改，同步写回客户端</span></span><br><span class="line">            <span class="comment">// 即服务端的修改会同步影响到客户端</span></span><br><span class="line">            myDataParcelable.readFromParcel(_reply);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        _reply.recycle();</span><br><span class="line">        _data.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="AIDL-作为参数不需要指定走向"><a href="#AIDL-作为参数不需要指定走向" class="headerlink" title="AIDL 作为参数不需要指定走向"></a><code>AIDL</code> 作为参数不需要指定走向</h3><p><code>IMyAidlInterfaceCallback</code> 也是一个 <code>AIDL</code>，它作为参数时不需要指定走向，参数传递类似对象的引用传递（<code>IMyAidlInterfaceCallback</code> 直接写入 <code>Parcel</code>，并通过 <code>Parcel</code> 来传递），并不涉及到对象的转存。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> TRANSACTION_registerCallback: &#123;</span><br><span class="line">    data.enforceInterface(DESCRIPTOR);</span><br><span class="line">    com.ymzs.androidbasicknowledge.ipc.IMyAidlInterfaceCallback _arg0;</span><br><span class="line">    _arg0 = com.ymzs.androidbasicknowledge.ipc.IMyAidlInterfaceCallback</span><br><span class="line">                .Stub.asInterface(data.readStrongBinder());</span><br><span class="line">    <span class="keyword">this</span>.registerCallback(_arg0);</span><br><span class="line">    reply.writeNoException();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerCallback</span><span class="params">(com.ymzs.androidbasicknowledge.ipc.IMyAidlInterfaceCallback cb)</span> </span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> android.os.RemoteException </span>&#123;</span><br><span class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</span><br><span class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        _data.writeInterfaceToken(DESCRIPTOR);</span><br><span class="line">        _data.writeStrongBinder((((cb != <span class="keyword">null</span>)) ? (cb.asBinder()) : (<span class="keyword">null</span>)));</span><br><span class="line">        mRemote.transact(Stub.TRANSACTION_registerCallback, _data, _reply, <span class="number">0</span>);</span><br><span class="line">        _reply.readException();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        _reply.recycle();</span><br><span class="line">        _data.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例及-Log-分析"><a href="#示例及-Log-分析" class="headerlink" title="示例及 Log 分析"></a>示例及 <code>Log</code> 分析</h2><h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 客户端代码</span></span><br><span class="line"><span class="comment">// test updateBookIn</span></span><br><span class="line">MyDataParcelable inData = RandomData.genMyDataParcelable();</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: inData = "</span> + inData.toString());</span><br><span class="line">MyDataParcelable aidlInData = mAIDLService.updateBookIn(inData);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: 2 : inData = "</span> + inData.toString());</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: aidlInData = "</span> + aidlInData.toString());</span><br><span class="line"></span><br><span class="line"><span class="comment">// test updateBookOut</span></span><br><span class="line">MyDataParcelable outData = RandomData.genMyDataParcelable();</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: outData = "</span> + outData);</span><br><span class="line">MyDataParcelable aidlOutData = mAIDLService.updateBookOut(outData);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: 2 : outData = "</span> + outData);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: aidlOutData = "</span> + aidlOutData.toString());</span><br><span class="line"></span><br><span class="line"><span class="comment">// test updateBookInOut</span></span><br><span class="line">MyDataParcelable inOutData = RandomData.genMyDataParcelable();</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: inOutData = "</span> + inOutData.toString());</span><br><span class="line">MyDataParcelable aidlInOutData = mAIDLService.updateBookInOut(inOutData);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: 2: inOutData = "</span> + inOutData.toString());</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: aidlInOutData = "</span> + aidlInOutData.toString());</span><br><span class="line"></span><br><span class="line"><span class="comment">// test ListAndMapTypes</span></span><br><span class="line">List&lt;String&gt; stringList = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">stringList.add(<span class="string">"This "</span>);stringList.add(<span class="string">"is "</span>);</span><br><span class="line">stringList.add(<span class="string">"String "</span>);stringList.add(<span class="string">"list!"</span>);</span><br><span class="line">Map&lt;String, Integer&gt; stringIntegerMap = <span class="keyword">new</span> HashMap&lt;String, Integer&gt;();</span><br><span class="line">stringIntegerMap.put(<span class="string">"key1"</span>, <span class="number">1</span>);stringIntegerMap.put(<span class="string">"key2"</span>, <span class="number">2</span>);</span><br><span class="line">stringIntegerMap.put(<span class="string">"key3"</span>, <span class="number">3</span>);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: stringList = "</span> + </span><br><span class="line">        Utils.printList(stringList));</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: stringIntegerMap = "</span> + </span><br><span class="line">        Utils.printMap(stringIntegerMap));</span><br><span class="line">mAIDLService.testListAndMapTypes(stringList, stringIntegerMap);</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: update: stringList = "</span> + </span><br><span class="line">        Utils.printList(stringList));</span><br><span class="line">Log.d(TAG, <span class="string">"updateMyParcelableData: update: stringIntegerMap = "</span> + </span><br><span class="line">        Utils.printMap(stringIntegerMap));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务端代码</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> MyDataParcelable <span class="title">updateBookIn</span><span class="params">(MyDataParcelable myDataParcelable)</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookIn: myDataParcelable = "</span> + myDataParcelable);</span><br><span class="line">    String randomStr = RandomData.genRandomString(<span class="number">3</span>);</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookIn: randomStr = "</span> + randomStr);</span><br><span class="line">    myDataParcelable.setName(randomStr);</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookIn: myDataParcelable = "</span> + myDataParcelable);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 测试回调</span></span><br><span class="line">    sendCallbackMsg();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> myDataParcelable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> MyDataParcelable <span class="title">updateBookOut</span><span class="params">(MyDataParcelable myDataParcelable)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(myDataParcelable.getName() == <span class="keyword">null</span>)&#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"updateBookOut: It is AIDL type out! Parameter is null!"</span>);</span><br><span class="line">        <span class="comment">//myDataParcelable = RandomData.genMyDataParcelable();</span></span><br><span class="line">        myDataParcelable.setName(<span class="string">"aaa"</span>);</span><br><span class="line">        MyDataParcelable.Book book = <span class="keyword">new</span> MyDataParcelable.Book(</span><br><span class="line">                RandomData.genRandomString(<span class="number">3</span>), RandomData.genRandomNumber(<span class="number">100</span>));</span><br><span class="line">        List&lt;MyDataParcelable.Book&gt; list = <span class="keyword">new</span> ArrayList&lt;MyDataParcelable.Book&gt;();</span><br><span class="line">        list.add(book);</span><br><span class="line">        myDataParcelable.setBookList(list);</span><br><span class="line">    &#125;</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookOut: myDataParcelable = "</span> + myDataParcelable);</span><br><span class="line">    <span class="keyword">return</span> myDataParcelable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> MyDataParcelable <span class="title">updateBookInOut</span><span class="params">(MyDataParcelable myDataParcelable)</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookInOut: myDataParcelable = "</span> + myDataParcelable);</span><br><span class="line">    String randomStr = RandomData.genRandomString(<span class="number">3</span>);</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookInOut: randomStr = "</span> + randomStr);</span><br><span class="line">    myDataParcelable.setName(randomStr);</span><br><span class="line">    Log.d(TAG, <span class="string">"updateBookInOut: myDataParcelable = "</span> + myDataParcelable);</span><br><span class="line">    <span class="keyword">return</span> myDataParcelable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testListAndMapTypes</span><span class="params">(List&lt;String&gt; list, Map&lt;String, Integer&gt; map)</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"testListAndMapTypes: list = "</span> + Utils.printList(list));</span><br><span class="line">    Log.d(TAG, <span class="string">"testListAndMapTypes: map = "</span> + Utils.printMap(map));</span><br><span class="line"></span><br><span class="line">    list.add(<span class="string">"Server!"</span>);</span><br><span class="line">    map.put(<span class="string">"key4"</span>, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    Log.d(TAG, <span class="string">"testListAndMapTypes: update: list = "</span> + Utils.printList(list));</span><br><span class="line">    Log.d(TAG, <span class="string">"testListAndMapTypes: update: map = "</span> + Utils.printMap(map));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务端回调</span></span><br><span class="line">Log.d(TAG, <span class="string">"handleMessage: MSG_UPDATE_DATA"</span>);</span><br><span class="line">MyDataParcelable data = RandomData.genMyDataParcelable();</span><br><span class="line"><span class="comment">// Broadcast to all clients the new value.</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> N = mCallbacks.beginBroadcast();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;N; i++) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mCallbacks.getBroadcastItem(i).updateData(data);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        <span class="comment">// The RemoteCallbackList will take care of removing</span></span><br><span class="line">        <span class="comment">// the dead object for us.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">mCallbacks.finishBroadcast();</span><br><span class="line">Log.d(TAG, <span class="string">"handleMessage: MSG_UPDATE_DATA, Callback Done!"</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Log-分析"><a href="#Log-分析" class="headerlink" title="Log 分析"></a><code>Log</code> 分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">// Activity 绑定服务</span><br><span class="line">18:44:51.019 25369-25369/* D/:ShowIPCActivity:: onClick: button.onClick = Bind AIDL</span><br><span class="line">18:44:51.019 25369-25369/* D/:ShowIPCActivity:: bindAIDLService: mAIDLIsBound = false</span><br><span class="line">// 服务启动</span><br><span class="line">18:44:51.145 25521-25521/*:aidl D/:MyAIDLService:: onCreate: </span><br><span class="line">18:44:51.145 25521-25521/*:aidl D/:MyAIDLService:: onBind: </span><br><span class="line">// 连接服务</span><br><span class="line">18:44:51.149 25369-25369/* D/:ShowIPCActivity:: onServiceConnected: </span><br><span class="line">// 注册 Activity 回调函数</span><br><span class="line">18:44:51.153 25521-25542/*:aidl D/:MyAIDLService:: registerCallback: </span><br><span class="line">// 点击 Button，调用服务的几个测试函数</span><br><span class="line">18:44:52.808 25369-25369/* D/:ShowIPCActivity:: onClick: button.onClick = UpdateMyParcelableData</span><br><span class="line">18:44:52.808 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">// 初始化实参并传递给服务端</span><br><span class="line">18:44:52.811 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        inData = name: bbf, arrays: 1 2 3 , book.name: ehfid, book.price: 47</span><br><span class="line">// 传递数据类型标记为 in，形参数据被传递到服务端</span><br><span class="line">18:44:52.816 25521-25541/*:aidl D/:MyAIDLService:: updateBookIn: </span><br><span class="line">        myDataParcelable = name: bbf, arrays: 1 2 3 , book.name: ehfid, book.price: 47</span><br><span class="line">// 服务端修改该对象</span><br><span class="line">18:44:52.816 25521-25541/*:aidl D/:MyAIDLService:: updateBookIn: randomStr = eec</span><br><span class="line">18:44:52.816 25521-25541/*:aidl D/:MyAIDLService:: updateBookIn: </span><br><span class="line">        myDataParcelable = name: eec, arrays: 1 2 3 , book.name: ehfid, book.price: 47</span><br><span class="line">// 发送消息，准备回调客户端</span><br><span class="line">18:44:52.816 25521-25541/*:aidl D/:MyAIDLService:: sendCallbackMsg: MSG_UPDATE_DATA</span><br><span class="line">// in 模式下客户端对象并不会因为服务端修改而受影响</span><br><span class="line">18:44:52.818 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: 2 : </span><br><span class="line">        inData = name: bbf, arrays: 1 2 3 , book.name: ehfid, book.price: 47</span><br><span class="line">// 服务端返回值</span><br><span class="line">18:44:52.818 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        aidlInData = name: eec, arrays: 1 2 3 , book.name: ehfid, book.price: 47</span><br><span class="line">// 重新初始化实参传递给服务端</span><br><span class="line">18:44:52.818 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        outData = name: dab, arrays: 1 2 3 , book.name: cbefi, book.price: 36</span><br><span class="line">// 传递数据类型标记为 out，客户端对象无法传递到服务端，只传了一个空对象</span><br><span class="line">18:44:52.819 25521-25542/*:aidl D/:MyAIDLService:: updateBookOut: It is AIDL type out! Parameter is null!</span><br><span class="line">// 服务端为该空对象填充数据</span><br><span class="line">18:44:52.819 25521-25542/*:aidl D/:MyAIDLService:: updateBookOut: </span><br><span class="line">        myDataParcelable = name: aaa, arrays: 0 0 0 , book.name: fhi, book.price: 92</span><br><span class="line">// out 模式下，服务端的修改会同步写回客户端</span><br><span class="line">18:44:52.820 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: 2 : </span><br><span class="line">        outData = name: aaa, arrays: 0 0 0 , book.name: fhi, book.price: 92</span><br><span class="line">// 服务端返回值</span><br><span class="line">18:44:52.820 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        aidlOutData = name: aaa, arrays: 0 0 0 , book.name: fhi, book.price: 92</span><br><span class="line">// 重新初始化实参传递给服务端</span><br><span class="line">18:44:52.820 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        inOutData = name: igf, arrays: 1 2 3 , book.name: gdbaa, book.price: 30</span><br><span class="line">// 传递数据类型标记为 inout，形参数据被传递到服务端</span><br><span class="line">18:44:52.820 25521-25541/*:aidl D/:MyAIDLService:: updateBookInOut: </span><br><span class="line">        myDataParcelable = name: igf, arrays: 1 2 3 , book.name: gdbaa, book.price: 30</span><br><span class="line">// 服务端修改该对象</span><br><span class="line">18:44:52.820 25521-25541/*:aidl D/:MyAIDLService:: updateBookInOut: randomStr = hcb</span><br><span class="line">// 服务端返回值</span><br><span class="line">18:44:52.821 25521-25541/*:aidl D/:MyAIDLService:: updateBookInOut: </span><br><span class="line">        myDataParcelable = name: hcb, arrays: 1 2 3 , book.name: gdbaa, book.price: 30</span><br><span class="line">// inout 模式下，服务端的修改会同步写回客户端</span><br><span class="line">18:44:52.821 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: 2: </span><br><span class="line">        inOutData = name: hcb, arrays: 1 2 3 , book.name: gdbaa, book.price: 30</span><br><span class="line">18:44:52.821 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: </span><br><span class="line">        aidlInOutData = name: hcb, arrays: 1 2 3 , book.name: gdbaa, book.price: 30</span><br><span class="line">// 测试集合类型 List 和 Map，并标记为 inout 类型</span><br><span class="line">18:44:52.822 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: stringList = This is String list!</span><br><span class="line">18:44:52.822 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: stringIntegerMap = key2:2 key1:1 key3:3 </span><br><span class="line">18:44:52.823 25521-25542/*:aidl D/:MyAIDLService:: testListAndMapTypes: list = This is String list!</span><br><span class="line">18:44:52.823 25521-25542/*:aidl D/:MyAIDLService:: testListAndMapTypes: map = key2:2 key1:1 key3:3 </span><br><span class="line">18:44:52.823 25521-25542/*:aidl D/:MyAIDLService:: testListAndMapTypes: update: list = This is String list!Server!</span><br><span class="line">18:44:52.824 25521-25542/*:aidl D/:MyAIDLService:: testListAndMapTypes: update: map = key2:2 key4:4 key1:1 key3:3 </span><br><span class="line">// 服务端的修改会同步写回客户端</span><br><span class="line">18:44:52.824 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: update: stringList = This is String list!Server!</span><br><span class="line">18:44:52.824 25369-25369/* D/:ShowIPCActivity:: updateMyParcelableData: update: stringIntegerMap = key2:2 key4:4 key1:1 key3:3 </span><br><span class="line">// 收到消息，服务端回调所有客户端，回调函数被 oneway 关键字定义，程序不会阻塞</span><br><span class="line">18:44:54.817 25521-25521/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA</span><br><span class="line">18:44:54.817 25521-25521/*:aidl D/:MyAIDLService:: handleMessage: MSG_UPDATE_DATA, Callback Done!</span><br><span class="line">// 客户端响应回调</span><br><span class="line">18:44:54.818 25369-25389/* D/:ShowIPCActivity:: updateData: </span><br><span class="line">        myDataParcelable = name: cgi, arrays: 1 2 3 , book.name: gdhhb, book.price: 16</span><br><span class="line">// 客户端回调执行完毕</span><br><span class="line">18:44:57.818 25369-25389/* D/:ShowIPCActivity:: updateData: done!</span><br><span class="line">18:45:00.052 25369-25369/* D/:ShowIPCActivity:: onClick: button.onClick = UnBind AIDL</span><br><span class="line">// 解除服务绑定</span><br><span class="line">18:45:00.052 25369-25369/* D/:ShowIPCActivity:: unBindAIDLService: mAIDLIsBound = true</span><br><span class="line">18:45:00.057 25521-25541/*:aidl D/:MyAIDLService:: unregisterCallback: </span><br><span class="line">18:45:00.069 25521-25521/*:aidl D/:MyAIDLService:: onDestroy:</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li>如果是在相同进程中，只需要使用本地扩展 <code>Binder</code>    </li>
+<li>如果跨进程通信并不考虑并发，可以使用 <code>Messenger</code> 实现通信，但是该方式只支持异步通信  </li>
+<li>如果跨进程通信需要并发以及同步调用，则必须使用 <code>AIDL</code> 来通信  </li>
+</ul>
+<h2 id="传输大小限制"><a href="#传输大小限制" class="headerlink" title="传输大小限制"></a>传输大小限制</h2><p>默认跨进程通信，传输大小为 <code>1M</code>：<br><code>The Binder transaction buffer has a limited fixed size, currently 1Mb, which is shared by all transactions in progress for the process.</code><br>链接：<a href="https://developer.android.com/reference/android/os/TransactionTooLargeException.html" target="_blank" rel="noopener">https://developer.android.com/reference/android/os/TransactionTooLargeException.html</a>   </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://developer.android.com/guide/components/aidl.html" target="_blank" rel="noopener">https://developer.android.com/guide/components/aidl.html</a>  </li>
+<li><a href="http://blog.csdn.net/luoyanglizi/article/details/51980630" target="_blank" rel="noopener">http://blog.csdn.net/luoyanglizi/article/details/51980630</a>  </li>
+<li><a href="http://blog.csdn.net/jiwangkailai02/article/details/48098087" target="_blank" rel="noopener">http://blog.csdn.net/jiwangkailai02/article/details/48098087</a>  </li>
+<li><a href="http://blog.csdn.net/scnuxisan225/article/details/49970217" target="_blank" rel="noopener">http://blog.csdn.net/scnuxisan225/article/details/49970217</a>  </li>
+<li><a href="https://my.oschina.net/zhoulc/blog/199199" target="_blank" rel="noopener">https://my.oschina.net/zhoulc/blog/199199</a>   </li>
+<li><a href="http://blog.csdn.net/luoyanglizi/article/details/51958091" target="_blank" rel="noopener">http://blog.csdn.net/luoyanglizi/article/details/51958091</a>  </li>
+<li><a href="https://stackoverflow.com/questions/5507990/how-to-return-hashmap-in-an-aidl-file" target="_blank" rel="noopener">https://stackoverflow.com/questions/5507990/how-to-return-hashmap-in-an-aidl-file</a>    </li>
+<li><a href="http://www.dre.vanderbilt.edu/~schmidt/cs282/PDFs/8-Services-and-IPC-parts-14-15-and-16.pdf" target="_blank" rel="noopener">http://www.dre.vanderbilt.edu/~schmidt/cs282/PDFs/8-Services-and-IPC-parts-14-15-and-16.pdf</a>  </li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/29/0035-aidl/" title="AIDL 详解">http://redspider110.github.io/2017/11/29/0035-aidl/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/IPC/" rel="tag"># IPC</a>
+          
+            <a href="/tags/AIDL/" rel="tag"># AIDL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/29/0034-messenger/" rel="next" title="Messenger 详解">
+                <i class="fa fa-chevron-left"></i> Messenger 详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/30/0036-java-xml-dom-md/" rel="prev" title="Java 使用 DOM 操作 XML 文件">
+                Java 使用 DOM 操作 XML 文件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#语法格式"><span class="nav-number">2.</span> <span class="nav-text">语法格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支持的数据类型"><span class="nav-number">2.1.</span> <span class="nav-text">支持的数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据走向标记"><span class="nav-number">2.2.</span> <span class="nav-text">数据走向标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#oneway-关键字"><span class="nav-number">2.3.</span> <span class="nav-text">oneway 关键字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义-Parcelable-数据在-IPC-中传递"><span class="nav-number">3.</span> <span class="nav-text">自定义 Parcelable 数据在 IPC 中传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现-Parcelable-自定义类"><span class="nav-number">3.1.</span> <span class="nav-text">实现 Parcelable 自定义类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建同名-AIDL-文件申明自己"><span class="nav-number">3.2.</span> <span class="nav-text">创建同名 AIDL 文件申明自己</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AIDL-实现双向通信及示例"><span class="nav-number">4.</span> <span class="nav-text">AIDL 实现双向通信及示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端创建-AIDL-文件"><span class="nav-number">4.1.</span> <span class="nav-text">服务端创建 AIDL 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端"><span class="nav-number">4.2.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端创建-AIDL-文件用于回调"><span class="nav-number">4.3.</span> <span class="nav-text">客户端创建 AIDL 文件用于回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">4.4.</span> <span class="nav-text">客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件路径及基本内容"><span class="nav-number">5.1.</span> <span class="nav-text">文件路径及基本内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#asInterface-的返回值"><span class="nav-number">5.2.</span> <span class="nav-text">asInterface 的返回值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#in-走向标记分析"><span class="nav-number">5.3.</span> <span class="nav-text">in 走向标记分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#out-走向标记分析"><span class="nav-number">5.4.</span> <span class="nav-text">out 走向标记分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#inout-走向标记分析"><span class="nav-number">5.5.</span> <span class="nav-text">inout 走向标记分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AIDL-作为参数不需要指定走向"><span class="nav-number">5.6.</span> <span class="nav-text">AIDL 作为参数不需要指定走向</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例及-Log-分析"><span class="nav-number">6.</span> <span class="nav-text">示例及 Log 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例代码"><span class="nav-number">6.1.</span> <span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Log-分析"><span class="nav-number">6.2.</span> <span class="nav-text">Log 分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">7.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#传输大小限制"><span class="nav-number">8.</span> <span class="nav-text">传输大小限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

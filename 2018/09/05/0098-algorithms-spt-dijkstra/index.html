@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Algorithms,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍最短路径基础概念；以及 Dijkstra 算法 - 迪科斯彻算法：解决边权重非负的加权有向图的单点最短路径问题。">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法 - 最短路径树基础以及 Dijkstra 算法">
+<meta property="og:url" content="http://redspider110.github.io/2018/09/05/0098-algorithms-spt-dijkstra/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍最短路径基础概念；以及 Dijkstra 算法 - 迪科斯彻算法：解决边权重非负的加权有向图的单点最短路径问题。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-relaxation-edge.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-edge.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-prove.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-nevigate-weight.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-trace.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.379Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法 - 最短路径树基础以及 Dijkstra 算法">
+<meta name="twitter:description" content="介绍最短路径基础概念；以及 Dijkstra 算法 - 迪科斯彻算法：解决边权重非负的加权有向图的单点最短路径问题。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-relaxation-edge.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/09/05/0098-algorithms-spt-dijkstra/">
+
+
+
+
+
+  <title>算法 - 最短路径树基础以及 Dijkstra 算法 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/09/05/0098-algorithms-spt-dijkstra/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">算法 - 最短路径树基础以及 Dijkstra 算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-05T09:00:00+08:00">
+                2018-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms/" itemprop="url" rel="index">
+                    <span itemprop="name">Algorithms</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>介绍最短路径基础概念；以及 <code>Dijkstra</code> 算法 - 迪科斯彻算法：解决<strong>边权重非负的加权有向图</strong>的单点最短路径问题。  </p>
+<a id="more"></a>
+
+<h2 id="最短路径基础概念"><a href="#最短路径基础概念" class="headerlink" title="最短路径基础概念"></a>最短路径基础概念</h2><h3 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h3><ul>
+<li><strong>最短路径</strong><br>在一幅加权有向图中，从顶点 <code>s</code> 到顶点 <code>v</code> 的最短路径是所有从 <code>s</code> 到 <code>v</code> 的路径中的权重最小者。  </li>
+<li><strong>最短路径树</strong><br><code>SPT: Shortest Path Tree</code>，给定一幅加权有向图和顶点 <code>s</code>，以 <code>s</code> 为起点的一颗最短路径树是图的一幅子图，它包含 <code>s</code> 和从 <code>s</code> 可达的所有顶点。这颗有向树的根顶点为 <code>s</code>，树的每条路径都是有向图中的一条最短路径。  </li>
+</ul>
+<h3 id="边的松弛"><a href="#边的松弛" class="headerlink" title="边的松弛"></a>边的松弛</h3><p>松弛 <code>relaxation</code> ，对于每个顶点 <code>v</code> 来说：  </p>
+<ul>
+<li><code>v.d</code><br>假设 <code>v.d</code> 用来记录从起点 <code>s</code> 到达顶点 <code>v</code> 的最短路径权重的<strong>上界</strong>。我们称 <code>v.d</code> 为 <code>s</code> 到 <code>v</code> 的<strong>最短路径估计</strong>。  </li>
+<li><code>v.π</code><br>假设 <code>v.π</code> 表示顶点 <code>v</code> 的前驱顶点。  </li>
+</ul>
+<p>松弛过程：将从起点 <code>s</code> 到顶点 <code>u</code> 之间的最短路径距离加上顶点 <code>u</code> 与 <code>v</code> 之间的边权重，并与当前 <code>s</code> 到 <code>v</code> 的最短路径估计进行比较，如果前者更小，则对 <code>v.d, v.π</code> 进行更新。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 初始化所有顶点</span><br><span class="line">// 每个顶点最短路径估计为无穷大，前驱顶点为空</span><br><span class="line">INITIALIZE-SINGLE-SOURCE(G, s)</span><br><span class="line">    for each vertex v ∈ G.V</span><br><span class="line">        v.d = ∞</span><br><span class="line">        v.π = NIL</span><br><span class="line">    s.d=0</span><br><span class="line"></span><br><span class="line">// 松弛，并更新 v 的前驱顶点为 u</span><br><span class="line">// w 表示权重</span><br><span class="line">RELAX(u,v,w)</span><br><span class="line">    if v.d &gt; u.d + w(u,v)</span><br><span class="line">        v.d = u.d + w(u,v)</span><br><span class="line">        v.π = u</span><br></pre></td></tr></table></figure>
+
+<p>松弛操作的时间复杂度为 <code>O(1)</code> 。  </p>
+<h3 id="最短路径的最优性条件"><a href="#最短路径的最优性条件" class="headerlink" title="最短路径的最优性条件"></a>最短路径的最优性条件</h3><p>最优性条件：<code>G</code> 是一幅加权有向图，顶点 <code>s</code> 是 <code>G</code> 的起点，<code>distTo[]</code> 是一个由顶点索引的数组，保存的是 <code>G</code> 中路径的长度。对于从 <code>s</code> 可达的所有顶点 <code>v</code>，<code>distTo[v]</code> 的值是从 <code>s</code> 到 <code>v</code> 的某条路径的长度，对于从 <code>s</code> 不可达的所有顶点 <code>v</code>，该值为无穷大。当且仅当对于从 <code>v</code> 到 <code>w</code> 的任意一条边 <code>e</code>，这些值都满足 <code>distTo[w] &lt;= distTo[v] + e.weight()</code> 时（换句话说，不存在有效边时），它们是最短路径长度。  </p>
+<p>边的松弛实现：放松边 <code>v-w</code> 意味着检查从 <code>s</code> 到 <code>w</code> 的最短路径是否先从 <code>s</code> 到 <code>v</code>，然后再由 <code>v</code> 到 <code>w</code>。如果是，则比较 <code>distTo[w]</code> 和 <code>distTo[v] + e.weight()</code> 的大小。如果 <code>distTo[w]</code> 小，则 <code>v-w</code> 这条边失效了；否则将 <code>distTo[w]</code> 更新为较小值。<code>distTo[]</code> 记录顶点到该点的最短路径。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-relaxation-edge.png" alt="0098-spt-dijkstra-relaxation-edge.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">relax</span><span class="params">(DirectedEdge e)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> v = e.from(), w = e.to();</span><br><span class="line">    <span class="keyword">if</span>(distTo[w] &gt; distTo[v] + e.weight())&#123;</span><br><span class="line">        distTo[w] = distTo[v] + e.weight();</span><br><span class="line">        edgeTo[w] = e;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>最优性条件是所有最短路径算法证明的基础，即只要满足不等式 <code>distTo[w] &lt;= distTo[v] + e.weight()</code> ，则这条路径必为最短路径。  </p>
+</blockquote>
+<h3 id="通用最短路径算法"><a href="#通用最短路径算法" class="headerlink" title="通用最短路径算法"></a>通用最短路径算法</h3><p>一个定义明确且可以解决的加权有向图最短路径问题的算法：  </p>
+<ul>
+<li>对于起点不可达的顶点，最短路径为正无穷  </li>
+<li>对于起点可达但路径上某个顶点属于一个负权重环的顶点，最短路径为负无穷  </li>
+<li>对于所有其他顶点，计算最短路径及最短路径树  </li>
+</ul>
+<p>将 <code>distTo[s]</code> 初始化为 0 ，其他 <code>distTo[]</code> 元素初始化为无穷大，继续如下操作：放松 <code>G</code> 中的任意边，直到不存在有效边为止。<br>对于任意从 <code>s</code> 可达的顶点 <code>w</code> ，在进行这些操作之后，<code>distTo[w]</code> 的值即为从 <code>s</code> 到 <code>w</code> 的最短路径的长度（且 <code>edgeTo[w]</code> 的值即为该路径上的最后一条边）。  </p>
+<blockquote>
+<p>最优性条件和通用算法，给出了计算最短路径的思路，但是没有指定边的放松顺序。接下来学的 <code>Dijkstra</code> 算法、<code>Bellman-Ford</code> 算法和 <code>DAG</code> 有向无环图算法，主要区别在于：边的放松顺序不一样。  </p>
+</blockquote>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li>环路<br>最短路径不能包含环路，不管是负值环还是正值环。 </li>
+<li>唯一性<br>最短路径并不是唯一的，最短路径树也不是唯一的。  </li>
+</ul>
+<h2 id="Dijkstra-算法"><a href="#Dijkstra-算法" class="headerlink" title="Dijkstra 算法"></a><code>Dijkstra</code> 算法</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p><code>Dijkstra</code> 算法类似 <code>Prim</code> 算法：构造的每一步都想这棵树中添加一条新的边。<br>首先将 <code>distTo[s]</code> 初始化为 0，<code>distTo[]</code> 其他元素初始化为正无穷。然后将 <code>distTo[]</code> 最小的非树顶点放松并加入树中，直到所有顶点都在树中或者所有的非树顶点的 <code>distTo[]</code> 值均为无穷大。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-edge.png" alt="0098-spt-dijkstra-edge.png"></p>
+<blockquote>
+<p><code>Dijkstra</code> 算法能够解决边权重非负的加权有向图的单起点最短路径问题。边的放松顺序为：距离起点路径最短的顶点，该顶点指向邻接点的边。且整个算法过程中，每条边会被放松一次。  </p>
+</blockquote>
+<h3 id="正确性证明"><a href="#正确性证明" class="headerlink" title="正确性证明"></a>正确性证明</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-prove.png" alt="0098-spt-dijkstra-prove.png"></p>
+<blockquote>
+<p><code>Dijkstra</code> 算法每条边的放松，都是基于前驱顶点最短路径已经确定的前提下进行的。  </p>
+</blockquote>
+<h3 id="不能处理负权重边的原因"><a href="#不能处理负权重边的原因" class="headerlink" title="不能处理负权重边的原因"></a>不能处理负权重边的原因</h3><p><code>Dijkstra</code> 算法属于贪心算法，每次选的是当前能连到的边中权值最小的，并没有考虑到远处的边。在正权重图中这种贪心是对的，但是在负权重图中，远处的负权重边会影响当前能连到的权值最小值并不是最优解。<br>从上面的正确性证明中也可看出，每条边的放松，前驱顶点的最短路径必须是已经确定了的。但是如果存在负权重边，前驱顶点的最短距离将会可能会被后续的负权重边修改。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-nevigate-weight.png" alt="0098-spt-dijkstra-nevigate-weight.png"></p>
+<p>从示例中可以看出，根据 <code>Dijkstra</code> 算法，顶点 0 到顶点 2 的最短路径为：0 -&gt; 1 -&gt; 2，最短距离为 5。但是实际上，最短路径应该为 0 -&gt; 3 -&gt; 1 -&gt; 2，因为存在负权重边，这条路径最短距离为 4. 所以存在负权重边的有向图， <code>Dijkstra</code> 算法计算出的最短路径并不准确。</p>
+<blockquote>
+<p>疑问：在《算法 4》中给出的 <code>DijkstraSP</code> 实现中，只要去掉负权重边的判断，上图测试数据，算法最终还是可以准确计算出最短路径的。只是顶点 1 会两次入队，并更新顶点 1 和顶点 2 的最终最短路径。  </p>
+</blockquote>
+<h2 id="动画演示"><a href="#动画演示" class="headerlink" title="动画演示"></a>动画演示</h2><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra.gif" alt="0098-spt-dijkstra.gif"></p>
+<h2 id="算法解析"><a href="#算法解析" class="headerlink" title="算法解析"></a>算法解析</h2><ul>
+<li><code>distTo[]</code> 数组<br>记录起点到当前顶点的，最短路径估计长度。  </li>
+<li><code>edgeTo[]</code> 数组<br>记录起点到当前顶点最短路径上，最后一条边。也就是说前驱顶点到当前顶点的边。  </li>
+<li><code>IndexMinPQ&lt;Double&gt; pq</code> 索引最小优先队列<br>索引为当前顶点，记录对应的最短路径估计（<code>distTo</code>）。使用索引最小优先队列的目的是，在边的松弛时，方便更新（降低）键值；最小值为距离起点路径最短的顶点。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DijkstraSP</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">double</span>[] distTo;</span><br><span class="line">    <span class="keyword">private</span> DirectedEdge[] edgeTo;</span><br><span class="line">    <span class="keyword">private</span> IndexMinPQ&lt;Double&gt; pq;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DijkstraSP</span><span class="params">(EdgeWeightedDigraph G, <span class="keyword">int</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//疑问：如果去掉负权重边的判断，自测的几组包含负权重边的有向图</span></span><br><span class="line">        <span class="comment">// 是可以正确计算最短路径的，只是负权重边的顶点会重复入队</span></span><br><span class="line">        <span class="keyword">for</span> (DirectedEdge e : G.edges()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (e.weight() &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">                    <span class="string">"edge "</span> + e + <span class="string">" has negative weight"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        distTo = <span class="keyword">new</span> <span class="keyword">double</span>[G.V()];</span><br><span class="line">        edgeTo = <span class="keyword">new</span> DirectedEdge[G.V()];</span><br><span class="line"></span><br><span class="line">        <span class="comment">//validateVertex(s);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 初始化所有顶点</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> v = <span class="number">0</span>; v &lt; G.V(); v++)</span><br><span class="line">            distTo[v] = Double.POSITIVE_INFINITY;</span><br><span class="line">        distTo[s] = <span class="number">0.0</span>;</span><br><span class="line">        <span class="comment">// relax vertices in order of distance from s</span></span><br><span class="line">        pq = <span class="keyword">new</span> IndexMinPQ&lt;Double&gt;(G.V());</span><br><span class="line">        pq.insert(s, distTo[s]);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 放松所有的边</span></span><br><span class="line">        <span class="keyword">while</span> (!pq.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 放松顺序：距离起点路径最短的顶点，该顶点指向邻接点的边</span></span><br><span class="line">            <span class="keyword">int</span> v = pq.delMin();</span><br><span class="line">            <span class="keyword">for</span> (DirectedEdge e : G.adj(v))</span><br><span class="line">                relax(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// relax edge e and update pq if changed</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">relax</span><span class="params">(DirectedEdge e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> v = e.from(), w = e.to();</span><br><span class="line">        <span class="comment">// 边的放松</span></span><br><span class="line">        <span class="keyword">if</span> (distTo[w] &gt; distTo[v] + e.weight()) &#123;</span><br><span class="line">            distTo[w] = distTo[v] + e.weight();</span><br><span class="line">            edgeTo[w] = e;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 索引优先队列降键值</span></span><br><span class="line">            <span class="keyword">if</span> (pq.contains(w)) pq.decreaseKey(w, distTo[w]);</span><br><span class="line">            <span class="keyword">else</span>                pq.insert(w, distTo[w]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0098-spt-dijkstra-trace.png" alt="0098-spt-dijkstra-trace.png"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<li>权重<br><code>Dijkstra</code> 算法要求所有边的<strong>权重为非负值，但是可以包含有向环</strong>。  </li>
+<li>边的放松顺序<br>放松顺序为：距离起点路径最短的顶点，该顶点指向邻接点的边。且整个算法过程中，每条边会被放松一次。  </li>
+<li>时间复杂度<br>边的放松过程：优先队列的大小为 <code>V</code> 个顶点，插入或者降键值需要 <code>logV</code> ，需要放松所有的边即 <code>E</code> 条边。所以 <code>Dijkstra</code> 算法的时间复杂度为 <code>O(ElogV)</code> 。  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>《算法：第四版》 第 4 章  </li>
+<li><a href="https://algs4.cs.princeton.edu/44sp/" target="_blank" rel="noopener">algs4: sp</a>  </li>
+<li><a href="https://visualgo.net/en/sssp" target="_blank" rel="noopener">visualgo动画-Dijkstra实现</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/09/05/0098-algorithms-spt-dijkstra/" title="算法 - 最短路径树基础以及 Dijkstra 算法">http://redspider110.github.io/2018/09/05/0098-algorithms-spt-dijkstra/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithms/" rel="tag"># Algorithms</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/30/0097-algorithms-mst-kruskal/" rel="next" title="算法 - 最小生成树 Kruskal 算法">
+                <i class="fa fa-chevron-left"></i> 算法 - 最小生成树 Kruskal 算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/10/0099-algorithms-spt-bellman-ford/" rel="prev" title="算法 - 最短路径树 Bellman-Ford 算法">
+                算法 - 最短路径树 Bellman-Ford 算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#最短路径基础概念"><span class="nav-number">1.</span> <span class="nav-text">最短路径基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#名词"><span class="nav-number">1.1.</span> <span class="nav-text">名词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#边的松弛"><span class="nav-number">1.2.</span> <span class="nav-text">边的松弛</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最短路径的最优性条件"><span class="nav-number">1.3.</span> <span class="nav-text">最短路径的最优性条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用最短路径算法"><span class="nav-number">1.4.</span> <span class="nav-text">通用最短路径算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">1.5.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dijkstra-算法"><span class="nav-number">2.</span> <span class="nav-text">Dijkstra 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正确性证明"><span class="nav-number">2.2.</span> <span class="nav-text">正确性证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不能处理负权重边的原因"><span class="nav-number">2.3.</span> <span class="nav-text">不能处理负权重边的原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动画演示"><span class="nav-number">3.</span> <span class="nav-text">动画演示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法解析"><span class="nav-number">4.</span> <span class="nav-text">算法解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

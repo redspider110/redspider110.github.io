@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="类加载机制：虚拟机把描述类的数据从 Class 文件加载到内存，并对数据校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的类加载机制。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 类加载机制">
+<meta property="og:url" content="http://redspider110.github.io/2018/05/02/0078-java-classloading/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="类加载机制：虚拟机把描述类的数据从 Class 文件加载到内存，并对数据校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的类加载机制。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-java-class-loading-seq.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-class-loading-default-value.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-java-classloading-parents-delegation-model.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-ClassLoader-uml.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 类加载机制">
+<meta name="twitter:description" content="类加载机制：虚拟机把描述类的数据从 Class 文件加载到内存，并对数据校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的类加载机制。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-java-class-loading-seq.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/05/02/0078-java-classloading/">
+
+
+
+
+
+  <title>Java 类加载机制 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/05/02/0078-java-classloading/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 类加载机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-02T09:00:00+08:00">
+                2018-05-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>类加载机制：虚拟机把描述类的数据从 <code>Class</code> 文件加载到内存，并对数据校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 <code>Java</code> 类型，这就是虚拟机的类加载机制。  </p>
+<a id="more"></a>
+
+<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p>类从被加载到虚拟机内存中开始，到类卸载出内存为止，它的整个生命周期包括：加载 <code>Loading</code>， 验证 <code>Verification</code>，准备 <code>Preparation</code>，解析 <code>Resolution</code>，初始化 <code>Initialization</code>，使用 <code>Using</code> 和卸载 <code>Unloading</code> 共七个阶段。其中验证、准备、解析这三个阶段部分统称为连接 <code>Linking</code>，七个阶段出现的顺序如图所示：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-java-class-loading-seq.png" alt="0078-java-class-loading-seq.png"></p>
+<p>其中：加载、验证、准备、初始化、卸载这五个阶段的顺序是固定的，类的加载过程必须按照这个顺序执行，而解析有可能会在初始化之后才开始（比如：动态绑定，也称为晚绑定、动态分派 <a href="https://stackoverflow.com/questions/41524479/what-is-the-difference-between-binding-and-dispatching-in-java" target="_blank" rel="noopener">Difference between Binding and Dispatching in Java</a>, <a href="https://en.wikipedia.org/wiki/Late_binding" target="_blank" rel="noopener">wiki:Late_binding in java</a>）。<br>类加载全过程也就是：加载、验证、准备、解析、初始化这五个阶段。  </p>
+<h3 id="加载-Loading"><a href="#加载-Loading" class="headerlink" title="加载 Loading"></a>加载 <code>Loading</code></h3><p>加载是类加载过程的一个阶段，加载需要完成三件事：  </p>
+<ul>
+<li>通过类的全限定名获取定义此类的二进制字节流。这个字节流可以是从本地 <code>Class</code> 文件、网络下载、使用动态代理运行时生成等方式获取  </li>
+<li>将这个字节流所代表的静态存储结构转换为方法区的运行时数据结构  </li>
+<li>在内存中生成一个代表这个类的 <code>java.lang.Class</code> 对象，作为方法区这个类的各种数据的访问入口  </li>
+</ul>
+<p>非数组类的加载阶段，也就是通过全限定名获取类的二进制字节流，这个过程可控性很强，可以默认使用系统提供的类加载器去加载，也可以自定义加载器实现。<br>而数组类本身不通过类加载器创建，它是由虚拟机直接创建的，但是数组类的元素类型 <code>Element Type</code> （也就是数组类型）还是要靠类加载器加载。  </p>
+<p>加载完成后，虚拟机将外部的二进制字节流，按照虚拟机所需格式存储到方法区中，并在方法区中实例化 <code>java.lang.Class</code> 对象，这个类对象将作为程序访问类型数据的接口。  </p>
+<h3 id="验证-Verification"><a href="#验证-Verification" class="headerlink" title="验证 Verification"></a>验证 <code>Verification</code></h3><p>验证阶段确保加载的二进制字节流包含的信息符合虚拟机需求，以及做一些安全检查。  </p>
+<ul>
+<li>文件格式验证<br>比如验证文件是否以魔数开头 <code>0xCAFEBABE</code> 开头；主次版本号是否符合虚拟机范围；<code>Class</code> 文件本身是否有被删除信息等等。  </li>
+<li>元数据格式验证<br>对字节码描述的信息进行语义分析，确保符合 <code>Java</code> 语言规范。比如：类是否具有父类；是否能被继承；是否为抽象类；字段、方法是否和父类矛盾等等。  </li>
+<li>字节码验证<br>通过数据流和控制流分析，确定程序语义是否合法符合逻辑，使用类型检查完成数据流分析。比如：操作数栈的数据类型和指令能配合工作；确保类型转换是安全的等等。  </li>
+<li>符号引用验证<br>这个转换动作主要在解析阶段发生，确保解析阶段能够正常执行。符号引用验证主要对类自身以外的信息进行校验：符号引用中的全限定名能否找到对应的类；指定类中是否存在符合方法的字段描述符；符号引用中的访问控制符是否可以被当前类访问等等。  </li>
+</ul>
+<h3 id="准备-Preparation"><a href="#准备-Preparation" class="headerlink" title="准备 Preparation"></a>准备 <code>Preparation</code></h3><p>准备阶段是正式为类变量分配内存并设置类变量的初始值的阶段，这些变量都在方法区分配内存。需要注意两点：  </p>
+<ul>
+<li>内存分配仅仅包含类变量（<code>static</code> 变量），并不包含实例变量（分配到堆内存）  </li>
+<li>初始值是指数据类型的零值，而不是声明变量时的赋值  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-class-loading-default-value.png" alt="0078-class-loading-default-value.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> number = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> value = <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+
+<p>示例中 <code>number</code> 在准备阶段值为 0，而 <code>value</code> 因为是常量 <code>static final</code> ，在准备阶段会被直接赋值为 100 。</p>
+<h3 id="解析-Resolution"><a href="#解析-Resolution" class="headerlink" title="解析 Resolution"></a>解析 <code>Resolution</code></h3><p>解析阶段是虚拟机将常量池中的符号引用替换为直接引用的过程。  </p>
+<ul>
+<li>符号引用<br>以一组符号来描述所引用的目标，符号可以是任何形式的字面量，只要能准确定位到目标即可。符号引用字面量形式明确定义在 <code>Java</code> 虚拟机规范的 <code>Class</code> 文件格式中。  </li>
+<li>直接引用<br>可以只直接指向目标的指针、偏移量或者间接定位到目标的句柄。有了直接引用，那么引用目标一定是已经在内存中存在了。  </li>
+</ul>
+<p>解析动作主要针对类、接口、字段、类方法、接口方法、方法类型、方法句柄和调用限定符 7 类符号引用进行。这几类符号引用的解析过程，《深入理解 <code>Java</code> 虚拟机》第七、八章中有详细介绍。  </p>
+<h3 id="初始化-Initialization"><a href="#初始化-Initialization" class="headerlink" title="初始化 Initialization"></a>初始化 <code>Initialization</code></h3><p>类初始化阶段是类加载过程的最后一步，<strong>该阶段才真正开始执行 <code>Java</code> 程序代码</strong>。在准备阶段，类变量仅仅赋为零值，在类初始化阶段才会执行代码并赋值。<strong>类初始化阶段是执行类构造器 <code>&lt;clinit&gt;()</code> 方法的过程</strong>。</p>
+<ul>
+<li><code>&lt;clinit&gt;()</code> 方法是由<strong>编译器自动收集</strong>类中所有类变量的赋值动作和 <code>static{}</code> 静态语句代码块合并产生的，收集顺序就是代码中出现的顺序。静态语句块只能访问定义在之前的静态变量，定义在之后的变量只能赋值不能访问  </li>
+<li><code>&lt;clinit&gt;()</code> 方法与类实例构造器（<code>&lt;init&gt;()</code>）不同，它不需要显示调用父类构造器，虚拟机会确保子类 <code>&lt;clinit&gt;()</code> 方法之前执行完父类的 <code>&lt;clinit&gt;()</code> 方法，也就是说虚拟机第一个被执行的 <code>&lt;clinit&gt;()</code> 方法肯定是 <code>java.lang.Object</code> 的。这也意味着父类的静态语句会先于子类执行。  </li>
+<li><code>&lt;clinit&gt;()</code> 方法对于类或者接口并不是必须的，类中可以没有静态变量赋值及静态语句块，编译器也就不会生成 <code>&lt;clinit&gt;()</code> 方法  </li>
+<li><strong>接口中不能有静态语句块</strong>， 但可以有静态变量定义和赋值，所以也会生成 <code>&lt;clinit&gt;()</code> 方法。<strong>但需要注意接口与类不同的是</strong>：执行接口 <code>&lt;clinit&gt;()</code> 方法不需要先执行父接口的 <code>&lt;clinit&gt;()</code> 方法，只有父接口的变量在使用时才会执行；实现接口的类初始化时也不会执行接口的 <code>&lt;clinit&gt;()</code> 方法  </li>
+<li><strong>虚拟机会保证一个类的 <code>&lt;clinit&gt;()</code> 方法在多线程环境中被正确的加锁、同步</strong>。多线程同时执行类初始化，那么只会有一个线程去执行类的 <code>&lt;clinit&gt;()</code> 方法，其他线程会阻塞等待直到 <code>&lt;clinit&gt;()</code> 方法执行完毕。</li>
+<li><strong>同一个类加载器下，类只会被初始化一次，也就是 <code>&lt;clinit&gt;()</code> 方法只会被执行一次</strong>  </li>
+</ul>
+<p><code>&lt;clinit&gt;()</code> 方法是类初始化过程，即类加载过程的初始化阶段；<code>&lt;init&gt;()</code> 是类实例化过程，即遇到 <code>new</code> 关键字生成类对象阶段。  </p>
+<ul>
+<li><code>&lt;clinit&gt;()</code><br>类构造器，包含类变量（<code>static</code> 变量）初始化赋值，静态语句代码块（<code>static{}</code>）。  </li>
+<li><code>&lt;init&gt;()</code><br>实例构造器，包含实例变量初始化赋值，构造语句代码块（<code>{}</code>），构造方法。  </li>
+</ul>
+<h2 id="类加载的时机"><a href="#类加载的时机" class="headerlink" title="类加载的时机"></a>类加载的时机</h2><h3 id="类初始化时机"><a href="#类初始化时机" class="headerlink" title="类初始化时机"></a>类初始化时机</h3><p>什么时候开始进行类加载过程中的第一个阶段：加载？虚拟机并没有明确规定。但是虚拟机严格规定了：有且只有 5 种情况必须对类进行初始化（也就是一定会触发类加载过程）：  </p>
+<ul>
+<li>遇到 <code>new, getstatic, putstatic, invokestatic</code> 这 4 条字节码指令时，如果类没有进行过初始化，则需要先触发其初始化。生成这几条指令的场景如下<br>使用 <code>new</code> 关键字实例化对象；读取或设置类的静态字段（被 <code>final</code> 进入常量池的静态字段除外）；调用一个类的静态方法。  </li>
+<li>使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用的时候，如果类没有进行过初始化，需要先触发初始化  </li>
+<li>初始化一个类的时候，如果发现父类还没有初始化，先触发父类初始化  </li>
+<li>用户指定要执行额主类：即包含 <code>main</code> 主类的先初始化  </li>
+<li>如果 <code>java.lang.invoke.MethodHandle</code> 实例最后解析的结果为 <code>REF_getStatic, REF_putStatic, REF_invokeStatic</code> 的方法句柄，如果没有初始化会触发其初始化  </li>
+</ul>
+<h3 id="主动-被动引用"><a href="#主动-被动引用" class="headerlink" title="主动/被动引用"></a>主动/被动引用</h3><p>上面明确的 5 种类初始化场景，称为类的<strong>主动引用</strong>；而不会触发类初始化的引用，称为类的<strong>被动引用</strong>。主动/被动引用，是否触发类加载过程的加载阶段，虚拟机没有明确规定，<strong>当前测试的虚拟机只要引用了，都会触发类加载过程的加载阶段</strong>。<br>被动引用有如下几种情形：  </p>
+<ul>
+<li>子类引用父类静态字段<br>子类不会被初始化，而父类会被初始化。对于静态字段，只有直接定义这个字段的类才会被初始化。  </li>
+<li>类数组<br>数组引用类，不会触发类初始化。  </li>
+<li>静态常量<br>静态常量如果在编译期能够被确定，则不会触发类初始化，甚至都不会进入类加载阶段，比如字符串常量。它们会直接放入常量池，并且在编译器优化中，直接将该常量放入到引用类的常量池中，也就是说生成的引用类 <code>Class</code> 文件中并不包含被引用类的符号引用，它们在 <code>Class</code> 文件中毫无关系了。<br>而编译期无法确定，必须在运行时才能确定的字段，这类静态常量会导致类初始化（只有在类初始化阶段才开始执行代码），比如当前时间 <code>static final String STATIC_TIME = System.currentTimeMillis() + &quot;&quot;;</code>。  </li>
+<li>反射 <code>Classloader.loadClass</code><br>在使用反射过程中，<code>ClassLoad.loadClass</code> 只会触发类加载阶段，不会执行类初始化。</li>
+<li>反射 <code>Class.forName</code><br>在使用反射过程中，<code>Class.forName</code> 时会同时触发类加载和类初始化阶段，默认使用<strong>调用类的类加载器进行类加载</strong>。  </li>
+</ul>
+<h2 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h2><p>类加载阶段中：通过一个类的全限定名来获取描述此类的二进制字节流，这个过程是在虚拟机外部实现的，实现这个过程的模块即为<strong>类加载器</strong>。<br>对于任一个类：都需要<strong>由类加载器和这个类本身</strong>一同确立其在 <code>Java</code> 虚拟机中的唯一性。每个类加载器，都有一个独立的类名称空间。也就是说，比较两个类是否相等，只有在同一个类加载器中加载才有意义。即使两个类属于同一个 <code>Class</code> 文件，由同一个虚拟机加载，只要加载它们的类加载器不同，这两个类必定不相等。相等的测试，可以是 <code>Class</code> 的 <code>equals(), isAssignableFrom(), isInstance()</code> 等方法，或者 <code>instanceof</code> 关键字。  </p>
+<h3 id="类加载器分类"><a href="#类加载器分类" class="headerlink" title="类加载器分类"></a>类加载器分类</h3><ul>
+<li>启动类加载器 <code>Bootstrap ClassLoader</code><br>这个是 <code>C/C++</code> 实现，虚拟机的一部分，负责加载系统类，<code>JAVA_HOME\lib</code> 目录或者 <code>-Xbootclasspath</code> 参数指定路径下的类库（<code>rt.jar</code> 等基础库）加载到虚拟机内存中。启动类加载器无法被用户程序直接引用，引导类加载器没有对应的 <code>ClassLoader</code> 。虚拟机只加载 <code>JAVA_HOME\lib</code> 按照文件名识别的类库，自定义类库即使放到这个目录下，虚拟机并不会去加载。  </li>
+<li>扩展类加载器 <code>Extension ClassLoader</code><br>由 <code>sun.misc.Launcher$ExtClassLoader</code> 实现，负责加载 <code>JAVA_HOME\lib\ext</code> 中的标准扩展类库，用户可以直接使用这些扩展类加载器。如果将自定义 <code>jar</code> 包放到这个路径下，扩展类加载器将会加载这些类。  </li>
+<li>应用程序类加载器 <code>Application ClassLoader</code><br>由 <code>sun.misc.Launcher$AppClassLoader</code> 实现，负责加载 <code>CLASSPATH</code> 中的类库及应用类。这个类加载器是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以一般称为系统类加载器，用户可以直接使用。  </li>
+</ul>
+<p>通常在搭建 <code>Java</code> 开发环境时，都需要添加 <code>JAVA_HOME, CLASSPATH</code> 两个全局环境变量，就是为了给类加载器指定路径的。  </p>
+<h3 id="双亲委派模型-Parents-Delegation-Model"><a href="#双亲委派模型-Parents-Delegation-Model" class="headerlink" title="双亲委派模型 Parents Delegation Model"></a>双亲委派模型 <code>Parents Delegation Model</code></h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-java-classloading-parents-delegation-model.jpg" alt="0078-java-classloading-parents-delegation-model.jpg"></p>
+<p>上图所示的类加载器之间的层次关系，称为类加载器的双亲委派模型。该模型要求除了顶层启动类加载器外，其余的类加载器都应当有自己的父加载器。这里的父子关系不是继承关系，而是组合关系来复用父类代码。<br>双亲委派模型原则：某个特定的类加载器在接到加载类的请求时，首先将加载任务委托给父加载器，依次递归，如果父加载器可以完成类加载任务，就成功返回；只有父加载器无法完成此加载任务时，才自己去加载。  </p>
+<h3 id="破坏双亲委派模型"><a href="#破坏双亲委派模型" class="headerlink" title="破坏双亲委派模型"></a>破坏双亲委派模型</h3><p>双亲委派模型并不是强制性的约束，而是 <code>Java</code> 推荐使用这种方式。</p>
+<ul>
+<li>自定义类加载器<br>后面源码分析中可以看到 <code>ClassLoader.loadClass()</code> 方法实现了双亲委派模型，该方法可以被重写 <code>loadClass</code>，但是一般情况下会遵循双亲委派模型。所以 <code>JDK</code> 中定义了 <code>findClass</code> 方法，推荐自定义类加载器重写该方法，既不会破坏双亲委派模型，又可以实现自己的加载器。  </li>
+<li>线程上下文加载器 <code>Thread Context ClassLoader</code><br>可以通过 <code>Thread.setContextClassLoader</code> 来设置。如果线程创建时没有设置，它将从父线程中继承一个；如果全局范围内都没有设置，默认使用应用程序类加载器。它打破了双亲委派模型，也就是父加载器请求子加载器去完成类加载的动作。<br>系统默认的上下文加载器为系统加载器，可以参考 <code>Launcher</code> 源码。  </li>
+<li>代码热替换 <code>HotSwap</code> 和模块热部署 <code>HotDeployment</code><br>应用程序像计算机的外设一样，可以热插拔鼠标、<code>U</code> 盘等，不需要重启。自定义加载器可以实现这些功能，并且有非常广泛的应用，如 <code>Android</code> 热部署、插件化等。  </li>
+</ul>
+<h2 id="类加载源码"><a href="#类加载源码" class="headerlink" title="类加载源码"></a>类加载源码</h2><p>虚拟机加载程序的入口类：<code>sun.misc.Launcher.java</code>，学习类加载机制也选这个文件开始分析。  </p>
+<h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0078-ClassLoader-uml.png" alt="0078-ClassLoader-uml.png"></p>
+<p>从类图结构中可以看出：<code>AppClassLoader</code> 和 <code>ExtClassLoader</code> 都是 <code>ClassLoader</code> 的子类，他们在类关系中是并行的，并不是父子结构。  </p>
+<h3 id="Launcher-源码分析"><a href="#Launcher-源码分析" class="headerlink" title="Launcher 源码分析"></a><code>Launcher</code> 源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. Launcher</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Launcher</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Launcher launcher = <span class="keyword">new</span> Launcher();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String bootClassPath = </span><br><span class="line">        System.getProperty(<span class="string">"sun.boot.class.path"</span>);</span><br><span class="line">    <span class="keyword">private</span> ClassLoader loader;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Launcher <span class="title">getLauncher</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> launcher;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Launcher</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Launcher.ExtClassLoader extcl;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 2. Launcher 构造方法中实例化 ExtClassLoader</span></span><br><span class="line">            extcl = Launcher.ExtClassLoader.getExtClassLoader();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException var10) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError</span><br><span class="line">            (<span class="string">"Could not create extension class loader"</span>, var10);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 3. Launcher 构造方法中实例化 AppClassLoader</span></span><br><span class="line">            <span class="comment">// 并将 ExtClassLoader 传递给 AppClassLoader</span></span><br><span class="line">            <span class="keyword">this</span>.loader = Launcher.AppClassLoader.getAppClassLoader(extcl);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException var9) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError</span><br><span class="line">            (<span class="string">"Could not create application class loader"</span>, var9);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 设置 ContextClassLoader 类加载器</span></span><br><span class="line">        Thread.currentThread().setContextClassLoader(<span class="keyword">this</span>.loader);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Returns the class loader used to launch the main application.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ClassLoader <span class="title">getClassLoader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> loader;</span><br><span class="line">    &#125;    </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. AppClassLoader</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AppClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ClassLoader <span class="title">getAppClassLoader</span><span class="params">(<span class="keyword">final</span> ClassLoader var0)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">            <span class="keyword">final</span> String var1 = System.getProperty(<span class="string">"java.class.path"</span>);</span><br><span class="line">            <span class="keyword">final</span> File[] var2 = var1 == <span class="keyword">null</span> ? <span class="keyword">new</span> File[<span class="number">0</span>]</span><br><span class="line">                                : Launcher.getClassPath(var1);</span><br><span class="line">            <span class="keyword">return</span> (ClassLoader)AccessController.doPrivileged</span><br><span class="line">                (<span class="keyword">new</span> PrivilegedAction&lt;Launcher.AppClassLoader&gt;() &#123;</span><br><span class="line">                <span class="keyword">public</span> Launcher.<span class="function">AppClassLoader <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    URL[] var1x = var1 == <span class="keyword">null</span> ? <span class="keyword">new</span> URL[<span class="number">0</span>]</span><br><span class="line">                                : Launcher.pathToURLs(var2);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Launcher.AppClassLoader(var1x, var0);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        AppClassLoader(URL[] var1, ClassLoader var2) &#123;</span><br><span class="line">            <span class="comment">// 6. AppClassLoader 的父加载器设置为 ExtClassLoader</span></span><br><span class="line">            <span class="keyword">super</span>(var1, var2, Launcher.factory);</span><br><span class="line">            <span class="keyword">this</span>.ucp.initLookupCache(<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 7. ExtClassLoader</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ExtClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Launcher.<span class="function">ExtClassLoader <span class="title">getExtClassLoader</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">            <span class="keyword">final</span> File[] var0 = getExtDirs();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> (Launcher.ExtClassLoader)AccessController.doPrivileged</span><br><span class="line">                (<span class="keyword">new</span> PrivilegedExceptionAction&lt;Launcher.ExtClassLoader&gt;() &#123;</span><br><span class="line">                    <span class="keyword">public</span> Launcher.<span class="function">ExtClassLoader <span class="title">run</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">                        ...</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> Launcher.ExtClassLoader(var0);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (PrivilegedActionException var2) &#123;</span><br><span class="line">                <span class="keyword">throw</span> (IOException)var2.getException();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">addExtURL</span><span class="params">(URL var1)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>.addURL(var1);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">ExtClassLoader</span><span class="params">(File[] var1)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">            <span class="comment">// 8. ExtClassLoader 的父加载器为 null</span></span><br><span class="line">            <span class="comment">// 实际其父加载器默认为 BootstrapClassLoader </span></span><br><span class="line">            <span class="keyword">super</span>(getExtURLs(var1), (ClassLoader)<span class="keyword">null</span>, Launcher.factory);</span><br><span class="line">            SharedSecrets.getJavaNetAccess()</span><br><span class="line">                .getURLClassPath(<span class="keyword">this</span>).initLookupCache(<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> File[] getExtDirs() &#123;</span><br><span class="line">            String var0 = System.getProperty(<span class="string">"java.ext.dirs"</span>);</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Launcher, ExtClassLoader, AppClassLoader</code> 三个类的构造方法：  </p>
+<ul>
+<li><code>Launcher</code><br>依次实例化 <code>ExtClassLoader, AppClassLoader</code>，并将 <code>ExtClassLoader</code> 的实例传递给 <code>AppClassLoader</code>；设置当前线程的加载器 <code>setContextClassLoader</code>，即每个线程默认加载器是 <code>AppClassLoader</code>。  </li>
+<li><code>ExtClassLoader</code><br>其父加载器设置为空 <code>null</code>，虚拟机默认 <code>null</code> 为启动类加载器，即其父加载器是 <code>BootstrapClassLoader</code> 。  </li>
+<li><code>AppClassLoader</code><br>其父加载器设置为 <code>ExtClassLoader</code>。  </li>
+</ul>
+<h3 id="各个类加载器对应的属性"><a href="#各个类加载器对应的属性" class="headerlink" title="各个类加载器对应的属性"></a>各个类加载器对应的属性</h3><p>从上面 <code>Launcher</code> 的源码中也可以看出，各个加载器的路径都是通过属性来读取的：  </p>
+<ul>
+<li>启动类加载器 <code>Bootstrap ClassLoader</code>：<code>sun.boot.class.path</code>  </li>
+<li>扩展类加载器 <code>Extension ClassLoader</code>：<code>java.ext.dirs</code>  </li>
+<li>应用程序类加载器 <code>Application ClassLoader</code>：<code>java.class.path</code>  </li>
+</ul>
+<h3 id="ClassLoader-源码分析"><a href="#ClassLoader-源码分析" class="headerlink" title="ClassLoader 源码分析"></a><code>ClassLoader</code> 源码分析</h3><p><code>ClassLoader</code> 包含几个重要的方法，其中 <code>ClassLoader.loadClass</code> 中实现了双亲委派模型。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String var1) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.loadClass(var1, <span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve)</span><br><span class="line">        <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">            <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line">            <span class="comment">// 1. 先确认类是否已经被加载</span></span><br><span class="line">            Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">            <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">long</span> t0 = System.nanoTime();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        <span class="comment">// 2. 如果没有被加载，父加载器是否为空</span></span><br><span class="line">                        <span class="comment">// 不为空则父加载器加载，依次递归</span></span><br><span class="line">                        c = parent.loadClass(name, <span class="keyword">false</span>);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// 3. 父加载器为空，则启动类加载器加载</span></span><br><span class="line">                        c = findBootstrapClassOrNull(name);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                    <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                    <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">                    <span class="comment">// 4. 如果父加载器抛出 ClassNotFoundException</span></span><br><span class="line">                    <span class="comment">// 说明父加载器无法完成类加载请求</span></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                    <span class="comment">// to find the class.</span></span><br><span class="line">                    <span class="keyword">long</span> t1 = System.nanoTime();</span><br><span class="line">                    <span class="comment">// 5. 父加载器无法完成加载或者其他原因没有加载成功</span></span><br><span class="line">                    <span class="comment">// 则调用本身的 findClass 进行类加载</span></span><br><span class="line">                    c = findClass(name);</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// this is the defining class loader; record the stats</span></span><br><span class="line">                    sun.misc.PerfCounter.getParentDelegationTime()</span><br><span class="line">                        .addTime(t1 - t0);</span><br><span class="line">                    sun.misc.PerfCounter.getFindClassTime()</span><br><span class="line">                        .addElapsedTimeFrom(t1);</span><br><span class="line">                    sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (resolve) &#123;</span><br><span class="line">                resolveClass(c);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(name);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> ClassLoader <span class="title">getParent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.parent == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.parent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> Class&lt;?&gt; defineClass(...) <span class="keyword">throws</span> ClassFormatError &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        initSystemClassLoader();</span><br><span class="line">        <span class="keyword">if</span> (scl == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> scl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">initSystemClassLoader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!sclSet) &#123;</span><br><span class="line">            <span class="keyword">if</span> (scl != <span class="keyword">null</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"recursive invocation"</span>);</span><br><span class="line">            sun.misc.Launcher l = sun.misc.Launcher.getLauncher();</span><br><span class="line">            <span class="keyword">if</span> (l != <span class="keyword">null</span>) &#123;</span><br><span class="line">                Throwable oops = <span class="keyword">null</span>;</span><br><span class="line">                scl = l.getClassLoader();</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">            sclSet = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>loadClass</code><br><code>loadClass</code> 传入的参数是类全名，比如：<code>com.***.Test, com.***.Test$innerclass</code>，并返回一个 <code>Class</code> 类型的实例。它实现了双亲委派模型，如果父加载器都没有加载成功，则调用 <code>findClass</code> 来查找。  </li>
+<li><code>findClass</code><br><code>findClass</code> 方法中直接抛出异常，也就是必须由子类实现。我们自定义类加载器时，通常需要重写 <code>findClass</code> ，而不是 <code>loadClass</code>（会覆盖掉双亲委派）。该方法是 <code>protected</code> 的，也就是外部类并不需要主动调用，参数为 <code>loadClass</code> 传入的类全名。  </li>
+<li><code>getParent</code><br>获取父加载器。  </li>
+<li><code>defineClass</code><br>有多个重载方法，作用是将一个 <code>byte</code> 数组转换为 <code>Class</code> 类的实例，通常是将 <code>.class</code> 文件转换为二进制数组并通过 <code>defineClass</code> 来获取类实例。这个方法非常重要，将指定类全名的二进制数组转换成运行时内存数据结构，并校验有效性等等。  </li>
+<li><code>getSystemClassLoader</code><br>静态方法，获取系统类加载器。系统类加载器初始化时，会调用 <code>sun.misc.Launcher.getLauncher()</code> ，即 <code>Launcher.AppClassLoader</code> 是 <code>Java</code> 中的系统类加载器。  </li>
+</ul>
+<h2 id="类加载示例"><a href="#类加载示例" class="headerlink" title="类加载示例"></a>类加载示例</h2><p>类加载的日志开关，设置 <code>JVM</code> 参数：<code>-verbose:class/-XX:+TraceClassLoading</code> 来打印类加载过程。  </p>
+<h3 id="子类引用父类静态字段"><a href="#子类引用父类静态字段" class="headerlink" title="子类引用父类静态字段"></a>子类引用父类静态字段</h3><p>子类不会被初始化，而父类会被初始化。虽然虚拟机没有明确规定是否触发子类加载，但是当前测试虚拟机表现为：只要引用了，父类子类都会被加载。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestSubClassReferenceSuperStaticFiled</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Super</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> value = <span class="number">123</span>;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Super Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Sub</span> <span class="keyword">extends</span> <span class="title">Super</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"Sub Class Init."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// SubClass not init.</span></span><br><span class="line">        System.out.println(<span class="string">"Sub.value = "</span> + Sub.value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类加载过程及输出结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 父类、子类、测试类都被加载</span><br><span class="line">[Loaded TestSubClassReferenceSuperStaticFiled from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded java.lang.Void from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded TestSubClassReferenceSuperStaticFiled$Super from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded TestSubClassReferenceSuperStaticFiled$Sub from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">// 2. 父类初始化</span><br><span class="line">Super Class Init.</span><br><span class="line">// 3. 结果输出</span><br><span class="line">Sub.value = 123</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<p>测试结果可以看出，父类、子类、测试类都被加载，但是只执行了父类初始化阶段，子类没有被初始化。  </p>
+<h3 id="数组定义的引用类"><a href="#数组定义的引用类" class="headerlink" title="数组定义的引用类"></a>数组定义的引用类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestClassArray</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Test Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Test[] tests = <span class="keyword">new</span> Test[<span class="number">3</span>];</span><br><span class="line">        System.out.println(<span class="string">"Array length = "</span> + tests.length);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类加载过程及输出结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 类加载阶段</span><br><span class="line">[Loaded TestClassArray from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded java.lang.Void from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded TestClassArray$Test from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">// 2. 结果输出</span><br><span class="line">Array length = 3</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<p>测试结果可以看出，只有类加载阶段，没有被初始化。  </p>
+<h3 id="静态字段"><a href="#静态字段" class="headerlink" title="静态字段"></a>静态字段</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStaticField</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">final</span> String STATIC_STR= <span class="string">"TestStaticFieldStr"</span>;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">final</span> String STATIC_TIME = System.currentTimeMillis() + <span class="string">""</span>;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Test Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// do not loading class</span></span><br><span class="line">        System.out.println(<span class="string">"STATIC FINAL STR: "</span> + Test.STATIC_STR);</span><br><span class="line">        System.out.println(<span class="string">"***********************************"</span>);</span><br><span class="line">        <span class="comment">// loading &amp; init class: Test</span></span><br><span class="line">        System.out.println(<span class="string">"STATIC FINAL TIME: "</span> + Test.STATIC_TIME);</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">        <span class="comment">// STATIC_TIME value assigned when class loading.</span></span><br><span class="line">        System.out.println(<span class="string">"STATIC FINAL TIME: "</span> + Test.STATIC_TIME);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面源码中，静态字段 <code>STATIC_STR</code> 是字符串常量；而 <code>STATIC_TIME</code> 虽然也是静态常量，但是需要在运行时才能确定。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 加载测试类 TestStaticField</span><br><span class="line">[Loaded TestStaticField from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">// 2. 直接输出静态常量结果，没有执行 Test 类初始化，甚至类加载阶段都没有</span><br><span class="line">STATIC FINAL STR: TestStaticFieldStr</span><br><span class="line">***********************************</span><br><span class="line">// 3. 加载类 Test</span><br><span class="line">[Loaded TestStaticField$Test from file:/home/xmt/test/classloading/]</span><br><span class="line">// 4. Test 类初始化，并在运行时对 STATIC_TIME 赋值</span><br><span class="line">Test Class Init.</span><br><span class="line">STATIC FINAL TIME: 1525837181577</span><br><span class="line">// 5. STATIC_TIME 被 final 修饰，只会被赋值一次</span><br><span class="line">STATIC FINAL TIME: 1525837181577</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>静态字段 <code>STATIC_STR</code><br>编译时确定，属于常量，不会触发类初始化，甚至不会进入类加载阶段。  </li>
+<li>静态字段 <code>STATIC_TIME</code><br>运行时确定，会触发类初始化并运行代码计算时间。<code>STATIC_TIME</code> 被 <code>final</code> 修饰，只会被赋值一次。  </li>
+</ul>
+<h3 id="反射类加载和初始化不同阶段"><a href="#反射类加载和初始化不同阶段" class="headerlink" title="反射类加载和初始化不同阶段"></a>反射类加载和初始化不同阶段</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestClassLoadingAndInit</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Tester</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Tester Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">TesterForName</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"TesterForName Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">        String TesterClassName = <span class="string">"com.***.TestClassLoadingAndInit$Tester"</span>;</span><br><span class="line">        ClassLoader classLoader = ClassLoader.getSystemClassLoader();</span><br><span class="line">        System.out.println(<span class="string">"Test Class loading..."</span>);</span><br><span class="line">        classLoader.loadClass(TesterClassName);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"**********************"</span>);</span><br><span class="line">        System.out.println(<span class="string">"TesterForName Class loading and init."</span>);</span><br><span class="line">        String testForName = <span class="string">"com.***.TestClassLoadingAndInit$TesterForName"</span>;</span><br><span class="line">        Class.forName(testForName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类加载阶段、类初始化阶段的输出结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 加载测试类 TestClassLoadingAndInit</span><br><span class="line">[Loaded TestClassLoadingAndInit from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">Tester Class loading...</span><br><span class="line">// 2. ClassLoad.loadClass 仅仅会触发 Tester 类加载</span><br><span class="line">[Loaded TestClassLoadingAndInit$Tester from file:/home/xmt/test/classloading/]</span><br><span class="line">**********************</span><br><span class="line">TesterForName Class loading and init.</span><br><span class="line">// 3. Class.forName 会触发 TesterForName 类加载及类初始化</span><br><span class="line">[Loaded TestClassLoadingAndInit$TesterForName from file:/home/xmt/test/classloading/]</span><br><span class="line">TesterForName Class Init.</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<p>反射过程中，这两个阶段分别由不同方法触发：  </p>
+<ul>
+<li>类加载阶段<br><code>ClassLoad.loadClass</code> 仅仅会触发类加载阶段。  </li>
+<li>类初始化阶段<br><code>Class.forName</code> 会触发类加载及类初始化阶段，默认使用<strong>调用类的类加载器进行类加载</strong>。  </li>
+</ul>
+<h3 id="类初始化顺序"><a href="#类初始化顺序" class="headerlink" title="类初始化顺序"></a>类初始化顺序</h3><p>虚拟机会确保子类初始化之前会执行父类初始化。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestClassInitSeq</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            value = <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// Illegal forward reference.</span></span><br><span class="line">            <span class="comment">// System.out.println(value);</span></span><br><span class="line">            System.out.println(<span class="string">"Father Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">int</span> value = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Father</span></span>&#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">int</span> number = <span class="number">3</span>;</span><br><span class="line">        <span class="keyword">static</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Son Class Init."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Son.number = "</span> + Son.number);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在静态代码块中，只能对定义在之后的静态变量赋值，不能访问！否则会提示 <code>Illegal forward reference.</code> 。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 加载测试类 TestClassInitSeq</span><br><span class="line">[Loaded TestClassInitSeq from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded java.lang.Void from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">// 2. 先加载父类，再加载子类</span><br><span class="line">[Loaded TestClassInitSeq$Father from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded TestClassInitSeq$Son from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">// 3. 先初始化父类，再初始化子类</span><br><span class="line">Father Class Init.</span><br><span class="line">Son Class Init.</span><br><span class="line">Son.number = 3</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<p>父类 <code>&lt;clinit&gt;()</code> 方法会优先于子类 <code>&lt;clinit&gt;()</code> 方法执行。  </p>
+<h3 id="类加载器默认属性和父加载器"><a href="#类加载器默认属性和父加载器" class="headerlink" title="类加载器默认属性和父加载器"></a>类加载器默认属性和父加载器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestPropAndParent</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Boot: "</span> </span><br><span class="line">            + System.getProperty(<span class="string">"sun.boot.class.path"</span>));</span><br><span class="line">        System.out.println(<span class="string">"Ext: "</span> + System.getProperty(<span class="string">"java.ext.dirs"</span>));</span><br><span class="line">        System.out.println(<span class="string">"App: "</span> + System.getProperty(<span class="string">"java.class.path"</span>));</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"SystemLoader: "</span> </span><br><span class="line">            + ClassLoader.getSystemClassLoader());</span><br><span class="line">        System.out.println(<span class="string">"Parent: "</span> </span><br><span class="line">            + ClassLoader.getSystemClassLoader().getParent());</span><br><span class="line">        System.out.println(<span class="string">"GrandFather: "</span> </span><br><span class="line">            + ClassLoader.getSystemClassLoader().getParent().getParent());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">xmt@server005:~/$ java TestProp</span><br><span class="line">Boot: /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rhino.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jfr.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/classes</span><br><span class="line">Ext: /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext:/usr/java/packages/lib/ext</span><br><span class="line">App: .:/usr/lib/jvm/java-1.7.0-openjdk-amd64/lib/dt.jar:/usr/lib/jvm/java-1.7.0-openjdk-amd64/lib/tools.jar</span><br><span class="line">SystemLoader: sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="line">Parent: sun.misc.Launcher$ExtClassLoader@75b84c92</span><br><span class="line">GrandFather: null</span><br></pre></td></tr></table></figure>
+
+<p>系统默认的类加载器为 <code>AppClassLoader</code>，其父加载器为 <code>ExtClassLoader</code>。而 <code>ExtClassLoader</code> 的父加载器为 <code>null</code> ，虚拟机默认其为启动类加载器。  </p>
+<h2 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h2><p>自定义加载器的主要步骤：  </p>
+<ul>
+<li>获取字节数组<br>读取本地 <code>class</code> 文件转换为数组，或者从网络等其他地方读取到二进制字节流并转换为数组。  </li>
+<li><code>defineClass</code> 转换<br>将字节数组转换为方法区的运行时数据结构。  </li>
+<li>重写 <code>loadClass/findClass</code> 方法加载<br>推荐重写 <code>findClass</code> 方法自定义加载类，<code>loadClass</code> 很容易破坏双亲委派模型。  </li>
+</ul>
+<h3 id="重写-loadClass-方法"><a href="#重写-loadClass-方法" class="headerlink" title="重写 loadClass 方法"></a>重写 <code>loadClass</code> 方法</h3><p>注意：在重写 <code>loadClass</code> 时，需要调用 <code>super.loadClass</code> 尽量保留双亲委派模型来处理父类。<br>对于任一个类：都需要由类加载器和这个类本身一同确立其在虚拟机中的唯一性。如下为自定义类加载器并验证 <code>instanceof</code> 判断类是否相同。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestClassInstanceOf</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1. 自定义类加载器，重写 loadClass</span></span><br><span class="line">        ClassLoader classLoader = <span class="keyword">new</span> ClassLoader() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Class&lt;?&gt; loadClass(String s) </span><br><span class="line">                <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    String fileName = s.substring(s.lastIndexOf(<span class="string">"."</span>) + <span class="number">1</span>)</span><br><span class="line">                        + <span class="string">".class"</span>;</span><br><span class="line">                    System.out.println(<span class="string">"fileName = "</span> + fileName);</span><br><span class="line">                    <span class="comment">// 增加堆栈打印 log，查看调用信息</span></span><br><span class="line">                <span class="keyword">new</span> Exception(<span class="string">"This is a log."</span>).printStackTrace(System.out);</span><br><span class="line">                    InputStream inputStream = getClass()</span><br><span class="line">                        .getResourceAsStream(fileName);</span><br><span class="line">                    <span class="comment">// 2. 如果找不到 class 文件，交给父类执行双亲委派模型加载</span></span><br><span class="line">                    <span class="keyword">if</span> (inputStream == <span class="keyword">null</span>) &#123;</span><br><span class="line">                        System.out.println(<span class="string">"cant find class file: "</span> + s);</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">super</span>.loadClass(s);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[inputStream.available()];</span><br><span class="line">                    inputStream.read(data);</span><br><span class="line">                    <span class="comment">// 3. 将字节流所代表的静态存储结构转换为方法区的运行时数据结构</span></span><br><span class="line">                    System.out.println(<span class="string">"defineClass."</span>);</span><br><span class="line">                    Class clazz = defineClass(s, data, <span class="number">0</span>, data.length);</span><br><span class="line">                    System.out.println(<span class="string">"clazz = "</span> + clazz);</span><br><span class="line">                    <span class="keyword">return</span> clazz;</span><br><span class="line">                &#125;<span class="keyword">catch</span> (IOException e)&#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(s);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 使用自定义类加载器加载</span></span><br><span class="line">        Class clazz = classLoader.loadClass(<span class="string">"com.***.TestClassInstanceOf"</span>);</span><br><span class="line">        System.out.println(<span class="string">"clazz loader: "</span> + clazz.getClassLoader());</span><br><span class="line">        Object object = clazz.newInstance();</span><br><span class="line">        <span class="comment">// 5. 打印当前自定义类加载器加载的类</span></span><br><span class="line">        System.out.println(<span class="string">"object = "</span> + clazz.getClass());</span><br><span class="line">        <span class="comment">// 判断和系统加载器加载的是否为同一个类</span></span><br><span class="line">        System.out.println(<span class="string">"the same class but two different classLoaders, "</span></span><br><span class="line">            + <span class="string">" instanceof = "</span> + (object <span class="keyword">instanceof</span> TestClassInstanceOf));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试结果：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">[Opened /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Object from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">// 1. 系统加载器加载: TestClassInstanceOf 和自定义类加载器</span><br><span class="line">[Loaded TestClassInstanceOf from file:/home/xmt/test/classloading/]</span><br><span class="line">[Loaded TestClassInstanceOf$1 from file:/home/xmt/test/classloading/]</span><br><span class="line">...</span><br><span class="line">// 2. 自定义类加载器开始加载：TestClassInstanceOf </span><br><span class="line">fileName = TestClassInstanceOf.class</span><br><span class="line">[Loaded java.lang.Throwable$PrintStreamOrWriter from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">...</span><br><span class="line">java.lang.Exception: This is a log.</span><br><span class="line">    at TestClassInstanceOf$1.loadClass(TestClassInstanceOf.java:12)</span><br><span class="line">    at TestClassInstanceOf.main(TestClassInstanceOf.java:30)</span><br><span class="line">// 3. defineClass 中会递归加载 TestClassInstanceOf 的父类 Object</span><br><span class="line">// 自定义加载器中，父类由双亲委派模型处理</span><br><span class="line">fileName = Object.class</span><br><span class="line">java.lang.Exception: This is a log.</span><br><span class="line">    at TestClassInstanceOf$1.loadClass(TestClassInstanceOf.java:12)</span><br><span class="line">    at java.lang.ClassLoader.defineClass1(Native Method)</span><br><span class="line">    at java.lang.ClassLoader.defineClass(ClassLoader.java:800)</span><br><span class="line">    at java.lang.ClassLoader.defineClass(ClassLoader.java:643)</span><br><span class="line">    at TestClassInstanceOf$1.loadClass(TestClassInstanceOf.java:21)</span><br><span class="line">    at TestClassInstanceOf.main(TestClassInstanceOf.java:30)</span><br><span class="line">cant find class file: java.lang.Object</span><br><span class="line">// 4. 自定义类加载器：从虚拟机中成功加载 TestClassInstanceOf</span><br><span class="line">// 将字节文件转换为方法区的运行时数据结构</span><br><span class="line">[Loaded TestClassInstanceOf from __JVM_DefineClass__]</span><br><span class="line">clazz = class TestClassInstanceOf</span><br><span class="line">// 5. 对类 TestClassInstanceOf 进行反射调用时，触发类加载过程的类初始化阶段</span><br><span class="line">// 初始化阶段：如果类没有初始化，需要先触发类初始化；如果父类没有初始化，先触发父类初始化</span><br><span class="line">// 这里触发的是自定义类加载器自身及其父类 ClassLoad 的类初始化</span><br><span class="line">// 父类 ClassLoad 类加载由双亲委派模型去处理</span><br><span class="line">fileName = ClassLoader.class</span><br><span class="line">java.lang.Exception: This is a log.</span><br><span class="line">    at TestClassInstanceOf$1.loadClass(TestClassInstanceOf.java:12)</span><br><span class="line">    at java.lang.Class.getDeclaredConstructors0(Native Method)</span><br><span class="line">    at java.lang.Class.privateGetDeclaredConstructors(Class.java:2595)</span><br><span class="line">    at java.lang.Class.getConstructor0(Class.java:2895)</span><br><span class="line">    at java.lang.Class.newInstance(Class.java:354)</span><br><span class="line">    at TestClassInstanceOf.main(TestClassInstanceOf.java:32)</span><br><span class="line">cant find class file: java.lang.ClassLoader</span><br><span class="line">// 6. 自定义类加载器开始加载自己： TestClassInstanceOf$1</span><br><span class="line">fileName = TestClassInstanceOf$1.class</span><br><span class="line">java.lang.Exception: This is a log.</span><br><span class="line">    at TestClassInstanceOf$1.loadClass(TestClassInstanceOf.java:12)</span><br><span class="line">    at java.lang.Class.getDeclaredConstructors0(Native Method)</span><br><span class="line">    at java.lang.Class.privateGetDeclaredConstructors(Class.java:2595)</span><br><span class="line">    at java.lang.Class.getConstructor0(Class.java:2895)</span><br><span class="line">    at java.lang.Class.newInstance(Class.java:354)</span><br><span class="line">    at TestClassInstanceOf.main(TestClassInstanceOf.java:32)</span><br><span class="line">defineClass.</span><br><span class="line">// 7. 自定义类加载器：从虚拟机中成功加载自己 TestClassInstanceOf$1</span><br><span class="line">[Loaded TestClassInstanceOf$1 from __JVM_DefineClass__]</span><br><span class="line">clazz = class TestClassInstanceOf$1</span><br><span class="line">// 8. 使用 instanceof 比较，同一个类不同类加载器加载后，并不相等</span><br><span class="line">object = class TestClassInstanceOf</span><br><span class="line">the same class but two different classLoaders, instanceof = false</span><br><span class="line">[Loaded java.lang.Shutdown from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br><span class="line">[Loaded java.lang.Shutdown$Lock from /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar]</span><br></pre></td></tr></table></figure>
+
+<p>重写 <code>loadClass</code> 方法的注意事项：  </p>
+<ul>
+<li>如果找不到指定 <code>class</code> 文件，调用父类方法处理<br>当找不到指定 <code>class</code> 文件时，需要父类方法的双亲委派模型处理，比如 <code>defineClass</code> 会加载父类，而很多基础父类组件如 <code>Object</code> 是三大父加载器加载的。  </li>
+<li>被加载类 <code>class</code> 文件位置<br>因为重写 <code>loadClass</code> 可以直接避开双亲委派模型，所以任意位置的 <code>class</code> 文件都可以正确解析。  </li>
+</ul>
+<p>疑问：自定义类加载器为什么要加载自己 <code>TestClassInstanceOf$1</code> ? 如果将自定义类加载器改为 <code>static class</code> 静态内部类，则不会加载自己。反编译 <code>TestClassInstanceOf$1.class</code> 文件，可以发现 <code>static</code> 方法内的匿名内部类，反编译后是一个 <code>final class</code>，而且和静态内部类一样，不会引用外部类 <code>this</code> 。  </p>
+<h3 id="重写-findClass-方法"><a href="#重写-findClass-方法" class="headerlink" title="重写 findClass 方法"></a>重写 <code>findClass</code> 方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 被加载测试类，它的 class 文件不能放在：自定义类加载器文件的当前目录及其子目录中</span></span><br><span class="line"><span class="comment">// 否则会因为双亲委派模型，被系统加载器扫描到并加载</span></span><br><span class="line"><span class="comment">// 当前示例放在 javabase/src/main/resources/ 目录下</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"Test.class file is loaded by: "</span> </span><br><span class="line">            + Test.class.getClassLoader());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"It is Test::test."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类加载器</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClassLoader</span> <span class="keyword">extends</span> <span class="title">ClassLoader</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Test.class file dir</span></span><br><span class="line">    <span class="comment">// 指定被加载 class 文件的路径</span></span><br><span class="line">    <span class="keyword">private</span> String mClassFileDir;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyClassLoader</span><span class="params">(String classFileDir)</span> </span>&#123;</span><br><span class="line">        mClassFileDir = classFileDir;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String s) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        System.out.println(<span class="string">"MyClassLoader::findClass"</span>);</span><br><span class="line">        Class clazz = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 根据类全名查找对应的 class 文件，读取后转化为数组</span></span><br><span class="line">            <span class="keyword">byte</span>[] data = loadClassData(s);</span><br><span class="line">            <span class="keyword">if</span> (data != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 将字节流所代表的静态存储结构转换为方法区的运行时数据结构</span></span><br><span class="line">                clazz = defineClass(s, data, <span class="number">0</span>, data.length);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (clazz == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(s);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"MyClassLoader::findClass, clazz = "</span> + clazz);</span><br><span class="line">        <span class="keyword">return</span> clazz;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">byte</span>[] loadClassData(String s) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="comment">// 判断给定的 class 文件目录，及对应的 class 文件是否存在</span></span><br><span class="line">        File dir = <span class="keyword">new</span> File(mClassFileDir);</span><br><span class="line">        <span class="keyword">if</span> (!dir.exists())&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"mClassFileDir is not exists."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String fileName =  s + <span class="string">".class"</span>;</span><br><span class="line">        File classFile = <span class="keyword">new</span> File(dir.getAbsolutePath(), fileName);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!classFile.exists())&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(fileName + <span class="string">" file is not exists."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"loadClassData: classFilePath = "</span> </span><br><span class="line">            + classFile.getAbsolutePath());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果 class 文件存在，读取到数组中</span></span><br><span class="line">        <span class="keyword">byte</span>[] data = <span class="keyword">null</span>;</span><br><span class="line">        FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(classFile);</span><br><span class="line">        ByteArrayOutputStream byteArrayOutputStream = </span><br><span class="line">            <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> ((count = fileInputStream.read()) != -<span class="number">1</span>) &#123;</span><br><span class="line">            byteArrayOutputStream.write(count);</span><br><span class="line">        &#125;</span><br><span class="line">        data = byteArrayOutputStream.toByteArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试自定义类加载器</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestCustomClassLoader</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 指定 class 文件所在目录</span></span><br><span class="line">        String classFileDir = <span class="string">"javabase/src/main/resources/"</span>;</span><br><span class="line">        MyClassLoader myClassLoader = <span class="keyword">new</span> MyClassLoader(classFileDir);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 使用自定义类加载器加载，并实例化</span></span><br><span class="line">            Class testReflect = myClassLoader.loadClass(<span class="string">"Test"</span>);</span><br><span class="line">            Object object = testReflect.newInstance();</span><br><span class="line">            Method method = testReflect.getMethod(<span class="string">"test"</span>, <span class="keyword">null</span>);</span><br><span class="line">            <span class="comment">// 调用被加载类的测试方法</span></span><br><span class="line">            method.invoke(object, <span class="keyword">null</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">MyClassLoader::findClass</span><br><span class="line">loadClassData: classFilePath = C:\Users\xmt\***\src\main\resources\Test.class</span><br><span class="line">MyClassLoader::findClass, clazz = <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span></span><br><span class="line">Test.class file is loaded by: com.***.classloading.MyClassLoader@6bc7c054</span><br><span class="line">It is Test::test.</span><br></pre></td></tr></table></figure>
+
+<p>重写 <code>findClass</code> 方法的注意事项：  </p>
+<ul>
+<li>被加载类 <code>class</code> 文件位置<br>被加载类 <code>Test.class</code> 文件，不能放在 <code>MyClassLoader</code> 文件所在目录及其子目录中。重写 <code>findClass</code> 保留了双亲委派模型，会被 <code>AppClassLoader</code> 系统加载器扫描到并加载，自定义加载器无法生效。<br>在 <code>Android Studio</code> 中，这个 <code>class</code> 文件甚至不能直接由 <code>AS</code> 生成。打印 <code>AppClassLoader</code> 加载路径为：<code>...;C:\Users\xmt\AndroidStudioProjects\xmt\gitlab\04_androidbasic\android_basic_knowledge\javabase\build\classes\java\main;...</code>，也就是说，所有由 <code>AS</code> 工具生成的 <code>class</code> 文件都会默认被系统加载器加载。  </li>
+<li>自定义加载器<br>判断传入的 <code>class</code> 文件目录及对应文件是否存在，如果存在则先转换为数组，并通过 <code>defineClass</code> 将二进制文件转换为运行时数据结构。  </li>
+</ul>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><ul>
+<li>线程上下文加载器  </li>
+<li><code>Android</code> 类加载机制  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>疯狂 <code>Java</code> 讲义-第二版 – 第 18 章 类加载机制与反射  </li>
+<li>深入理解 <code>Java</code> 虚拟机: <code>JVM</code> 高级特性与最佳实践 第 2 版 - 第 7 章 虚拟机类加载机制  </li>
+<li><a href="http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/misc/Launcher.java" target="_blank" rel="noopener">sun: Launcher.java</a>  </li>
+<li><a href="https://blog.csdn.net/briblue/article/details/54973413" target="_blank" rel="noopener">超详细java中的ClassLoader详解</a>  </li>
+<li><a href="https://blog.csdn.net/justloveyou_/article/details/72217806" target="_blank" rel="noopener">深入理解Java类加载器(一)：Java类加载原理解析</a>  </li>
+<li><a href="https://docs.oracle.com/javase/tutorial/ext/basics/load.html" target="_blank" rel="noopener">Understanding Extension Class Loading</a>  </li>
+<li><a href="http://www.cnblogs.com/smyhvae/p/4810168.html" target="_blank" rel="noopener">JVM常见问题-类加载机制</a>  </li>
+<li><a href="http://ifeve.com/classloader/" target="_blank" rel="noopener">深入浅出ClassLoader</a>  </li>
+<li><a href="http://tutorials.jenkov.com/java-reflection/dynamic-class-loading-reloading.html" target="_blank" rel="noopener">Dynamic Class Loading and Reloading</a>  </li>
+<li><a href="https://blog.csdn.net/javazejian/article/details/73413292" target="_blank" rel="noopener">深入理解Java类加载器</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/05/02/0078-java-classloading/" title="Java 类加载机制">http://redspider110.github.io/2018/05/02/0078-java-classloading/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/27/0077-java-annotation/" rel="next" title="Java 注解 Annotation">
+                <i class="fa fa-chevron-left"></i> Java 注解 Annotation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/15/0079-java-type/" rel="prev" title="Java Type 类型">
+                Java Type 类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载过程"><span class="nav-number">1.</span> <span class="nav-text">类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加载-Loading"><span class="nav-number">1.1.</span> <span class="nav-text">加载 Loading</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证-Verification"><span class="nav-number">1.2.</span> <span class="nav-text">验证 Verification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备-Preparation"><span class="nav-number">1.3.</span> <span class="nav-text">准备 Preparation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析-Resolution"><span class="nav-number">1.4.</span> <span class="nav-text">解析 Resolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化-Initialization"><span class="nav-number">1.5.</span> <span class="nav-text">初始化 Initialization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载的时机"><span class="nav-number">2.</span> <span class="nav-text">类加载的时机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类初始化时机"><span class="nav-number">2.1.</span> <span class="nav-text">类初始化时机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主动-被动引用"><span class="nav-number">2.2.</span> <span class="nav-text">主动/被动引用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载器"><span class="nav-number">3.</span> <span class="nav-text">类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载器分类"><span class="nav-number">3.1.</span> <span class="nav-text">类加载器分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双亲委派模型-Parents-Delegation-Model"><span class="nav-number">3.2.</span> <span class="nav-text">双亲委派模型 Parents Delegation Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#破坏双亲委派模型"><span class="nav-number">3.3.</span> <span class="nav-text">破坏双亲委派模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载源码"><span class="nav-number">4.</span> <span class="nav-text">类加载源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">4.1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Launcher-源码分析"><span class="nav-number">4.2.</span> <span class="nav-text">Launcher 源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#各个类加载器对应的属性"><span class="nav-number">4.3.</span> <span class="nav-text">各个类加载器对应的属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClassLoader-源码分析"><span class="nav-number">4.4.</span> <span class="nav-text">ClassLoader 源码分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类加载示例"><span class="nav-number">5.</span> <span class="nav-text">类加载示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#子类引用父类静态字段"><span class="nav-number">5.1.</span> <span class="nav-text">子类引用父类静态字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数组定义的引用类"><span class="nav-number">5.2.</span> <span class="nav-text">数组定义的引用类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态字段"><span class="nav-number">5.3.</span> <span class="nav-text">静态字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反射类加载和初始化不同阶段"><span class="nav-number">5.4.</span> <span class="nav-text">反射类加载和初始化不同阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类初始化顺序"><span class="nav-number">5.5.</span> <span class="nav-text">类初始化顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载器默认属性和父加载器"><span class="nav-number">5.6.</span> <span class="nav-text">类加载器默认属性和父加载器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义类加载器"><span class="nav-number">6.</span> <span class="nav-text">自定义类加载器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重写-loadClass-方法"><span class="nav-number">6.1.</span> <span class="nav-text">重写 loadClass 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重写-findClass-方法"><span class="nav-number">6.2.</span> <span class="nav-text">重写 findClass 方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续"><span class="nav-number">7.</span> <span class="nav-text">后续</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

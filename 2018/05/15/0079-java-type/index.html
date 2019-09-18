@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Type 只在反射中才有真正的意义，表示 Java 中所有类型的公共父接口。它包含：原始类型、参数化类型、数组类型、类型变量和基础数据类型。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Type 类型">
+<meta property="og:url" content="http://redspider110.github.io/2018/05/15/0079-java-type/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Type 只在反射中才有真正的意义，表示 Java 中所有类型的公共父接口。它包含：原始类型、参数化类型、数组类型、类型变量和基础数据类型。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0079-Type-uml-classdiag.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java Type 类型">
+<meta name="twitter:description" content="Type 只在反射中才有真正的意义，表示 Java 中所有类型的公共父接口。它包含：原始类型、参数化类型、数组类型、类型变量和基础数据类型。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0079-Type-uml-classdiag.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/05/15/0079-java-type/">
+
+
+
+
+
+  <title>Java Type 类型 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/05/15/0079-java-type/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java Type 类型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-15T09:00:00+08:00">
+                2018-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Type</code> 只在<strong>反射</strong>中才有真正的意义，表示 <code>Java</code> 中所有类型的公共父接口。它包含：原始类型、参数化类型、数组类型、类型变量和基础数据类型。  </p>
+<a id="more"></a>
+
+<p><code>Java</code> 语言规范中指出变量只有下面三种类型 <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html" target="_blank" rel="noopener">JLS</a>：  </p>
+<ul>
+<li>基本类型 <code>primitive types</code>：<code>boolean, byte, short, int, long, char, float, double</code>  </li>
+<li>引用类型 <code>reference types</code>：<code>class, interface, array, type variables</code>  </li>
+<li>空类型 <code>null type</code>  </li>
+</ul>
+<p>关于泛型和语言规范中三种类型的关系如下：  </p>
+<ul>
+<li>如果类或接口声明了类型变量，那么它就是泛型  </li>
+<li>类和接口如果是泛型，那么它就定义了一个参数化类型，简单理解为泛型就是参数化类型。但是参数化类型是属于类类型或者接口类型的  </li>
+<li>参数化类型的参数 <code>Type Arguments of Parameterized Types</code>：可以是引用类型和通配符  </li>
+</ul>
+<blockquote>
+<p>在学习 <code>Type</code> 及子接口或实现类时，很容易将它们和语言规范中的类型混淆。语言规范简单来讲类型分为：基本数据类型，类类型（包含接口），数组（另外算上一个类型变量）。总是在想：为什么会多出 <code>Type</code> 这几种类型？它们和基本语言规范中类型的区别是什么呢？实际上从语言规范中的类型来讲，它们是标准的类类型（包含接口），只有在反射解析变量时，它们才有实际的意义，用来区分泛型的几种情景。  </p>
+</blockquote>
+<h2 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h2><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0079-Type-uml-classdiag.png" alt="0079-Type-uml-classdiag.png"></p>
+<h2 id="Type-基本概念"><a href="#Type-基本概念" class="headerlink" title="Type 基本概念"></a><code>Type</code> 基本概念</h2><p><code>Type</code> 的引入主要是为了反射和泛型服务的，它能代表一切类型。在编码使用中（抛开反射概念），这几种类型是标准的类类型和接口类型；它们只能在<strong>反射</strong>中才能体现真正的意义，能代表泛型的几种细分场景：  </p>
+<ul>
+<li><code>Type</code><br>表示 <code>Java</code> 中所有类型的公共接口。也就是<strong>反射</strong>中 <code>Type</code> 代表 <code>Java</code> 语言规范中的所有类型。  </li>
+<li><code>TypeVariable</code><br>表示类型变量，即泛型中的 <code>T, K, V</code> 等等。  </li>
+<li><code>ParameterizedType</code><br>表示参数化类型，即泛型，如：<code>Collection&lt;String&gt;</code> 。  </li>
+<li><code>GenericArrayType</code><br>表示数组中的：参数化类型数组，类型变量数组，如：<code>Collection&lt;String&gt;[], T[]</code> 。并不包含基本类型和类类型数组。  </li>
+<li><code>WildcardType</code><br>表示通配符类型表达式，如 <code>?</code>，<code>? extends Number</code>，<code>? super Integer</code> 。它只是参数化类型中参数的一种类型，无法直接修饰变量。  </li>
+<li><code>Class</code><br>它是 <code>Type</code> 的实现类，表示<strong>除了上面泛型中的几个特定类型之外的所有类型</strong>，包含基本数据类型，引用类型等。每个类在加载后都会对应一个 <code>Class</code> 类对象，它包含了 <code>.class</code> 文件转换为内存运行时数据结构，也就是包含类中的一切信息。参考：<a href="https://redspider110.github.io/2018/05/02/0078-java-classloading/">类加载机制</a>  </li>
+</ul>
+<p><strong><code>Class</code> 对象是否反射的基石</strong>，在 <code>Java</code> 中使用 <code>类名.clas</code> 表示类对象。如：<code>String.class, Object.class</code> 等等。  </p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Type is the common superinterface for all types in the Java</span></span><br><span class="line"><span class="comment"> * programming language. These include raw types, parameterized types,</span></span><br><span class="line"><span class="comment"> * array types, type variables and primitive types.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.5</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns a string describing this type, including information</span></span><br><span class="line"><span class="comment">     * about any type parameters.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@implSpec</span> The default implementation calls &#123;<span class="doctag">@code</span> toString&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a string describing this type</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> String <span class="title">getTypeName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * ParameterizedType represents a parameterized type </span></span><br><span class="line"><span class="comment">  * such as Collection&lt;String&gt;. </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ParameterizedType</span> <span class="keyword">extends</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回参数化类的，参数数组</span></span><br><span class="line">    Type[] getActualTypeArguments();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回泛型类或者接口的原始类型</span></span><br><span class="line">    <span class="function">Type <span class="title">getRawType</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// getRawType 返回泛型如果为顶级类，则返回空；如果是内部类，则返回外部类</span></span><br><span class="line">    <span class="function">Type <span class="title">getOwnerType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TypeVariable is the common superinterface for type variables of kinds.</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeVariable</span>&lt;<span class="title">D</span> <span class="keyword">extends</span> <span class="title">GenericDeclaration</span>&gt; </span></span><br><span class="line"><span class="class">    <span class="keyword">extends</span> <span class="title">Type</span>, <span class="title">AnnotatedElement</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 类型变量的上界</span></span><br><span class="line">    Type[] getBounds();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明这个类型变量的泛型类</span></span><br><span class="line">    <span class="function">D <span class="title">getGenericDeclaration</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类型变量使用的名字</span></span><br><span class="line">    <span class="function">String <span class="title">getName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1.8 添加的方法，返回 AnnotatedType 数组</span></span><br><span class="line">     AnnotatedType[] getAnnotatedBounds();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * GenericArrayType represents an array type whose component type </span></span><br><span class="line"><span class="comment">  * is either a parameterized type or a type variable.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GenericArrayType</span> <span class="keyword">extends</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 泛型数组元素类型</span></span><br><span class="line">    <span class="function">Type <span class="title">getGenericComponentType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * WildcardType represents a wildcard type expression, </span></span><br><span class="line"><span class="comment">  * such as ?, ? extends Number, or ? super Integer.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">WildcardType</span> <span class="keyword">extends</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取通配符上界</span></span><br><span class="line">    Type[] getUpperBounds();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取通配符下界</span></span><br><span class="line">    Type[] getLowerBounds();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Instances of the class Class represent classes and interfaces </span></span><br><span class="line"><span class="comment">  * in a running Java application.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Class</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Serializable</span>, </span></span><br><span class="line"><span class="class">    <span class="title">GenericDeclaration</span>, <span class="title">Type</span>, <span class="title">AnnotatedElement</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestType</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testParameterizedType</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">ParameterizedTypeTestClass</span></span>&#123;</span><br><span class="line">            List&lt;String&gt; list;</span><br><span class="line">            Map.Entry&lt;Integer, String&gt; entry;</span><br><span class="line">            Class&lt;?&gt; clazz;</span><br><span class="line">        &#125;</span><br><span class="line">        showTypeDetails(ParameterizedTypeTestClass.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testTypeVariable</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">TypeVariableTestClass</span>&lt;<span class="title">K</span> <span class="keyword">extends</span> <span class="title">Runnable</span>, <span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">            K k;</span><br><span class="line">            V v;</span><br><span class="line">            List&lt;K&gt; list;</span><br><span class="line">        &#125;</span><br><span class="line">        showTypeDetails(TypeVariableTestClass.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testGenericArrayType</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">GenericArrayTypeTestClass</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">            List&lt;String&gt;[] lists;</span><br><span class="line">            T[] ts;</span><br><span class="line">        &#125;</span><br><span class="line">        showTypeDetails(GenericArrayTypeTestClass.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testWildcardType</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">WildcardTypeTestClass</span></span>&#123;</span><br><span class="line">            List&lt;? extends Number&gt; numbers;</span><br><span class="line">            List&lt;? <span class="keyword">super</span> Integer&gt; list;</span><br><span class="line">        &#125;</span><br><span class="line">        showTypeDetails(WildcardTypeTestClass.class);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">testAllTypes</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">AllTypes</span></span>&#123;</span><br><span class="line">            <span class="keyword">int</span> i;</span><br><span class="line">            <span class="keyword">boolean</span> b;</span><br><span class="line">            <span class="keyword">float</span> f;</span><br><span class="line">            <span class="keyword">byte</span>[] bytes;</span><br><span class="line">            String s;</span><br><span class="line">            Object o;</span><br><span class="line">            Runnable runnable;</span><br><span class="line">            Object[] os;</span><br><span class="line">        &#125;</span><br><span class="line">        showTypeDetails(AllTypes.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showTypeDetails</span><span class="params">(Class&lt;?&gt; clazz)</span></span>&#123;</span><br><span class="line">        Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">        <span class="keyword">for</span> (Field field : fields)&#123;</span><br><span class="line">            System.out.println(<span class="string">"*************************"</span>);</span><br><span class="line">            System.out.println(<span class="string">"showTypeDetails: "</span> + clazz);</span><br><span class="line">            System.out.println(<span class="string">"Field: "</span> + field);</span><br><span class="line">            Type type = field.getGenericType();</span><br><span class="line">            System.out.println(<span class="string">"TypeName: "</span> + type.getTypeName());</span><br><span class="line">            <span class="keyword">if</span> (type <span class="keyword">instanceof</span> ParameterizedType) &#123;</span><br><span class="line">                ParameterizedType parameterizedType =(ParameterizedType)type;</span><br><span class="line">                System.out.println(<span class="string">"ParameterizedType--RawType: "</span> </span><br><span class="line">                    + parameterizedType.getRawType());</span><br><span class="line">                System.out.println(<span class="string">"ParameterizedType--OwnerType: "</span> </span><br><span class="line">                    + parameterizedType.getOwnerType());</span><br><span class="line">                Type[] types = parameterizedType.getActualTypeArguments();</span><br><span class="line">                System.out.println(<span class="string">"ParameterizedType--Args.length = "</span> </span><br><span class="line">                    + types.length);</span><br><span class="line">                <span class="keyword">for</span> (Type t : types)&#123;</span><br><span class="line">                System.out.println(<span class="string">"ParameterizedType--ActualTypeArguments: "</span></span><br><span class="line">                    + t);</span><br><span class="line">                    <span class="keyword">if</span> (t <span class="keyword">instanceof</span> WildcardType)&#123;</span><br><span class="line">                        WildcardType wildcardType = (WildcardType) t;</span><br><span class="line">                        Type[] uppers = wildcardType.getUpperBounds();</span><br><span class="line">                        System.out.println(<span class="string">"WildcardType--uppers.length = "</span></span><br><span class="line">                            + uppers.length);</span><br><span class="line">                        <span class="keyword">for</span> (Type t1 : uppers) &#123;</span><br><span class="line">                            System.out.println(<span class="string">"WildcardType--uppers, type ="</span></span><br><span class="line">                                + t1);</span><br><span class="line">                        &#125;</span><br><span class="line">                        Type[] lowers = wildcardType.getLowerBounds();</span><br><span class="line">                        System.out.println(<span class="string">"WildcardType--lowers.length = "</span></span><br><span class="line">                            + lowers.length);</span><br><span class="line">                        <span class="keyword">for</span> (Type t2 : lowers)&#123;</span><br><span class="line">                            System.out.println(<span class="string">"WildcardType--lowers. type ="</span></span><br><span class="line">                                + t2);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type <span class="keyword">instanceof</span> TypeVariable) &#123;</span><br><span class="line">                TypeVariable typeVariable = (TypeVariable) type;</span><br><span class="line">                Type[] types = typeVariable.getBounds();</span><br><span class="line">                System.out.println(<span class="string">"TypeVariable--Bounds.length = "</span></span><br><span class="line">                    + types.length);</span><br><span class="line">                <span class="keyword">for</span> (Type t : types)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"TypeVariable--Bounds = "</span> + t);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"TypeVariable--GenericDeclaration = "</span></span><br><span class="line">                    + typeVariable.getGenericDeclaration());</span><br><span class="line">                System.out.println(<span class="string">"TypeVariable--Name = "</span></span><br><span class="line">                    + typeVariable.getName());</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type <span class="keyword">instanceof</span> GenericArrayType) &#123;</span><br><span class="line">                GenericArrayType genericArrayType = (GenericArrayType) type;</span><br><span class="line">                System.out.println(<span class="string">"GenericArrayType--ComponentType: "</span></span><br><span class="line">                    + genericArrayType.getGenericComponentType());</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type <span class="keyword">instanceof</span> Class) &#123;</span><br><span class="line">                System.out.println(<span class="string">"Class--SimpleName = "</span> </span><br><span class="line">                    + ((Class) type).getSimpleName());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TestType testType = <span class="keyword">new</span> TestType();</span><br><span class="line">        testType.testParameterizedType();</span><br><span class="line">        testType.testTypeVariable();</span><br><span class="line">        testType.testGenericArrayType();</span><br><span class="line">        testType.testWildcardType();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源码解析：  </p>
+<ul>
+<li>反射后的字段类型<br>只有四种：<code>ParameterizedType, TypeVariable, GenericArrayType, Class</code>，它们的公共父接口为 <code>Type</code> 。  </li>
+<li>反射后参数化类型的参数<br>类型为：通配符 <code>WildcardType</code> 和上面四种类型。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz;                     <span class="comment">// WildcardType</span></span><br><span class="line">List&lt;? extends Number&gt; numbers;     <span class="comment">// WildcardType</span></span><br><span class="line">List&lt;List&lt;String&gt;&gt; listList;        <span class="comment">// ParameterizedType</span></span><br><span class="line">List&lt;K&gt; listK;                      <span class="comment">// TypeVariable</span></span><br><span class="line">List&lt;V[]&gt; listVArray;               <span class="comment">// GenericArrayType</span></span><br><span class="line">List&lt;String&gt; list;                  <span class="comment">// Class</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br></pre></td><td class="code"><pre><span class="line">*************************</span><br><span class="line">// 传入的类名为 TestType 的内部类 1ParameterizedTypeTestClass</span><br><span class="line">showTypeDetails: class com.***.TestType$1ParameterizedTypeTestClass</span><br><span class="line">// 获取的字段为 list，类型为：参数化类型 List&lt;String&gt;，</span><br><span class="line">// 其原始类型为 List，参数为 String</span><br><span class="line">Field: java.util.List com.***.TestType$1ParameterizedTypeTestClass.list</span><br><span class="line">TypeName: java.util.List&lt;java.lang.String&gt;</span><br><span class="line">ParameterizedType--RawType = interface java.util.List</span><br><span class="line">ParameterizedType--OwnerType = null</span><br><span class="line">ParameterizedType--Args.length = 1</span><br><span class="line">ParameterizedType--ActualTypeArguments = class java.lang.String</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1ParameterizedTypeTestClass</span><br><span class="line">Field: java.util.Map$Entry com.***.TestType$1ParameterizedTypeTestClass.entry</span><br><span class="line">TypeName: java.util.Map.java.util.Map$Entry&lt;java.lang.Integer, java.lang.String&gt;</span><br><span class="line">ParameterizedType--RawType = interface java.util.Map$Entry</span><br><span class="line">ParameterizedType--OwnerType = interface java.util.Map</span><br><span class="line">ParameterizedType--Args.length = 2</span><br><span class="line">ParameterizedType--ActualTypeArguments = class java.lang.Integer</span><br><span class="line">ParameterizedType--ActualTypeArguments = class java.lang.String</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1ParameterizedTypeTestClass</span><br><span class="line">// 获取的字段为 clazz，类型为：参数化类型 Class&lt;?&gt;</span><br><span class="line">Field: java.lang.Class com.***.TestType$1ParameterizedTypeTestClass.clazz</span><br><span class="line">TypeName: java.lang.Class&lt;?&gt;</span><br><span class="line">ParameterizedType--RawType = class java.lang.Class</span><br><span class="line">ParameterizedType--OwnerType = null</span><br><span class="line">ParameterizedType--Args.length = 1</span><br><span class="line">ParameterizedType--ActualTypeArguments = ?</span><br><span class="line">// 其参数为通配符类型</span><br><span class="line">WildcardType--uppers.length = 1</span><br><span class="line">WildcardType--uppers, type = class java.lang.Object</span><br><span class="line">WildcardType--lowers.length = 0</span><br><span class="line">*************************</span><br><span class="line">// 内部类持有外部类的引用  </span><br><span class="line">showTypeDetails: class com.***.TestType$1ParameterizedTypeTestClass</span><br><span class="line">Field: final com.***.TestType com.***.TestType$1ParameterizedTypeTestClass.this$0</span><br><span class="line">TypeName: com.***.TestType</span><br><span class="line">Class--SimpleName = TestType</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1TypeVariableTestClass</span><br><span class="line">// 获取的字段为 k，类型为：类型变量 K</span><br><span class="line">Field: java.lang.Runnable com.***.TestType$1TypeVariableTestClass.k</span><br><span class="line">TypeName: K</span><br><span class="line">TypeVariable--Bounds.length = 1</span><br><span class="line">TypeVariable--Bounds = interface java.lang.Runnable</span><br><span class="line">TypeVariable--GenericDeclaration = class com.***.TestType$1TypeVariableTestClass</span><br><span class="line">TypeVariable--Name = K</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1TypeVariableTestClass</span><br><span class="line">Field: java.lang.Object com.***.TestType$1TypeVariableTestClass.v</span><br><span class="line">TypeName: V</span><br><span class="line">TypeVariable--Bounds.length = 1</span><br><span class="line">TypeVariable--Bounds = class java.lang.Object</span><br><span class="line">TypeVariable--GenericDeclaration = class com.***.TestType$1TypeVariableTestClass</span><br><span class="line">TypeVariable--Name = V</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1TypeVariableTestClass</span><br><span class="line">Field: java.util.List com.***.TestType$1TypeVariableTestClass.list</span><br><span class="line">TypeName: java.util.List&lt;K&gt;</span><br><span class="line">ParameterizedType--RawType = interface java.util.List</span><br><span class="line">ParameterizedType--OwnerType = null</span><br><span class="line">ParameterizedType--Args.length = 1</span><br><span class="line">ParameterizedType--ActualTypeArguments = K</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.</span><br><span class="line"><span class="meta">TestType$</span><span class="bash">1TypeVariableTestClass</span></span><br><span class="line">Field: final com.***.TestType com.***.TestType$1TypeVariableTestClass.this$0</span><br><span class="line">TypeName: com.***.TestType</span><br><span class="line">Class--SimpleName = TestType</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1GenericArrayTypeTestClass</span><br><span class="line">// 获取字段为 lists，类型为：泛型数组 List&lt;String&gt;[]</span><br><span class="line">Field: java.util.List[] com.***.TestType$1GenericArrayTypeTestClass.lists</span><br><span class="line">TypeName: java.util.List&lt;java.lang.String&gt;[]</span><br><span class="line">GenericArrayType--ComponentType = java.util.List&lt;java.lang.String&gt;</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1GenericArrayTypeTestClass</span><br><span class="line">Field: java.lang.Object[] com.***.TestType$1GenericArrayTypeTestClass.ts</span><br><span class="line">TypeName: T[]</span><br><span class="line">GenericArrayType--ComponentType = T</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1GenericArrayTypeTestClass</span><br><span class="line">Field: final com.***.TestType com.***.TestType$1GenericArrayTypeTestClass.this$0</span><br><span class="line">TypeName: com.***.TestType</span><br><span class="line">Class--SimpleName = TestType</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1WildcardTypeTestClass</span><br><span class="line">// 获取字段为 numbers，类型为：参数化类型</span><br><span class="line">// 参数化类型的参数为：通配符</span><br><span class="line">Field: java.util.List com.***.TestType$1WildcardTypeTestClass.numbers</span><br><span class="line">TypeName: java.util.List&lt;? extends java.lang.Number&gt;</span><br><span class="line">ParameterizedType--RawType = interface java.util.List</span><br><span class="line">ParameterizedType--OwnerType = null</span><br><span class="line">ParameterizedType--Args.length = 1</span><br><span class="line">ParameterizedType--ActualTypeArguments = ? extends java.lang.Number</span><br><span class="line">WildcardType--uppers.length = 1</span><br><span class="line">WildcardType--uppers, type = class java.lang.Number</span><br><span class="line">WildcardType--lowers.length = 0</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1WildcardTypeTestClass</span><br><span class="line">Field: java.util.List com.***.TestType$1WildcardTypeTestClass.list</span><br><span class="line">TypeName: java.util.List&lt;? super java.lang.Integer&gt;</span><br><span class="line">ParameterizedType--RawType = interface java.util.List</span><br><span class="line">ParameterizedType--OwnerType = null</span><br><span class="line">ParameterizedType--Args.length = 1</span><br><span class="line">ParameterizedType--ActualTypeArguments = ? super java.lang.Integer</span><br><span class="line">WildcardType--uppers.length = 1</span><br><span class="line">WildcardType--uppers, type = class java.lang.Object</span><br><span class="line">WildcardType--lowers.length = 1</span><br><span class="line">WildcardType--lowers. type = class java.lang.Integer</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1WildcardTypeTestClass</span><br><span class="line">Field: final com.***.TestType com.***.TestType$1WildcardTypeTestClass.this$0</span><br><span class="line">TypeName: com.***.TestType</span><br><span class="line">Class--SimpleName = TestType</span><br><span class="line">*************************</span><br><span class="line">// 获取基本数据类型、非泛型数组字段</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: int com.***.TestType$1AllTypes.i</span><br><span class="line">TypeName: int</span><br><span class="line">Class--SimpleName = int</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: boolean com.***.TestType$1AllTypes.b</span><br><span class="line">TypeName: boolean</span><br><span class="line">Class--SimpleName = boolean</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: float com.***.TestType$1AllTypes.f</span><br><span class="line">TypeName: float</span><br><span class="line">Class--SimpleName = float</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: byte[] com.***.TestType$1AllTypes.bytes</span><br><span class="line">TypeName: byte[]</span><br><span class="line">Class--SimpleName = byte[]</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: java.lang.String com.***.TestType$1AllTypes.s</span><br><span class="line">TypeName: java.lang.String</span><br><span class="line">Class--SimpleName = String</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: java.lang.Object com.***.TestType$1AllTypes.o</span><br><span class="line">TypeName: java.lang.Object</span><br><span class="line">Class--SimpleName = Object</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: java.lang.Runnable com.***.TestType$1AllTypes.runnable</span><br><span class="line">TypeName: java.lang.Runnable</span><br><span class="line">Class--SimpleName = Runnable</span><br><span class="line">*************************</span><br><span class="line">showTypeDetails: class com.***.TestType$1AllTypes</span><br><span class="line">Field: final com.***.TestType com.***.TestType$1AllTypes.this$0</span><br><span class="line">TypeName: com.***.TestType</span><br><span class="line">Class--SimpleName = TestType</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Type.html" target="_blank" rel="noopener">Type JavaDoc</a>  </li>
+<li><a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html" target="_blank" rel="noopener">Java Language Specification - Type,values,variables</a>  </li>
+<li><a href="https://www.jianshu.com/p/7649f86614d3" target="_blank" rel="noopener">Java-Type体系-1</a>  </li>
+<li><a href="https://www.jianshu.com/p/e8eeff12c306" target="_blank" rel="noopener">Java-Type体系-2</a>  </li>
+<li><a href="https://blog.csdn.net/gdutxiaoxu/article/details/68926515" target="_blank" rel="noopener">Java Type 详解</a>  </li>
+<li><a href="https://blog.csdn.net/fang_qiming/article/details/78155271" target="_blank" rel="noopener">Java reflect Type类</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/05/15/0079-java-type/" title="Java Type 类型">http://redspider110.github.io/2018/05/15/0079-java-type/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/02/0078-java-classloading/" rel="next" title="Java 类加载机制">
+                <i class="fa fa-chevron-left"></i> Java 类加载机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/18/0080-java-reflect/" rel="prev" title="Java 反射">
+                Java 反射 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#类图结构"><span class="nav-number">1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Type-基本概念"><span class="nav-number">2.</span> <span class="nav-text">Type 基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">4.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#源码"><span class="nav-number">4.1.</span> <span class="nav-text">源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结果分析"><span class="nav-number">4.2.</span> <span class="nav-text">结果分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,IPC,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概念让服务与远程进程通信，可使用 Messenger 为服务提供接口。通过 Messenger 发送消息（Message）来实现进程间的通信 (IPC)。">
+<meta name="keywords" content="Android,IPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Messenger 详解">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/29/0034-messenger/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="概念让服务与远程进程通信，可使用 Messenger 为服务提供接口。通过 Messenger 发送消息（Message）来实现进程间的通信 (IPC)。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Messenger 详解">
+<meta name="twitter:description" content="概念让服务与远程进程通信，可使用 Messenger 为服务提供接口。通过 Messenger 发送消息（Message）来实现进程间的通信 (IPC)。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/29/0034-messenger/">
+
+
+
+
+
+  <title>Messenger 详解 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/29/0034-messenger/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Messenger 详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-29T10:00:00+08:00">
+                2017-11-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>让服务与远程进程通信，可使用 <code>Messenger</code> 为服务提供接口。通过 <code>Messenger</code> 发送消息（<code>Message</code>）来实现进程间的通信 (<code>IPC</code>)。  </p>
+<a id="more"></a>
+
+<h2 id="Messenger-实现双向通信及示例"><a href="#Messenger-实现双向通信及示例" class="headerlink" title="Messenger 实现双向通信及示例"></a><code>Messenger</code> 实现双向通信及示例</h2><h3 id="通信流程"><a href="#通信流程" class="headerlink" title="通信流程"></a>通信流程</h3><ul>
+<li>双方实例化 <code>Messenger</code><br><code>Activity</code> 和 <code>Service</code> 两边各自都要实例化 <code>Messenger</code> ，分别为：<code>AMessenger</code> 和 <code>SMessenger</code>。   </li>
+<li><code>Activity</code> 到 <code>Service</code> 的通信<br><code>Service</code> 在 <code>onBind</code> 时，返回<code>SMessenger</code> 的 <code>IBinder</code> 。<code>Activity</code> 在 <code>bindService</code> 连接后，通过该 <code>IBinder</code> 得到 <code>SMessenger</code> 实例，并通过它来向 <code>Service</code> 发送消息。  </li>
+<li><code>Service</code> 到 <code>Activity</code> 的通信（回调）<br><code>Activity</code> 组建消息 <code>Message</code> 并将 <code>AMessenger</code> 存放消息中，再通过 <code>SMessenger</code> 实例发送消息时传递给 <code>Service</code>，<code>Service</code> 通过拿到的 <code>AMessenger</code> 实例发送消息，形成对 <code>Activity</code> 的回调。     </li>
+</ul>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><ul>
+<li>定义各种 <code>Message</code> 的 <code>ID</code>    </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从客户端来的消息</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_FROM_CLIENT_REGISTER = <span class="number">20001</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_FROM_CLIENT_UNREGISTER = <span class="number">20002</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK = <span class="number">20003</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 服务端反馈给客户端的消息  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_FROM_SERVICE_RESULT = <span class="number">30001</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>自定义 <code>Handler</code> 并实例化 <code>SMessenger</code><br>接受来自客户端的消息，后台处理：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Keeps track of all current registered clients. */</span></span><br><span class="line"><span class="keyword">private</span> ArrayList&lt;Messenger&gt; mClients = <span class="keyword">new</span> ArrayList&lt;Messenger&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">IncomingFromClientsHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"IncomingFromClientsHandler:handleMessage: "</span>);</span><br><span class="line">        <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">            <span class="keyword">case</span> MSG_FROM_CLIENT_REGISTER:</span><br><span class="line">                Log.d(TAG, <span class="string">"handleMessage: MSG_FROM_CLIENT_REGISTER"</span>);</span><br><span class="line">                mClients.add(msg.replyTo);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> MSG_FROM_CLIENT_UNREGISTER:</span><br><span class="line">                Log.d(TAG, <span class="string">"handleMessage: MSG_FROM_CLIENT_UNREGISTER"</span>);</span><br><span class="line">                mClients.remove(msg.replyTo);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK:</span><br><span class="line">                Log.d(TAG, <span class="string">"handleMessage: MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK"</span>);</span><br><span class="line">                doLongRunningWork(msg);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">super</span>.handleMessage(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> Messenger mSMessenger = <span class="keyword">new</span> Messenger(<span class="keyword">new</span> IncomingFromClientsHandler());</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>onBind</code> 返回 <code>Messenger</code> </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"onBind: "</span>);</span><br><span class="line">    <span class="keyword">return</span> mSMessenger.getBinder();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>服务端向客户端发送消息（回调）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">feedbackToClient</span><span class="params">(Messenger replyTo)</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"feedbackToClient: "</span>);</span><br><span class="line">    Message msg = Message.obtain(<span class="keyword">null</span>, MSG_FROM_SERVICE_RESULT);</span><br><span class="line">    MyDataParcelable data = RandomData.genMyDataParcelable();</span><br><span class="line">    Bundle bundle = <span class="keyword">new</span> Bundle(MyDataParcelable.class.getClassLoader());</span><br><span class="line">    bundle.putParcelable(IPC_PARCELABLE_DATA_KEY ,data);</span><br><span class="line">    msg.setData(bundle);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        replyTo.send(msg);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><ul>
+<li>自定义 <code>Handler</code> 并实例化 <code>AMessenger</code><br>接受来自服务端的消息，响应回调：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">IncomingFromServiceHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"IncomingFromServiceHandler:handleMessage: "</span>);</span><br><span class="line">        <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">            <span class="keyword">case</span> MessengerService.MSG_FROM_SERVICE_RESULT:</span><br><span class="line">                Log.d(TAG, <span class="string">"handleMessage: MSG_FROM_SERVICE_RESULT"</span>);</span><br><span class="line">                showMsgFromServiceResult(msg);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">super</span>.handleMessage(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Target we publish for clients to send messages to IncomingHandler.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> Messenger mAMessenger = <span class="keyword">new</span> Messenger(<span class="keyword">new</span> IncomingFromServiceHandler());</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>绑定服务后获取 <code>SMessenger</code><br>其中 <code>mService</code> 即从服务器端获取到的 <code>SMessenger</code>：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Flag indicating whether we have called bind on the service. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> mBound = <span class="keyword">false</span>;</span><br><span class="line"><span class="comment">/** Messenger for communicating with service. */</span></span><br><span class="line"><span class="keyword">private</span> Messenger mService;</span><br><span class="line"><span class="keyword">private</span> ServiceConnection mMessengerServiceConnection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">        Log.d(TAG, <span class="string">"onServiceConnected: Bound!"</span>);</span><br><span class="line">        mBound = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">// 拿到服务器端的 SMessenger</span></span><br><span class="line">        mService = <span class="keyword">new</span> Messenger(service);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>客户端向服务端发送消息<br>也就是客户端有两个 <code>Messenger</code> 的实例，一个用于响应回调的 <code>AMessenger</code>，一个用于发送消息的 <code>SMessenger</code>：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doLongRunningWork</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Log.d(TAG, <span class="string">"doLongRunningWork: "</span>);</span><br><span class="line">    Message msg = Message.obtain(<span class="keyword">null</span>, </span><br><span class="line">        MessengerService.MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK);</span><br><span class="line">    Bundle bundle = <span class="keyword">new</span> Bundle(MyDataParcelable.class.getClassLoader());</span><br><span class="line">    MyDataParcelable data = RandomData.genMyDataParcelable();</span><br><span class="line">    bundle.putParcelable(MessengerService.IPC_PARCELABLE_DATA_KEY, data);</span><br><span class="line">    msg.setData(bundle);</span><br><span class="line">    <span class="comment">// 客户端的 AMessenger，传递给服务端后用于回调</span></span><br><span class="line">    msg.replyTo = mAMessenger;</span><br><span class="line">    <span class="keyword">if</span>(mService != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// SMessenger 发送消息给服务端</span></span><br><span class="line">            mService.send(msg);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RemoteException e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例及-Log-分析"><a href="#示例及-Log-分析" class="headerlink" title="示例及 Log 分析"></a>示例及 <code>Log</code> 分析</h2><h3 id="客户端向服务端下发耗时任务，并响应服务端的回调"><a href="#客户端向服务端下发耗时任务，并响应服务端的回调" class="headerlink" title="客户端向服务端下发耗时任务，并响应服务端的回调"></a>客户端向服务端下发耗时任务，并响应服务端的回调</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">// 启动客户端 Activity</span><br><span class="line">17:24:16.964 30355-30355/D:ShowIPCActivity:: onCreate: </span><br><span class="line">// 绑定服务</span><br><span class="line">17:24:18.228 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = Bind Service</span><br><span class="line">17:24:18.228 30355-30355/D:ShowIPCActivity:: bindMessengerService: </span><br><span class="line">17:24:18.229 30355-30355/D:ShowIPCActivity:: bindMessengerService: Binding...</span><br><span class="line">// 服务端启动</span><br><span class="line">17:24:18.246 30355-30355/D:MessengerService:: onCreate: </span><br><span class="line">17:24:18.246 30355-30355/D:MessengerService:: onBind: </span><br><span class="line">// 连接服务端</span><br><span class="line">17:24:18.252 30355-30355/D:ShowIPCActivity:: onServiceConnected: Bound!</span><br><span class="line">17:24:18.253 30355-30355/D:ShowIPCActivity:: registerClient: </span><br><span class="line">17:24:18.253 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">17:24:18.253 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_REGISTER</span><br><span class="line">// 下发耗时任务</span><br><span class="line">17:24:20.886 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = LongRunningWork</span><br><span class="line">17:24:20.886 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">17:24:20.892 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">        data = name: bic, arrays: 1 2 3 , book.name: icfhd, book.price: 49</span><br><span class="line">// 服务端接受到耗时任务消息</span><br><span class="line">17:24:20.899 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">17:24:20.899 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK</span><br><span class="line">17:24:20.899 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">17:24:20.899 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">        msg.data = name: bic, arrays: 1 2 3 , book.name: icfhd, book.price: 49</span><br><span class="line">// 服务端新建线程 30467 执行耗时任务</span><br><span class="line">17:24:20.905 30355-30476/D:MessengerService:: MyDataRunnable:run... </span><br><span class="line">17:24:23.908 30355-30476/D:MessengerService:: MyDataRunnable:run: done!</span><br><span class="line">// 服务端执行完任务后，发送消息给客户端（回调）</span><br><span class="line">17:24:23.908 30355-30476/D:MessengerService:: feedbackToClient: </span><br><span class="line">17:24:23.909 30355-30476/D:MessengerService:: feedbackToClient: </span><br><span class="line">        data = name: ahf, arrays: 1 2 3 , book.name: ifebd, book.price: 40</span><br><span class="line">// 客户端收到服务端的回调消息并处理</span><br><span class="line">17:24:23.909 30355-30355/D:ShowIPCActivity:: IncomingFromServiceHandler:handleMessage: </span><br><span class="line">17:24:23.909 30355-30355/D:ShowIPCActivity:: handleMessage: MSG_FROM_SERVICE_RESULT</span><br><span class="line">17:24:23.909 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">17:24:23.909 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">        msg.data = name: ahf, arrays: 1 2 3 , book.name: ifebd, book.price: 40</span><br><span class="line">// 解除服务绑定</span><br><span class="line">17:24:31.812 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = Unbind Service</span><br><span class="line">17:24:31.812 30355-30355/D:ShowIPCActivity:: unBindMessengerService: </span><br><span class="line">17:24:31.812 30355-30355/D:ShowIPCActivity:: unBindMessengerService: unBind!</span><br><span class="line">17:24:31.812 30355-30355/D:ShowIPCActivity:: unregisterClient: </span><br><span class="line">17:24:31.816 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">17:24:31.816 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_UNREGISTER</span><br><span class="line">// 服务销毁</span><br><span class="line">17:24:31.817 30355-30355/D:MessengerService:: onDestroy:</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端同时下发三条耗时任务"><a href="#客户端同时下发三条耗时任务" class="headerlink" title="客户端同时下发三条耗时任务"></a>客户端同时下发三条耗时任务</h3><p>下发了三条耗时任务，服务端串行接收这些消息并处理。耗时任务是新建线程执行的，可以等待该线程执行完了再接受消息（即串行执行耗时任务），也可以接受消息时再开启新开线程执行（即并行执行耗时任务），示例是并行执行耗时任务：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">// 绑定服务</span><br><span class="line">18:45:32.446 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = Bind Service</span><br><span class="line">18:45:32.446 30355-30355/D:ShowIPCActivity:: bindMessengerService: </span><br><span class="line">18:45:32.446 30355-30355/D:ShowIPCActivity:: bindMessengerService: Binding...</span><br><span class="line">18:45:32.455 30355-30355/D:MessengerService:: onCreate: </span><br><span class="line">18:45:32.455 30355-30355/D:MessengerService:: onBind: </span><br><span class="line">18:45:32.457 30355-30355/D:ShowIPCActivity:: onServiceConnected: Bound!</span><br><span class="line">18:45:32.457 30355-30355/D:ShowIPCActivity:: registerClient: </span><br><span class="line">18:45:32.457 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">18:45:32.457 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_REGISTER</span><br><span class="line">// 下发耗时任务 1</span><br><span class="line">18:45:35.196 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = LongRunningWork</span><br><span class="line">18:45:35.196 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">18:45:35.196 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">        data = name: eha, arrays: 1 2 3 , book.name: ddaca, book.price: 99</span><br><span class="line">// 服务端接受到耗时任务消息 1</span><br><span class="line">18:45:35.197 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">18:45:35.197 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK</span><br><span class="line">18:45:35.197 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">18:45:35.198 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">        msg.data = name: eha, arrays: 1 2 3 , book.name: ddaca, book.price: 99</span><br><span class="line">// 新建线程 8198 执行耗时任务1</span><br><span class="line">18:45:35.203 30355-8198/D:MessengerService:: MyDataRunnable:run... </span><br><span class="line">// 下发耗时任务2</span><br><span class="line">18:45:35.418 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = LongRunningWork</span><br><span class="line">18:45:35.418 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">18:45:35.418 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">        data = name: hhg, arrays: 1 2 3 , book.name: haace, book.price: 13</span><br><span class="line">// 服务端接受到耗时任务消息2</span><br><span class="line">18:45:35.418 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">18:45:35.418 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK</span><br><span class="line">18:45:35.418 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">18:45:35.418 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">        msg.data = name: hhg, arrays: 1 2 3 , book.name: haace, book.price: 13</span><br><span class="line">// 新建线程 8199 执行耗时任务2</span><br><span class="line">18:45:35.423 30355-8199/D:MessengerService:: MyDataRunnable:run... </span><br><span class="line">// 下发耗时任务3</span><br><span class="line">18:45:35.648 30355-30355/D:ShowIPCActivity:: onClick: button.onClick = LongRunningWork</span><br><span class="line">18:45:35.648 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">18:45:35.648 30355-30355/D:ShowIPCActivity:: doLongRunningWork: </span><br><span class="line">        data = name: gid, arrays: 1 2 3 , book.name: hfbie, book.price: 40</span><br><span class="line">// 服务端接受到耗时任务消息3</span><br><span class="line">18:45:35.648 30355-30355/D:MessengerService:: IncomingFromClientsHandler:handleMessage: </span><br><span class="line">18:45:35.649 30355-30355/D:MessengerService:: handleMessage: MSG_FROM_CLIENT_DO_LONG_RUNNING_WORK</span><br><span class="line">18:45:35.649 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">18:45:35.649 30355-30355/D:MessengerService:: doLongRunningWork: </span><br><span class="line">        msg.data = name: gid, arrays: 1 2 3 , book.name: hfbie, book.price: 40</span><br><span class="line">// 新建线程 8209 执行耗时任务3</span><br><span class="line">18:45:35.650 30355-8209/D:MessengerService:: MyDataRunnable:run... </span><br><span class="line">// 耗时任务1 线程 8198 执行完毕，并发送回调消息</span><br><span class="line">18:45:38.203 30355-8198/D:MessengerService:: MyDataRunnable:run: done!</span><br><span class="line">18:45:38.203 30355-8198/D:MessengerService:: feedbackToClient: </span><br><span class="line">18:45:38.203 30355-8198/D:MessengerService:: feedbackToClient: </span><br><span class="line">        data = name: afi, arrays: 1 2 3 , book.name: ibabe, book.price: 93</span><br><span class="line">18:45:38.204 30355-30355/D:ShowIPCActivity:: IncomingFromServiceHandler:handleMessage: </span><br><span class="line">18:45:38.204 30355-30355/D:ShowIPCActivity:: handleMessage: MSG_FROM_SERVICE_RESULT</span><br><span class="line">18:45:38.204 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">18:45:38.204 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">        msg.data = name: afi, arrays: 1 2 3 , book.name: ibabe, book.price: 93</span><br><span class="line">// 耗时任务2 线程 8199 执行完毕，并发送回调消息</span><br><span class="line">18:45:38.423 30355-8199/D:MessengerService:: MyDataRunnable:run: done!</span><br><span class="line">18:45:38.423 30355-8199/D:MessengerService:: feedbackToClient: </span><br><span class="line">18:45:38.423 30355-8199/D:MessengerService:: feedbackToClient: </span><br><span class="line">        data = name: ffc, arrays: 1 2 3 , book.name: dcdfd, book.price: 65</span><br><span class="line">18:45:38.424 30355-30355/D:ShowIPCActivity:: IncomingFromServiceHandler:handleMessage: </span><br><span class="line">18:45:38.424 30355-30355/D:ShowIPCActivity:: handleMessage: MSG_FROM_SERVICE_RESULT</span><br><span class="line">18:45:38.424 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">18:45:38.424 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">        msg.data = name: ffc, arrays: 1 2 3 , book.name: dcdfd, book.price: 65</span><br><span class="line">// 耗时任务3 线程 8209 执行完毕，并发送回调消息</span><br><span class="line">18:45:38.650 30355-8209/D:MessengerService:: MyDataRunnable:run: done!</span><br><span class="line">18:45:38.650 30355-8209/D:MessengerService:: feedbackToClient: </span><br><span class="line">18:45:38.650 30355-8209/D:MessengerService:: feedbackToClient: </span><br><span class="line">        data = name: icc, arrays: 1 2 3 , book.name: ibicd, book.price: 53</span><br><span class="line">18:45:38.651 30355-30355/D:ShowIPCActivity:: IncomingFromServiceHandler:handleMessage: </span><br><span class="line">18:45:38.651 30355-30355/D:ShowIPCActivity:: handleMessage: MSG_FROM_SERVICE_RESULT</span><br><span class="line">18:45:38.651 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">18:45:38.651 30355-30355/D:ShowIPCActivity:: showMsgFromServiceResult: </span><br><span class="line">        msg.data = name: icc, arrays: 1 2 3 , book.name: ibicd, book.price: 53</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义-Parcelable-数据传输"><a href="#自定义-Parcelable-数据传输" class="headerlink" title="自定义 Parcelable 数据传输"></a>自定义 <code>Parcelable</code> 数据传输</h2><p>进程间通信时，<code>Messenger</code> 在传递数据时，需要通过 <code>Bundle</code> 将自定义的数据打包传输。但是另一个进程在取出 <code>Bundle</code> 时的 <code>ClassLoader</code> 为 <code>null</code>，会使用系统默认值 <code>BootClassLoader</code> 来加载自定义的 <code>Parcelable</code> 数据，所以会出现异常找不到该数据类。如果是在相同进程中使用 <code>Messenger</code> 则不会出现这个问题，不过如果是相同进程也不需要使用 <code>Messenger</code> 来通信了。      </p>
+<ul>
+<li>解决方案<br>在取出 <code>Parcelable</code> 数据前，设置该应用为 <code>ClassLoader</code> 的值：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(msg != <span class="keyword">null</span> &amp;&amp; msg.getData() != <span class="keyword">null</span>)&#123;</span><br><span class="line">    Bundle bundle = msg.getData();</span><br><span class="line">    <span class="keyword">if</span>(bundle != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// must set class loader before getParcelable, ClassNotFoundException</span></span><br><span class="line">        <span class="comment">// 必须设置 ClassLoader，才能获取 Bundle 中的数据</span></span><br><span class="line">        bundle.setClassLoader(getClassLoader());</span><br><span class="line">        MyDataParcelable data = bundle.getParcelable(IPC_PARCELABLE_DATA_KEY);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>异常<br><code>ClassNotFoundException</code> 异常 <code>Log</code> ：  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">14:50:33.803 14568-14568/:messenger D/AndroidRuntime: Shutting down VM</span><br><span class="line">14:50:33.804 14568-14568/:messenger E/AndroidRuntime: FATAL EXCEPTION: main</span><br><span class="line">   Process: :messenger, PID: 14568</span><br><span class="line">   android.os.BadParcelableException: ClassNotFoundException when unmarshalling: .ipc.MyDataParcelable</span><br><span class="line">       at android.os.Parcel.readParcelableCreator(Parcel.java:2295)</span><br><span class="line">       at android.os.Parcel.readParcelable(Parcel.java:2245)</span><br><span class="line">       at android.os.Parcel.readValue(Parcel.java:2152)</span><br><span class="line">       at android.os.Parcel.readArrayMapInternal(Parcel.java:2485)</span><br><span class="line">       at android.os.BaseBundle.unparcel(BaseBundle.java:221)</span><br><span class="line">       at android.os.Bundle.getParcelable(Bundle.java:755)</span><br><span class="line">       at .ipc.MessengerService.doLongRunningWork(MessengerService.java:129)</span><br><span class="line">       at .ipc.MessengerService.access$100(MessengerService.java:18)</span><br><span class="line">       at .ipc.MessengerService$IncomingFromClientsHandler.handleMessage(MessengerService.java:71)</span><br><span class="line">       at android.os.Handler.dispatchMessage(Handler.java:102)</span><br><span class="line">       at android.os.Looper.loop(Looper.java:135)</span><br><span class="line">       at android.app.ActivityThread.main(ActivityThread.java:5344)</span><br><span class="line">       at java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">       at java.lang.reflect.Method.invoke(Method.java:372)</span><br><span class="line">       at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:908)</span><br><span class="line">       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:703)</span><br></pre></td></tr></table></figure>
+
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>从源码可以看出：<code>Messenger</code> 的本质还是使用的 <code>AIDL</code>，只是封装后更方便使用。   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Messenger.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Messenger</span> <span class="keyword">implements</span> <span class="title">Parcelable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// IMessenger.aidl 实例</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> IMessenger mTarget;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Create a new Messenger pointing to the given Handler. */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Messenger</span><span class="params">(Handler target)</span> </span>&#123;</span><br><span class="line">        mTarget = target.getIMessenger();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Create a Messenger from a raw IBinder */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Messenger</span><span class="params">(IBinder target)</span> </span>&#123;</span><br><span class="line">        mTarget = IMessenger.Stub.asInterface(target);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// IMessenger.aidl的具体实现是在 Handler.java 中</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> IMessenger <span class="title">getIMessenger</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mQueue) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mMessenger != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> mMessenger;</span><br><span class="line">        &#125;</span><br><span class="line">        mMessenger = <span class="keyword">new</span> MessengerImpl();</span><br><span class="line">        <span class="keyword">return</span> mMessenger;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体实现，消息的发送是通过 Handler 实现的</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">MessengerImpl</span> <span class="keyword">extends</span> <span class="title">IMessenger</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        msg.sendingUid = Binder.getCallingUid();</span><br><span class="line">        Handler.<span class="keyword">this</span>.sendMessage(msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Messenger-和-Message-的区别和联系"><a href="#Messenger-和-Message-的区别和联系" class="headerlink" title="Messenger 和 Message 的区别和联系"></a><code>Messenger</code> 和 <code>Message</code> 的区别和联系</h2><p>从源码中可以看出，<code>Message</code> 是一个包含各种数据的容器，<code>Messenger</code> 可以作为 <code>Parcelable</code> 数据，通过 <code>Message</code> 装载后传递出去。而从 <code>Messenger</code> 的 <code>AIDL</code> 来看，它唯一的方法就是发送 <code>Message</code>，是一名信差。    </p>
+<h2 id="Messenger-总结"><a href="#Messenger-总结" class="headerlink" title="Messenger 总结"></a><code>Messenger</code> 总结</h2><ul>
+<li>本质还是 <code>AIDL</code>   </li>
+<li>只能异步通信，同步的话必须使用 <code>AIDL</code>  </li>
+<li>因为使用的是 <code>Handler</code> 和 <code>Message</code>，所以所有的消息都是串行接受和处理的，处理的过程可以是多线程或单线程来处理    </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://developer.android.com/guide/components/bound-services.html#Binding" target="_blank" rel="noopener">https://developer.android.com/guide/components/bound-services.html#Binding</a>  </li>
+<li><a href="http://blog.csdn.net/lmj623565791/article/details/47017485" target="_blank" rel="noopener">http://blog.csdn.net/lmj623565791/article/details/47017485</a>  </li>
+<li><a href="http://blog.csdn.net/jiwangkailai02/article/details/48098087" target="_blank" rel="noopener">http://blog.csdn.net/jiwangkailai02/article/details/48098087</a>  </li>
+<li><a href="http://blog.csdn.net/hyhdcl/article/details/52680301" target="_blank" rel="noopener">http://blog.csdn.net/hyhdcl/article/details/52680301</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/29/0034-messenger/" title="Messenger 详解">http://redspider110.github.io/2017/11/29/0034-messenger/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/IPC/" rel="tag"># IPC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/28/0033-serializable-parcelable/" rel="next" title="Serializable 和 Parcelable">
+                <i class="fa fa-chevron-left"></i> Serializable 和 Parcelable
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/29/0035-aidl/" rel="prev" title="AIDL 详解">
+                AIDL 详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Messenger-实现双向通信及示例"><span class="nav-number">2.</span> <span class="nav-text">Messenger 实现双向通信及示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通信流程"><span class="nav-number">2.1.</span> <span class="nav-text">通信流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端"><span class="nav-number">2.2.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">2.3.</span> <span class="nav-text">客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例及-Log-分析"><span class="nav-number">3.</span> <span class="nav-text">示例及 Log 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端向服务端下发耗时任务，并响应服务端的回调"><span class="nav-number">3.1.</span> <span class="nav-text">客户端向服务端下发耗时任务，并响应服务端的回调</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端同时下发三条耗时任务"><span class="nav-number">3.2.</span> <span class="nav-text">客户端同时下发三条耗时任务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义-Parcelable-数据传输"><span class="nav-number">4.</span> <span class="nav-text">自定义 Parcelable 数据传输</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">5.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Messenger-和-Message-的区别和联系"><span class="nav-number">6.</span> <span class="nav-text">Messenger 和 Message 的区别和联系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Messenger-总结"><span class="nav-number">7.</span> <span class="nav-text">Messenger 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

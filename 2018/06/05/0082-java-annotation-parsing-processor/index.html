@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Java 注解的解析有两种方式：反射和注解处理器（APT/JSR 269），本文主要介绍注解处理器解析方式。">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 注解解析 -- 处理器解析">
+<meta property="og:url" content="http://redspider110.github.io/2018/06/05/0082-java-annotation-parsing-processor/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="Java 注解的解析有两种方式：反射和注解处理器（APT/JSR 269），本文主要介绍注解处理器解析方式。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0082-AnnotatedConstruct-uml.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0082-Processor-uml.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.373Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 注解解析 -- 处理器解析">
+<meta name="twitter:description" content="Java 注解的解析有两种方式：反射和注解处理器（APT/JSR 269），本文主要介绍注解处理器解析方式。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0082-AnnotatedConstruct-uml.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/06/05/0082-java-annotation-parsing-processor/">
+
+
+
+
+
+  <title>Java 注解解析 -- 处理器解析 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/06/05/0082-java-annotation-parsing-processor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java 注解解析 -- 处理器解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-05T09:00:00+08:00">
+                2018-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>Java</code> 注解的解析有两种方式：反射和注解处理器（<code>APT/JSR 269</code>），本文主要介绍注解处理器解析方式。  </p>
+<a id="more"></a>
+
+<ul>
+<li>解析方式<br>注解处理器解析注解的方式，是在编译期解析的，所以对注解的 <code>Rentention</code> 没有要求（即使 <code>RetentionPolicy.SOURCE</code> 也可以），可以根据编码需求自行设定。  </li>
+<li>工具属性<br>注解处理器是 <code>javac</code> 的一个工具，它用来在编译时扫描和处理对应注解。一个注解的注解处理器，通常以 <code>Java</code> 代码（或者编译过的字节码）作为输入，生成文件（通常是 <code>.java</code> 文件）作为输出。这些生成的 <code>Java</code> 代码是在新生成的 <code>.java</code> 文件中，所以不能修改已经存在的 <code>Java</code> 类，例如向已有的类中添加方法。这些生成的 <code>.java</code> 文件，会同其他普通的手动编写的 <code>Java</code> 源代码一样被 <code>javac</code> 编译。  </li>
+<li>独立进程<br>注解处理器是运行它自己的虚拟机 <code>JVM</code> 中的，<code>javac</code> 启动一个完整 <code>Java</code> 虚拟机来运行注解处理器，所以可以把注解处理器库看做一个独立的 <code>Java</code> 项目。  </li>
+</ul>
+<h2 id="自定义注解处理器流程"><a href="#自定义注解处理器流程" class="headerlink" title="自定义注解处理器流程"></a>自定义注解处理器流程</h2><p>自定义注解和自定义注解处理器建议分成两个 <code>jar</code> 包，自定义注解处理器仅仅在编译期需要用到，所以工程中不需要将处理器打包到目标代码中。  </p>
+<h3 id="自定义注解库-Custom-Annotation"><a href="#自定义注解库-Custom-Annotation" class="headerlink" title="自定义注解库 Custom Annotation"></a>自定义注解库 <code>Custom Annotation</code></h3><p>在 <code>AS</code> 中新建 <code>Java</code> 库：<code>File --&gt; New --&gt; New Module --&gt; Java Libary</code> ，新建 <code>myanno</code> 注解库。  </p>
+<p><code>Gradle</code> 文件：  </p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 库</span></span><br><span class="line">apply plugin: <span class="string">'java-library'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    implementation <span class="keyword">fileTree</span>(dir: <span class="string">'libs'</span>, <span class="keyword">include</span>: [<span class="string">'*.jar'</span>])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 Java 1.8 来编译</span></span><br><span class="line"><span class="keyword">sourceCompatibility</span> = <span class="string">"1.8"</span></span><br><span class="line"><span class="keyword">targetCompatibility</span> = <span class="string">"1.8"</span></span><br></pre></td></tr></table></figure>
+
+<p>注解源文件：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注解字段</span></span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.SOURCE)</span><br><span class="line"><span class="meta">@Target</span>(ElementType.FIELD)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Field &#123;</span><br><span class="line">    <span class="function">String <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注解类</span></span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.SOURCE)</span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Info &#123;</span><br><span class="line">    <span class="function">String <span class="title">author</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">date</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">version</span><span class="params">()</span> <span class="keyword">default</span> 1</span>;</span><br><span class="line">    String[] mails();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注解任意元素，Java 8 新增</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE_USE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> AnyAnnotation &#123;</span><br><span class="line">    <span class="function">String <span class="title">value</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Gradle</code> 中选择该库，编译生成对应的 <code>jar: myanno</code>。  </p>
+<h3 id="自定义注解处理器-Custom-Processor"><a href="#自定义注解处理器-Custom-Processor" class="headerlink" title="自定义注解处理器 Custom Processor"></a>自定义注解处理器 <code>Custom Processor</code></h3><p>同样，需要新建一个自定义处理器 <code>Java</code> 库：<code>processors</code>。自定义注解处理器有两个步骤：  </p>
+<ul>
+<li>自定义注解处理器必须继承 <code>AbstractProcessor</code>  </li>
+<li>库的资源文件夹中添加 <code>javax.annotation.processing.Processor</code> 文件  </li>
+</ul>
+<h4 id="继承-AbstractProcessor"><a href="#继承-AbstractProcessor" class="headerlink" title="继承 AbstractProcessor"></a>继承 <code>AbstractProcessor</code></h4><p>自定义注解处理器必须继承 <code>AbstractProcessor</code> ，使用 <code>@SupportedAnnotationTypes</code> 定义支持解析的注解，并重写 <code>process</code> 处理对应注解。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SupportedAnnotationTypes</span>(&#123;<span class="string">"com.ymzs.annotation.Field"</span>&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AnnotationParsingProcessor</span> <span class="keyword">extends</span> <span class="title">AbstractProcessor</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; set, </span></span></span><br><span class="line"><span class="function"><span class="params">        RoundEnvironment roundEnvironment)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"AnnotationParsingProcessor::process"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="添加-javax-annotation-processing-Processor-文件"><a href="#添加-javax-annotation-processing-Processor-文件" class="headerlink" title="添加 javax.annotation.processing.Processor 文件"></a>添加 <code>javax.annotation.processing.Processor</code> 文件</h4><p>为了将自定义注解处理器注册到 <code>javac</code> 时，必须打包一个特殊的文件 <code>javax.annotation.processing.Processor</code> 到 <code>META-INF/services</code> 目录下。<a href="https://docs.oracle.com/javase/7/docs/technotes/tools/solaris/javac.html#processing" target="_blank" rel="noopener">原因见 Java 技术手册</a>。  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// 源码目录结构</span><br><span class="line">main</span><br><span class="line">    -java</span><br><span class="line">        -com</span><br><span class="line">            -ymzs</span><br><span class="line">                -parsing</span><br><span class="line">                    -AnnotationParsingProcessor.java</span><br><span class="line">    -resources</span><br><span class="line">        -META-INF</span><br><span class="line">            -services</span><br><span class="line">                -javax.annotation.processing.Processor</span><br><span class="line"></span><br><span class="line">// jar 包目录结构</span><br><span class="line">processors.jar</span><br><span class="line">    -com</span><br><span class="line">        -ymzs</span><br><span class="line">            -parsing</span><br><span class="line">                -AnnotationParsingProcessor.class</span><br><span class="line">    -META-INF</span><br><span class="line">        -services</span><br><span class="line">            -javax.annotation.processing.Processor</span><br><span class="line">        -MANIFEST.MF</span><br></pre></td></tr></table></figure>
+
+<p><code>javax.annotation.processing.Processor</code> 文件的内容是一个列表，每一行对应一个注解处理器的全称。例如：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">com.ymzs.parsing.AnnotationParsingProcessor</span><br><span class="line">com.ymzs.parsing.OtherProcessor</span><br></pre></td></tr></table></figure>
+
+<p><code>Gradle</code> 中选择该库，编译生成对应的 <code>jar: processors</code>。  </p>
+<h3 id="注解处理器插件"><a href="#注解处理器插件" class="headerlink" title="注解处理器插件"></a>注解处理器插件</h3><p>在 <code>AS</code> 中使用自定义注解处理器需要添加对应的 <code>gradle</code> 插件：  </p>
+<ul>
+<li>纯 <code>Java</code> 环境<br><code>gradle</code> 推荐的注解处理器插件为 <code>net.ltgt.apt</code>：<a href="https://plugins.gradle.org/plugin/net.ltgt.apt" target="_blank" rel="noopener">Gradle 官网插件信息</a> ，插件的开源地址 <a href="https://github.com/tbroyer/gradle-apt-plugin" target="_blank" rel="noopener">gradle-apt-plugin</a>， 使用方法参考： <a href="https://github.com/google/dagger" target="_blank" rel="noopener">dagger</a>, <a href="https://stackoverflow.com/questions/42441844/annotation-processor-in-intellij-and-gradle" target="_blank" rel="noopener">Annotation Processor in IntelliJ and Gradle</a> 。<br>使用该插件时，被注解代码工程的 <code>gradle</code> 文件中需要包含如下信息，关键词 <code>annotationProcessor</code>：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">plugins&#123;</span><br><span class="line">    id <span class="string">'java-library'</span></span><br><span class="line">    <span class="comment">// 使用 net.ltgt.apt 插件，版本为最新的 0.15</span></span><br><span class="line">    id <span class="string">"net.ltgt.apt"</span> version <span class="string">"0.15"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 自定义注解库</span></span><br><span class="line">    <span class="function">implementation <span class="title">project</span><span class="params">(<span class="string">":myanno"</span>)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 使用自定义注解库解析注解</span></span></span><br><span class="line"><span class="function">    annotationProcessor <span class="title">project</span><span class="params">(<span class="string">":processors"</span>)</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Android</code> 环境<br><code>Google</code> 在发布 <code>AS</code> 时，开发了对应的 <code>android-gradle-plugin</code>，这是一系列插件包，并包含注解处理器插件：<a href="https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration#annotationProcessor_config" target="_blank" rel="noopener">Android 注解处理器插件使用方法</a> 。<br>使用该插件时，被注解代码工程的 <code>gradle</code> 文件中需要包含如下信息，关键词 <code>annotationProcessor</code>：  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 android-gradle-plugin 插件中的 application </span></span><br><span class="line">apply plugin: <span class="string">'com.android.application'</span></span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// Custom Annotation and Processor</span></span><br><span class="line">    <span class="comment">// 自定义注解库</span></span><br><span class="line">    <span class="function">implementation <span class="title">project</span><span class="params">(<span class="string">":myanno"</span>)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 使用自定义处理器库解析注解</span></span></span><br><span class="line"><span class="function">    annotationProcessor <span class="title">project</span><span class="params">(<span class="string">":processors"</span>)</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="结果验证"><a href="#结果验证" class="headerlink" title="结果验证"></a>结果验证</h3><p>在 <code>Gradle Projects</code> 窗口中，选择需要被注解代码工程，选择 <code>Tasks --&gt; build --&gt; assemble</code> 编译工程，能正确的打印自定义注解处理器中的 <code>Log</code> ：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 代码工程编译期，解析注解</span><br><span class="line">:javabase:compileJava</span><br><span class="line">// 自定义注解处理器解析注解</span><br><span class="line">AnnotationParsingProcessor::process</span><br></pre></td></tr></table></figure>
+
+<h2 id="APT-和-JSR269"><a href="#APT-和-JSR269" class="headerlink" title="APT 和 JSR269"></a><code>APT</code> 和 <code>JSR269</code></h2><ul>
+<li><code>APT</code><br><code>APT: Annotation-Processing Tool</code>，相关 <code>API</code> 都在 <code>com.sun.mirror</code> 包下。从 <code>Java 7</code> 开始就被降级了，在 <code>Java 8</code> 被彻底移除，<a href="http://openjdk.java.net/jeps/117" target="_blank" rel="noopener">APT 移除原因</a> 。  </li>
+<li><code>JSR269</code><br><code>JSR 269 API: Pluggable Annotation Processing API</code>，相关 <code>API</code> 都在 <code>javax.annotation.processing, javax.lang.model</code> 包下。从 <code>Java 6</code> 开始引入，后续版本逐步代替了 <code>APT</code>。<a href="https://www.jcp.org/en/jsr/detail?id=269" target="_blank" rel="noopener">JSR 269</a>  </li>
+</ul>
+<p>不管是那种 <code>API</code> ，它们都是处理注解的工具，对源代码文件进行检测，并找出对应注解后解析（或生成对应文件）。通常用来简化开发者的工作量，或者生成附属文件。虽然 <code>APT</code> 被移除了，但是因为历史原因，注解处理器还是常用 <code>APT</code> 来称呼。本文都是基于 <code>JSR 269 API</code> 实现的自定义注解处理器。  </p>
+<h2 id="AnnotatedConstruct-体系"><a href="#AnnotatedConstruct-体系" class="headerlink" title="AnnotatedConstruct 体系"></a><code>AnnotatedConstruct</code> 体系</h2><h3 id="类图结构"><a href="#类图结构" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0082-AnnotatedConstruct-uml.png" alt="0082-AnnotatedConstruct-uml.png"></p>
+<h3 id="AnnotatedConstruct-基本类"><a href="#AnnotatedConstruct-基本类" class="headerlink" title="AnnotatedConstruct 基本类"></a><code>AnnotatedConstruct</code> 基本类</h3><p><a href="https://docs.oracle.com/javase/8/docs/api/javax/lang/model/AnnotatedConstruct.html" target="_blank" rel="noopener">AnnotatedConstruct JavaDoc</a>  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotatedConstruct</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回直接存在于此元素上的注解集合</span></span><br><span class="line">    List&lt;? extends AnnotationMirror&gt; getAnnotationMirrors();</span><br><span class="line">    <span class="comment">// 返回指定类型的注解</span></span><br><span class="line">    &lt;A extends Annotation&gt; <span class="function">A <span class="title">getAnnotation</span><span class="params">(Class&lt;A&gt; var1)</span></span>;</span><br><span class="line">    <span class="comment">// 返回指定类型注解集合</span></span><br><span class="line">    &lt;A extends Annotation&gt; A[] getAnnotationsByType(Class&lt;A&gt; var1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示一个注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotationMirror</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回注解的类型</span></span><br><span class="line">    <span class="function">DeclaredType <span class="title">getAnnotationType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 获取注解的：成员变量名（方法） 和对应的值，放到一个 Map 中</span></span><br><span class="line">    Map&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; </span><br><span class="line">        getElementValues();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示注解的值</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AnnotationValue</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取注解值</span></span><br><span class="line">    <span class="function">Object <span class="title">getValue</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">toString</span><span class="params">()</span></span>;</span><br><span class="line">    &lt;R, P&gt; <span class="function">R <span class="title">accept</span><span class="params">(AnnotationValueVisitor&lt;R, P&gt; var1, P var2)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="TypeMirror-体系"><a href="#TypeMirror-体系" class="headerlink" title="TypeMirror 体系"></a><code>TypeMirror</code> 体系</h3><p><a href="https://docs.oracle.com/javase/8/docs/api/javax/lang/model/type/TypeMirror.html" target="_blank" rel="noopener">TypeMirror JavaDoc</a>  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> TypeKind &#123;</span><br><span class="line">    <span class="comment">// 基本数据类型</span></span><br><span class="line">    BOOLEAN,</span><br><span class="line">    BYTE,</span><br><span class="line">    SHORT,</span><br><span class="line">    INT,</span><br><span class="line">    LONG,</span><br><span class="line">    CHAR,</span><br><span class="line">    FLOAT,</span><br><span class="line">    DOUBLE,</span><br><span class="line">    VOID,</span><br><span class="line">    NONE,</span><br><span class="line">    NULL,</span><br><span class="line">    ARRAY,</span><br><span class="line">    <span class="comment">// 类或者接口</span></span><br><span class="line">    DECLARED,</span><br><span class="line">    <span class="comment">// 类或接口不能被解析</span></span><br><span class="line">    ERROR,</span><br><span class="line">    <span class="comment">// 类型变量</span></span><br><span class="line">    TYPEVAR,</span><br><span class="line">    WILDCARD,</span><br><span class="line">    PACKAGE,</span><br><span class="line">    <span class="comment">// 普通方法，构造方法，或者初始化代码</span></span><br><span class="line">    EXECUTABLE,</span><br><span class="line">    OTHER,</span><br><span class="line">    UNION,</span><br><span class="line">    INTERSECTION;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">TypeKind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPrimitive</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> BOOLEAN:</span><br><span class="line">        <span class="keyword">case</span> BYTE:</span><br><span class="line">        <span class="keyword">case</span> SHORT:</span><br><span class="line">        <span class="keyword">case</span> INT:</span><br><span class="line">        <span class="keyword">case</span> LONG:</span><br><span class="line">        <span class="keyword">case</span> CHAR:</span><br><span class="line">        <span class="keyword">case</span> FLOAT:</span><br><span class="line">        <span class="keyword">case</span> DOUBLE:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示 Java 编译语言中的类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeMirror</span> <span class="keyword">extends</span> <span class="title">AnnotatedConstruct</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回类型的具体类别</span></span><br><span class="line">    <span class="function">TypeKind <span class="title">getKind</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">String <span class="title">toString</span><span class="params">()</span></span>;</span><br><span class="line">    &lt;R, P&gt; <span class="function">R <span class="title">accept</span><span class="params">(TypeVisitor&lt;R, P&gt; var1, P var2)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 相交类型，即使用 &amp; 符号连接的，比如类型变量边界</span></span><br><span class="line"><span class="comment">// 1.8 新增</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IntersectionType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取边界列表</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getBounds();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 联合类型，表示多个异常联合在一起，使用 | 连接</span></span><br><span class="line"><span class="comment">// 1.7 新增</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UnionType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回异常列表</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getAlternatives();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 可执行类型：方法、构造方法、初始化代码等</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ExecutableType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回类型变量列表</span></span><br><span class="line">    List&lt;? extends TypeVariable&gt; getTypeVariables();</span><br><span class="line">    <span class="comment">// 返回值类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getReturnType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 参数列表</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getParameterTypes();</span><br><span class="line">    <span class="comment">// 接收者类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getReceiverType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 抛出列表</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getThrownTypes();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">NoType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PrimitiveType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通配符类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">WildcardType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 上界</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getExtendsBound</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 下界</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getSuperBound</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 引用类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ReferenceType</span> <span class="keyword">extends</span> <span class="title">TypeMirror</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ArrayType</span> <span class="keyword">extends</span> <span class="title">ReferenceType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 数组原始类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getComponentType</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">NullType</span> <span class="keyword">extends</span> <span class="title">ReferenceType</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 类型变量</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeVariable</span> <span class="keyword">extends</span> <span class="title">ReferenceType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 类型变量对应的元素</span></span><br><span class="line">    <span class="function">Element <span class="title">asElement</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">TypeMirror <span class="title">getUpperBound</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">TypeMirror <span class="title">getLowerBound</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明类型，类或者接口，包含泛型。</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DeclaredType</span> <span class="keyword">extends</span> <span class="title">ReferenceType</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 对应的元素</span></span><br><span class="line">    <span class="function">Element <span class="title">asElement</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 获取封装此类型的类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getEnclosingType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回泛型的实际类型参数列表：比如 Outer&lt;String&gt;.Inner&lt;Number&gt;</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getTypeArguments();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ErrorType</span> <span class="keyword">extends</span> <span class="title">DeclaredType</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Element-体系"><a href="#Element-体系" class="headerlink" title="Element 体系"></a><code>Element</code> 体系</h3><p><a href="https://docs.oracle.com/javase/8/docs/api/javax/lang/model/element/Element.html" target="_blank" rel="noopener">Element JavaDoc</a>  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 表示元素类别</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> ElementKind &#123;</span><br><span class="line">    PACKAGE,</span><br><span class="line">    ENUM,</span><br><span class="line">    CLASS,</span><br><span class="line">    ANNOTATION_TYPE,</span><br><span class="line">    INTERFACE,</span><br><span class="line">    ENUM_CONSTANT,</span><br><span class="line">    FIELD,</span><br><span class="line">    PARAMETER,</span><br><span class="line">    LOCAL_VARIABLE,</span><br><span class="line">    EXCEPTION_PARAMETER,</span><br><span class="line">    METHOD,</span><br><span class="line">    CONSTRUCTOR,</span><br><span class="line">    STATIC_INIT,</span><br><span class="line">    INSTANCE_INIT,</span><br><span class="line">    TYPE_PARAMETER,</span><br><span class="line">    OTHER,</span><br><span class="line">    RESOURCE_VARIABLE;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ElementKind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isClass</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span> == CLASS || <span class="keyword">this</span> == ENUM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isInterface</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span> == INTERFACE || <span class="keyword">this</span> == ANNOTATION_TYPE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isField</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span> == FIELD || <span class="keyword">this</span> == ENUM_CONSTANT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示元素的修饰符</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Modifier &#123;</span><br><span class="line">    PUBLIC,</span><br><span class="line">    PROTECTED,</span><br><span class="line">    PRIVATE,</span><br><span class="line">    ABSTRACT,</span><br><span class="line">    DEFAULT,</span><br><span class="line">    STATIC,</span><br><span class="line">    FINAL,</span><br><span class="line">    TRANSIENT,</span><br><span class="line">    VOLATILE,</span><br><span class="line">    SYNCHRONIZED,</span><br><span class="line">    NATIVE,</span><br><span class="line">    STRICTFP;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Modifier</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.name().toLowerCase(Locale.US);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示内部类类型</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> NestingKind &#123;</span><br><span class="line">    TOP_LEVEL,</span><br><span class="line">    MEMBER,</span><br><span class="line">    LOCAL,</span><br><span class="line">    ANONYMOUS;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">NestingKind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isNested</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span> != TOP_LEVEL;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示程序任意元素，如：包、类、方法、字段属性、类型变量等</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Element</span> <span class="keyword">extends</span> <span class="title">AnnotatedConstruct</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回这个元素的类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">asType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回这个元素的类别</span></span><br><span class="line">    <span class="function">ElementKind <span class="title">getKind</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回修饰符</span></span><br><span class="line">    <span class="function">Set&lt;Modifier&gt; <span class="title">getModifiers</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回简单名称</span></span><br><span class="line">    <span class="function">Name <span class="title">getSimpleName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回封装此元素的元素，比如类，包等</span></span><br><span class="line">    <span class="function">Element <span class="title">getEnclosingElement</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回此元素封装元素内部的所有子元素，</span></span><br><span class="line">    <span class="comment">// 如果封装元素是类，则返回类内部定义的所有变量，方法等</span></span><br><span class="line">    List&lt;? extends Element&gt; getEnclosedElements();</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回直接存在于此元素上的注解集合</span></span><br><span class="line">    List&lt;? extends AnnotationMirror&gt; getAnnotationMirrors();</span><br><span class="line">    <span class="comment">// 返回指定类型注解</span></span><br><span class="line">    &lt;A extends Annotation&gt; <span class="function">A <span class="title">getAnnotation</span><span class="params">(Class&lt;A&gt; var1)</span></span>;</span><br><span class="line">    <span class="comment">// 返回指定的结果</span></span><br><span class="line">    &lt;R, P&gt; <span class="function">R <span class="title">accept</span><span class="params">(ElementVisitor&lt;R, P&gt; var1, P var2)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示包含限定名的能力</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QualifiedNameable</span> <span class="keyword">extends</span> <span class="title">Element</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回全名称</span></span><br><span class="line">    <span class="function">Name <span class="title">getQualifiedName</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示包元素</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PackageElement</span> <span class="keyword">extends</span> <span class="title">Element</span>, <span class="title">QualifiedNameable</span> </span>&#123;</span><br><span class="line">    <span class="function">Name <span class="title">getQualifiedName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getSimpleName</span><span class="params">()</span></span>;    </span><br><span class="line">    List&lt;? extends Element&gt; getEnclosedElements();</span><br><span class="line">    <span class="comment">// 判断是否为未命名的包</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isUnnamed</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Element <span class="title">getEnclosingElement</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示变量元素：字段、常量、参数等</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">VariableElement</span> <span class="keyword">extends</span> <span class="title">Element</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回常量的值，其他变量返回 null</span></span><br><span class="line">    <span class="function">Object <span class="title">getConstantValue</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getSimpleName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Element <span class="title">getEnclosingElement</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示泛型，参数化类型元素</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeParameterElement</span> <span class="keyword">extends</span> <span class="title">Element</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回定义此类型变量的类、接口、方法、构造方法等</span></span><br><span class="line">    <span class="function">Element <span class="title">getGenericElement</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回类型变量边界的类型集合</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getBounds();</span><br><span class="line">    <span class="function">Element <span class="title">getEnclosingElement</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示拥有泛型的能力</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Parameterizable</span> <span class="keyword">extends</span> <span class="title">Element</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回泛型集合</span></span><br><span class="line">    List&lt;? extends TypeParameterElement&gt; getTypeParameters();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示类或接口的方法、构造方法或初始化程序（静态或实例），包括注解类型元素</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ExecutableElement</span> <span class="keyword">extends</span> <span class="title">Element</span>, <span class="title">Parameterizable</span> </span>&#123;</span><br><span class="line">    List&lt;? extends TypeParameterElement&gt; getTypeParameters();</span><br><span class="line">    <span class="comment">// 返回值类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getReturnType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 参数列表</span></span><br><span class="line">    List&lt;? extends VariableElement&gt; getParameters();</span><br><span class="line">    <span class="comment">// 返回接受者类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getReceiverType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 判断是否为可变长参数</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isVarArgs</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 判断是否为接口的 default 方法</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDefault</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回抛出类型集合</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getThrownTypes();</span><br><span class="line">    <span class="comment">// 如果是注解元素，返回其默认值</span></span><br><span class="line">    <span class="function">AnnotationValue <span class="title">getDefaultValue</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getSimpleName</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 表示类或接口元素</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TypeElement</span> <span class="keyword">extends</span> <span class="title">Element</span>, <span class="title">Parameterizable</span>, </span></span><br><span class="line"><span class="class">    <span class="title">QualifiedNameable</span> </span>&#123;</span><br><span class="line">    List&lt;? extends Element&gt; getEnclosedElements();</span><br><span class="line">    <span class="comment">// 返回类的类型，即内部类类型</span></span><br><span class="line">    <span class="function">NestingKind <span class="title">getNestingKind</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getQualifiedName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getSimpleName</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回父类的类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">getSuperclass</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 返回接口的类型集合</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; getInterfaces();</span><br><span class="line">    List&lt;? extends TypeParameterElement&gt; getTypeParameters();</span><br><span class="line">    <span class="function">Element <span class="title">getEnclosingElement</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>源代码的每一个部分都是一个特定类型的 <code>Element</code>，也就是说 <code>Element</code> 代表程序的任意元素，例如包、类、方法等。每个 <code>Element</code> 代表一个静态的、语言级别的构件。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example;      <span class="comment">// PackageElement</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;      <span class="comment">// TypeElement </span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> a;      <span class="comment">// VariableElement</span></span><br><span class="line">    <span class="keyword">private</span> Foo other;  <span class="comment">// VariableElement </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Foo</span> <span class="params">()</span> </span>&#123;&#125;    <span class="comment">// ExecuteableElement </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setA</span> <span class="params">(  // ExecuteableElement</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> newA        // TypeElement</span></span></span><br><span class="line"><span class="function"><span class="params">    )</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>换个角度来看源代码，它只是结构化的文本，不是可运行的。可以想象它就像要被解析的 <code>XML</code> 文件一样（或者是编译器中抽象的语法树）。就像 <code>XML</code> 解释器一样，有一些类似 <code>DOM</code> 的元素，可以从一个元素导航到它的父或者子元素上。<br>举例来说，假如有一个代表 <code>public class Foo</code> 类的 <code>TypeElement</code> 元素，可以遍历它的所有元素：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TypeElement fooClass = ... ;  </span><br><span class="line"><span class="keyword">for</span> (Element e : fooClass.getEnclosedElements())&#123;  <span class="comment">// iterate over children  </span></span><br><span class="line">    Element parent = e.getEnclosingElement();      <span class="comment">// parent == fooClass</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Elements-接口"><a href="#Elements-接口" class="headerlink" title="Elements 接口"></a><code>Elements</code> 接口</h3><p>用来处理 <code>Element</code> 的工具类，<a href="https://docs.oracle.com/javase/8/docs/api/javax/lang/model/util/Elements.html" target="_blank" rel="noopener">Elements JavaDoc</a> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Elements</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回全限定名的包元素</span></span><br><span class="line">    <span class="function">PackageElement <span class="title">getPackageElement</span><span class="params">(CharSequence name)</span></span>;</span><br><span class="line">    <span class="comment">// 返回类或接口元素</span></span><br><span class="line">    <span class="function">TypeElement <span class="title">getTypeElement</span><span class="params">(CharSequence name)</span></span>;</span><br><span class="line">    <span class="comment">// 获取注解的：成员变量名（方法） 和对应的值，放到一个 Map 中</span></span><br><span class="line">    Map&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; </span><br><span class="line">        getElementValuesWithDefaults(AnnotationMirror var1);</span><br><span class="line">    <span class="comment">// 返回元素的 Javadoc 文档</span></span><br><span class="line">    <span class="function">String <span class="title">getDocComment</span><span class="params">(Element var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDeprecated</span><span class="params">(Element var1)</span></span>;</span><br><span class="line">    <span class="comment">// 返回元素的二进制名称</span></span><br><span class="line">    <span class="function">Name <span class="title">getBinaryName</span><span class="params">(TypeElement var1)</span></span>;</span><br><span class="line">    <span class="comment">// 返回元素的包元素</span></span><br><span class="line">    <span class="function">PackageElement <span class="title">getPackageOf</span><span class="params">(Element var1)</span></span>;</span><br><span class="line">    <span class="comment">// 返回元素的所有成员</span></span><br><span class="line">    List&lt;? extends Element&gt; getAllMembers(TypeElement var1);</span><br><span class="line">    <span class="comment">// 返回元素的所有注解列表</span></span><br><span class="line">    List&lt;? extends AnnotationMirror&gt; getAllAnnotationMirrors(Element var1);</span><br><span class="line">    <span class="comment">// 判断元素是否隐藏了另外一个元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">hides</span><span class="params">(Element hider, Element hidden)</span></span>;</span><br><span class="line">    <span class="comment">// 判断给定元素的方法，是否被重写</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">overrides</span><span class="params">(ExecutableElement overrider, </span></span></span><br><span class="line"><span class="function"><span class="params">        ExecutableElement overridden, TypeElement type)</span></span>;</span><br><span class="line">    <span class="comment">// 常量值转换为字符串</span></span><br><span class="line">    <span class="function">String <span class="title">getConstantExpression</span><span class="params">(Object var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printElements</span><span class="params">(Writer var1, Element... var2)</span></span>;</span><br><span class="line">    <span class="function">Name <span class="title">getName</span><span class="params">(CharSequence var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isFunctionalInterface</span><span class="params">(TypeElement var1)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Types-接口"><a href="#Types-接口" class="headerlink" title="Types 接口"></a><code>Types</code> 接口</h3><p>用来处理 <code>TypeMirror</code> 的工具类，<a href="https://docs.oracle.com/javase/8/docs/api/javax/lang/model/util/Types.html" target="_blank" rel="noopener">Types JavaDoc</a> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Types</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 返回类型对应的元素</span></span><br><span class="line">    <span class="function">Element <span class="title">asElement</span><span class="params">(TypeMirror var1)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isSameType</span><span class="params">(TypeMirror var1, TypeMirror var2)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isSubtype</span><span class="params">(TypeMirror var1, TypeMirror var2)</span></span>;</span><br><span class="line">    <span class="comment">// 判断类型是否可以指派给另外一种类型</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isAssignable</span><span class="params">(TypeMirror var1, TypeMirror var2)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(TypeMirror var1, TypeMirror var2)</span></span>;</span><br><span class="line">    <span class="comment">// 测试方法的签名是否为另一个方法的子签名</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isSubsignature</span><span class="params">(ExecutableType var1, ExecutableType var2)</span></span>;</span><br><span class="line">    <span class="comment">// 返回直接超类型列表，接口排在最后</span></span><br><span class="line">    List&lt;? extends TypeMirror&gt; directSupertypes(TypeMirror var1);</span><br><span class="line">    <span class="comment">// 类型擦除后的类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">erasure</span><span class="params">(TypeMirror var1)</span></span>;</span><br><span class="line">    <span class="comment">// 基本类型的封装类型，类型装箱</span></span><br><span class="line">    <span class="function">TypeElement <span class="title">boxedClass</span><span class="params">(PrimitiveType var1)</span></span>;</span><br><span class="line">    <span class="comment">// 类型拆箱</span></span><br><span class="line">    <span class="function">PrimitiveType <span class="title">unboxedType</span><span class="params">(TypeMirror var1)</span></span>;</span><br><span class="line">    <span class="comment">// 参数化类型转换</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">capture</span><span class="params">(TypeMirror var1)</span></span>;</span><br><span class="line">    <span class="function">PrimitiveType <span class="title">getPrimitiveType</span><span class="params">(TypeKind var1)</span></span>;</span><br><span class="line">    <span class="function">NullType <span class="title">getNullType</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">NoType <span class="title">getNoType</span><span class="params">(TypeKind var1)</span></span>;</span><br><span class="line">    <span class="function">ArrayType <span class="title">getArrayType</span><span class="params">(TypeMirror var1)</span></span>;</span><br><span class="line">    <span class="comment">// 根据指定上界或下界，返回通配符类型</span></span><br><span class="line">    <span class="function">WildcardType <span class="title">getWildcardType</span><span class="params">(TypeMirror extendsBound, </span></span></span><br><span class="line"><span class="function"><span class="params">        TypeMirror superBound)</span></span>;</span><br><span class="line">    <span class="comment">// 返回元素和指定类型的泛型</span></span><br><span class="line">    <span class="function">DeclaredType <span class="title">getDeclaredType</span><span class="params">(TypeElement typeElem, </span></span></span><br><span class="line"><span class="function"><span class="params">        TypeMirror... typeArgs)</span></span>;</span><br><span class="line">    <span class="comment">// 根据给定的包含类型，返回元素和指定类型的泛型</span></span><br><span class="line">    <span class="function">DeclaredType <span class="title">getDeclaredType</span><span class="params">(DeclaredType containing, </span></span></span><br><span class="line"><span class="function"><span class="params">        TypeElement typeElem, TypeMirror... typeArgs)</span></span>;</span><br><span class="line">    <span class="comment">// 如果指定元素是指定类型的成员，则返回其类型</span></span><br><span class="line">    <span class="function">TypeMirror <span class="title">asMemberOf</span><span class="params">(DeclaredType containing, Element element)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Filer-接口"><a href="#Filer-接口" class="headerlink" title="Filer 接口"></a><code>Filer</code> 接口</h3><p>用来创建文件，<a href="https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Filer.html" target="_blank" rel="noopener">Filer JavaDoc</a> 。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Filer</span> </span>&#123;</span><br><span class="line">    <span class="function">JavaFileObject <span class="title">createSourceFile</span><span class="params">(CharSequence var1, Element... var2)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    <span class="function">JavaFileObject <span class="title">createClassFile</span><span class="params">(CharSequence var1, Element... var2)</span> </span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    <span class="function">FileObject <span class="title">createResource</span><span class="params">(Location var1, CharSequence var2, </span></span></span><br><span class="line"><span class="function"><span class="params">        CharSequence var3, Element... var4)</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    <span class="function">FileObject <span class="title">getResource</span><span class="params">(Location var1, CharSequence var2, </span></span></span><br><span class="line"><span class="function"><span class="params">        CharSequence var3)</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Messager-接口"><a href="#Messager-接口" class="headerlink" title="Messager 接口"></a><code>Messager</code> 接口</h3><p>提供给注解处理器一个报告错误、警告以及提示信息的途径。<a href="https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Messager.html" target="_blank" rel="noopener">Messager JavaDoc</a> , <a href="https://docs.oracle.com/javase/7/docs/api/javax/tools/Diagnostic.Kind.html" target="_blank" rel="noopener">消息级别 Diagnostic.Kind</a> 。<br>因为注解处理器是在独立的 <code>java</code> 虚拟机运行，所以注解处理器中不能直接进行异常抛出，否则进程异常崩溃时，会弹出一大堆让人捉摸不清的堆栈调用日志显示，也就是目标工程报的错误来自于另外一个虚拟机的堆栈。通常使用 <code>Messager</code> 来写一些信息给使用此注解器的第三方开发者的。在官方文档中描述了消息的不同级别，非常重要的是 <code>Kind.ERROR</code>，因为这种类型的信息用来表示我们的注解处理器处理失败了，很有可能是第三方开发者错误的使用了注解。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打印信息</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Messager</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printMessage</span><span class="params">(Kind var1, CharSequence var2)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printMessage</span><span class="params">(Kind var1, CharSequence var2, Element var3)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printMessage</span><span class="params">(Kind var1, CharSequence var2, Element var3, </span></span></span><br><span class="line"><span class="function"><span class="params">        AnnotationMirror var4)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">printMessage</span><span class="params">(Kind var1, CharSequence var2, Element var3, </span></span></span><br><span class="line"><span class="function"><span class="params">        AnnotationMirror var4, AnnotationValue var5)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="AbstractProcessor-详细分析"><a href="#AbstractProcessor-详细分析" class="headerlink" title="AbstractProcessor 详细分析"></a><code>AbstractProcessor</code> 详细分析</h2><p>自定义处理器通常会继承 <code>AbstractProcessor</code>，并重写对应方法，来实现自定义注解的解析。<strong>所有的注解处理器类都必须有一个无参构造函数</strong>，否则执行时会报错。<br>对应源码文件目录：<code>src\javax\annotation\processing</code>  </p>
+<h3 id="类图结构-1"><a href="#类图结构-1" class="headerlink" title="类图结构"></a>类图结构</h3><p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0082-Processor-uml.png" alt="0082-Processor-uml.png"></p>
+<h3 id="常用-API-介绍"><a href="#常用-API-介绍" class="headerlink" title="常用 API 介绍"></a>常用 <code>API</code> 介绍</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Processor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">Set&lt;String&gt; <span class="title">getSupportedOptions</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 必须指定：表示当前注解处理器支持哪些注解</span></span><br><span class="line">    <span class="comment">// 返回值是一个字符串的集合，字符串为注解类型的合法全称</span></span><br><span class="line">    <span class="comment">// 比如：Field.class.getCanonicalName()，或者 com.xxx.Field</span></span><br><span class="line">    <span class="function">Set&lt;String&gt; <span class="title">getSupportedAnnotationTypes</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指定使用的 Java 版本，默认返回 SourceVersion.RELEASE_6</span></span><br><span class="line">    <span class="comment">// 通常使用最新版本作为返回值：SourceVersion.latestSupported()</span></span><br><span class="line">    <span class="function">SourceVersion <span class="title">getSupportedSourceVersion</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注解处理器运行的第一个方法，初始化环境</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(ProcessingEnvironment processingEnv)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注解处理器解析注解的入口</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; annotations,</span></span></span><br><span class="line"><span class="function"><span class="params">        RoundEnvironment roundEnv)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// </span></span><br><span class="line">    Iterable&lt;? extends Completion&gt; getCompletions(Element element,</span><br><span class="line">        AnnotationMirror annotation, ExecutableElement member,</span><br><span class="line">        String userText);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AbstractProcessor 实现了 Processor 大部分接口</span></span><br><span class="line"><span class="comment">// 只有 process 是抽象的，需要子类去实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractProcessor</span> <span class="keyword">implements</span> <span class="title">Processor</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; annotations,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    RoundEnvironment roundEnv)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="两个有用的注解"><a href="#两个有用的注解" class="headerlink" title="两个有用的注解"></a>两个有用的注解</h3><ul>
+<li><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/SupportedAnnotationTypes.html" target="_blank" rel="noopener">@SupportedAnnotationTypes</a><br>表示当前类支持的注解的完整类路径，支持通配符。当前 <code>Processor</code> 要处理的 <code>Annotation</code> 名字全称。等同于 <code>getSupportedAnnotationTypes()</code> ，支持通配符，使用 <code>*</code> 表示支持所有注解。</li>
+<li><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/processing/SupportedSourceVersion.html" target="_blank" rel="noopener">@SupportedSourceVersion</a><br>表示该处理器支持的源码版本。等同于 <code>getSupportedSourceVersion()</code> 。  </li>
+</ul>
+<h3 id="循环调用-process"><a href="#循环调用-process" class="headerlink" title="循环调用 process"></a>循环调用 <code>process</code></h3><p><code>process</code> 通常会被执行两次：根据 <code>Log</code> 可以发现，<code>process</code> 的返回值不管是 <code>true/false</code> 都会被执行两次？但是解析注解时，只有第一次执行 <code>process</code> 时，<code>roundEnvironment.getElementsAnnotatedWith</code> 才能获取到注解。<br>具体原因参考 <a href="https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Processor.html" target="_blank" rel="noopener">Processor JavaDoc</a> 。官方文档中第一段就介绍了，注解处理器是个循环处理的过程，每次循环都会解析上次处理器产生的源文件。也就是说第一次 <code>process</code> 处理了编写的源文件，第二次处理了注解处理器生成的源文件（此时已经不包含被处理的注解了），直到所有支持的注解都被解析完毕。  </p>
+<h3 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h3><p>不管是使用 <code>@SupportedAnnotationTypes</code> 还是重写 <code>getSupportedAnnotationTypes()</code> ，只要支持注解包其中一个注解，注解处理器就能解析该包中的所有其他注解。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// Java library: myanno</span><br><span class="line">@Info</span><br><span class="line">@Field</span><br><span class="line">@AnyAnnotation</span><br></pre></td></tr></table></figure>
+
+<p>注解包 <code>myanno</code> 包含三个注解，但是在自定义注解器中，代码中规定只支持 <code>Field</code> 注解，自定义注解器仍然能解析 <code>Info, AnyAnnotation</code> ？  </p>
+<h2 id="注解处理器插件-1"><a href="#注解处理器插件-1" class="headerlink" title="注解处理器插件"></a>注解处理器插件</h2><ul>
+<li><p><a href="https://github.com/tbroyer/gradle-apt-plugin" target="_blank" rel="noopener">gradle-apt-plugin</a><br><code>Java</code> 环境下注解插件，使用方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">plugins&#123;</span><br><span class="line">    id <span class="string">"net.ltgt.apt"</span> version <span class="string">"0.15"</span></span><br><span class="line">&#125;</span><br><span class="line">dependencies &#123;</span><br><span class="line">    <span class="comment">// 本地注解库</span></span><br><span class="line">    <span class="function">annotationProcessor <span class="title">project</span><span class="params">(<span class="string">":processors"</span>)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 引用网络开源注解库</span></span></span><br><span class="line"><span class="function">    annotationProcessor "com.custom:CustomProcessors:version1.2.3"  </span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><a href="https://bitbucket.org/hvisser/android-apt/" target="_blank" rel="noopener">android-apt</a><br><code>Android</code> 注解器框架，现在已经不再维护。  </p>
+</li>
+<li><p><code>annotationProcessor</code><br><code>Android Plugin for Gradle</code>，<code>google</code> 为 <code>gradle</code> 开发的注解处理器框架，用于替换 <code>android-apt</code>。使用方法：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 本地注解库</span></span><br><span class="line">annotationProcessor <span class="string">":customProcessors"</span></span><br><span class="line"><span class="comment">// 引用网络开源注解库</span></span><br><span class="line">annotationProcessor <span class="string">"com.custom:CustomProcessors:version1.2.3"</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="常用开源库"><a href="#常用开源库" class="headerlink" title="常用开源库"></a>常用开源库</h2><ul>
+<li><code>AutoService</code> <a href="https://github.com/google/auto/tree/master/service" target="_blank" rel="noopener">官网</a><br>自动生成 <code>javax.annotation.processing.Processor</code> 文件，并将自定义注解处理器按照规范加入该文件。  </li>
+<li><code>JavaPoet</code> <a href="https://github.com/square/javapoet" target="_blank" rel="noopener">官网</a><br>生成 <code>.java</code> 源文件的 <code>API</code> 接口，非常强大实用。解析自定义注解时，可以使用 <code>JavaPoet</code> 来生成对应文件。  </li>
+</ul>
+<h3 id="AutoService-用法"><a href="#AutoService-用法" class="headerlink" title="AutoService 用法"></a><code>AutoService</code> 用法</h3><ul>
+<li><code>build.gradle</code> 文件中添加依赖<br><code>implementation &#39;com.google.auto.service:auto-service:1.0-rc4&#39;</code> 具体版本号，到 <code>github</code> 官网上查看。  </li>
+<li>自定义注解处理器类上添加 <code>AutoService</code> 注解<br>在自定义处理器类上，添加 <code>@AutoService(Processor.class)</code> 注解。该注解会自动生成对应的 <code>META-INF/services/javax.annotation.processing.Processor</code> 文件，并将自定义注解处理器按照规范加入该文件。  </li>
+</ul>
+<h3 id="JavaPoet-用法"><a href="#JavaPoet-用法" class="headerlink" title="JavaPoet 用法"></a><code>JavaPoet</code> 用法</h3><ul>
+<li><a href="https://blog.csdn.net/github_35180164/article/details/52141784" target="_blank" rel="noopener">自定义注解之编译时注解-JavaPoet</a>  </li>
+<li><a href="https://juejin.im/entry/58fefebf8d6d810058a610de/" target="_blank" rel="noopener">JavaPoet 看这一篇就够了</a>  </li>
+<li><a href="https://www.jianshu.com/p/95f12f72f69a" target="_blank" rel="noopener">JavaPoet解放双手</a>  </li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="调试注解处理器"><a href="#调试注解处理器" class="headerlink" title="调试注解处理器"></a>调试注解处理器</h3><ul>
+<li><a href="https://blog.csdn.net/tomatomas/article/details/53998585" target="_blank" rel="noopener">如何调试编译时注解处理器</a>  </li>
+</ul>
+<h3 id="常用场景"><a href="#常用场景" class="headerlink" title="常用场景"></a>常用场景</h3><p>大量开源库都使用了注解处理器简化代码：  </p>
+<ul>
+<li><a href="https://github.com/JakeWharton/butterknife" target="_blank" rel="noopener">ButterKnife</a>  </li>
+<li><a href="https://github.com/google/dagger" target="_blank" rel="noopener">Dagger2</a>  </li>
+<li><a href="https://github.com/square/retrofit" target="_blank" rel="noopener">Retrofit</a>  </li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="http://www.importnew.com/15246.html" target="_blank" rel="noopener">Java 注解处理器</a>  </li>
+<li><a href="http://hannesdorfmann.com/annotation-processing/annotationprocessing101" target="_blank" rel="noopener">Annotation Processing 101</a>  </li>
+<li><a href="https://blog.csdn.net/github_35180164/article/details/52171135" target="_blank" rel="noopener">AnnotatedConstruct 常用接口介绍</a>  </li>
+<li><a href="https://blog.csdn.net/tomatomas/article/details/53998585" target="_blank" rel="noopener">如何调试编译时注解处理器</a>  </li>
+<li><a href="http://openjdk.java.net/jeps/117" target="_blank" rel="noopener">APT 移除原因</a>  </li>
+<li><a href="https://www.jcp.org/en/jsr/detail?id=269" target="_blank" rel="noopener">JSR 269</a>  </li>
+<li><a href="https://www.jianshu.com/p/28edf5352b63" target="_blank" rel="noopener">Annotation 原理到案例</a>  </li>
+<li><a href="https://blog.csdn.net/github_35180164/article/details/52121038" target="_blank" rel="noopener">自定义注解之编译时注解</a>  </li>
+<li><a href="https://docs.oracle.com/javase/7/docs/technotes/tools/solaris/javac.html#processing" target="_blank" rel="noopener">javax.annotation.processing.Processor 文件 Java 技术手册</a>  </li>
+<li><a href="https://plugins.gradle.org/plugin/net.ltgt.apt" target="_blank" rel="noopener">Gradle 官网 Java apt 插件信息</a>  </li>
+<li><a href="https://github.com/tbroyer/gradle-apt-plugin" target="_blank" rel="noopener">gradle-apt-plugin</a>  </li>
+<li><a href="https://stackoverflow.com/questions/42441844/annotation-processor-in-intellij-and-gradle" target="_blank" rel="noopener">Annotation Processor in IntelliJ and Gradle</a>  </li>
+<li><a href="https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration#annotationProcessor_config" target="_blank" rel="noopener">Android 注解处理器插件使用方法</a>  </li>
+<li><a href="https://blog.csdn.net/lmj623565791/article/details/43452969" target="_blank" rel="noopener">Android 打造编译时注解解析框架</a>  </li>
+<li><a href="https://www.cnblogs.com/whoislcj/p/6168641.html" target="_blank" rel="noopener">Android 注解使用之 annotationProcessor</a>  </li>
+<li><a href="https://github.com/google/auto/tree/master/service" target="_blank" rel="noopener">AutoService 官网</a>  </li>
+<li><a href="https://github.com/square/javapoet" target="_blank" rel="noopener">JavaPoet 官网</a>  </li>
+<li><a href="https://blog.csdn.net/xx326664162/article/details/68490059" target="_blank" rel="noopener">几个注解处理器名称</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/06/05/0082-java-annotation-parsing-processor/" title="Java 注解解析 -- 处理器解析">http://redspider110.github.io/2018/06/05/0082-java-annotation-parsing-processor/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/29/0081-java-annotation-parsing-reflect/" rel="next" title="Java 注解解析 -- 反射">
+                <i class="fa fa-chevron-left"></i> Java 注解解析 -- 反射
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/12/0083-java-language-basic/" rel="prev" title="Java 语言基础">
+                Java 语言基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义注解处理器流程"><span class="nav-number">1.</span> <span class="nav-text">自定义注解处理器流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义注解库-Custom-Annotation"><span class="nav-number">1.1.</span> <span class="nav-text">自定义注解库 Custom Annotation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义注解处理器-Custom-Processor"><span class="nav-number">1.2.</span> <span class="nav-text">自定义注解处理器 Custom Processor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#继承-AbstractProcessor"><span class="nav-number">1.2.1.</span> <span class="nav-text">继承 AbstractProcessor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加-javax-annotation-processing-Processor-文件"><span class="nav-number">1.2.2.</span> <span class="nav-text">添加 javax.annotation.processing.Processor 文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解处理器插件"><span class="nav-number">1.3.</span> <span class="nav-text">注解处理器插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结果验证"><span class="nav-number">1.4.</span> <span class="nav-text">结果验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APT-和-JSR269"><span class="nav-number">2.</span> <span class="nav-text">APT 和 JSR269</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnnotatedConstruct-体系"><span class="nav-number">3.</span> <span class="nav-text">AnnotatedConstruct 体系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构"><span class="nav-number">3.1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AnnotatedConstruct-基本类"><span class="nav-number">3.2.</span> <span class="nav-text">AnnotatedConstruct 基本类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TypeMirror-体系"><span class="nav-number">3.3.</span> <span class="nav-text">TypeMirror 体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Element-体系"><span class="nav-number">3.4.</span> <span class="nav-text">Element 体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Elements-接口"><span class="nav-number">3.5.</span> <span class="nav-text">Elements 接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Types-接口"><span class="nav-number">3.6.</span> <span class="nav-text">Types 接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Filer-接口"><span class="nav-number">3.7.</span> <span class="nav-text">Filer 接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Messager-接口"><span class="nav-number">3.8.</span> <span class="nav-text">Messager 接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractProcessor-详细分析"><span class="nav-number">4.</span> <span class="nav-text">AbstractProcessor 详细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类图结构-1"><span class="nav-number">4.1.</span> <span class="nav-text">类图结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用-API-介绍"><span class="nav-number">4.2.</span> <span class="nav-text">常用 API 介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两个有用的注解"><span class="nav-number">4.3.</span> <span class="nav-text">两个有用的注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#循环调用-process"><span class="nav-number">4.4.</span> <span class="nav-text">循环调用 process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存在的问题"><span class="nav-number">4.5.</span> <span class="nav-text">存在的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解处理器插件-1"><span class="nav-number">5.</span> <span class="nav-text">注解处理器插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用开源库"><span class="nav-number">6.</span> <span class="nav-text">常用开源库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AutoService-用法"><span class="nav-number">6.1.</span> <span class="nav-text">AutoService 用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaPoet-用法"><span class="nav-number">6.2.</span> <span class="nav-text">JavaPoet 用法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">7.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#调试注解处理器"><span class="nav-number">7.1.</span> <span class="nav-text">调试注解处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用场景"><span class="nav-number">7.2.</span> <span class="nav-text">常用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

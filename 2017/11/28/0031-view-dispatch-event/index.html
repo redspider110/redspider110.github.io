@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,View,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本概念事件类型主要有如下三种：  123- MotionEvent.ACTION_DOWN   - MotionEvent.ACTION_MOVE   - MotionEvent.ACTION_UP">
+<meta name="keywords" content="Android,View">
+<meta property="og:type" content="article">
+<meta property="og:title" content="View 事件分发机制">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/28/0031-view-dispatch-event/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="基本概念事件类型主要有如下三种：  123- MotionEvent.ACTION_DOWN   - MotionEvent.ACTION_MOVE   - MotionEvent.ACTION_UP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event_move-up1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event_move-up2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_layout_hierachy.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.347Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="View 事件分发机制">
+<meta name="twitter:description" content="基本概念事件类型主要有如下三种：  123- MotionEvent.ACTION_DOWN   - MotionEvent.ACTION_MOVE   - MotionEvent.ACTION_UP">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event3.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/28/0031-view-dispatch-event/">
+
+
+
+
+
+  <title>View 事件分发机制 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/28/0031-view-dispatch-event/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">View 事件分发机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-28T21:00:00+08:00">
+                2017-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="事件类型"><a href="#事件类型" class="headerlink" title="事件类型"></a>事件类型</h3><p>主要有如下三种： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- MotionEvent.ACTION_DOWN   </span><br><span class="line">- MotionEvent.ACTION_MOVE   </span><br><span class="line">- MotionEvent.ACTION_UP</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="事件处理-API"><a href="#事件处理-API" class="headerlink" title="事件处理 API"></a>事件处理 <code>API</code></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- Activity.dispatchTouchEvent()    </span><br><span class="line">- Activity.onTouchEvent()  </span><br><span class="line">- ViewGroup.dispatchTouchEvent()    </span><br><span class="line">- ViewGroup.onInterceptTouchEvent()    </span><br><span class="line">- View.dispatchTouchEvent()   </span><br><span class="line">- View.onTouchEvent()</span><br></pre></td></tr></table></figure>
+
+<p>主要是描述 <code>Touch</code> 事件的<strong>分发，拦载，响应</strong>三者的关系。 <code>Touch</code> 事件发生时，会由根元素逐级<strong>分发</strong>直到最内层 <code>View</code>，然后反过来逐级<strong>响应</strong>该事件。  </p>
+<h3 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h3><ul>
+<li><code>dispatchTouchEvent()</code>  </li>
+</ul>
+<p><strong>分发</strong>：该方法封装了事件分发的整个过程，是事件分发的调度者和指挥官。</p>
+<ul>
+<li><code>onInterceptTouchEvent()</code>  </li>
+</ul>
+<p><strong>拦载</strong>：该方法表示是否拦截事件，只有 <code>ViewGroup</code> 有该回调。<br>返回 <code>true</code> 表示拦截，返回 <code>false</code> 或者 <code>super.onInterceptTouchEvent</code>  表示不拦截  </p>
+<ul>
+<li><code>onTouchEvent()</code>  </li>
+</ul>
+<p><strong>响应</strong>：该方法表示响应并处理事件  </p>
+<blockquote>
+<p><strong>消费</strong>：表示事件不再继续逐级向下传递<strong>分发</strong>，或者不再继续逐级向上<strong>响应</strong>。也就是事件在某个方法中被消费后，该方法就是整个分发、拦载、响应流程的终点。  </p>
+</blockquote>
+<h3 id="处理顺序"><a href="#处理顺序" class="headerlink" title="处理顺序"></a>处理顺序</h3><p><strong>分发</strong>顺序为逐级向下：<br><code>dispatchTouchEvent:  Activity(Window) -&gt; ViewGroup -&gt; View</code><br><strong>响应</strong>顺序为逐级向上：<br><code>onTouchEvent:  View -&gt; ViewGroup --&gt; Activity</code>  </p>
+<h2 id="事件分发流程"><a href="#事件分发流程" class="headerlink" title="事件分发流程"></a>事件分发流程</h2><h3 id="DOWN-事件-U-型流程图"><a href="#DOWN-事件-U-型流程图" class="headerlink" title="DOWN 事件 U 型流程图"></a><code>DOWN</code> 事件 <code>U</code> 型流程图</h3><p>流程图是针对 <code>ACTION_DOWN</code> 事件的分析，而 <code>ACTION_MOVE/ACTION_UP</code> 和事件的消费有关，放到后面分析。<br>事件的正常流程是：由上向下<strong>分发</strong>，并由下向上<strong>响应</strong>的一个 <code>U</code> 型图。箭头上的值表示返回值，其中 <code>super</code> 表示返回父类实现。   </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event3.png" alt="0031_view_dispatch_event3.png"></p>
+<h3 id="流程图总结"><a href="#流程图总结" class="headerlink" title="流程图总结"></a>流程图总结</h3><ul>
+<li>所有 <code>API</code> 返回值都为 <code>super</code> ，表示事件能走完整个 <code>U</code> 型流程。   </li>
+<li><strong>分发</strong>和<strong>响应</strong>只要返回值为 <code>true</code> 都表示消费该事件，流程不再继续流转。   </li>
+<li><code>Activity</code> 中的<strong>分发</strong>和<strong>响应</strong>  </li>
+</ul>
+<p><strong>分发</strong>：只有返回 <code>super</code> 才能逐级向下分发，<code>true/false</code> 都表示事件最终被消费。<br><strong>响应</strong>：不管返回什么值，都表示事件被最终消费。  </p>
+<ul>
+<li><code>ViewGroup</code> 和 <code>View</code> 的<strong>分发</strong>和<strong>响应</strong>返回 <code>false</code> ，都表示流转到上一级执行 <code>onTouchEvent</code> (<strong>响应</strong>)。</li>
+<li><strong>拦载</strong><br>返回 <code>true</code> 表示<strong>拦载</strong>，事件不会继续<strong>分发</strong>， 当前 <code>ViewGroup</code> 直接<strong>响应</strong>事件， <code>U</code> 型流程继续向前走。<br>返回 <code>false</code> 或者 <code>super</code> 表示不<strong>拦载</strong>，事件继续向下<strong>分发</strong>。  </li>
+</ul>
+<h3 id="MOVE-和-UP-事件流程"><a href="#MOVE-和-UP-事件流程" class="headerlink" title="MOVE 和 UP 事件流程"></a><code>MOVE</code> 和 <code>UP</code> 事件流程</h3><p><code>ACTION_MOVE/ACTION_UP</code> 和  <code>ACTION_DOWN</code> 事件的消费有关。在 <code>U</code> 型图中，<code>ACTION_DOWN</code> 事件在哪一层被<strong>消费</strong>，<code>ACTION_MOVE/ACTION_UP</code> 就只能到达这一层。  </p>
+<ul>
+<li><strong>分发</strong><br>如果 <code>DOWN</code> 事件被<strong>分发</strong>消费，<code>UP</code> 事件只能逐级向下<strong>分发</strong>到这一层。  </li>
+<li><strong>响应</strong><br>如果 <code>DOWN</code> 事件被<strong>响应</strong>后消费，<code>UP</code> 事件逐级向下<strong>分发</strong>到这一层，并在这一层<strong>响应</strong>后直接被消费。  </li>
+</ul>
+<h4 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h4><p><code>View</code> <strong>分发</strong>时消费 <code>DOWN</code> 事件。<br><code>View</code> 在 <code>dispatchTouchEvent</code> 中消费 <code>DOWN</code> 事件， <code>MVOE/UP</code> 也只能<strong>分发</strong>到 <code>CustomView</code> 这一层。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event_move-up1.png" alt="0031_view_dispatch_event_move-up1.png"></p>
+<h4 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h4><p><code>ViewGroup</code> <strong>响应</strong>时消费 <code>DOWN</code> 事件。<br><code>ViewGroup</code> 在 <code>onTouchEvent</code> 中消费 <code>DOWN</code> 事件， <code>MOVE/UP</code> 只能<strong>分发</strong>到这一层，并在这一层<strong>响应</strong>后直接消费。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_view_dispatch_event_move-up2.png" alt="0031_view_dispatch_event_move-up2.png"></p>
+<h2 id="示例-Log-分析"><a href="#示例-Log-分析" class="headerlink" title="示例 Log 分析"></a>示例 <code>Log</code> 分析</h2><h3 id="示例结构图"><a href="#示例结构图" class="headerlink" title="示例结构图"></a>示例结构图</h3><p><code>CustomView</code> ：为自定义 <code>View</code><br><code>CustomLayout</code> ：为自定义 <code>ViewGroup</code><br><code>CustomLayout2</code> ：继承 <code>LinearLayout</code>  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0031_layout_hierachy.png" alt="0031_layout_hierachy.png"></p>
+<p>示例完整布局文件：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">android.support.constraint.ConstraintLayout</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">"com.***.view.ViewEvent"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">com.***.view.CustomLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/view_event_custom_layout"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"300dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"300dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintLeft_toLeftOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintRight_toRightOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginLeft</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginRight</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginTop</span>=<span class="string">"8dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">app:custom_orientation</span>=<span class="string">"vertical"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">com.***.view.CustomLayout2</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/view_event_custom_layout_2"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">app:custom_orientation</span>=<span class="string">"horizontal"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">com.***.view.CustomView</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:id</span>=<span class="string">"@+id/view_event_custom_view_button"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">app:custom_text</span>=<span class="string">"@string/view_event_custom_view_button"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">app:custom_color</span>=<span class="string">"@color/colorAccent"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">app:custom_size</span>=<span class="string">"@dimen/smallTextSize"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_marginLeft</span>=<span class="string">"@dimen/custom_margin_view"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:id</span>=<span class="string">"@+id/view_event_textview"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:text</span>=<span class="string">"@string/view_event_textview"</span></span></span><br><span class="line"><span class="tag">                <span class="attr">android:layout_marginLeft</span>=<span class="string">"@dimen/custom_margin_text"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">com.***.view.CustomLayout2</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/view_event_textview_2"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"@string/view_event_textview"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">app:custom_margin</span>=<span class="string">"@dimen/custom_margin_text"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">com.***.view.CustomLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">android.support.constraint.ConstraintLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="正常流程，不做任何处理"><a href="#正常流程，不做任何处理" class="headerlink" title="正常流程，不做任何处理"></a>正常流程，不做任何处理</h3><p>所有 <code>API</code> 都返回的是 <code>super.***</code>，走完整个 <code>U</code> 型图的流程。如下示例为点击 <code>CustomView</code> 后，触发了事件逐级向下<strong>分发</strong>、<strong>拦载</strong>、逐级向上<strong>响应</strong>的完整流程，包含 <code>ACTION_DOWN</code> 和 <code>ACTION_UP</code> 事件。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">// 处理 ACTION_DOWN 事件，Activity 开始分发事件</span><br><span class="line">19:26: 26395/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">// 第一层 ViewGroup 接收事件并向下分发 </span><br><span class="line">19:26: 26395/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">// 第一层 ViewGroup 判断是否拦载</span><br><span class="line">19:26: 26395/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">// 第二层 ViewGroup 接收事件并向下分发 </span><br><span class="line">19:26: 26395/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// 第二层 ViewGroup 判断是否拦载</span><br><span class="line">19:26: 26395/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// 第三层 View 接收事件并分发</span><br><span class="line">19:26: 26395/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">// 第三层 View 响应事件</span><br><span class="line">19:26: 26395/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">// 第二层 ViewGroup 向上响应事件</span><br><span class="line">19:26: 26395/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">// 第一层 ViewGroup 向上响应事件</span><br><span class="line">19:26: 26395/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">// Activity 开始响应事件并消费</span><br><span class="line">19:26: 26395/com.yD/:ViewEventActivity:: onTouchEvent: </span><br><span class="line">// 点击结束抬手，ACTION_UP，Activity 开始分发事件</span><br><span class="line">19:26: 26395/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">// 因为是 Activity 消费了 DOWN 事件，所以 UP 事件只到这一层响应并消费</span><br><span class="line">19:26: 26395/com.yD/:ViewEventActivity:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h3 id="dispatchTouchEvent-的返回值"><a href="#dispatchTouchEvent-的返回值" class="headerlink" title="dispatchTouchEvent 的返回值"></a><code>dispatchTouchEvent</code> 的返回值</h3><ul>
+<li>当层返回 <code>super.dispatchTouchEvent</code><br>不影响事件<strong>分发</strong>和<strong>响应</strong>，和正常流程完全一样   </li>
+<li>当层返回 <code>false</code>   </li>
+</ul>
+<p><strong>分发</strong>：表示事件不再逐级向下传递<strong>分发</strong>。<br><strong>响应</strong>：同时该层也不会<strong>响应</strong>事件，该层（不含）逐级向上所有层都<strong>响应</strong>事件。<br>如下示例为在 <code>CustomLayout2</code> 层直接返回 <code>false</code>：      </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 处理 ACTION_DOWN 事件</span><br><span class="line">19:40: 6728/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">19:40: 6728/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">19:40: 6728/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">// CustomLayout2 层直接返回 false ，事件不再向下分发传递，同时本层也不响应事件</span><br><span class="line">19:40: 6728/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// 该层（不含）逐级向上所有层都响应事件</span><br><span class="line">19:40: 6728/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">19:40: 6728/com.yD/:ViewEventActivity:: onTouchEvent: </span><br><span class="line">// 处理 ACTION_UP 事件，Activity 消费了 DOWN 事件，所以 UP 事件只到这一层响应并消费</span><br><span class="line">19:40: 6728/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">19:40: 6728/com.yD/:ViewEventActivity:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当层返回 <code>true</code><br>表示该层<strong>消费</strong>了这次事件。  </li>
+</ul>
+<p><strong>分发</strong>：事件不会继续在整个流程中传递<strong>分发</strong><br><strong>响应</strong>：所有层都<strong>不响应</strong>该事件（因为分发流程未走完，所以响应流程无法开始）<br>如下示例为在最底层的 <code>CustomView</code> 中直接返回 <code>true</code>   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 处理 ACTION_DOWN 事件</span><br><span class="line">19:46: 11801/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// CustomView 层直接返回 true，事件不再继续分发，同时所有层都不会响应事件</span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomView:: dispatchTouchEvent: </span><br><span class="line">// 处理 ACTION_UP 事件，CustomView 的dispatchTouchEvent 消费了 DOWN 事件</span><br><span class="line">19:46: 11801/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// ACTION_UP 传递分发到这一层的 dispatchTouchEvent 并消费</span><br><span class="line">19:46: 11801/com.yD/:XMT:CustomView:: dispatchTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h3 id="onInterceptTouchEvent-的返回值"><a href="#onInterceptTouchEvent-的返回值" class="headerlink" title="onInterceptTouchEvent 的返回值"></a><code>onInterceptTouchEvent</code> 的返回值</h3><p>无法<strong>消费</strong>事件。  </p>
+<ul>
+<li><p>当层返回 <code>false</code> 或者 <code>super.onInterceptTouchEvent</code><br>表示该层不做<strong>拦载</strong>，不影响事件<strong>分发</strong>和<strong>响应</strong>，和正常流程完全一样。  </p>
+</li>
+<li><p>当层返回 <code>true</code><br>表示该层<strong>拦载</strong>了事件。  </p>
+</li>
+</ul>
+<p><strong>分发</strong>：事件不再逐级向下传递。<br><strong>响应</strong>：该层（含）逐级向上所有层都<strong>响应</strong>事件。<br>如下示例为在 <code>CustomLayout2</code> 中直接返回 <code>true</code>    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">// 处理 ACTION_DOWN 事件</span><br><span class="line">19:57: 22163/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// CustomLayout2 层直接返回true，拦载该事件，事件不再继续向下分发</span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// 从 CustomLayout2 层（含）开始逐级向上响应事件  </span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">19:57: 22163/com.yD/:XMT:CustomLayout:: onTouchEvent: </span><br><span class="line">19:57: 22163/com.yD/:XMT:ViewEventActivity:: onTouchEvent: </span><br><span class="line">// 处理 ACTION_UP 事件，Activity 消费了 DOWN 事件，所以 UP 事件只到这一层响应并消费</span><br><span class="line">19:57: 22163/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">19:57: 22163/com.yD/:XMT:ViewEventActivity:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h3 id="onTouchEvent-返回值"><a href="#onTouchEvent-返回值" class="headerlink" title="onTouchEvent 返回值"></a><code>onTouchEvent</code> 返回值</h3><p><strong>分发</strong>：返回值不影响事件传递<strong>分发</strong>。<br><strong>响应</strong>：决定该层（不含）逐级向上所有层是否<strong>响应</strong>事件。     </p>
+<ul>
+<li><p>当层返回 <code>false</code> 或者 <code>super.onTouchEvent</code><br>表示不影响事件<strong>分发</strong>和<strong>响应</strong>，和正常流程完全一样。如果直接返回 <code>false</code> 仅仅是比 <code>super.onTouchEvent</code> 少调用一次父类的  <code>onTouchEvent</code>。    </p>
+</li>
+<li><p>当层返回 <code>true</code><br>表示该层<strong>消费</strong>了事件，即该层（不含）逐级向上所有层都<strong>不响应</strong>事件了。<br>该层（含）及之下层已经<strong>响应</strong>了事件。<br>如下示例为 <code>CustomLayout2</code> 中返回  <code>true</code>：  </p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 处理 ACTION_DOWN 事件</span><br><span class="line">20:01: 25724/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomView:: dispatchTouchEvent: </span><br><span class="line">// 并不影响事件的分发，也不影响下层级的响应</span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomView:: onTouchEvent: </span><br><span class="line">// CustomLayout2 中返回 true，该层（不含）逐级向上将不再响应事件</span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">// 处理 ACTION_UP 事件，CustomLayout2 的 onTouchEvent 响应并消费了事件</span><br><span class="line">20:01: 25724/com.yD/:XMT:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// ACTION_UP 传递分发到这一层，onTouchEvent 响应并消费</span><br><span class="line">20:01: 25724/com.yD/:XMT:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h3 id="CustomLayout2-继承-CustomLayout"><a href="#CustomLayout2-继承-CustomLayout" class="headerlink" title="CustomLayout2 继承 CustomLayout"></a><code>CustomLayout2</code> 继承 <code>CustomLayout</code></h3><p>如果 <code>CustomLayout2</code> 继承 <code>CustomLayout</code> ，则在调用 <code>supder.***</code> 会多执行一次 <code>CustomLayout</code> 相关方法。     </p>
+<ul>
+<li>正常流程 <code>Log</code> 分析   </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// 事件正常下发</span><br><span class="line">10:01: 12487/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// 调用 super.***</span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// 调用 super.***</span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">// 调用 super.***</span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:ViewEventActivity:: onTouchEvent: </span><br><span class="line">10:01: 12487/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">10:01: 12487/com.yD/:ViewEventActivity:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>CustomLayout</code> 的 <code>onTouchEvent</code> 返回 <code>true</code> 时  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// 事件正常下发</span><br><span class="line">10:10: 19035/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">// 调用 super.***</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">// 调用 super.***</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">// 调用 super.***，但是 CustomLayout 在 onTouchEvent 响应完后消费了该事件</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">// 所以不再再次调用 CustomLayout:: onTouchEvent: </span><br><span class="line">// UP 事件正常下发</span><br><span class="line">10:10: 19035/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">10:10: 19035/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">// 同理调用 super.*** 时 CustomLayout 在 onTouchEvent 响应完后消费了该事件</span><br><span class="line">10:10: 19035/com.yD/:CustomLayout:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h2 id="事件分发及响应的部分源码分析"><a href="#事件分发及响应的部分源码分析" class="headerlink" title="事件分发及响应的部分源码分析"></a>事件分发及响应的部分源码分析</h2><ul>
+<li><code>Activity</code> 事件分发源码</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ev.getAction() == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">        onUserInteraction();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (getWindow().superDispatchTouchEvent(ev)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> onTouchEvent(ev);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大体的分发过程为：首先传递到 <code>Activity</code>，然后传给了 <code>Activity</code> 依附的 <code>Window</code>，接着由 <code>Window</code> 传给视图的顶层 <code>View</code> 也就是 <code>DecorView</code>，最后由 <code>DecorView</code> 向整个 <code>ViewTree</code> 分发。<br>在 <code>getWindow().superDispathTouchEvent</code> 就是用来分发事件到 <code>DecorView</code> 中。如果整个 <code>ViewTree</code> 分发没有消费事件，会调用 <code>Activity</code> 的 <code>onTouchEvent</code>。</p>
+<ul>
+<li><code>ViewGroup</code> 和 <code>View</code> 事件分发伪代码</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 点击事件产生后，会直接调用 dispatchTouchEvent() 方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 代表是否消费事件</span></span><br><span class="line">    <span class="keyword">boolean</span> consumed = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (onInterceptTouchEvent(e)) &#123;</span><br><span class="line">        <span class="comment">// 只有 ViewGroup 才有该方法</span></span><br><span class="line">        <span class="comment">// 如果返回 true 则代表当前 ViewGroup 拦截了点击事件</span></span><br><span class="line">        <span class="comment">// 则该事件由当前 ViewGroup 的 onTouchEvent (）方法逐级向上响应事件  </span></span><br><span class="line">        consumed = onTouchEvent(e);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果返回 false 则代表当前 ViewGroup 不拦截点击事件</span></span><br><span class="line">        <span class="comment">// 则该点击事件则会继续传递给它的子元素</span></span><br><span class="line">        <span class="comment">// 子元素的 dispatchTouchEvent（）重复上述过程</span></span><br><span class="line">        <span class="keyword">for</span> (View view: children) &#123;</span><br><span class="line">            consumed = view.dispatchTouchEvent(e);</span><br><span class="line">            <span class="keyword">if</span> (consumed) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果分发没有消费该事件，则逐级向上响应</span></span><br><span class="line">        <span class="keyword">if</span> (!consumed) &#123;</span><br><span class="line">            consumed = onTouchEvent(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">return</span> consumed;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见监听事件的消费"><a href="#常见监听事件的消费" class="headerlink" title="常见监听事件的消费"></a>常见监听事件的消费</h2><h3 id="onTouch-监听"><a href="#onTouch-监听" class="headerlink" title="onTouch 监听"></a><code>onTouch</code> 监听</h3><ul>
+<li>事件监听  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">view.setOnTouchListener(new View.OnTouchListener()&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onTouch(View v, MotionEvent event) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>onTouch</code> 返回值<br>返回 <code>false</code> 表示不影响整个事件分发响应流程。<br>返回 <code>true</code> 表示 <code>dispatchTouchEvent</code> <strong>分发</strong>消费这次事件。<br>对应的 <code>Log</code> 打印：  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// CustomView 监听 onTouch 事件后的分发流程</span><br><span class="line">// onTouch 返回 false 走完整个 U 型流程</span><br><span class="line">17:07: 29706/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">17:07: 29706/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:ViewEventActivity:: customView, onTouch: </span><br><span class="line">17:07: 29706/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:CustomLayout:: onTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:ViewEventActivity:: onTouchEvent: </span><br><span class="line">17:07: 29706/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">17:07: 29706/com.yD/:ViewEventActivity:: onTouchEvent: </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// CustomView 监听 onTouch 事件后的分发流程</span><br><span class="line">// onTouch 返回 true</span><br><span class="line">// 查看源码 onTouch 是在 View 的 dispatchTouchEvent 中调用的</span><br><span class="line">// 返回 true 表示 消费了该事件</span><br><span class="line">17:09: 31152/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">17:09: 31152/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:ViewEventActivity:: customView, onTouch: </span><br><span class="line">17:09: 31152/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">17:09: 31152/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">17:09: 31152/com.yD/:ViewEventActivity:: customView, onTouch:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>源码分析<br>源码可以看出，<code>onTouch</code> 回调是在 <code>dispatchTouchEvent</code> 中调用的，所以返回 <code>true</code> 时，表示<strong>分发</strong>消费了事件。  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    ListenerInfo li = mListenerInfo;</span><br><span class="line">    <span class="keyword">if</span> (li != <span class="keyword">null</span> &amp;&amp; li.mOnTouchListener != <span class="keyword">null</span></span><br><span class="line">            &amp;&amp; (mViewFlags &amp; ENABLED_MASK) == ENABLED</span><br><span class="line">            <span class="comment">// 回调 onTouch 事件监听</span></span><br><span class="line">            &amp;&amp; li.mOnTouchListener.onTouch(<span class="keyword">this</span>, event)) &#123;</span><br><span class="line">        result = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行 onTouchEvent 事件分发响应流程</span></span><br><span class="line">    <span class="keyword">if</span> (!result &amp;&amp; onTouchEvent(event)) &#123;</span><br><span class="line">        result = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="onLongClick-监听"><a href="#onLongClick-监听" class="headerlink" title="onLongClick 监听"></a><code>onLongClick</code> 监听</h3><ul>
+<li>事件监听  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">view.setOnLongClickListener(new View.OnLongClickListener()&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onLongClick(View v) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>onLongClick</code> 返回值<br>不管返回 <code>true</code> 还是 <code>false</code>，都表示在 <code>onTouchEvent</code> <strong>响应</strong>中消费该事件，并且是在 <code>ACTION_DOWN</code> 中执行 <code>onLongClick</code> 回调。分析见下面 <code>onTouchEvent</code> 部分源码。对应的 <code>Log</code> 打印：   </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line"><span class="comment">// ACTION_DOWN 中响应 onLongClick 事件</span></span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:ViewEventActivity:: customView, onLongClick: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line"><span class="number">17</span>:<span class="number">14</span>: <span class="number">3237</span>/com.yD/:CustomView:: onTouchEvent:</span><br></pre></td></tr></table></figure>
+
+<h3 id="onClick-监听"><a href="#onClick-监听" class="headerlink" title="onClick 监听"></a><code>onClick</code> 监听</h3><ul>
+<li>事件监听   </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">view.setOnClickListener(<span class="keyword">new</span> View.OnClickListener()&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>事件消费<br>在 <code>onTouchEvent</code> <strong>响应</strong>中消费该事件，并且是在 <code>ACTION_UP</code> 中执行 <code>onClick</code> 回调。对应的 Log 打印：   </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// CustomView 监听 onClick 事件后的分发流程</span><br><span class="line">// 相当于在 onTouchEvent 中消费了该事件</span><br><span class="line">17:03: 26616/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_DOWN...&#125;</span><br><span class="line">17:03: 26616/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:ViewEventActivity:: dispatchTouchEvent: ev MotionEvent &#123; action=ACTION_UP...&#125;</span><br><span class="line">17:03: 26616/com.yD/:CustomLayout:: dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout:: onInterceptTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomLayout2:: :XMT:CustomLayout2:, onInterceptTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomView:: dispatchTouchEvent: </span><br><span class="line">17:03: 26616/com.yD/:CustomView:: onTouchEvent: </span><br><span class="line">// ACTION_UP 中响应 onClick 事件</span><br><span class="line">17:03: 26616/com.yD/:ViewEventActivity:: customView, onClick:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>源码分析<br>参考如下源码，<code>onLongClick</code> 和 <code>onClick</code> 事件都是在 <code>onTouchEvent</code> <strong>响应</strong>中回调了监听，其中：<br><code>onLongClick</code> 是在 <code>ACTION_DOWN</code> 中处理监听回调<br><code>onClick</code> 是在 <code>ACTION_UP</code> 中处理监听回调    </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> action = event.getAction();</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (((viewFlags &amp; CLICKABLE) == CLICKABLE ||</span><br><span class="line">        (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE) ||</span><br><span class="line">        (viewFlags &amp; CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (action) &#123;</span><br><span class="line">            <span class="keyword">case</span> MotionEvent.ACTION_UP:</span><br><span class="line">                ...</span><br><span class="line">                <span class="keyword">if</span> (mPerformClick == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    mPerformClick = <span class="keyword">new</span> PerformClick();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (!post(mPerformClick)) &#123;</span><br><span class="line">                    <span class="comment">// 事件点击事件监听</span></span><br><span class="line">                    performClick();</span><br><span class="line">                &#125;</span><br><span class="line">                ...</span><br><span class="line">            <span class="keyword">case</span> MotionEvent.ACTION_DOWN:</span><br><span class="line">                ...</span><br><span class="line">                setPressed(<span class="keyword">true</span>, x, y);</span><br><span class="line">                <span class="comment">// 处理长按事件监听  </span></span><br><span class="line">                checkForLongClick(<span class="number">0</span>, x, y);</span><br><span class="line">                ...</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ViewGroup-中拒绝拦载事件"><a href="#ViewGroup-中拒绝拦载事件" class="headerlink" title="ViewGroup 中拒绝拦载事件"></a><code>ViewGroup</code> 中拒绝拦载事件</h3><p>可以通过设置 <code>FLAG_DISALLOW_INTERCEPT</code> 来要求 <code>ViewGroup</code> 拒绝拦载事件，源码如下：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewGroup.java</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestDisallowInterceptTouchEvent</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">boolean</span> disallowIntercept)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (disallowIntercept == ((mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT)</span><br><span class="line">        != <span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="comment">// We're already in this state, assume our ancestors are too</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (disallowIntercept) &#123;</span><br><span class="line">        mGroupFlags |= FLAG_DISALLOW_INTERCEPT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mGroupFlags &amp;= ~FLAG_DISALLOW_INTERCEPT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Pass it up to our parent</span></span><br><span class="line">    <span class="keyword">if</span> (mParent != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mParent.requestDisallowInterceptTouchEvent(disallowIntercept);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>requestDisallowInterceptTouchEvent</code> 设置好 <code>FLAG</code> 后，在 <code>ViewGroup</code> 的事件分发机制中可以看到：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewGroup.java</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">boolean</span> handled = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (onFilterTouchEventForSecurity(ev)) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// Check for interception.</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">boolean</span> intercepted;</span><br><span class="line">        <span class="keyword">if</span> (actionMasked == MotionEvent.ACTION_DOWN</span><br><span class="line">                || mFirstTouchTarget != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 获取 FLAG 判断是否允许拦载</span></span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">boolean</span> disallowIntercept = </span><br><span class="line">                (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span> (!disallowIntercept) &#123;</span><br><span class="line">                intercepted = onInterceptTouchEvent(ev);</span><br><span class="line">                ev.setAction(action);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                intercepted = <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            intercepted = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://www.jianshu.com/p/e99b5e8bd67b" target="_blank" rel="noopener">http://www.jianshu.com/p/e99b5e8bd67b</a></li>
+<li><a href="http://www.jianshu.com/p/7daf0feb6c2d" target="_blank" rel="noopener">http://www.jianshu.com/p/7daf0feb6c2d</a>  </li>
+<li><a href="http://blog.csdn.net/guolin_blog/article/details/9097463/" target="_blank" rel="noopener">http://blog.csdn.net/guolin_blog/article/details/9097463/</a>  </li>
+<li><a href="http://blog.csdn.net/guolin_blog/article/details/9153747/" target="_blank" rel="noopener">http://blog.csdn.net/guolin_blog/article/details/9153747/</a>  </li>
+<li><a href="http://www.cnblogs.com/duoduohuakai/p/3996385.html" target="_blank" rel="noopener">http://www.cnblogs.com/duoduohuakai/p/3996385.html</a>  </li>
+<li><a href="http://www.cnblogs.com/sunzn/archive/2013/05/10/3064129.html" target="_blank" rel="noopener">http://www.cnblogs.com/sunzn/archive/2013/05/10/3064129.html</a>  </li>
+<li><a href="http://blog.csdn.net/carson_ho/article/details/54136311" target="_blank" rel="noopener">http://blog.csdn.net/carson_ho/article/details/54136311</a>  </li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/28/0031-view-dispatch-event/" title="View 事件分发机制">http://redspider110.github.io/2017/11/28/0031-view-dispatch-event/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/View/" rel="tag"># View</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/28/0030-custom-viewgroup/" rel="next" title="自定义 ViewGroup">
+                <i class="fa fa-chevron-left"></i> 自定义 ViewGroup
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/28/0032-process-thread/" rel="prev" title="进程和线程">
+                进程和线程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#事件类型"><span class="nav-number">1.1.</span> <span class="nav-text">事件类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#事件处理-API"><span class="nav-number">1.2.</span> <span class="nav-text">事件处理 API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#名词解释"><span class="nav-number">1.3.</span> <span class="nav-text">名词解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理顺序"><span class="nav-number">1.4.</span> <span class="nav-text">处理顺序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件分发流程"><span class="nav-number">2.</span> <span class="nav-text">事件分发流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DOWN-事件-U-型流程图"><span class="nav-number">2.1.</span> <span class="nav-text">DOWN 事件 U 型流程图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程图总结"><span class="nav-number">2.2.</span> <span class="nav-text">流程图总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MOVE-和-UP-事件流程"><span class="nav-number">2.3.</span> <span class="nav-text">MOVE 和 UP 事件流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#示例-1"><span class="nav-number">2.3.1.</span> <span class="nav-text">示例 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#示例-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">示例 2</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例-Log-分析"><span class="nav-number">3.</span> <span class="nav-text">示例 Log 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例结构图"><span class="nav-number">3.1.</span> <span class="nav-text">示例结构图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正常流程，不做任何处理"><span class="nav-number">3.2.</span> <span class="nav-text">正常流程，不做任何处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dispatchTouchEvent-的返回值"><span class="nav-number">3.3.</span> <span class="nav-text">dispatchTouchEvent 的返回值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onInterceptTouchEvent-的返回值"><span class="nav-number">3.4.</span> <span class="nav-text">onInterceptTouchEvent 的返回值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onTouchEvent-返回值"><span class="nav-number">3.5.</span> <span class="nav-text">onTouchEvent 返回值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CustomLayout2-继承-CustomLayout"><span class="nav-number">3.6.</span> <span class="nav-text">CustomLayout2 继承 CustomLayout</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件分发及响应的部分源码分析"><span class="nav-number">4.</span> <span class="nav-text">事件分发及响应的部分源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见监听事件的消费"><span class="nav-number">5.</span> <span class="nav-text">常见监听事件的消费</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#onTouch-监听"><span class="nav-number">5.1.</span> <span class="nav-text">onTouch 监听</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onLongClick-监听"><span class="nav-number">5.2.</span> <span class="nav-text">onLongClick 监听</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#onClick-监听"><span class="nav-number">5.3.</span> <span class="nav-text">onClick 监听</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewGroup-中拒绝拦载事件"><span class="nav-number">5.4.</span> <span class="nav-text">ViewGroup 中拒绝拦载事件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

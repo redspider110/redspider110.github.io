@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Algorithms,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍子字符串匹配算法：暴力匹配算法，KMP 算法。">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法 - 子字符串匹配 KMP 算法">
+<meta property="og:url" content="http://redspider110.github.io/2018/09/12/0102-algorithms-strings-search-kmp/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="介绍子字符串匹配算法：暴力匹配算法，KMP 算法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-definition.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-brute-force.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-brute-force-worst.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-array.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-value.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-4.png">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.381Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="算法 - 子字符串匹配 KMP 算法">
+<meta name="twitter:description" content="介绍子字符串匹配算法：暴力匹配算法，KMP 算法。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-definition.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2018/09/12/0102-algorithms-strings-search-kmp/">
+
+
+
+
+
+  <title>算法 - 子字符串匹配 KMP 算法 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2018/09/12/0102-algorithms-strings-search-kmp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">算法 - 子字符串匹配 KMP 算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-12T09:00:00+08:00">
+                2018-09-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms/" itemprop="url" rel="index">
+                    <span itemprop="name">Algorithms</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>介绍子字符串匹配算法：暴力匹配算法，<code>KMP</code> 算法。  </p>
+<a id="more"></a>
+
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>字符串匹配问题的形式定义：  </p>
+<ul>
+<li>文本 <code>Text</code> 是一个长度为 <code>n</code> 的数组 <code>T[1..n]</code>  </li>
+<li>模式 <code>Pattern</code> 是一个长度为 <code>m</code> 且 <code>m≤n</code> 的数组 <code>P[1..m]</code>  </li>
+<li><code>T</code> 和 <code>P</code> 中的元素都属于有限的字母表 <code>Σ</code> 表的字符；比如：<code>Σ={0,1}</code> 或者 <code>Σ={a,b,...,z}</code>。<code>P, T</code> 通常称为字符串  </li>
+</ul>
+<p>如果 <code>0≤s≤n-m</code>，并且 <code>T[s+1..s+m] = P[1..m]</code>，即对 <code>1≤j≤m</code>，有 <code>T[s+j] = P[j]</code>，那么称模式 <code>P</code> 在文本 <code>T</code> 中出现，且位移为 <code>s</code>。称 <code>s</code> 是一个有效偏移；如果 <code>s</code> 不出现则称它为无效偏移。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-definition.png" alt="0102-strings-search-definition.png"></p>
+<h3 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><p>字符串匹配算法通常分为两个步骤：预处理 <code>Preprocessing</code> 和匹配 <code>Matching</code> 。算法的总运行时间为预处理和匹配两个阶段所耗时间的总和。  </p>
+<h2 id="暴力匹配算法"><a href="#暴力匹配算法" class="headerlink" title="暴力匹配算法"></a>暴力匹配算法</h2><p>朴素的字符串匹配算法 <code>Naive String Matching Algorithm</code> ，又称为暴力匹配算法 <code>Brute Force Algorithm</code> 。  </p>
+<h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h3><p>使用下标 <code>i</code> 记录文本位置；使用下标 <code>j</code> 记录模式位置。从文本和模式的首字母开始比较，直到整个模式匹配，则返回文本位置。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">search</span><span class="params">(String pat, String txt)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> M = pat.length();</span><br><span class="line">    <span class="keyword">int</span> N = txt.length();</span><br><span class="line">    <span class="keyword">int</span> i =<span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(i &lt; N &amp;&amp; j &lt; M)&#123;</span><br><span class="line">        <span class="keyword">if</span> (txt.charAt(i) == pat.charAt(j)) &#123;</span><br><span class="line">            i++;</span><br><span class="line">            j++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            i = i - j + <span class="number">1</span>;</span><br><span class="line">            j = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (j == M) <span class="keyword">return</span> i - j;   <span class="comment">// 找到匹配</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> -<span class="number">1</span>;             <span class="comment">// 未找到匹配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-brute-force.png" alt="0102-strings-search-brute-force.png"></p>
+<h3 id="时间复杂度-1"><a href="#时间复杂度-1" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><p>暴力匹配算法没有预处理步骤，在最坏情况下，在长度为 <code>N</code> 的文本中查找长度为 <code>M</code> 的模式，时间复杂度为 <code>O(NM)</code> 。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-brute-force-worst.png" alt="0102-strings-search-brute-force-worst.png"></p>
+<h2 id="KMP-算法基础概念"><a href="#KMP-算法基础概念" class="headerlink" title="KMP 算法基础概念"></a><code>KMP</code> 算法基础概念</h2><p><code>KMP: Knuth-Morris-Pratt</code> 子字符串查找算法的基本思想是：当出现不匹配时，已经能知晓一部分文本内容（因为在匹配失败前这部分文本内容已经和模式相匹配），利用这些信息避免将下标回退到这些已知字符之前。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp.png" alt="0102-strings-search-kmp.png"></p>
+<p>《算法 4》中的 <code>KMP</code> 算法使用了有限状态机 <code>DFA[][]</code> 来计算下标回退的位置。我们这里参考《算法导论 3》中更通用的算法，使用模式的前后缀来计算下标。  </p>
+<h3 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h3><p>《算法导论》中的伪代码，其中当出现不匹配时， <code>π</code> 数组记录了不匹配字符对应的移动距离，这个值是模式向右移动的距离。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">KMP-MATCHER(T,P)</span><br><span class="line">    n=T.length              // 文本长度</span><br><span class="line">    m=P.length              // 模式长度</span><br><span class="line">    π=COMPUTE-PREFIX-FUNCTION(P)</span><br><span class="line">    q=0                     // 字符串匹配个数</span><br><span class="line">    for i=1 to n            // 从左往右扫描文本</span><br><span class="line">        while q&gt;0 and P[q+1]≠T[i]</span><br><span class="line">            q=π[q]          // 下个字符不匹配</span><br><span class="line">        if P[q+1] == T[i]</span><br><span class="line">            q=q+1           // 下个字符匹配</span><br><span class="line">        if q == m           // 模式完全匹配？</span><br><span class="line">            print &quot;Pattern occurs with shift&quot; i-m </span><br><span class="line">        q=π[q]              // 从下一个位置开始查找</span><br><span class="line"></span><br><span class="line">COMPUTE-PREFIX-FUNCTION(P)</span><br><span class="line">    m=P.length</span><br><span class="line">    let π[1..m] be a new array</span><br><span class="line">    π[1]=0</span><br><span class="line">    k=0</span><br><span class="line">    for q=2 to m</span><br><span class="line">        while k&gt;0 and P[k+1]≠P[q]</span><br><span class="line">            k=π[k]</span><br><span class="line">        if P[k+1] == P[q]</span><br><span class="line">            k=k+1</span><br><span class="line">        π[q]=k</span><br><span class="line">    return π</span><br></pre></td></tr></table></figure>
+
+<h3 id="next-数组"><a href="#next-数组" class="headerlink" title="next 数组"></a><code>next</code> 数组</h3><p>先了解两个定义：  </p>
+<ul>
+<li>前缀：字符串中去掉最后一个字符后，全部头部字符串组合  </li>
+<li>后缀：字符串中去掉第一个字符，全部尾部字符串组合  </li>
+</ul>
+<p>比如：字符串 <code>bread</code>，其前缀和后缀分别为：  </p>
+<ul>
+<li>前缀：<code>b, br, bre, brea</code>  </li>
+<li>后缀：<code>read, ead, ad, d</code>  </li>
+</ul>
+<p>根据以上定义，我们计算模式 <code>ABCDABD</code> 中，每个子串前后缀的<strong>最长共有元素长度</strong>：  </p>
+<table>
+<thead>
+<tr>
+<th>模式的子串</th>
+<th>前缀</th>
+<th>后缀</th>
+<th>最长共有元素</th>
+<th>长度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>空集</td>
+<td>空集</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>AB</td>
+<td>A</td>
+<td>B</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ABC</td>
+<td>A, AB</td>
+<td>BC, C</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ABCD</td>
+<td>A, AB, ABC</td>
+<td>BCD, BC, D</td>
+<td>无</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ABCDA</td>
+<td>A, AB, ABC, ABCD</td>
+<td>BCDA, CDA, CD, A</td>
+<td>A</td>
+<td>1</td>
+</tr>
+<tr>
+<td>ABCDAB</td>
+<td>A, AB, ABC, ABCD, ABCDA</td>
+<td>BCDAB, CDAB, DAB, AB, B</td>
+<td>AB</td>
+<td>2</td>
+</tr>
+<tr>
+<td>ABCDABD</td>
+<td>A, AB, ABC, ABCD, ABCDA, ABCDAB</td>
+<td>BCDABD, CDABD, DABD, ABD, BD, D</td>
+<td>无</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>最长共有元素长度，表示有相同前后缀的长度。这也是 <code>KMP</code> 算法的核心，当出现不匹配字符时，利用前面已知的已经匹配的字符，不需要把文本字符串下标回退，而是利用具有相同前后缀信息，直接将模式向后移动。  </p>
+</blockquote>
+<p><code>next</code> 数组：记录了每个元素<strong>前的</strong>子串前后缀最长共有元素长度，其中 <code>next</code> 数组第一位默认为 -1 。（而模式本身对应的最长共有元素长度舍弃掉）</p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-array.png" alt="0102-strings-search-kmp-next-array.png"></p>
+<h3 id="模式移动位数"><a href="#模式移动位数" class="headerlink" title="模式移动位数"></a>模式移动位数</h3><blockquote>
+<p>移动位数 = 失配字符所在位置 - 失配字符对应的 <code>next</code> 值。（字符位置从 0 开始计数）  </p>
+</blockquote>
+<p>使用下标 <code>j</code> 记录模式中不匹配字符所在位置，该位置对应的 <code>next[j]=k</code> ，即前后缀最长共有元素长度为 <code>k</code>。那么移动位数为：<code>j - next[j]</code> 。我们用下图来表示：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-value.jpg" alt="0102-strings-search-kmp-next-value.jpg"></p>
+<p>模式在 <code>Pj</code> 和文本 <code>Si</code> 位置匹配失败，此时模式的前缀和后缀共有元素为 <code>P0 P1 ... Pk-1 = Pj-k Pj-k+1 ... Pj-1</code>，即有 <code>k</code> 个最长共有元素 <code>next[j] = k</code> 。模式向后移动位数为 <code>j - next[j]</code> ，让模式的 <code>Pk</code> 位置字符和文本 <code>Si</code> 位置字符继续匹配。也就是说：<strong>模式的下个比较的位置为 <code>j=k=next[j]</code></strong> 。  </p>
+<blockquote>
+<p><code>next[j]</code> 的实际意义为：模式匹配过程中，如果该位置字符不匹配，模式从 <code>next[j]</code> 位置开始和文本的第 <code>i</code> 个位置继续比较。也就是说 <code>KMP</code> 算法中，为确保文本不用回退，模式整体向后移动 <code>j-next[j]</code> 位。  </p>
+</blockquote>
+<h3 id="图解"><a href="#图解" class="headerlink" title="图解"></a>图解</h3><p>文本：<code>BBC ABCDAB ABCDABCDABDE</code> ；模式：<code>ABCDABD</code> 。  </p>
+<ul>
+<li>子字符串匹配从文本和模式的第一个字符开始比较，直到出现不匹配字符<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-1.png" alt="0102-strings-search-kmp-graph-1.png"></li>
+<li>如果是暴力匹配算法，存在文本下标回退<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-2.png" alt="0102-strings-search-kmp-graph-2.png"></li>
+<li><code>KMP</code> 算法，仅将模式向后移动<br>模式在第 6 位字符 <code>D</code> 出现不匹配，对应的 <code>next</code> 值为 2，所以模式移动位数为 6-2=4 ；模式向后移动 4 位，继续匹配。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-3.png" alt="0102-strings-search-kmp-graph-3.png"></li>
+<li>继续比较中，模式中字符 <code>C</code> 与文本的空格不匹配<br>模式在第 2 位字符 <code>C</code> 出现不匹配，对应的 <code>next</code> 值为 0，所以模式移动位数为 2-0=2 ；模式向后移动 2 位，继续匹配。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-4.png" alt="0102-strings-search-kmp-graph-4.png"></li>
+<li>继续比较中，模式中字符 <code>A</code> 与文本的空格不匹配<br>此次比较模式的第一个字符就不匹配，模式和文本同时向后移动一位，继续比较。  </li>
+<li>继续比较中，直到出现不匹配字符<br>模式在第 6 位字符 <code>D</code> 和文本中的字符 <code>C</code> 不匹配，对应的 <code>next</code> 值为 2，模式向后移动 4 位，继续匹配。<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-5.png" alt="0102-strings-search-kmp-graph-5.png"></li>
+<li>模式向后移动 4 位后，匹配成功<br><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-graph-6.png" alt="0102-strings-search-kmp-graph-6.png"></li>
+</ul>
+<h2 id="KMP-算法解析"><a href="#KMP-算法解析" class="headerlink" title="KMP 算法解析"></a><code>KMP</code> 算法解析</h2><h3 id="next-数组计算"><a href="#next-数组计算" class="headerlink" title="next 数组计算"></a><code>next</code> 数组计算</h3><p><code>next</code> 数组第一位默认为 -1，假设已知 <code>0...j</code> 个字符对应的 <code>next</code> 数组值，其中第 <code>j</code> 个字符前的子串，其前后缀最长共有元素长度为 <code>k</code> ， 即 <code>next[j]=k</code>。那么：如何计算第 <code>j+1</code> 个字符串的 <code>next</code> ？  </p>
+<ul>
+<li><code>P[k] == P[j]</code>  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-1.png" alt="0102-strings-search-kmp-next-calculator-1.png"></p>
+<p>当 <code>P[k] == P[j]</code> 时，意味着第 <code>j+1</code> 个字符前的子串，其前后缀最长共有元素多了一位，即 <code>next[j+1] = next[j]+1 = k+1</code> 。  </p>
+<ul>
+<li><code>P[k] ≠ P[j]</code>  </li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-2.png" alt="0102-strings-search-kmp-next-calculator-2.png"></p>
+<p>因为前 <code>k-1</code> 个字符是相同的，而第 <code>k</code> 位和 <code>j</code> 位字符不匹配。我们换个思路来看待这个问题：将模式的前 <code>k+1</code> 个字符比作新的模式，原模式去掉新模式后剩余字符串比作新的文本。这样类比后，可以看作一个新的模式和文本匹配问题了。  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-3.png" alt="0102-strings-search-kmp-next-calculator-3.png"></p>
+<p>而 <code>next[0...k]</code> 是已知的，根据 <code>KMP</code> 算法，第 <code>k</code> 个元素出现不匹配，将新的模式整体向后移动，即新模式从 <code>k=next[k]</code> 的位置重新和 <code>j</code> 比较。这是一个递归过程，直到出现 <code>P[k] == P[j]</code> 或者 <code>k=-1</code> 为止。其中：<br>如果 <code>P[k] == P[j]</code> ， 则 <code>next[j+1]=next[k]+1=k+1</code>；<br>如果 <code>k=-1</code> ，则表示新模式的第一个字符就和新文本的第 <code>j</code> 位不相等，匹配结束没有共有元素，<code>next[j+1]=0=k+1</code>。  </p>
+<blockquote>
+<p><code>next</code> 数组计算分为两种情况：<code>k=-1</code> 或者 <code>P[k] == P[j]</code> 时，<code>next[j+1]=k+1</code>；其他情况即出现不匹配时，使用最大子串 <code>k=next[k]</code> 继续比较，即从第 <code>next[k]</code> 处开始继续比较。  </p>
+</blockquote>
+<p><code>k=next[k]</code> 的意义：表示 <code>k</code> 个字符串内部前后缀最大共有元素长度，使用该子串继续去匹配：  </p>
+<p><img src="https://raw.githubusercontent.com/redspider110/blog-images/master/_images/0102-strings-search-kmp-next-calculator-4.png" alt="0102-strings-search-kmp-next-calculator-4.png"></p>
+<h3 id="算法实现-1"><a href="#算法实现-1" class="headerlink" title="算法实现"></a>算法实现</h3><p>算法分为两部分：预处理和匹配搜索。预处理步骤用来计算 <code>next</code> 数组；匹配步骤用来从文本中搜索模式字符串。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> next[];</span><br><span class="line"><span class="comment">// 计算 next 数组</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">KMPCLRNext</span><span class="params">(String pattern)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> m = pattern.length();</span><br><span class="line">    next = <span class="keyword">new</span> <span class="keyword">int</span>[m];</span><br><span class="line">    next[<span class="number">0</span>] = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> j = <span class="number">0</span>, k = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (j &lt; m - <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// k 为 -1，表示不匹配，没有共有元素</span></span><br><span class="line">        <span class="comment">// 或者第 k 个位置的字符和第 j 个位置字符相等时</span></span><br><span class="line">        <span class="comment">// next[j+1]=k+1</span></span><br><span class="line">        <span class="keyword">if</span> (k == -<span class="number">1</span> || pattern.charAt(j) == pattern.charAt(k)) &#123;</span><br><span class="line">            next[++j] = ++k;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果出现不匹配，从第 next[k] 位置继续匹配</span></span><br><span class="line">            k = next[k];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 文本中搜索模式字符串</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">KMPCLRSearch</span><span class="params">(String text, String pattern)</span> </span>&#123;</span><br><span class="line">    KMPCLRNext(pattern);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n = text.length();</span><br><span class="line">    <span class="keyword">int</span> m = pattern.length();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (i &lt; n &amp;&amp; j &lt; m) &#123;</span><br><span class="line">        <span class="comment">// j 为 -1 时，表示模式的第一个字符和文本当前位置不匹配</span></span><br><span class="line">        <span class="comment">// 或者文本第 i 个位置字符和模式第 j 个位置字符匹配</span></span><br><span class="line">        <span class="comment">// 这两种情况：文本和模式都同时向后移动一位</span></span><br><span class="line">        <span class="keyword">if</span> (j == -<span class="number">1</span> || text.charAt(i) == pattern.charAt(j)) &#123;</span><br><span class="line">            i++;</span><br><span class="line">            j++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果模式不是在第一个字符出现的不匹配，模式向后移动 j-next[j] 位 </span></span><br><span class="line">        <span class="comment">// 即模式从第 next[j] 位置处和文本第 i 个位置字符继续匹配</span></span><br><span class="line">            j = next[j];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 匹配成功</span></span><br><span class="line">    <span class="keyword">if</span> (j == m)</span><br><span class="line">        <span class="keyword">return</span> i - j;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a href="https://github.com/redspider110/algs4/blob/master/src/main/java/edu/princeton/cs/algs4/KMP.java" target="_blank" rel="noopener">algs4:kmp</a>  </p>
+<h3 id="时间复杂度-2"><a href="#时间复杂度-2" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><p><code>KMP</code> 算法预处理步骤，需要遍历模式所有字符串（长度为 <code>m</code>），时间复杂度为 <code>O(m)</code>；搜索匹配阶段，需要遍历文本所有字符串（长度为 <code>n</code>），时间复杂度为 <code>O(n)</code>。所以整个算法时间复杂度为 <code>O(n+m)</code> 。</p>
+<h2 id="JDK-中-String-indexOf-算法"><a href="#JDK-中-String-indexOf-算法" class="headerlink" title="JDK 中 String.indexOf 算法"></a><code>JDK</code> 中 <code>String.indexOf</code> 算法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(<span class="keyword">char</span>[] source, <span class="keyword">int</span> sourceOffset, <span class="keyword">int</span> sourceCount,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">char</span>[] target, <span class="keyword">int</span> targetOffset, <span class="keyword">int</span> targetCount,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> fromIndex)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (fromIndex &gt;= sourceCount) &#123;</span><br><span class="line">        <span class="keyword">return</span> (targetCount == <span class="number">0</span> ? sourceCount : -<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (fromIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        fromIndex = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (targetCount == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> fromIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> first = target[targetOffset];</span><br><span class="line">    <span class="keyword">int</span> max = sourceOffset + (sourceCount - targetCount);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = sourceOffset + fromIndex; i &lt;= max; i++) &#123;</span><br><span class="line">        <span class="comment">/* Look for first character. */</span></span><br><span class="line">        <span class="keyword">if</span> (source[i] != first) &#123;</span><br><span class="line">            <span class="keyword">while</span> (++i &lt;= max &amp;&amp; source[i] != first);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Found first character, now look at the rest of v2 */</span></span><br><span class="line">        <span class="keyword">if</span> (i &lt;= max) &#123;</span><br><span class="line">            <span class="keyword">int</span> j = i + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int</span> end = j + targetCount - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> k = targetOffset + <span class="number">1</span>; j &lt; end &amp;&amp; source[j]</span><br><span class="line">                    == target[k]; j++, k++);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (j == end) &#123;</span><br><span class="line">                <span class="comment">/* Found whole string. */</span></span><br><span class="line">                <span class="keyword">return</span> i - sourceOffset;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从算法实现可以看出：<code>indexOf</code> 使用了暴力匹配算法。  </p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>《算法：第四版》 第 5 章  </li>
+<li>《算法导论：第三版》 第 32 章  </li>
+<li><a href="https://en.wikipedia.org/wiki/String-searching_algorithm" target="_blank" rel="noopener">Wiki-string search</a>  </li>
+<li><a href="https://blog.csdn.net/v_JULY_v/article/details/7041827" target="_blank" rel="noopener">从头到尾彻底理解KMP</a>  </li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/05/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm.html" target="_blank" rel="noopener">阮一峰：字符串匹配的KMP算法</a>  </li>
+<li><a href="https://github.com/Hapoa/blog-articles/blob/master/2018/04/KMP%E7%AE%97%E6%B3%95.md" target="_blank" rel="noopener">KMP算法</a>  </li>
+<li><a href="https://www.cnblogs.com/gaochundong/p/string_matching.html" target="_blank" rel="noopener">字符串匹配算法</a>  </li>
+<li><a href="https://www.cnblogs.com/zhangboy/p/7635627.html" target="_blank" rel="noopener">字符串匹配KMP算法详解</a>  </li>
+<li><a href="http://www.cnblogs.com/yjiyjige/p/3263858.html" target="_blank" rel="noopener">详解KMP算法 next 数组</a>  </li>
+<li><a href="https://www.cnblogs.com/tangzhengyue/p/4315393.html" target="_blank" rel="noopener">KMP算法的Next数组详解</a>  </li>
+<li><a href="https://www.bilibili.com/video/av3246487" target="_blank" rel="noopener">KMP 算法视频</a>  </li>
+<li><a href="https://stackoverflow.com/questions/12752274/java-indexofstring-str-method-complexity" target="_blank" rel="noopener">stackoverflow: indexof 时间复杂度</a>  </li>
+<li><a href="https://stackoverflow.com/questions/19543547/why-does-string-indexof-not-use-kmp" target="_blank" rel="noopener">stackoverflow: indexof 为什么不使用 kmp</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2018/09/12/0102-algorithms-strings-search-kmp/" title="算法 - 子字符串匹配 KMP 算法">http://redspider110.github.io/2018/09/12/0102-algorithms-strings-search-kmp/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithms/" rel="tag"># Algorithms</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/11/0101-algorithms-spt-samples/" rel="next" title="算法 - 最短路径应用场景">
+                <i class="fa fa-chevron-left"></i> 算法 - 最短路径应用场景
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/18/0103-algorithms-strings-search-bm/" rel="prev" title="算法 - 子字符串匹配 BM 算法">
+                算法 - 子字符串匹配 BM 算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间复杂度"><span class="nav-number">1.2.</span> <span class="nav-text">时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#暴力匹配算法"><span class="nav-number">2.</span> <span class="nav-text">暴力匹配算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法实现"><span class="nav-number">2.1.</span> <span class="nav-text">算法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间复杂度-1"><span class="nav-number">2.2.</span> <span class="nav-text">时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KMP-算法基础概念"><span class="nav-number">3.</span> <span class="nav-text">KMP 算法基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#伪代码"><span class="nav-number">3.1.</span> <span class="nav-text">伪代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#next-数组"><span class="nav-number">3.2.</span> <span class="nav-text">next 数组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模式移动位数"><span class="nav-number">3.3.</span> <span class="nav-text">模式移动位数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图解"><span class="nav-number">3.4.</span> <span class="nav-text">图解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KMP-算法解析"><span class="nav-number">4.</span> <span class="nav-text">KMP 算法解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#next-数组计算"><span class="nav-number">4.1.</span> <span class="nav-text">next 数组计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#算法实现-1"><span class="nav-number">4.2.</span> <span class="nav-text">算法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间复杂度-2"><span class="nav-number">4.3.</span> <span class="nav-text">时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-中-String-indexOf-算法"><span class="nav-number">5.</span> <span class="nav-text">JDK 中 String.indexOf 算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

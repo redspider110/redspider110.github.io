@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,OpenSourceLibary,Android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本概念Dagger2 依赖注入框架，用来解耦类关系。特别是 MVP 分层结构中，方便解耦和分层测试A fast dependency injector for Android and Java.仓库地址：https://github.com/google/dagger">
+<meta name="keywords" content="Java,OpenSourceLibary,Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dagger2">
+<meta property="og:url" content="http://redspider110.github.io/2017/11/24/0012-dagger2/index.html">
+<meta property="og:site_name" content="Earth Guardian">
+<meta property="og:description" content="基本概念Dagger2 依赖注入框架，用来解耦类关系。特别是 MVP 分层结构中，方便解耦和分层测试A fast dependency injector for Android and Java.仓库地址：https://github.com/google/dagger">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-18T09:30:13.337Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dagger2">
+<meta name="twitter:description" content="基本概念Dagger2 依赖注入框架，用来解耦类关系。特别是 MVP 分层结构中，方便解耦和分层测试A fast dependency injector for Android and Java.仓库地址：https://github.com/google/dagger">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://redspider110.github.io/2017/11/24/0012-dagger2/">
+
+
+
+
+
+  <title>Dagger2 | Earth Guardian</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?faa79b658398065f8158bf82b6221b6d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Earth Guardian</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">You are not LATE!You are not EARLY!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://redspider110.github.io/2017/11/24/0012-dagger2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="redspider110">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Earth Guardian">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dagger2</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-24T11:00:30+08:00">
+                2017-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenSourceLibary/" itemprop="url" rel="index">
+                    <span itemprop="name">OpenSourceLibary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><code>Dagger2</code> 依赖注入框架，用来解耦类关系。特别是 <code>MVP</code> 分层结构中，方便解耦和分层测试<br><code>A fast dependency injector for Android and Java.</code><br>仓库地址：<code>https://github.com/google/dagger</code>  </p>
+<a id="more"></a>
+
+<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><ul>
+<li>build.gradle  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    ...</span><br><span class="line">    // Better IDE support for annotations (so Android Studio interacts better with Dagger)</span><br><span class="line">    classpath &apos;com.neenbedankt.gradle.plugins:android-apt:1.8&apos;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>app/build.gradle  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: &apos;com.neenbedankt.android-apt&apos;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    ...</span><br><span class="line">    // Dagger dependencies</span><br><span class="line">    apt &quot;com.google.dagger:dagger-compiler:2.11&quot;</span><br><span class="line">    provided &apos;org.glassfish:javax.annotation:10.0-b28&apos;</span><br><span class="line">    compile &quot;com.google.dagger:dagger:2.11&quot;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="注解关键字"><a href="#注解关键字" class="headerlink" title="注解关键字"></a>注解关键字</h2><h3 id="Inject"><a href="#Inject" class="headerlink" title="Inject"></a>Inject</h3><ul>
+<li>标注变量<br>要求 <code>Dagger</code> 为该变量提供依赖，实例化该变量。不能用 <code>private</code> 修饰符修饰该变量      </li>
+<li>标注构造函数<br><code>@Inject</code> 标记了的变量在需要这个类实例的时候，<code>Dagger</code> 会找到这个构造函数并将其实例化。也就是 <code>@Inject</code> 标记的构造函数为 <code>@Inject</code> 标记的变量提供依赖（实例化）。构造函数的参数不需要使用 <code>NonNull</code> 标注，<code>Dagger</code> 会做强制检测     </li>
+<li>标注方法<br>标注的方法会自动在构造函数完成实例化后调用  </li>
+</ul>
+<h3 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h3><p>格式：<code>@Module(includes = {*module.class})</code><br><code>@Module</code> 注释类，用于标注<strong>提供依赖</strong>的类。和被 <code>@Inject</code> 标记的构造函数功能类似。但是有时候提供依赖的构造函数是第三方库，无法通过 <code>@Inject</code> 来标注；而且如果构造函数带参数，<code>@Inject</code> 也无法提供参数，所以需要 <code>@Module</code> 来标注。<code>Module</code> 类是一个简单工厂模式，通过 <code>@Provider</code> 提供三个重要功能：   </p>
+<ul>
+<li>给 <code>@Inject</code> 变量提供实例    </li>
+<li>给 <code>@Inject</code> 构造函数提供参数    </li>
+<li>给其他 <code>@Module</code> 中的 <code>@Provider</code> 方法提供参数   </li>
+</ul>
+<p><code>@Inject</code>（构造函数）和 <code>@Module</code> 都可以提供依赖（实例化）， <code>Dagger2</code> 会如何选择呢？具体规则如下：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">步骤1：首先查找 @Module 标注的类中是否存在提供依赖的方法 @Provider。</span><br><span class="line">步骤2：若存在提供依赖的方法（实例化），查看该方法是否存在参数。</span><br><span class="line">    a：若存在参数，则按从步骤1开始依次初始化每个参数（开始查找参数的依赖关系，即参数的实例化是否存在依赖注入）；</span><br><span class="line">    b：若不存在，则直接初始化该类实例，完成一次依赖注入。</span><br><span class="line">步骤3：若不存在提供依赖的方法，则查找 @Inject 标注的构造函数，看构造函数是否存在参数。</span><br><span class="line">    a：若存在参数，则从步骤1开始依次初始化每一个参数</span><br><span class="line">    b：若不存在，则直接初始化该类实例，完成一次依赖注入。</span><br></pre></td></tr></table></figure>
+
+<p>所以：创建类实例级别 <code>@Module</code> 维度要高于 <code>@Inject</code> 维度   </p>
+<h3 id="Provider"><a href="#Provider" class="headerlink" title="Provider"></a>Provider</h3><p>注释方法，以 <code>provide</code> 作为前缀，必须出现在有 <code>@Module</code> 注释的类中   </p>
+<blockquote>
+<p>它是根据返回值类型来标识和匹配的，<strong>方法名并不重要</strong>，只需要保证以 <code>provide</code> 开头方便阅读即可   </p>
+</blockquote>
+<p>这里细化下 <code>@Module</code> 通过 <code>@Provider</code> 提供的三个功能：  </p>
+<ul>
+<li>给 <code>@Inject</code> 变量提供实例<br>也就是将实例化放到了 <code>Module</code> 中  </li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Module</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TasksRepositoryModule</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Singleton</span></span><br><span class="line">    <span class="meta">@Provides</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TasksDataSource <span class="title">provideTasksDataSource</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> TasksDataSource(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>给 <code>@Inject</code> 构造函数提供参数    </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 构造函数及所需参数</span><br><span class="line">@Inject</span><br><span class="line">public TaskDetailPresenter(long taskID, TasksDataSource </span><br><span class="line">        tasksDataSource, TaskDetailContract.View taskDetailView) &#123;</span><br><span class="line">    mTaskID = taskID;</span><br><span class="line">    mTasksDataSource = tasksDataSource;</span><br><span class="line">    mTaskDetailView = taskDetailView;        </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应类构造函数所需参数，可以通过 <code>Module</code> 的构造函数，将参数传递进来  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对应 module 代码  </span></span><br><span class="line"><span class="meta">@Module</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskDetailPresenterModule</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> TaskDetailContract.View mTaskDetailView;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> mTaskID = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提供构造函数的两个参数，通过实例化 Module 的方式传递进来</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TaskDetailPresenterModule</span><span class="params">(TaskDetailContract.View view, <span class="keyword">long</span> taskID)</span> </span>&#123;</span><br><span class="line">        mTaskDetailView = view;</span><br><span class="line">        mTaskID = taskID;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Provides</span></span><br><span class="line">    <span class="keyword">public</span> TaskDetailContract.<span class="function">View <span class="title">provideTaskDetailContractView</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mTaskDetailView;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Provides</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">provideTaskID</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mTaskID;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>给其他 <code>@Module</code> 中的 <code>@Provider</code> 方法提供参数<br>该方式需要通过后面介绍的 <code>@Component</code> 将多个 <code>@Module</code> 类连接起来才能生效。给其他 <code>@Module</code> 中的 <code>@Provider</code> 方法提供参数依赖（实例化）    </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@Module</span><br><span class="line">public class TasksRepositoryModule &#123;</span><br><span class="line">    @Singleton</span><br><span class="line">    @Provides</span><br><span class="line">    public TasksDataSource provideTasksDataSource(Context context)&#123;</span><br><span class="line">        return new TasksDataSource(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// ApplicationModule 为 TasksRepositoryModule 的 @Provider 提供参数 context  </span><br><span class="line">// 而 ApplicationModule 的 context 来自于自身构造函数的传参  </span><br><span class="line">// 通过 @Component 来连接两个 @Module</span><br><span class="line">@Module</span><br><span class="line">public class ApplicationModule &#123;    </span><br><span class="line">    private Context context;    </span><br><span class="line">    public ApplicationModule(Context context)&#123;</span><br><span class="line">        context = context;</span><br><span class="line">    &#125;    </span><br><span class="line">    @Provides</span><br><span class="line">    Context providerContext()&#123;</span><br><span class="line">        return context;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Binds"><a href="#Binds" class="headerlink" title="Binds"></a>Binds</h3><p>用来简化 <code>@Provider</code> 的注解     </p>
+<ul>
+<li>被注解的方法必须是抽象   </li>
+<li>必须指定返回类型，也就是类似 <code>@Provider</code> 的返回值   </li>
+</ul>
+<p>示例：将 <code>Random</code> 绑定到 <code>SecureRandom</code> 上：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Binds</span></span><br><span class="line"><span class="function"><span class="keyword">abstract</span> Random <span class="title">bindRandom</span><span class="params">(SecureRandom secureRandom)</span></span>;</span><br><span class="line"></span><br><span class="line">简化如下方案：</span><br><span class="line"><span class="meta">@Provider</span></span><br><span class="line"><span class="function">Random <span class="title">bindRandom</span><span class="params">(SecureRandom secureRandom)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> secureRandom;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h3><p>接口或抽象类，是依赖需求方 (<code>@Inject</code>) 和依赖提供方 (<code>@Module</code>) 之间的桥梁。在编译过程中 <code>Dagger</code> 会自动生成对应的实现类 <code>Dagger***Component</code>   </p>
+<blockquote>
+<p>如果 <code>@Component</code> 标记的类不是顶级类，生成的实现类格式为 <code>DaggerA_B_function</code> ，类结构之间增加下划线  </p>
+</blockquote>
+<h4 id="注解格式"><a href="#注解格式" class="headerlink" title="注解格式"></a>注解格式</h4><p>格式：<code>@Component(dependencies = {*component.class}, modules = {*modules.class})</code><br>参数 <code>dependencies</code> ：表示 <code>Component</code> 和 <code>Component</code> 之间的依赖关系<br>参数 <code>module</code> ：表示依赖提供方<br>示例：  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FragmentScoped</span></span><br><span class="line"><span class="meta">@Component</span> (dependencies = TasksRepositoryComponent.class, </span><br><span class="line">        modules = TaskDetailPresenterModule.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TaskDetailComponent</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Component-注解的接口或抽象类"><a href="#Component-注解的接口或抽象类" class="headerlink" title="@Component 注解的接口或抽象类"></a><code>@Component</code> 注解的接口或抽象类</h4><p>必须包含 <code>Provision methods</code> 或者 <code>Members-injection methods</code> 其中的一种方法  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Singleton</span><br><span class="line">@Component(modules = DataRepositoryModule.class)</span><br><span class="line">public interface AppComponent &#123;</span><br><span class="line">    // Provision methods，使用 @Inject 注解了 DataRepository 变量</span><br><span class="line">    DataRepository getDataRepository();</span><br><span class="line">    @Component.Builder</span><br><span class="line">    interface Builder&#123;</span><br><span class="line">        @BindsInstance</span><br><span class="line">        AppComponent.Builder providerContext(Context context);</span><br><span class="line">        AppComponent build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Provision methods</code>：该方法没有参数，但是返回值必须为 <code>@Inject</code> 注解变量的类型或者注解过的构造函数的类（也就是依赖需求方），或者为 <code>@Provider</code> 返回值类型：<code>DataRepository getDataRepository();</code>  </p>
+<p><code>Members-injection methods</code>：该方法满足下面条件之一：  </p>
+<ul>
+<li>返回值为 <code>void</code> 或者 传入的参数类型，此时方法必须且只能包含一个参数，该参数为 <code>@Inject</code> 注解所在类的类型  </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// @Inject 在 TaskDetailActivity 中</span><br><span class="line">void inject(TaskDetailActivity activity);</span><br><span class="line">SomeType injectAndReturnSomeType(SomeType someType);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>返回值为 <code>MembersInjector</code> 类型，可以没有参数<br><code>MembersInjector&lt;SomeType&gt; getSomeTypeMembersInjector();</code>    </li>
+</ul>
+<h4 id="获取-Component-实例"><a href="#获取-Component-实例" class="headerlink" title="获取 Component 实例"></a>获取 <code>Component</code> 实例</h4><p>格式：<code>Dagger***Component.builder().***初始化参数***.build()</code>，举例：   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mTasksRepositoryComponent = DaggerTasksRepositoryComponent.builder()</span><br><span class="line">    .applicationModule(<span class="keyword">new</span> ApplicationModule(getApplicationContext()))</span><br><span class="line">    .build();</span><br></pre></td></tr></table></figure>
+
+<p><code>@Component</code> 在实例化时，会将对应的所有 <code>@Module</code> 全都实例化，此时可以通过 <code>@Module</code> 构造函数传入参数     </p>
+<h4 id="Component-Builder"><a href="#Component-Builder" class="headerlink" title="@Component.Builder"></a>@Component.Builder</h4><p>默认是不需要重新定义的。如果需要通过 <code>@Component</code> 将参数传递给 <code>@Module</code> 的 <code>@Provider</code> 中，我们可以在这里定义 <code>@BindsInstance</code>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component.Builder</span><br><span class="line">interface Builder&#123;</span><br><span class="line">    // 传递 Context</span><br><span class="line">    @BindsInstance</span><br><span class="line">    AppComponent.Builder providerContext(Context context);</span><br><span class="line">    AppComponent build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意 <code>@Component.Builder</code> 需要满足几点条件，具体参考 <code>Dagger</code> 的文档。其中必须有一个 <code>build</code> 返回值为 <code>@Component</code> 类， 每次只能传递一个参数并且返回值为 <code>Builder</code> 类型。 </p>
+<h3 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h3><p>用于自定义的注解，限定注解作用域，实现局部的单例   </p>
+<h3 id="Singleton"><a href="#Singleton" class="headerlink" title="Singleton"></a>Singleton</h3><p>注解表示为单例模式。但是 <code>Dagger</code> 并没有真正的创建单例，需要我们手动写代码确保只实例化一次。<code>@Singleton</code> 需要同时标记 <code>Provider</code> 和 <code>Component</code>，并且我们把实例化该 <code>Component</code> 放到 <code>Application.onCreate</code> 中，确保只会实例化一次，这样才能体现出单例模式的效果。作用：  </p>
+<ul>
+<li>更好的管理 <code>Component</code> 和 <code>Module</code> 之间的关系，保证它们是匹配的。如果两者的 <code>Scope</code> 是不一样的，则在编译时报错   </li>
+<li>代码可读性，更好的了解 <code>Module</code> 中创建的类实例是单例   </li>
+</ul>
+<h3 id="Qulifier"><a href="#Qulifier" class="headerlink" title="Qulifier"></a>Qulifier</h3><p>用于自定义注解，精确指定 <code>@Module</code> 和 <code>Inject</code> 的依赖对应关系。<br><code>@Module</code> 来标注提供依赖的方法时，方法名可以随便定义的，但是为了增加可读性，一般以 <code>provide</code> 开头。<code>Dagger2</code> 主要是根据返回值的类型来决定为哪个被 <code>@Inject</code> 标记了的变量赋值。但是如果有多个一样的返回类型，就无法区分了。因此使用 <code>@Qulifier</code> 来自定义一个注解，然后通过自定义的注解去标注提供依赖的方法和依赖需求方，这样就能精确匹配了。<br>一个更为精简的定义：当类型不足以鉴别一个依赖的时候，我们就可以使用<code>@Qulifier</code> 这个注解标示。  </p>
+<h2 id="常规步骤"><a href="#常规步骤" class="headerlink" title="常规步骤"></a>常规步骤</h2><h3 id="引入依赖文件"><a href="#引入依赖文件" class="headerlink" title="引入依赖文件"></a>引入依赖文件</h3><p>在 <code>build.gradle</code> 和 <code>app/build.gradle</code> 中添加依赖，并选择 <code>Sync Project</code> 同步并下载这些第三方包    </p>
+<h3 id="Inject-标注"><a href="#Inject-标注" class="headerlink" title="Inject 标注"></a>Inject 标注</h3><p>标注需要依赖的变量，或者提供依赖的构造函数  </p>
+<h3 id="实现-Module-和-Provider"><a href="#实现-Module-和-Provider" class="headerlink" title="实现 @Module  和 @Provider"></a>实现 @Module  和 @Provider</h3><p>根据 <code>Inject</code> 来设计 <code>Module</code>   </p>
+<ul>
+<li><code>Inject</code> 标注了构造函数<br><code>Module</code> 可以提供构造函数所需参数    </li>
+<li><code>Inject</code> 没有标注构造函数<br><code>Module</code> 直接实例化并提供返回值    </li>
+</ul>
+<h3 id="实现-Component"><a href="#实现-Component" class="headerlink" title="实现 @Component"></a>实现 @Component</h3><ul>
+<li>指定范围 <code>Scoped</code>   </li>
+<li>选定依赖和指定对应的 <code>Module</code>   </li>
+<li><code>@Inject</code> 标注的依赖变量，如果需要实例化，需要将变量所在类传递给 <code>Component</code><br><code>void inject(TaskDetailActivity activity);</code>  </li>
+</ul>
+<h3 id="编译项目"><a href="#编译项目" class="headerlink" title="编译项目"></a>编译项目</h3><p><code>Dagger</code> 自动生成 <code>Module</code> 和 <code>Component</code> 对应的文件    </p>
+<h3 id="关联注入"><a href="#关联注入" class="headerlink" title="关联注入"></a>关联注入</h3><p><code>Dagger***Component</code> 实现注入并实例化 <code>@Inject</code> 标注的变量    </p>
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>如果觉得 <code>Dagger</code> 生成的不对，可以 <code>clean</code> 整个工程，重新生成一次。有的时候只修改 <code>@Inject</code> 注解，并不会正确的生成对应代码，需要 <code>clean &amp; remake</code> 才行   </p>
+<h2 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h2><h3 id="没有提供依赖实例化方法"><a href="#没有提供依赖实例化方法" class="headerlink" title="没有提供依赖实例化方法"></a>没有提供依赖实例化方法</h3><p><code>@Inject</code> 注解成员后，没有注解构造函数，导致如下错误：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\xmt\AndroidStudioProjects\xmt\gitlab\02_myTodo\myTodo\app\src\main\java\com\ymzs\todo\mytodo\ToDoApplication.java</span><br><span class="line">Error:(5, 33) 错误: 找不到符号</span><br><span class="line">符号:   类 DaggerTaskRepositoryComponent</span><br><span class="line">位置: 程序包 com.***.mytodo.data</span><br><span class="line">C:\Users\xmt\AndroidStudioProjects\xmt\gitlab\02_myTodo\myTodo\app\src\main\java\com\ymzs\todo\mytodo\tasks\TasksComponent.java</span><br><span class="line">Error:(13, 10) 错误: com.***.mytodo.tasks.TasksPresenter cannot be provided without an @Inject constructor or from an @Provides- or @Produces-annotated method.</span><br><span class="line">com.***.mytodo.tasks.TasksPresenter is injected at</span><br><span class="line">com.***.mytodo.tasks.TasksActivity.mTasksPresenter</span><br><span class="line">com.***.mytodo.tasks.TasksActivity is injected at</span><br><span class="line">com.***.mytodo.tasks.TasksComponent.inject(activity)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Component-没有定义范围"><a href="#Component-没有定义范围" class="headerlink" title="@Component 没有定义范围"></a><code>@Component</code> 没有定义范围</h3><p>没有定义 <code>scoped</code> 的 <code>@Component</code> 不能依赖一个定义了 <code>scoped</code> 的 <code>@Component</code>，否则导致如下报错：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:(13, 1) 错误: com.***.mytodo.tasks.TasksPresenterComponent (unscoped) cannot depend on scoped components:</span><br><span class="line">@Singleton com.***.mytodo.data.TasksRepositoryComponent</span><br></pre></td></tr></table></figure>
+
+<h3 id="Inject-标注私有字段"><a href="#Inject-标注私有字段" class="headerlink" title="@Inject 标注私有字段"></a><code>@Inject</code> 标注私有字段</h3><p><code>@Inject</code> 不支持注解私有字段，否则会导致如下错误：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Error:(5, 33) 错误: 找不到符号</span><br><span class="line">符号:   类 DaggerTasksRepositoryComponent</span><br><span class="line">位置: 程序包 com.***.mytodo.data</span><br><span class="line">C:\Users\xmt\AndroidStudioProjects\xmt\gitlab\02_myTodo\myTodo\app\src\main\java\com\ymzs\todo\mytodo\tasks\TasksActivity.java</span><br><span class="line">Error:(27, 28) 错误: Dagger does not support injection into private fields</span><br><span class="line">C:\Users\xmt\AndroidStudioProjects\</span><br></pre></td></tr></table></figure>
+
+<h3 id="Binds-注解的方法，没有提供输入参数"><a href="#Binds-注解的方法，没有提供输入参数" class="headerlink" title="@Binds 注解的方法，没有提供输入参数"></a><code>@Binds</code> 注解的方法，没有提供输入参数</h3><p><code>Error:(18, 20) 错误: android.app.Application cannot be provided without an @Inject constructor or from an @Provides-annotated method.</code><br>被 <code>@Binds</code> 注解的方法，必须要提供一个 <code>@Inject</code> 构造函数或者一个 <code>@Provides</code> 注解的方法：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Binds</span><br><span class="line">abstract Context bindContext(Application application);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Component-Builder-必须要有一个无参方法返回-Component-类型"><a href="#Component-Builder-必须要有一个无参方法返回-Component-类型" class="headerlink" title="@Component.Builder 必须要有一个无参方法返回 @Component 类型"></a><code>@Component.Builder</code> 必须要有一个无参方法返回 <code>@Component</code> 类型</h3><p><code>Error:(21, 5) 错误: @Component.Builder types must have exactly one no-args method that  returns the @Component type</code><br>必须要有一个无参方法返回 <code>@Component</code> 类型，这个可以理解为 <code>build()</code> 提供该 <code>Component</code> 的实例   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component.Builder</span><br><span class="line">interface Builder&#123;</span><br><span class="line">    // 必须包含一个无参方法</span><br><span class="line">    AppComponent build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ol>
+<li><a href="https://google.github.io/dagger/" target="_blank" rel="noopener">官网文档</a>  </li>
+<li><a href="http://www.jianshu.com/p/cd2c1c9f68d4" target="_blank" rel="noopener">Android:dagger2基础注入框架</a>  </li>
+<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0519/2892.html" target="_blank" rel="noopener">详解Dagger2</a>  </li>
+<li><a href="https://github.com/BaronZ88/Blog/blob/master/%E5%BC%80%E6%BA%90%E6%A1%86%E6%9E%B6%E8%A7%A3%E6%9E%90/Dagger2/%E7%A5%9E%E5%85%B5%E5%88%A9%E5%99%A8Dagger2.md" target="_blank" rel="noopener">神兵利器Dagger2</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    redspider110
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://redspider110.github.io/2017/11/24/0012-dagger2/" title="Dagger2">http://redspider110.github.io/2017/11/24/0012-dagger2/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/OpenSourceLibary/" rel="tag"># OpenSourceLibary</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/20/0011-design-patterns-summary/" rel="next" title="设计模式概览">
+                <i class="fa fa-chevron-left"></i> 设计模式概览
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/24/0013-rxjava/" rel="prev" title="RxJava">
+                RxJava <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="redspider110">
+            
+              <p class="site-author-name" itemprop="name">redspider110</p>
+              <p class="site-description motion-element" itemprop="description">地球卫士</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">124</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+            <div class="cc-license motion-element" itemprop="license">
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+                <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+              </a>
+            </div>
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖"><span class="nav-number">2.</span> <span class="nav-text">依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解关键字"><span class="nav-number">3.</span> <span class="nav-text">注解关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Inject"><span class="nav-number">3.1.</span> <span class="nav-text">Inject</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Module"><span class="nav-number">3.2.</span> <span class="nav-text">Module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Provider"><span class="nav-number">3.3.</span> <span class="nav-text">Provider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binds"><span class="nav-number">3.4.</span> <span class="nav-text">Binds</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Component"><span class="nav-number">3.5.</span> <span class="nav-text">Component</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#注解格式"><span class="nav-number">3.5.1.</span> <span class="nav-text">注解格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Component-注解的接口或抽象类"><span class="nav-number">3.5.2.</span> <span class="nav-text">@Component 注解的接口或抽象类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取-Component-实例"><span class="nav-number">3.5.3.</span> <span class="nav-text">获取 Component 实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Component-Builder"><span class="nav-number">3.5.4.</span> <span class="nav-text">@Component.Builder</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scope"><span class="nav-number">3.6.</span> <span class="nav-text">Scope</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Singleton"><span class="nav-number">3.7.</span> <span class="nav-text">Singleton</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Qulifier"><span class="nav-number">3.8.</span> <span class="nav-text">Qulifier</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常规步骤"><span class="nav-number">4.</span> <span class="nav-text">常规步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引入依赖文件"><span class="nav-number">4.1.</span> <span class="nav-text">引入依赖文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inject-标注"><span class="nav-number">4.2.</span> <span class="nav-text">Inject 标注</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现-Module-和-Provider"><span class="nav-number">4.3.</span> <span class="nav-text">实现 @Module  和 @Provider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现-Component"><span class="nav-number">4.4.</span> <span class="nav-text">实现 @Component</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译项目"><span class="nav-number">4.5.</span> <span class="nav-text">编译项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关联注入"><span class="nav-number">4.6.</span> <span class="nav-text">关联注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意"><span class="nav-number">4.7.</span> <span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见错误"><span class="nav-number">5.</span> <span class="nav-text">常见错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#没有提供依赖实例化方法"><span class="nav-number">5.1.</span> <span class="nav-text">没有提供依赖实例化方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Component-没有定义范围"><span class="nav-number">5.2.</span> <span class="nav-text">@Component 没有定义范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inject-标注私有字段"><span class="nav-number">5.3.</span> <span class="nav-text">@Inject 标注私有字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binds-注解的方法，没有提供输入参数"><span class="nav-number">5.4.</span> <span class="nav-text">@Binds 注解的方法，没有提供输入参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Component-Builder-必须要有一个无参方法返回-Component-类型"><span class="nav-number">5.5.</span> <span class="nav-text">@Component.Builder 必须要有一个无参方法返回 @Component 类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">redspider110</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

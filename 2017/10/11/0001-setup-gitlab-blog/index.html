@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Earth Guardian">
 <meta property="og:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-18T10:05:13.010Z">
+<meta property="og:updated_time" content="2019-09-19T02:22:30.673Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gitlab 搭建个人 Blog">
 <meta name="twitter:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
@@ -496,6 +496,18 @@
 <h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3><p>上一步拿到了 <code>github pages</code> 仓库地址：<code>git@github.com:***/***.github.io.git</code>，修改当前博客的配置文件 <code>_config.yml</code>：  </p>
 <figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/_config.yml b/_config.yml</span><br><span class="line">index a7356be..e3ea455 100644</span><br><span class="line"><span class="comment">--- a/_config.yml</span></span><br><span class="line"><span class="comment">+++ b/_config.yml</span></span><br><span class="line">@@ -12,9 +12,11 @@ timezone: Asia/Shanghai</span><br><span class="line"></span><br><span class="line"> # URL</span><br><span class="line"> ## If your site is put in a subdirectory, </span><br><span class="line"> # set url as 'http://yoursite.com/child' and root as '/child/'</span><br><span class="line"><span class="deletion">-url: /</span></span><br><span class="line"><span class="deletion">-root: "/***.gitlab.io/"</span></span><br><span class="line"><span class="addition">+url: http://***.github.io</span></span><br><span class="line"><span class="addition">+root: /</span></span><br><span class="line"> permalink: :year/:month/:day/:title/</span><br><span class="line"> permalink_defaults:</span><br><span class="line"></span><br><span class="line">@@ -79,9 +81,9 @@ theme: next</span><br><span class="line"> # Deployment</span><br><span class="line"> ## Docs: https://hexo.io/docs/deployment.html</span><br><span class="line"> deploy:</span><br><span class="line"><span class="deletion">-  type:git</span></span><br><span class="line"><span class="deletion">-  repo:git@gitlab.com:***/***.gitlab.io.git</span></span><br><span class="line"><span class="deletion">-  branch:master</span></span><br><span class="line"><span class="addition">+  type: git</span></span><br><span class="line"><span class="addition">+  repo: git@github.com:***/***.github.io.git</span></span><br><span class="line"><span class="addition">+  branch: master</span></span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>注意：有些公司可能会屏蔽 <code>github</code> 的 <code>ssh</code> 连接，因此 <code>repo</code> 中需要使用 <code>https</code> 的免密方式来访问 <code>github</code> 。  </p>
+</blockquote>
+<ul>
+<li><p>问题描述<br>使用 <code>ssh</code> 来测试是否能正确访问 <code>github</code> ，提示 <code>22</code> 端口被 <code>reset</code> ；原因是公司可能开防火墙等封了这种访问方式。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br><span class="line">Connection reset by 52.74.223.119 port 22</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解决方案<br>在 <code>_config.xml</code> 中使用 <code>https</code> 方式，显示指定账号密码来访问：  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#  repo: git@github.com:***/***.github.io.git</span><br><span class="line">  repo: https://username:password@github.com/username/username.github.io.git</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
 <h3 id="安装-hexo-deployer-git"><a href="#安装-hexo-deployer-git" class="headerlink" title="安装 hexo-deployer-git"></a>安装 <code>hexo-deployer-git</code></h3><ul>
 <li>安装<br><code>npm install --save hexo-deployer-git</code> ，安装 <code>hexo-deployer-git</code> 发布工具。  </li>
 <li>配置<br>安装完 <code>hexo-deployer-git</code> 工具后，执行 <code>hexo d -g</code> 后会在当前 <code>blog</code> 目录下，生成 <code>.deployer-git</code> 目录，它是一个 <code>.git</code> 仓库，我们使用 <code>hexo d</code> 命令发布时，也就是将该 <code>.git</code> 仓库提交到远程目标仓库上。<br>使用 <code>git config user.name/email</code> 配置远程仓库的访问账号。  </li>

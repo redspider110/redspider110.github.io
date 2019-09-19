@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Earth Guardian">
 <meta property="og:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-18T09:30:13.332Z">
+<meta property="og:updated_time" content="2019-09-18T10:05:13.010Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gitlab 搭建个人 Blog">
 <meta name="twitter:description" content="介绍Gitlab 已经越来越强大，同时也可以使用它提供的 pages 搭建个人静态博客官网 pages 介绍官网 doc   搭建步骤 Fork 官网推荐模板模板支持很多种静态博客：hugo, hexo, jekyll 等这里选用 hexo：hexo模板链接   Enable shared Runners在 Settings -- CI / CD -- Runners settings 中检查，是">
@@ -498,7 +498,7 @@
 
 <h3 id="安装-hexo-deployer-git"><a href="#安装-hexo-deployer-git" class="headerlink" title="安装 hexo-deployer-git"></a>安装 <code>hexo-deployer-git</code></h3><ul>
 <li>安装<br><code>npm install --save hexo-deployer-git</code> ，安装 <code>hexo-deployer-git</code> 发布工具。  </li>
-<li>配置<br>安装完 <code>hexo-deployer-git</code> 工具后，会在当前 <code>blog</code> 目录下，生成 <code>.deployer-git</code> 目录，它是一个 <code>.git</code> 仓库，我们使用 <code>hexo d</code> 命令发布时，也就是将该 <code>.git</code> 仓库提交到远程目标仓库上。<br>使用 <code>git config user.name/email</code> 配置远程仓库的访问账号。  </li>
+<li>配置<br>安装完 <code>hexo-deployer-git</code> 工具后，执行 <code>hexo d -g</code> 后会在当前 <code>blog</code> 目录下，生成 <code>.deployer-git</code> 目录，它是一个 <code>.git</code> 仓库，我们使用 <code>hexo d</code> 命令发布时，也就是将该 <code>.git</code> 仓库提交到远程目标仓库上。<br>使用 <code>git config user.name/email</code> 配置远程仓库的访问账号。  </li>
 </ul>
 <h3 id="提交和发布"><a href="#提交和发布" class="headerlink" title="提交和发布"></a>提交和发布</h3><ul>
 <li>提交<br>提交是指提交到 <code>gitlab</code> 中，使用常用的 <code>git</code> 命令 <code>commit</code> 就行。  </li>
